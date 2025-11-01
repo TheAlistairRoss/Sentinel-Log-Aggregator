@@ -1,0 +1,335 @@
+"""
+Security utilities and input sanitization for Microsoft Sentinel Log Aggregator.
+
+Provides functions for secure handling of sensitive data, input validation,
+and protection against common security vulnerabilities.
+"""
+
+import re
+import hashlib
+import secrets
+from typing import Any, Dict, List, Optional, Union
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+class SecurityError(Exception):
+    """Exception raised for security-related issues."""
+    pass
+
+
+def sanitize_log_output(data: Union[str, Dict[str, Any]], 
+                       sensitive_fields: Optional[List[str]] = None) -> Union[str, Dict[str, Any]]:
+    """
+    Sanitize data for safe logging by masking sensitive information.
+    
+    Args:
+        data: Data to sanitize (string or dictionary)
+        sensitive_fields: List of field names to mask
+        
+    Returns:
+        Sanitized data with sensitive information masked
+    """
+    if sensitive_fields is None:
+        sensitive_fields = [
+            'customer_id', 'workspace_id', 'subscription_id', 'tenant_id',
+            'access_token', 'client_secret', 'password', 'key', 'token'
+        ]
+    
+    if isinstance(data, str):
+        # Mask GUIDs and long strings that might be sensitive
+        guid_pattern = r'\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b'
+        data = re.sub(guid_pattern, lambda m: m.group()[:8] + "...", data, flags=re.IGNORECASE)
+        
+        # Mask potential tokens (long alphanumeric strings including underscores)
+        token_pattern = r'\b[A-Za-z0-9_]{16,}\b'
+        data = re.sub(token_pattern, lambda m: m.group()[:8] + "...", data)
+        
+        return data
+    
+    elif isinstance(data, dict):
+        sanitized = {}
+        for key, value in data.items():
+            if any(field.lower() in key.lower() for field in sensitive_fields):
+                if isinstance(value, str) and len(value) > 8:
+                    sanitized[key] = value[:8] + "..."
+                else:
+                    sanitized[key] = "***"
+            elif isinstance(value, dict):
+                sanitized[key] = sanitize_log_output(value, sensitive_fields)
+            elif isinstance(value, list):
+                sanitized[key] = [sanitize_log_output(item, sensitive_fields) for item in value]
+            else:
+                sanitized[key] = value
+        return sanitized
+    
+    return data
+
+
+def validate_kql_query(query: str) -> bool:
+    """
+    Validate KQL query for potential security issues.
+    
+    Args:
+        query: KQL query string to validate
+        
+    Returns:
+        True if query passes security validation
+        
+    Raises:
+        SecurityError: If query contains potentially dangerous operations
+    """
+    if not query or not query.strip():
+        raise SecurityError("Query cannot be empty")
+    
+    # List of dangerous KQL operations that should not be allowed
+    dangerous_operations = [
+        # Data modification operations
+        r'\.drop\s+table',
+        r'\.drop\s+database',
+        r'\.delete\s+table',
+        r'\.alter\s+table',
+        r'\.create\s+table',
+        r'\.set\s+',
+        r'\.append\s+',
+        r'\.ingest\s+',
+        
+        # System function calls
+        r'external_table\s*\(',
+        r'sql_request\s*\(',
+        r'evaluate\s+python\s*\(',
+        r'evaluate\s+r\s*\(',
+        
+        # Potential injection patterns
+        r'exec\s*\(',
+        r'sp_executesql',
+        r'xp_cmdshell',
+        
+        # File system access
+        r'\.show\s+files',
+        r'\.export\s+',
+        r'\.import\s+',
+    ]
+    
+    query_lower = query.lower()
+    
+    for pattern in dangerous_operations:
+        if re.search(pattern, query_lower, re.IGNORECASE):
+            raise SecurityError(f"Query contains potentially dangerous operation: {pattern}")
+    
+    # Check for excessive complexity that might indicate DoS attempts
+    if len(query) > 100000:  # 100KB limit
+        raise SecurityError("Query exceeds maximum allowed length")
+    
+    # Check for excessive nesting
+    join_count = len(re.findall(r'\bjoin\b', query_lower))
+    if join_count > 20:
+        raise SecurityError("Query contains excessive JOIN operations")
+    
+    # Check for potential time-based attacks
+    union_count = len(re.findall(r'\bunion\b', query_lower))
+    if union_count > 50:
+        raise SecurityError("Query contains excessive UNION operations")
+    
+    return True
+
+
+def validate_azure_resource_id(resource_id: str) -> bool:
+    """
+    Validate Azure resource ID format and security.
+    
+    Args:
+        resource_id: Azure resource ID to validate
+        
+    Returns:
+        True if resource ID is valid and secure
+        
+    Raises:
+        SecurityError: If resource ID is invalid or potentially malicious
+    """
+    if not resource_id:
+        raise SecurityError("Resource ID cannot be empty")
+    
+    # Azure resource ID pattern
+    resource_id_pattern = (
+        r'^/subscriptions/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+        r'/resourcegroups/[a-zA-Z0-9\-_.()]+/providers/[a-zA-Z0-9\-.]+/[a-zA-Z0-9\-_.()]+/[a-zA-Z0-9\-_.()]+$'
+    )
+    
+    if not re.match(resource_id_pattern, resource_id, re.IGNORECASE):
+        raise SecurityError("Invalid Azure resource ID format")
+    
+    # Check for suspicious characters or patterns
+    suspicious_patterns = [
+        r'\.\./',  # Path traversal
+        r'<script',  # Script injection
+        r'javascript:',  # JavaScript protocol
+        r'data:',  # Data protocol
+        r'vbscript:',  # VBScript protocol
+    ]
+    
+    for pattern in suspicious_patterns:
+        if re.search(pattern, resource_id, re.IGNORECASE):
+            raise SecurityError(f"Resource ID contains suspicious pattern: {pattern}")
+    
+    return True
+
+
+def validate_workspace_id(workspace_id: str) -> bool:
+    """
+    Validate workspace ID (customer ID) format.
+    
+    Args:
+        workspace_id: Workspace customer ID to validate
+        
+    Returns:
+        True if workspace ID is valid
+        
+    Raises:
+        SecurityError: If workspace ID is invalid
+    """
+    if not workspace_id:
+        raise SecurityError("Workspace ID cannot be empty")
+    
+    # GUID pattern
+    guid_pattern = r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+    
+    if not re.match(guid_pattern, workspace_id, re.IGNORECASE):
+        raise SecurityError("Invalid workspace ID format (must be a GUID)")
+    
+    return True
+
+
+def generate_correlation_id() -> str:
+    """
+    Generate a cryptographically secure correlation ID.
+    
+    Returns:
+        Secure random correlation ID
+    """
+    return secrets.token_hex(16)
+
+
+def hash_sensitive_data(data: str, salt: Optional[str] = None) -> str:
+    """
+    Hash sensitive data for logging or comparison purposes.
+    
+    Args:
+        data: Sensitive data to hash
+        salt: Optional salt for hashing
+        
+    Returns:
+        SHA-256 hash of the data
+    """
+    if salt is None:
+        salt = "sentinel_log_aggregator_salt"
+    
+    combined = f"{salt}{data}".encode('utf-8')
+    return hashlib.sha256(combined).hexdigest()
+
+
+def validate_file_path(file_path: str, allowed_extensions: Optional[List[str]] = None) -> bool:
+    """
+    Validate file path for security issues.
+    
+    Args:
+        file_path: File path to validate
+        allowed_extensions: List of allowed file extensions
+        
+    Returns:
+        True if file path is secure
+        
+    Raises:
+        SecurityError: If file path is potentially dangerous
+    """
+    if not file_path:
+        raise SecurityError("File path cannot be empty")
+    
+    if allowed_extensions is None:
+        allowed_extensions = ['.yaml', '.yml', '.json']
+    
+    # Check for path traversal attempts
+    if '..' in file_path or file_path.startswith('/'):
+        raise SecurityError("File path contains potentially dangerous patterns")
+    
+    # Check file extension
+    if allowed_extensions and not any(file_path.lower().endswith(ext) for ext in allowed_extensions):
+        raise SecurityError(f"File extension not allowed. Allowed extensions: {allowed_extensions}")
+    
+    # Check for suspicious characters
+    suspicious_chars = ['<', '>', '|', '&', ';', '`', '$']
+    if any(char in file_path for char in suspicious_chars):
+        raise SecurityError("File path contains suspicious characters")
+    
+    return True
+
+
+def sanitize_user_input(user_input: str, max_length: int = 1000) -> str:
+    """
+    Sanitize user input to prevent injection attacks.
+    
+    Args:
+        user_input: Raw user input
+        max_length: Maximum allowed length
+        
+    Returns:
+        Sanitized input
+        
+    Raises:
+        SecurityError: If input is potentially malicious
+    """
+    if not isinstance(user_input, str):
+        raise SecurityError("Input must be a string")
+    
+    if len(user_input) > max_length:
+        raise SecurityError(f"Input exceeds maximum length of {max_length}")
+    
+    # Remove null bytes and control characters
+    sanitized = re.sub(r'[\x00-\x1f\x7f-\x9f]', '', user_input)
+    
+    # Check for common injection patterns
+    injection_patterns = [
+        r'<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>',  # Script tags
+        r'javascript:',  # JavaScript protocol
+        r'vbscript:',  # VBScript protocol
+        r'on\w+\s*=',  # Event handlers
+        r'expression\s*\(',  # CSS expression
+    ]
+    
+    for pattern in injection_patterns:
+        if re.search(pattern, sanitized, re.IGNORECASE):
+            raise SecurityError("Input contains potentially malicious content")
+    
+    return sanitized.strip()
+
+
+class SecureLogger:
+    """Logger wrapper that automatically sanitizes sensitive data."""
+    
+    def __init__(self, logger: logging.Logger):
+        self.logger = logger
+    
+    def info(self, message: str, extra: Optional[Dict[str, Any]] = None):
+        """Log info message with sanitized data."""
+        sanitized_message = sanitize_log_output(message)
+        sanitized_extra = sanitize_log_output(extra) if extra else None
+        self.logger.info(sanitized_message, extra=sanitized_extra)
+    
+    def error(self, message: str, extra: Optional[Dict[str, Any]] = None, exc_info: bool = False):
+        """Log error message with sanitized data."""
+        sanitized_message = sanitize_log_output(message)
+        sanitized_extra = sanitize_log_output(extra) if extra else None
+        self.logger.error(sanitized_message, extra=sanitized_extra, exc_info=exc_info)
+    
+    def warning(self, message: str, extra: Optional[Dict[str, Any]] = None):
+        """Log warning message with sanitized data."""
+        sanitized_message = sanitize_log_output(message)
+        sanitized_extra = sanitize_log_output(extra) if extra else None
+        self.logger.warning(sanitized_message, extra=sanitized_extra)
+    
+    def debug(self, message: str, extra: Optional[Dict[str, Any]] = None):
+        """Log debug message with sanitized data."""
+        sanitized_message = sanitize_log_output(message)
+        sanitized_extra = sanitize_log_output(extra) if extra else None
+        self.logger.debug(sanitized_message, extra=sanitized_extra)

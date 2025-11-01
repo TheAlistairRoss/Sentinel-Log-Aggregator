@@ -1,0 +1,151 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Azure and cloud configuration files
+.azure/
+azure.conf
+.azureauth
+*.publishsettings
+
+# Environment variables and secrets
+.env.local
+.env.development
+.env.test
+.env.production
+secrets/
+*.key
+*.pem
+*.pfx
+*.p12
+*.crt
+*.der
+
+# Microsoft Sentinel / Log Analytics configuration
+sentinel-config.json
+workspace-config.yaml
+connection-strings.txt
+*.kusto
+
+# Logs and temporary files
+logs/
+*.log
+temp/
+tmp/
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+
+# IDE and editor files
+.vscode/settings.json
+.vscode/launch.json
+.vscode/.ropeproject
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Documentation builds
+docs/_build/
+docs/build/
+.sphinx_cache/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Local development and debugging
+debug/
+.debug/
+local-data/
+test-data/
+sample-logs/
+
+# Performance and profiling
+*.prof
+.prof/
+
+# Terraform (if used for infrastructure)
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Docker (if containerized)
+.dockerignore
+
+# Package manager files
+pip-log.txt
+pip-delete-this-directory.txt
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
