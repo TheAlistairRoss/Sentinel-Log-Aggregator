@@ -1,22 +1,22 @@
-# Python Version Support Expansion (3.11-3.15)
+# Python Version Support Expansion (3.11-3.14)
 
 ## Overview
-Expanded the Sentinel Log Aggregator testing matrix to support Python versions 3.11 through 3.15, ensuring compatibility across current and future Python releases through 2025-2026.
+Expanded the Sentinel Log Aggregator testing matrix to support Python versions 3.11 through 3.14, ensuring compatibility across current and near-future Python releases.
 
 ## Changes Made
 
 ### 1. GitHub Actions CI/CD (`.github/workflows/ci-cd.yml`)
-- **Matrix Testing**: Updated from `["3.11"]` to `["3.11", "3.12", "3.13", "3.14", "3.15"]`
+- **Matrix Testing**: Updated from `["3.11"]` to `["3.11", "3.12", "3.13", "3.14"]`
 - **Default Version**: Updated `PYTHON_VERSION` environment variable from `"3.11"` to `"3.13"`
-- **Impact**: Now tests 5 Python versions instead of 1, ensuring broad compatibility
+- **Impact**: Now tests 4 Python versions instead of 1, ensuring broad compatibility
 
 ### 2. Package Metadata (`pyproject.toml`)
-- **Classifiers**: Added explicit support declarations for Python 3.12, 3.13, 3.14, and 3.15
+- **Classifiers**: Added explicit support declarations for Python 3.12, 3.13, and 3.14
 - **Compatibility**: Maintains `requires-python = ">=3.11"` lower bound
 - **PyPI Display**: Users can see supported versions on package page
 
 ### 3. Documentation (`README.md`)
-- **Requirements**: Updated to specify "Python 3.11 or higher (tested on Python 3.11-3.15)"
+- **Requirements**: Updated to specify "Python 3.11 or higher (tested on Python 3.11-3.14)"
 - **User Confidence**: Clear indication of tested version range
 
 ## Python Version Status (as of November 2025)
@@ -27,7 +27,7 @@ Expanded the Sentinel Log Aggregator testing matrix to support Python versions 3
 | 3.12 | ✅ Stable | Oct 2022 | Oct 2028 | **High** (Current) |
 | 3.13 | ✅ Stable | Oct 2023 | Oct 2029 | **High** (Latest) |
 | 3.14 | 🔄 Pre-release | Oct 2024 | Oct 2030 | **Medium** (Beta) |
-| 3.15 | ⏳ Development | Oct 2025 | Oct 2031 | **Low** (Alpha) |
+| ~~3.15~~ | ❌ Removed | ~~Oct 2025~~ | ~~Oct 2031~~ | **N/A** (Too early) |
 
 ## Benefits of Multi-Version Testing
 
@@ -51,12 +51,16 @@ Expanded the Sentinel Log Aggregator testing matrix to support Python versions 3
 ### **Primary Support Tiers**
 1. **Tier 1** (Python 3.11-3.13): Full production support
 2. **Tier 2** (Python 3.14): Beta support, may have temporary failures
-3. **Tier 3** (Python 3.15): Alpha support, failures expected and acceptable
 
 ### **CI/CD Failure Handling**
 - **Tier 1 failures**: Block merges, require immediate fixes
 - **Tier 2 failures**: Warning status, investigate but don't block
-- **Tier 3 failures**: Informational only, track for future
+
+### **Rationale for Excluding Python 3.15**
+- **Too Early**: Python 3.15 is in early development/alpha stage
+- **Dependency Lag**: Azure SDK and other dependencies unlikely to support it yet
+- **Stability Concerns**: API changes and instability would cause frequent CI failures
+- **Future Addition**: Will be added when it reaches beta/RC status
 
 ### **Dependency Considerations**
 - Azure SDK packages may not immediately support Python 3.14/3.15
@@ -116,17 +120,17 @@ git revert HEAD  # Revert to previous matrix
 ### **Immediate (Days 1-7)**
 - Python 3.11-3.13 tests should pass consistently
 - Python 3.14 may have occasional dependency issues
-- Python 3.15 likely to have some failures (expected)
+- More reliable CI/CD with focused version range
 
 ### **Short-term (Weeks 1-4)**
 - Stabilization of Python 3.14 testing as dependencies catch up
-- Early identification of Python 3.15 compatibility requirements
+- Consistent CI/CD performance without alpha version instability
 - User adoption feedback for newer Python versions
 
 ### **Long-term (Months 1-12)**
-- Full compatibility across Python 3.11-3.15
+- Full compatibility across Python 3.11-3.14
 - Early adopter confidence for Python version upgrades
-- Reduced maintenance overhead through proactive compatibility
+- Consider adding Python 3.15 when it reaches beta/RC status
 
 ---
 
