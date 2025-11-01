@@ -23,27 +23,27 @@ def run_command(cmd, description):
 def clean():
     """Clean build artifacts and cache files."""
     print("🧹 Cleaning build artifacts...")
-    
+
     # Remove build directories
     dirs_to_remove = [
         "build/",
-        "dist/", 
+        "dist/",
         "*.egg-info/",
         ".pytest_cache/",
         ".mypy_cache/",
         "__pycache__/",
         "htmlcov/",
-        "reports/"
+        "reports/",
     ]
-    
+
     for pattern in dirs_to_remove:
         subprocess.run(f"rm -rf {pattern}", shell=True)
-    
+
     # Remove cache files
     subprocess.run("find . -name '*.pyc' -delete", shell=True)
     subprocess.run("find . -name '*.pyo' -delete", shell=True)
     subprocess.run("find . -name '__pycache__' -type d -exec rm -rf {} +", shell=True)
-    
+
     print("✅ Cleanup completed!")
 
 
@@ -66,8 +66,10 @@ def lint():
 
 def test():
     """Run the test suite."""
-    run_command("pytest tests/ -v --cov=sentinel_log_aggregator --cov-report=html --cov-report=term", 
-                "Running test suite")
+    run_command(
+        "pytest tests/ -v --cov=sentinel_log_aggregator --cov-report=html --cov-report=term",
+        "Running test suite",
+    )
 
 
 def security():
@@ -79,10 +81,10 @@ def build():
     """Build the package."""
     clean()
     run_command("python -m build", "Building package")
-    
+
     # Validate the build
     run_command("twine check dist/*", "Validating package")
-    
+
     print("\n📦 Package built successfully!")
     print("📁 Artifacts available in: dist/")
 
@@ -116,7 +118,7 @@ def main():
     """Main CLI function."""
     parser = argparse.ArgumentParser(description="Sentinel Log Aggregator Development Helper")
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
-    
+
     # Add subcommands
     subparsers.add_parser("clean", help="Clean build artifacts and cache files")
     subparsers.add_parser("install-dev", help="Install development dependencies")
@@ -129,13 +131,13 @@ def main():
     subparsers.add_parser("pre-commit-install", help="Install pre-commit hooks")
     subparsers.add_parser("pre-commit-run", help="Run pre-commit hooks on all files")
     subparsers.add_parser("check", help="Run all checks (format, lint, test, security)")
-    
+
     args = parser.parse_args()
-    
+
     if not args.command:
         parser.print_help()
         return
-    
+
     # Map commands to functions
     commands = {
         "clean": clean,
@@ -150,7 +152,7 @@ def main():
         "pre-commit-run": pre_commit_run,
         "check": check,
     }
-    
+
     if args.command in commands:
         commands[args.command]()
     else:

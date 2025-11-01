@@ -5,20 +5,21 @@ Provides service-specific exceptions following Azure SDK patterns for better
 error handling and debugging capabilities.
 """
 
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
+
 from azure.core.exceptions import AzureError, ClientAuthenticationError, HttpResponseError
 
 
 class SentinelAggregatorError(AzureError):
     """Base exception for all Sentinel Log Aggregator errors."""
-    
+
     def __init__(
         self,
         message: str,
         *,
         error_code: Optional[str] = None,
         error_details: Optional[Dict[str, Any]] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(message, **kwargs)
         self.error_code = error_code
@@ -27,7 +28,7 @@ class SentinelAggregatorError(AzureError):
 
 class QueryExecutionError(SentinelAggregatorError):
     """Exception raised when KQL query execution fails."""
-    
+
     def __init__(
         self,
         message: str,
@@ -35,7 +36,7 @@ class QueryExecutionError(SentinelAggregatorError):
         workspace_id: Optional[str] = None,
         query: Optional[str] = None,
         error_code: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(message, error_code=error_code, **kwargs)
         self.workspace_id = workspace_id
@@ -44,7 +45,7 @@ class QueryExecutionError(SentinelAggregatorError):
 
 class WorkspaceAccessError(SentinelAggregatorError):
     """Exception raised when workspace access is denied or unavailable."""
-    
+
     def __init__(
         self,
         message: str,
@@ -52,7 +53,7 @@ class WorkspaceAccessError(SentinelAggregatorError):
         workspace_id: Optional[str] = None,
         resource_id: Optional[str] = None,
         error_code: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(message, error_code=error_code, **kwargs)
         self.workspace_id = workspace_id
@@ -61,7 +62,7 @@ class WorkspaceAccessError(SentinelAggregatorError):
 
 class DataIngestionError(SentinelAggregatorError):
     """Exception raised when data ingestion to Azure Monitor fails."""
-    
+
     def __init__(
         self,
         message: str,
@@ -70,7 +71,7 @@ class DataIngestionError(SentinelAggregatorError):
         dcr_rule_id: Optional[str] = None,
         record_count: Optional[int] = None,
         error_code: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(message, error_code=error_code, **kwargs)
         self.stream_name = stream_name
@@ -80,14 +81,14 @@ class DataIngestionError(SentinelAggregatorError):
 
 class ConfigurationError(SentinelAggregatorError):
     """Exception raised when configuration is invalid or missing."""
-    
+
     def __init__(
         self,
         message: str,
         *,
         config_key: Optional[str] = None,
         error_code: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(message, error_code=error_code, **kwargs)
         self.config_key = config_key
@@ -95,7 +96,7 @@ class ConfigurationError(SentinelAggregatorError):
 
 class WorkspaceConfigurationError(SentinelAggregatorError):
     """Exception raised when workspace configuration is invalid."""
-    
+
     def __init__(
         self,
         message: str,
@@ -103,7 +104,7 @@ class WorkspaceConfigurationError(SentinelAggregatorError):
         workspace_alias: Optional[str] = None,
         config_file: Optional[str] = None,
         error_code: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(message, error_code=error_code, **kwargs)
         self.workspace_alias = workspace_alias
@@ -112,7 +113,7 @@ class WorkspaceConfigurationError(SentinelAggregatorError):
 
 class BatchOperationError(SentinelAggregatorError):
     """Exception raised when batch operation fails."""
-    
+
     def __init__(
         self,
         message: str,
@@ -120,7 +121,7 @@ class BatchOperationError(SentinelAggregatorError):
         failed_operations: Optional[int] = None,
         total_operations: Optional[int] = None,
         error_code: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(message, error_code=error_code, **kwargs)
         self.failed_operations = failed_operations
@@ -129,14 +130,14 @@ class BatchOperationError(SentinelAggregatorError):
 
 class CredentialValidationError(ClientAuthenticationError):
     """Exception raised when credential validation fails."""
-    
+
     def __init__(
         self,
         message: str,
         *,
         credential_type: Optional[str] = None,
         scope: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(message, **kwargs)
         self.credential_type = credential_type
