@@ -36,7 +36,7 @@ class WorkspaceConfigModel(BaseModel):
 
     @field_validator("resource_id")
     @classmethod
-    def validate_resource_id(cls, v):
+    def validate_resource_id(cls, v: str) -> str:
         """Validate Azure resource ID format."""
         if not v.lower().startswith("/subscriptions/"):
             raise ValueError("Resource ID must start with /subscriptions/")
@@ -46,7 +46,7 @@ class WorkspaceConfigModel(BaseModel):
 
     @field_validator("queries_list")
     @classmethod
-    def validate_queries_list(cls, v):
+    def validate_queries_list(cls, v: Optional[List[str]]) -> Optional[List[str]]:
         """Validate queries list contains valid query names."""
         if v is None:
             return v
@@ -68,7 +68,7 @@ class WorkspaceConfigModel(BaseModel):
 
     @field_validator("parameters")
     @classmethod
-    def validate_parameters(cls, v):
+    def validate_parameters(cls, v: Dict[str, Any]) -> Dict[str, Any]:
         """Validate workspace parameters structure and types."""
         if not isinstance(v, dict):
             raise ValueError("Parameters must be a dictionary")
@@ -109,7 +109,7 @@ class QueryParameterModel(BaseModel):
     description: str = Field(default="", max_length=500)
 
     @model_validator(mode="after")
-    def validate_default_type(self):
+    def validate_default_type(self) -> "QueryParameterModel":
         """Validate that default value matches parameter type."""
         param_type = self.type
         default = self.default
@@ -159,7 +159,7 @@ class QueryDefinitionModel(BaseModel):
 
     @field_validator("query")
     @classmethod
-    def validate_query_syntax(cls, v):
+    def validate_query_syntax(cls, v: str) -> str:
         """Basic KQL query validation."""
         if not v.strip():
             raise ValueError("Query cannot be empty")
@@ -185,7 +185,7 @@ class QueryDefinitionModel(BaseModel):
 
     @field_validator("tags")
     @classmethod
-    def validate_tags(cls, v):
+    def validate_tags(cls, v: List[str]) -> List[str]:
         """Validate tag format."""
         tag_pattern = re.compile(r"^[a-z][a-z0-9_-]*$")
         for tag in v:
@@ -249,7 +249,7 @@ class WorkspaceCollectionModel(BaseModel):
 
     @field_validator("workspaces")
     @classmethod
-    def validate_unique_workspaces(cls, v):
+    def validate_unique_workspaces(cls, v: List[WorkspaceConfigModel]) -> List[WorkspaceConfigModel]:
         """Ensure workspace IDs and security tags are unique."""
         customer_ids = [ws.customer_id for ws in v]
         resource_ids = [ws.resource_id for ws in v]
