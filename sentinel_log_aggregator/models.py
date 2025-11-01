@@ -22,7 +22,7 @@ from .responses import QueryStatus, UploadStatus
 # Export the imported enums so they can be imported from models module
 __all__ = [
     "QueryParameter",
-    "WorkspaceConfig", 
+    "WorkspaceConfig",
     "KQLQueryDefinition",
     "QueryExecution",
     "BatchExecutionSummary",
@@ -310,7 +310,9 @@ class BatchExecutionSummary:
         from collections import defaultdict
 
         # Group executions by workspace and query
-        workspace_query_stats: Dict[str, Dict[str, List[Any]]] = defaultdict(lambda: defaultdict(list))
+        workspace_query_stats: Dict[str, Dict[str, List[Any]]] = defaultdict(
+            lambda: defaultdict(list)
+        )
 
         for execution in self.executions:
             # Use full workspace ID as key, store execution for later access

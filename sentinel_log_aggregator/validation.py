@@ -249,7 +249,9 @@ class WorkspaceCollectionModel(BaseModel):
 
     @field_validator("workspaces")
     @classmethod
-    def validate_unique_workspaces(cls, v: List[WorkspaceConfigModel]) -> List[WorkspaceConfigModel]:
+    def validate_unique_workspaces(
+        cls, v: List[WorkspaceConfigModel]
+    ) -> List[WorkspaceConfigModel]:
         """Ensure workspace IDs and security tags are unique."""
         customer_ids = [ws.customer_id for ws in v]
         resource_ids = [ws.resource_id for ws in v]
