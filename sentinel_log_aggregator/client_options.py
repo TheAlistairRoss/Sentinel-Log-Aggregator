@@ -5,7 +5,7 @@ Provides configuration options following Azure SDK patterns using
 azure.core.configuration.Configuration as the base class.
 """
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from azure.core.configuration import Configuration
 from azure.core.credentials import TokenCredential
@@ -15,7 +15,7 @@ from pydantic import ValidationError
 from .validation import ClientOptionsModel, validate_client_options
 
 
-class SentinelAggregatorClientOptions(Configuration):
+class SentinelAggregatorClientOptions(Configuration):  # type: ignore[type-arg]
     """
     Client options for SentinelAggregatorClient.
 
@@ -53,9 +53,9 @@ class SentinelAggregatorClientOptions(Configuration):
         max_retries: int = 3,
         retry_delay_seconds: int = 5,
         enable_distributed_tracing: bool = True,
-        custom_policies: Optional[list] = None,
-        **kwargs,
-    ):
+        custom_policies: Optional[List[HTTPPolicy]] = None,  # type: ignore[type-arg]
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
 
         # Core configuration
@@ -131,7 +131,7 @@ class SentinelAggregatorClientOptions(Configuration):
                 raise ValueError("retry_delay_seconds must be positive")
 
     @classmethod
-    def from_environment(cls, **kwargs) -> "SentinelAggregatorClientOptions":
+    def from_environment(cls, **kwargs: Any) -> "SentinelAggregatorClientOptions":
         """
         Create client options from environment variables.
 
@@ -153,7 +153,7 @@ class SentinelAggregatorClientOptions(Configuration):
         )
 
     @classmethod
-    def from_yaml_file(cls, file_path: str, **kwargs) -> "SentinelAggregatorClientOptions":
+    def from_yaml_file(cls, file_path: str, **kwargs: Any) -> "SentinelAggregatorClientOptions":
         """
         Create client options from YAML configuration file.
 
