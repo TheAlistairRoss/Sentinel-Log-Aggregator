@@ -16,6 +16,12 @@ An Azure SDK-compliant Python client library for aggregating and processing logs
 
 ## Installation
 
+### Requirements
+- Python 3.11 or higher
+- Azure subscription with Microsoft Sentinel workspaces
+- Appropriate Azure permissions (see Configuration section)
+
+### Install from PyPI
 ```bash
 pip install sentinel-log-aggregator
 ```
@@ -371,7 +377,7 @@ mypy sentinel_log_aggregator
 
 The project includes comprehensive GitHub Actions workflows for:
 
-- **CI/CD Pipeline**: Automated testing, building, and deployment across multiple Python versions
+- **CI/CD Pipeline**: Automated testing, building, and deployment (Python 3.11+)
 - **Security Scanning**: Microsoft SDL-compliant security analysis with 12+ security tools
 - **Documentation Generation**: Automated Sphinx documentation with GitHub Pages deployment
 - **Package Distribution**: Automated PyPI publishing and GitHub releases
