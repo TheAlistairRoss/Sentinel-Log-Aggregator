@@ -25,12 +25,11 @@ __all__ = [
     "WorkspaceConfig", 
     "KQLQueryDefinition",
     "QueryExecution",
-    "BatchSummary",
+    "BatchExecutionSummary",
     "QueryStatus",
     "UploadStatus",
     "load_queries_from_yaml",
     "AVAILABLE_QUERIES",
-    "REPORT_QUERIES",
 ]
 
 

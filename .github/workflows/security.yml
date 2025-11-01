@@ -56,7 +56,7 @@ jobs:
     - name: Run Safety (Python Package Vulnerabilities)
       run: |
         pip install safety
-        safety check --json --output safety-report.json || true
+        safety check --json > safety-report.json || true
         safety check --short-report || true
 
     - name: Run pip-audit (Official Python Security Audit)
