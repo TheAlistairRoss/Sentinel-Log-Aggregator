@@ -40,6 +40,7 @@ jobs:
     
     - name: Run security check with bandit
       run: |
+        pip install bandit
         bandit -r sentinel_log_aggregator/ -f json -o bandit-report.json
         bandit -r sentinel_log_aggregator/ || true
     
