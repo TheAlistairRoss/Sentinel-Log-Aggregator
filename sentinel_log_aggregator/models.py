@@ -19,6 +19,20 @@ import yaml
 # Import new Azure SDK-compliant models
 from .responses import QueryStatus, UploadStatus
 
+# Export the imported enums so they can be imported from models module
+__all__ = [
+    "QueryParameter",
+    "WorkspaceConfig", 
+    "KQLQueryDefinition",
+    "QueryExecution",
+    "BatchSummary",
+    "QueryStatus",
+    "UploadStatus",
+    "load_queries_from_yaml",
+    "AVAILABLE_QUERIES",
+    "REPORT_QUERIES",
+]
+
 
 @dataclass
 class QueryParameter:
@@ -105,14 +119,14 @@ class KQLQueryDefinition:
         required: bool = False,
         default: Any = None,
         description: str = "",
-    ):
+    ) -> "KQLQueryDefinition":
         """Add a parameter to the query."""
         self.parameters[name] = QueryParameter(
             param_type=param_type, required=required, default=default, description=description
         )
         return self
 
-    def set_stream(self, stream_name: str):
+    def set_stream(self, stream_name: str) -> "KQLQueryDefinition":
         """Set the stream association for this query."""
         self.stream_name = stream_name
         return self
@@ -157,7 +171,7 @@ class KQLQueryDefinition:
 
         return query_def
 
-    def build_query(self, parameters: Dict[str, Any] = None) -> str:
+    def build_query(self, parameters: Optional[Dict[str, Any]] = None) -> str:
         """Build query with parameter substitution."""
         if parameters is None:
             parameters = {}
@@ -181,7 +195,7 @@ class KQLQueryDefinition:
 
         return query
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary format for compatibility."""
         params_dict = {}
         for name, param in self.parameters.items():
@@ -297,14 +311,14 @@ class BatchExecutionSummary:
         from collections import defaultdict
 
         # Group executions by workspace and query
-        workspace_query_stats = defaultdict(lambda: defaultdict(list))
+        workspace_query_stats: Dict[str, Dict[str, List[Any]]] = defaultdict(lambda: defaultdict(list))
 
         for execution in self.executions:
             # Use full workspace ID as key, store execution for later access
             workspace_key = execution.workspace_id
             workspace_query_stats[workspace_key][execution.query_name].append(execution)
 
-        detailed_summary = {
+        detailed_summary: Dict[str, Any] = {
             "overview": {
                 "total_workspaces": len(workspace_query_stats),
                 "total_unique_queries": len(set(e.query_name for e in self.executions)),
@@ -467,7 +481,7 @@ AVAILABLE_QUERIES = load_queries_from_yaml()
 
 
 # Initialize query registry with loaded queries
-def _initialize_query_registry():
+def _initialize_query_registry() -> None:
     """Initialize the global query registry with YAML-based queries."""
     from .query_registry import query_registry
 

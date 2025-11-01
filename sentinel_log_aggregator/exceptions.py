@@ -19,8 +19,8 @@ class SentinelAggregatorError(AzureError):
         *,
         error_code: Optional[str] = None,
         error_details: Optional[Dict[str, Any]] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         super().__init__(message, **kwargs)
         self.error_code = error_code
         self.error_details = error_details or {}
@@ -36,8 +36,8 @@ class QueryExecutionError(SentinelAggregatorError):
         workspace_id: Optional[str] = None,
         query: Optional[str] = None,
         error_code: Optional[str] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         super().__init__(message, error_code=error_code, **kwargs)
         self.workspace_id = workspace_id
         self.query = query
@@ -53,8 +53,8 @@ class WorkspaceAccessError(SentinelAggregatorError):
         workspace_id: Optional[str] = None,
         resource_id: Optional[str] = None,
         error_code: Optional[str] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         super().__init__(message, error_code=error_code, **kwargs)
         self.workspace_id = workspace_id
         self.resource_id = resource_id
@@ -71,8 +71,8 @@ class DataIngestionError(SentinelAggregatorError):
         dcr_rule_id: Optional[str] = None,
         record_count: Optional[int] = None,
         error_code: Optional[str] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         super().__init__(message, error_code=error_code, **kwargs)
         self.stream_name = stream_name
         self.dcr_rule_id = dcr_rule_id
@@ -88,8 +88,8 @@ class ConfigurationError(SentinelAggregatorError):
         *,
         config_key: Optional[str] = None,
         error_code: Optional[str] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         super().__init__(message, error_code=error_code, **kwargs)
         self.config_key = config_key
 
@@ -104,8 +104,8 @@ class WorkspaceConfigurationError(SentinelAggregatorError):
         workspace_alias: Optional[str] = None,
         config_file: Optional[str] = None,
         error_code: Optional[str] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         super().__init__(message, error_code=error_code, **kwargs)
         self.workspace_alias = workspace_alias
         self.config_file = config_file
@@ -121,8 +121,8 @@ class BatchOperationError(SentinelAggregatorError):
         failed_operations: Optional[int] = None,
         total_operations: Optional[int] = None,
         error_code: Optional[str] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         super().__init__(message, error_code=error_code, **kwargs)
         self.failed_operations = failed_operations
         self.total_operations = total_operations
@@ -137,8 +137,8 @@ class CredentialValidationError(ClientAuthenticationError):
         *,
         credential_type: Optional[str] = None,
         scope: Optional[str] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         super().__init__(message, **kwargs)
         self.credential_type = credential_type
         self.scope = scope
