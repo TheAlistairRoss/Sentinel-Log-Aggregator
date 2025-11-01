@@ -30,11 +30,26 @@ class QueryParameter:
 
 @dataclass
 class WorkspaceConfig:
-    """Configuration for a Microsoft Sentinel workspace."""
+    """
+    Configuration for a Microsoft Sentinel workspace.
+    
+    This class represents a workspace configuration with flexible parameter support.
+    Parameters are stored in a dictionary allowing workspace-specific customization
+    including row-level security tags, environment settings, and custom values.
+    
+    Attributes:
+        resource_id: Full Azure resource ID for the Log Analytics workspace
+        customer_id: Log Analytics workspace customer ID (GUID)
+        queries_list: List of query names this workspace should execute
+        parameters: Dictionary of workspace-specific parameters including:
+            - row_level_security_tag: Security tag for data isolation
+            - environment: Environment designation (dev, test, prod)
+            - custom parameters: Any additional workspace-specific values
+    """
     resource_id: str
     customer_id: str
-    row_level_security_tag: str = ""
     queries_list: List[str] = field(default_factory=list)
+    parameters: Dict[str, Any] = field(default_factory=dict)
     
     @property
     def workspace_name(self) -> str:
@@ -99,25 +114,33 @@ class KQLQueryDefinition:
         with open(yaml_file_path, 'r', encoding='utf-8') as file:
             data = yaml.safe_load(file)
         
+        # Extract required fields with defaults for optional ones
+        name = data['name']
+        destination_stream = data['destination_stream']
+        description = data['description']
+        stream_name = data.get('stream_name', destination_stream)  # Default to destination_stream
+        query = data['query']
+        
         # Create the query definition
         query_def = cls(
-            name=data['name'],
-            destination_stream=data['destination_stream'],
-            description=data['description'],
-            stream_name=data['stream_name'],
-            query=data['query']
+            name=name,
+            destination_stream=destination_stream,
+            description=description,
+            stream_name=stream_name,
+            query=query
         )
         
         # Add parameters if they exist
-        if 'parameters' in data:
+        if 'parameters' in data and data['parameters'] is not None:
             for param_name, param_config in data['parameters'].items():
-                query_def.add_parameter(
-                    name=param_name,
-                    param_type=param_config['type'],
-                    required=param_config.get('required', False),
-                    default=param_config.get('default'),
-                    description=param_config.get('description', '')
-                )
+                if param_config is not None:  # Handle empty parameter blocks
+                    query_def.add_parameter(
+                        name=param_name,
+                        param_type=param_config.get('type', 'string'),
+                        required=param_config.get('required', False),
+                        default=param_config.get('default'),
+                        description=param_config.get('description', '')
+                    )
         
         return query_def
     
@@ -351,30 +374,37 @@ def load_queries_from_yaml(queries_dir: Optional[Path] = None) -> Dict[str, KQLQ
     
     queries = {}
     
-    # Use provided directory or default to local-data/queries
+    # Use provided directory or default directories
     if queries_dir is None:
         current_dir = Path(__file__).parent
-        # Go up two levels to repo root, then to local-data/queries
-        queries_dir = current_dir.parent / "local-data" / "queries"
+        # Try multiple directories in order of preference
+        possible_dirs = [
+            current_dir / "queries",                           # Production queries
+            current_dir.parent / "tests" / "data" / "queries",  # Test queries
+            current_dir.parent / "local-data" / "queries",     # Local queries
+        ]
+    else:
+        possible_dirs = [queries_dir]
     
-    logger.debug(f"📋 Loading KQL queries from YAML files in: {queries_dir}")
+    for queries_dir in possible_dirs:
+        logger.debug(f"📋 Checking for KQL queries in: {queries_dir}")
+        
+        if not queries_dir.exists():
+            logger.debug(f"⚠️ Directory does not exist: {queries_dir}")
+            continue
     
-    if not queries_dir.exists():
-        logger.debug("⚠️ Queries directory does not exist, no queries loaded")
-        return queries
+        # Load all YAML files in the queries directory
+        yaml_files = list(queries_dir.glob("*.yaml"))
+        logger.debug(f"🔧 Found {len(yaml_files)} YAML files in {queries_dir.name}")
     
-    # Load all YAML files in the queries directory
-    yaml_files = list(queries_dir.glob("*.yaml"))
-    logger.debug(f"🔧 Found {len(yaml_files)} YAML files to process")
-    
-    for yaml_file in yaml_files:
-        try:
-            logger.debug(f"  • Processing: {yaml_file.name}")
-            query_def = KQLQueryDefinition.from_yaml(str(yaml_file))
-            queries[query_def.name] = query_def
-            logger.debug(f"    ✅ Loaded query: {query_def.name} (Stream: {query_def.stream_name})")
-        except Exception as e:
-            logger.warning(f"    ❌ Failed to load query from {yaml_file}: {e}")
+        for yaml_file in yaml_files:
+            try:
+                logger.debug(f"  • Processing: {yaml_file.name}")
+                query_def = KQLQueryDefinition.from_yaml(str(yaml_file))
+                queries[query_def.name] = query_def
+                logger.debug(f"    ✅ Loaded query: {query_def.name} (Stream: {query_def.stream_name})")
+            except Exception as e:
+                logger.warning(f"    ❌ Failed to load query from {yaml_file}: {e}")
     
     logger.debug(f"✅ Successfully loaded {len(queries)} queries from YAML files")
     return queries

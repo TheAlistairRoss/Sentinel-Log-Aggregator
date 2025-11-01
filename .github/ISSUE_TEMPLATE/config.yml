@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔒 Private Security Vulnerability Report
+    url: https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/security/advisories/new
+    about: Report a security vulnerability privately (recommended for high-severity issues)
+  
+  - name: 💬 GitHub Discussions
+    url: https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/discussions
+    about: Ask questions, share ideas, or discuss the project with the community
+  
+  - name: 📚 Documentation
+    url: https://thealistairross.github.io/Sentinel-Log-Aggregator/
+    about: Browse the complete documentation and API reference
+  
+  - name: 🚀 Microsoft Sentinel Documentation
+    url: https://docs.microsoft.com/en-us/azure/sentinel/
+    about: Official Microsoft Sentinel documentation and resources

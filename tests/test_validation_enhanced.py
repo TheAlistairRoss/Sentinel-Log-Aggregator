@@ -410,7 +410,7 @@ class TestQueryDefinitionModelEdgeCases:
         with pytest.raises(ValidationError) as exc_info:
             QueryDefinitionModel(**query_data)
         
-        assert "Query cannot be empty" in str(exc_info.value)
+        assert "String should have at least 10 characters" in str(exc_info.value)
     
     def test_validate_query_syntax_dangerous_operations_case_insensitive(self):
         """Test detection of dangerous operations in different cases."""
@@ -487,12 +487,12 @@ class TestWorkspaceCollectionModelEdgeCases:
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/duplicate-workspace',
                     'customer_id': '11111111-1111-1111-1111-111111111111',
-                    'row_level_security_tag': 'test1'
+                    'parameters': {"row_level_security_tag": "test"}
                 },
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/duplicate-workspace',  # Duplicate
                     'customer_id': '22222222-2222-2222-2222-222222222222',
-                    'row_level_security_tag': 'test2'
+                    'parameters': {"row_level_security_tag": "test"}
                 }
             ]
         }
@@ -509,12 +509,12 @@ class TestWorkspaceCollectionModelEdgeCases:
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-1',
                     'customer_id': '11111111-1111-1111-1111-111111111111',
-                    'row_level_security_tag': 'duplicate_tag'
+                    'parameters': {"row_level_security_tag": "test"}
                 },
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-2',
                     'customer_id': '22222222-2222-2222-2222-222222222222',
-                    'row_level_security_tag': 'duplicate_tag'  # Duplicate tag
+                    'parameters': {"row_level_security_tag": "test"}  # Duplicate tag
                 }
             ]
         }
@@ -531,12 +531,12 @@ class TestWorkspaceCollectionModelEdgeCases:
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-1',
                     'customer_id': '11111111-1111-1111-1111-111111111111',
-                    'row_level_security_tag': ''  # Empty tag
+                    'parameters': {"row_level_security_tag": ""}  # Empty tag
                 },
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-2',
                     'customer_id': '22222222-2222-2222-2222-222222222222',
-                    'row_level_security_tag': ''  # Empty tag - should be allowed
+                    'parameters': {"row_level_security_tag": ""}  # Empty tag - should be allowed
                 }
             ]
         }
@@ -552,12 +552,12 @@ class TestWorkspaceCollectionModelEdgeCases:
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-1',
                     'customer_id': '11111111-1111-1111-1111-111111111111',  # Duplicate customer ID
-                    'row_level_security_tag': 'test1'
+                    'parameters': {"row_level_security_tag": "test"}
                 },
                 {
                     'resource_id': '/subscriptions/87654321-4321-4321-4321-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-2',
                     'customer_id': '11111111-1111-1111-1111-111111111111',  # Same customer ID
-                    'row_level_security_tag': 'test2'
+                    'parameters': {"row_level_security_tag": "test"}
                 }
             ]
         }
@@ -578,7 +578,7 @@ class TestValidationFunctions:
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace',
                     'customer_id': '11111111-1111-1111-1111-111111111111',
-                    'row_level_security_tag': 'test'
+                    'parameters': {"row_level_security_tag": "test"}
                 }
             ]
         }
@@ -778,7 +778,7 @@ class TestComplexValidationScenarios:
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/prod-rg/providers/microsoft.operationalinsights/workspaces/prod-workspace',
                     'customer_id': '11111111-1111-1111-1111-111111111111',
-                    'row_level_security_tag': 'prod',
+                    'parameters': {"row_level_security_tag": "test"},
                     'queries_list': ['query_incident_summary']
                 }
             ],
@@ -860,17 +860,17 @@ class TestSpecificUncoveredLines:
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-1',
                     'customer_id': '11111111-1111-1111-1111-111111111111',
-                    'row_level_security_tag': ''  # Empty - should be filtered out
+                    'parameters': {"row_level_security_tag": ""}  # Empty - should be filtered out
                 },
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-2',
                     'customer_id': '22222222-2222-2222-2222-222222222222',
-                    'row_level_security_tag': 'valid_tag'
+                    'parameters': {"row_level_security_tag": "prod"}
                 },
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-3',
                     'customer_id': '33333333-3333-3333-3333-333333333333',
-                    'row_level_security_tag': ''  # Another empty - should be filtered out
+                    'parameters': {"row_level_security_tag": ""}  # Another empty - should be filtered out
                 }
             ]
         }

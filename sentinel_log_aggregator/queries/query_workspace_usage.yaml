@@ -1,0 +1,23 @@
+name: "query_workspace_usage"
+destination_stream: "Custom-Reports_WorkspaceUsage_CL"
+stream_name: "stream_workspace_usage"
+description: "Query to extract workspace usage statistics from Sentinel workspaces"
+
+parameters:
+  row_level_security_tag:
+    type: "string"
+    required: false
+    default: ""
+    description: "Workspace identifier for data isolation"
+
+query: |
+  Usage
+  | where TimeGenerated > ago(24h)
+  | where DataType in ("SecurityEvent", "SecurityIncident", "SecurityAlert")
+  | extend Operation = "DataIngestion"
+  | summarize 
+      TotalDataIngested = sum(Quantity),
+      SecurityEvents = sumif(Quantity, DataType == "SecurityEvent"),
+      SecurityIncidents = sumif(Quantity, DataType == "SecurityIncident"),
+      SecurityAlerts = sumif(Quantity, DataType == "SecurityAlert")
+  | extend WorkspaceTag = "{row_level_security_tag}"

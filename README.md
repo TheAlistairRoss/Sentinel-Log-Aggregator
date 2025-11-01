@@ -357,6 +357,27 @@ mypy sentinel_log_aggregator
 8. **Upload Processing**: Stream data to Azure Monitor ingestion
 9. **Progress Tracking**: Comprehensive logging and monitoring
 
+## Documentation
+
+### Available Documentation
+
+- **[Installation Guide](docs/installation.md)**: Complete installation instructions and setup
+- **[Packaging Guide](docs/packaging.md)**: Guide for package distribution and development
+- **[GitHub Actions Workflows](docs/workflows.md)**: Comprehensive documentation of CI/CD and security workflows
+- **API Documentation**: Generated from code docstrings (see built documentation)
+- **CLI Reference**: `sentinel-aggregator --help` for command-line usage
+
+### Workflow Documentation
+
+The project includes comprehensive GitHub Actions workflows for:
+
+- **CI/CD Pipeline**: Automated testing, building, and deployment across multiple Python versions
+- **Security Scanning**: Microsoft SDL-compliant security analysis with 12+ security tools
+- **Documentation Generation**: Automated Sphinx documentation with GitHub Pages deployment
+- **Package Distribution**: Automated PyPI publishing and GitHub releases
+
+See [docs/workflows.md](docs/workflows.md) for detailed workflow documentation including job dependencies, troubleshooting, and best practices.
+
 ## Contributing
 
 1. Fork the repository
@@ -364,6 +385,14 @@ mypy sentinel_log_aggregator
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+### Development Workflow
+
+Before contributing, please review:
+- [GitHub Actions Workflows Documentation](docs/workflows.md) for CI/CD pipeline details
+- Pre-commit hooks configuration for local security scanning
+- Test coverage requirements (target >95%)
+- Security scanning requirements (zero high/critical vulnerabilities)
 
 ## License
 

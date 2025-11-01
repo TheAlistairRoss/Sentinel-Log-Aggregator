@@ -1,0 +1,13 @@
+# Safety configuration for dependency vulnerability scanning
+[safety]
+# Ignore specific vulnerability IDs after security review
+# Format: "vulnerability-id-YYYYMMDD"
+ignore = [
+    # Example: "12345"  # Reason for ignoring
+]
+
+# Fail build on any vulnerability findings
+continue-on-error = false
+
+# Only report vulnerabilities affecting installed versions
+full-report = false

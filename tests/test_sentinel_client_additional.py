@@ -182,7 +182,7 @@ class TestBatchOperationPollerCorrected:
             WorkspaceConfig(
                 resource_id="/subscriptions/test-sub/resourceGroups/test-rg/providers/Microsoft.OperationalInsights/workspaces/test-ws",
                 customer_id=str(uuid.uuid4()),
-                row_level_security_tag="workspace1"
+                parameters={"row_level_security_tag": "workspace1"}
             )
         ]
     

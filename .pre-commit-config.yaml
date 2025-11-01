@@ -33,6 +33,20 @@ repos:
         args: [-r, sentinel_log_aggregator/, -f, json, -o, bandit-report.json]
         types: [python]
 
+  # Python package vulnerability scanning
+  - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
+    rev: v1.3.2
+    hooks:
+      - id: python-safety-dependencies-check
+        files: requirements.*\.txt$
+
+  # Advanced SAST scanning
+  - repo: https://github.com/returntocorp/semgrep
+    rev: v1.45.0
+    hooks:
+      - id: semgrep
+        args: ['--config=auto', '--error', '--quiet']
+
   # Type checking
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.7.0
@@ -61,8 +75,19 @@ repos:
     rev: v1.4.0
     hooks:
       - id: detect-secrets
-        args: ['--baseline', '.secrets.baseline']
+        args: ['--baseline', '.secrets.baseline', '--force-use-all-plugins']
         exclude: package.lock.json
+
+  # Advanced secrets scanning
+  - repo: https://github.com/trufflesecurity/trufflehog
+    rev: v3.63.2
+    hooks:
+      - id: trufflehog
+        name: TruffleHog
+        description: Detect hardcoded secrets
+        entry: trufflehog git file://. --since-commit HEAD --only-verified --fail
+        language: system
+        stages: ["commit", "push"]
 
   # YAML linting
   - repo: https://github.com/adrienverge/yamllint

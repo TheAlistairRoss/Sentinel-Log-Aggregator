@@ -3,6 +3,8 @@ Workspace management for Microsoft Sentinel Log Aggregator.
 
 This module provides functionality for managing multiple Sentinel workspace configurations,
 including filtering by queries, extracting metadata, and providing convenient access patterns.
+The WorkspaceConfig model uses a flexible parameters dictionary for workspace-specific
+settings including row-level security tags, environment designations, and custom values.
 """
 
 import logging
@@ -25,6 +27,8 @@ class WorkspaceSet:
     A set of workspaces with convenient methods for data extraction and filtering.
     
     Provides a fluent interface for working with collections of workspace configurations.
+    Supports filtering by workspace parameters including row-level security tags,
+    environment settings, and custom parameter values through the parameters dictionary.
     """
     
     def __init__(self, workspaces: List[WorkspaceConfig]):
@@ -45,8 +49,8 @@ class WorkspaceSet:
         return [ws.workspace_name for ws in self.workspaces]
     
     def aliases(self) -> List[str]:
-        """Get list of row-level security tag aliases."""
-        return [ws.row_level_security_tag for ws in self.workspaces]
+        """Get list of row-level security tag aliases from parameters."""
+        return [ws.parameters.get('row_level_security_tag', '') for ws in self.workspaces]
     
     def resource_ids(self) -> List[str]:
         """Get list of full Azure resource IDs."""
@@ -72,10 +76,11 @@ class WorkspaceSet:
                 'customer_id': ws.customer_id,
                 'resource_id': ws.resource_id,
                 'workspace_name': ws.workspace_name,
-                'alias': ws.row_level_security_tag,
+                'alias': ws.parameters.get('row_level_security_tag', ''),
                 'subscription_id': ws.subscription_id,
                 'resource_group': ws.resource_group,
-                'queries': ws.queries_list
+                'queries': ws.queries_list,
+                'parameters': ws.parameters
             } 
             for ws in self.workspaces
         ]
@@ -120,7 +125,21 @@ class WorkspaceSet:
         Returns:
             New WorkspaceSet with filtered workspaces
         """
-        filtered = [ws for ws in self.workspaces if ws.row_level_security_tag == alias]
+        filtered = [ws for ws in self.workspaces if ws.parameters.get('row_level_security_tag', '') == alias]
+        return WorkspaceSet(filtered)
+    
+    def filter_by_parameter(self, param_name: str, param_value: any) -> 'WorkspaceSet':
+        """
+        Filter workspaces by any parameter value.
+        
+        Args:
+            param_name: Name of the parameter to filter by
+            param_value: Value to match
+            
+        Returns:
+            New WorkspaceSet with filtered workspaces
+        """
+        filtered = [ws for ws in self.workspaces if ws.parameters.get(param_name) == param_value]
         return WorkspaceSet(filtered)
     
     def has_query(self, query_name: str) -> 'WorkspaceSet':
@@ -164,7 +183,9 @@ class WorkspaceManager:
     Manage workspace configurations with clean interface and validation.
     
     Provides high-level operations for working with multiple Sentinel workspaces,
-    including filtering, validation, and query association management.
+    including filtering, validation, and query association management. Supports
+    flexible parameter-based configuration where workspace-specific settings
+    are stored in the parameters dictionary for maximum flexibility.
     """
     
     def __init__(self, workspace_configs: List[WorkspaceConfig] = None):
@@ -308,7 +329,7 @@ class WorkspaceManager:
             WorkspaceConfig if found, None otherwise
         """
         for workspace in self.workspaces:
-            if workspace.row_level_security_tag == alias:
+            if workspace.parameters.get('row_level_security_tag', '') == alias:
                 return workspace
         return None
     
@@ -323,7 +344,7 @@ class WorkspaceManager:
             Row-level security tag or empty string if not found
         """
         workspace = self.get_workspace_by_customer_id(customer_id)
-        return workspace.row_level_security_tag if workspace else ""
+        return workspace.parameters.get('row_level_security_tag', '') if workspace else ""
     
     def get_alias_by_resource_id(self, resource_id: str) -> str:
         """
@@ -336,7 +357,7 @@ class WorkspaceManager:
             Row-level security tag or empty string if not found
         """
         workspace = self.get_workspace_by_resource_id(resource_id)
-        return workspace.row_level_security_tag if workspace else ""
+        return workspace.parameters.get('row_level_security_tag', '') if workspace else ""
     
     def reports_summary(self) -> Dict[str, int]:
         """
@@ -394,10 +415,12 @@ class WorkspaceManager:
                 errors.append(f"{workspace_identifier}: Duplicate resource_id '{workspace.resource_id}'")
             seen_resource_ids.add(workspace.resource_id)
             
-            if workspace.row_level_security_tag and workspace.row_level_security_tag in seen_aliases:
-                errors.append(f"{workspace_identifier}: Duplicate row_level_security_tag '{workspace.row_level_security_tag}'")
-            if workspace.row_level_security_tag:
-                seen_aliases.add(workspace.row_level_security_tag)
+            # Check for duplicate security tags in parameters
+            alias = workspace.parameters.get('row_level_security_tag', '')
+            if alias and alias in seen_aliases:
+                errors.append(f"{workspace_identifier}: Duplicate row_level_security_tag '{alias}'")
+            if alias:
+                seen_aliases.add(alias)
             
             # Validate resource ID format
             try:
@@ -432,7 +455,8 @@ class WorkspaceManager:
                 subscription_summary[sub_id]['workspaces'].append({
                     'name': workspace.workspace_name,
                     'customer_id': workspace.customer_id,
-                    'alias': workspace.row_level_security_tag
+                    'alias': workspace.parameters.get('row_level_security_tag', ''),
+                    'parameters': workspace.parameters
                 })
                 subscription_summary[sub_id]['resource_groups'].add(workspace.resource_group)
                 subscription_summary[sub_id]['reports'].update(workspace.queries_list)
@@ -488,6 +512,19 @@ class WorkspaceManager:
         """
         workspaces = []
         for workspace_dict in workspace_dicts:
+            # Handle legacy format with row_level_security_tag as direct field
+            if 'row_level_security_tag' in workspace_dict and 'parameters' not in workspace_dict:
+                workspace_dict = workspace_dict.copy()
+                row_level_security_tag = workspace_dict.pop('row_level_security_tag')
+                workspace_dict['parameters'] = {'row_level_security_tag': row_level_security_tag}
+            elif 'row_level_security_tag' in workspace_dict and 'parameters' in workspace_dict:
+                # Move row_level_security_tag to parameters if both exist
+                workspace_dict = workspace_dict.copy()
+                row_level_security_tag = workspace_dict.pop('row_level_security_tag')
+                if 'parameters' not in workspace_dict:
+                    workspace_dict['parameters'] = {}
+                workspace_dict['parameters']['row_level_security_tag'] = row_level_security_tag
+            
             workspace = WorkspaceConfig(**workspace_dict)
             workspaces.append(workspace)
         
@@ -554,12 +591,12 @@ class WorkspaceManager:
         try:
             if isinstance(config_data, dict) and 'workspaces' in config_data:
                 validated_config = validate_workspace_config(config_data)
-                workspace_data = [ws.dict() for ws in validated_config.workspaces]
+                workspace_data = [ws.model_dump() for ws in validated_config.workspaces]
             else:
                 # Legacy format - wrap in expected structure
                 wrapped_config = {'workspaces': workspace_data}
                 validated_config = validate_workspace_config(wrapped_config)
-                workspace_data = [ws.dict() for ws in validated_config.workspaces]
+                workspace_data = [ws.model_dump() for ws in validated_config.workspaces]
                 
             logger.debug(f"✅ Configuration validation successful: {len(workspace_data)} workspaces")
             

@@ -27,10 +27,9 @@ class WorkspaceConfigModel(BaseModel):
         description="Log Analytics workspace customer ID (GUID)",
         pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
     )
-    row_level_security_tag: str = Field(
-        default="",
-        description="Row-level security tag for data isolation",
-        max_length=50
+    parameters: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Workspace-specific parameters for query execution"
     )
     queries_list: List[str] = Field(
         default_factory=list,
@@ -68,6 +67,24 @@ class WorkspaceConfigModel(BaseModel):
         for query in v:
             if query not in valid_queries:
                 raise ValueError(f"Invalid query name: {query}. Valid queries: {valid_queries}")
+        
+        return v
+    
+    @field_validator('parameters')
+    @classmethod
+    def validate_parameters(cls, v):
+        """Validate workspace parameters structure and types."""
+        if not isinstance(v, dict):
+            raise ValueError("Parameters must be a dictionary")
+        
+        # Validate common parameter types
+        for param_name, param_value in v.items():
+            if not isinstance(param_name, str):
+                raise ValueError(f"Parameter name must be a string, got {type(param_name)}")
+            
+            # Allow any type for parameter values, but warn about complex types
+            if isinstance(param_value, (dict, list)) and len(str(param_value)) > 1000:
+                raise ValueError(f"Parameter '{param_name}' value is too complex (>1000 chars)")
         
         return v
     
@@ -265,10 +282,11 @@ class WorkspaceCollectionModel(BaseModel):
     @field_validator('workspaces')
     @classmethod
     def validate_unique_workspaces(cls, v):
-        """Ensure workspace IDs and tags are unique."""
+        """Ensure workspace IDs and security tags are unique."""
         customer_ids = [ws.customer_id for ws in v]
         resource_ids = [ws.resource_id for ws in v]
-        tags = [ws.row_level_security_tag for ws in v if ws.row_level_security_tag]
+        security_tags = [ws.parameters.get("row_level_security_tag", "") for ws in v 
+                        if ws.parameters.get("row_level_security_tag")]
         
         if len(customer_ids) != len(set(customer_ids)):
             raise ValueError("Duplicate customer IDs found in workspace list")
@@ -276,7 +294,7 @@ class WorkspaceCollectionModel(BaseModel):
         if len(resource_ids) != len(set(resource_ids)):
             raise ValueError("Duplicate resource IDs found in workspace list")
         
-        if len(tags) != len(set(tags)):
+        if len(security_tags) != len(set(security_tags)):
             raise ValueError("Duplicate row-level security tags found in workspace list")
         
         return v

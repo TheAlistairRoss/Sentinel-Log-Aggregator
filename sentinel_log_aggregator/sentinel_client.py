@@ -750,7 +750,7 @@ class BatchOperationPoller:
                     # Create workspace execution result
                     workspace_exec = WorkspaceQueryExecution(
                         workspace_id=workspace.customer_id,
-                        workspace_alias=workspace.row_level_security_tag,
+                        workspace_alias=workspace.parameters.get('row_level_security_tag', workspace.customer_id),
                         query_result=query_result,
                         upload_result=upload_result,
                         correlation_id=self._result.job_correlation_id

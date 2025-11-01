@@ -6,15 +6,14 @@ build-backend = "setuptools.build_meta"
 name = "sentinel-log-aggregator"
 description = "Azure SDK-compliant Microsoft Sentinel Log Aggregation Client Library"
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
 authors = [
-    {name = "Microsoft Sentinel Team", email = "your-email@microsoft.com"}
+    {name = "Alistair Ross", email = "thealistairross@outlook.com"}
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: System Administrators",
     "Intended Audience :: Information Technology",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -32,11 +31,9 @@ dependencies = [
     "azure-monitor-ingestion>=1.1.0",
     "azure-core>=1.30.0",
     "azure-core-tracing-opentelemetry>=1.0.0",
-    "pandas>=2.0.0",
+    "aiohttp>=3.13.0",
     "python-dotenv>=1.0.0",
     "PyYAML>=6.0",
-    "aiohttp>=3.13.0",
-    "packaging>=21.0",
     "pydantic>=2.0.0",
 ]
 dynamic = ["version"]
@@ -54,6 +51,14 @@ dev = [
     "pre-commit>=3.0.0",
     "bandit>=1.7.0",
 ]
+security = [
+    "bandit[toml]>=1.7.0",
+    "safety>=2.3.0",
+    "pip-audit>=2.6.0",
+    "semgrep>=1.45.0",
+    "detect-secrets>=1.4.0",
+    "pip-licenses>=4.3.0",
+]
 docs = [
     "sphinx>=6.0.0",
     "sphinx-rtd-theme>=1.3.0",
@@ -64,9 +69,12 @@ docs = [
 sentinel-aggregator = "sentinel_log_aggregator.cli:main"
 
 [project.urls]
-"Bug Reports" = "https://github.com/your-org/sentinel-log-aggregator/issues"
-"Source" = "https://github.com/your-org/sentinel-log-aggregator"
-"Documentation" = "https://your-org.github.io/sentinel-log-aggregator/"
+"Homepage" = "https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator"
+"Bug Reports" = "https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/issues"
+"Source" = "https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator"
+"Documentation" = "https://thealistairross.github.io/Sentinel-Log-Aggregator/"
+"Download" = "https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/releases"
+"Changelog" = "https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/blob/main/CHANGELOG.md"
 
 [tool.setuptools.dynamic]
 version = {attr = "sentinel_log_aggregator.version.__version__"}
@@ -160,3 +168,16 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
+
+# Security tools configuration
+[tool.bandit]
+exclude_dirs = ["tests", "venv", ".venv", "env", ".env", "build", "dist"]
+skips = ["B101", "B601"]
+
+[tool.safety]
+ignore = []
+continue-on-error = false
+full-report = false
+
+[tool.semgrep]
+config = ["p/security-audit", "p/secrets", "p/python"]

@@ -1,0 +1,37 @@
+# Code Owners for Microsoft Sentinel Log Aggregator
+
+# Global ownership - all files unless specifically overridden
+* @TheAlistairRoss
+
+# Core library code
+/sentinel_log_aggregator/ @TheAlistairRoss
+
+# Configuration and security
+/sentinel_log_aggregator/config.py @TheAlistairRoss
+/sentinel_log_aggregator/security_utils.py @TheAlistairRoss
+/sentinel_log_aggregator/azure_client.py @TheAlistairRoss
+
+# CI/CD and workflows
+/.github/ @TheAlistairRoss
+/.pre-commit-config.yaml @TheAlistairRoss
+/pyproject.toml @TheAlistairRoss
+
+# Documentation
+/docs/ @TheAlistairRoss
+/README.md @TheAlistairRoss
+/CHANGELOG.md @TheAlistairRoss
+
+# Security and compliance files
+/SECURITY.md @TheAlistairRoss
+/.bandit @TheAlistairRoss
+/.secrets.baseline @TheAlistairRoss
+
+# Package distribution
+/scripts/ @TheAlistairRoss
+/requirements*.txt @TheAlistairRoss
+/MANIFEST.in @TheAlistairRoss
+
+# Tests - require review for critical test changes
+/tests/test_security* @TheAlistairRoss
+/tests/test_client* @TheAlistairRoss
+/tests/test_azure* @TheAlistairRoss

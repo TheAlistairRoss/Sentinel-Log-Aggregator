@@ -9,18 +9,12 @@ azure-core>=1.30.0
 # Additional Azure SDK packages for compliance
 azure-core-tracing-opentelemetry>=1.0.0
 
-# Data processing and manipulation
-pandas>=2.0.0
-
 # Configuration management
 python-dotenv>=1.0.0
 PyYAML>=6.0.0
 
 # Async HTTP client support
 aiohttp>=3.13.0
-
-# Utility packages
-packaging>=21.0
 
 # Data validation and parsing
 pydantic>=2.0.0

@@ -16,8 +16,8 @@ def sample_workspace_config():
     return WorkspaceConfig(
         resource_id="/subscriptions/test-sub-id/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace",
         customer_id="test-customer-id-12345",
-        row_level_security_tag="TEST_WS",
-        queries_list=["query_incident_summary", "query_workspace_usage"]
+        parameters={"row_level_security_tag": "TEST_WS"},
+        queries_list=["tests_query_without_params", "tests_query_with_params"]
     )
 
 @pytest.fixture
@@ -56,7 +56,7 @@ class TestWorkspaceConfig:
         config = WorkspaceConfig(
             resource_id="/subscriptions/test-sub/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-ws",
             customer_id="test-customer-id",
-            row_level_security_tag="TEST",
+            parameters={"row_level_security_tag": "TEST"},
             queries_list=["query_incident_summary"]
         )
         
@@ -319,13 +319,13 @@ class TestSentinelQueryEngine:
             WorkspaceConfig(
                 resource_id="/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/prod-rg/providers/microsoft.operationalinsights/workspaces/prod-workspace",
                 customer_id="11111111-1111-1111-1111-111111111111",
-                row_level_security_tag="prod",
+                parameters={"row_level_security_tag": "prod"},
                 queries_list=["report_incident_summary"]
             ),
             WorkspaceConfig(
                 resource_id="/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/dev-rg/providers/microsoft.operationalinsights/workspaces/dev-workspace",
                 customer_id="22222222-2222-2222-2222-222222222222",
-                row_level_security_tag="dev",
+                parameters={"row_level_security_tag": "dev"},
                 queries_list=["report_incident_summary"]
             )
         ]
@@ -608,7 +608,7 @@ class TestQueryEnginePerformance:
             workspaces.append(WorkspaceConfig(
                 resource_id=f"/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/rg-{i}/providers/microsoft.operationalinsights/workspaces/ws-{i}",
                 customer_id=f"{i:08d}-{i:04d}-{i:04d}-{i:04d}-{i:012d}",
-                row_level_security_tag=f"ws-{i}",
+                parameters={"row_level_security_tag": f"ws-{i}"},
                 queries_list=["report_incident_summary"]
             ))
         
@@ -1034,7 +1034,7 @@ class TestWorkspaceConfigValidation:
         config_data = {
             'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace',
             'customer_id': '11111111-1111-1111-1111-111111111111',
-            'row_level_security_tag': 'test',
+            'parameters': {"row_level_security_tag": "test"},
             'queries_list': ['report_incident_summary']
         }
         
@@ -1087,12 +1087,12 @@ class TestWorkspaceConfigValidation:
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-1',
                     'customer_id': '11111111-1111-1111-1111-111111111111',
-                    'row_level_security_tag': 'test1'
+                    'parameters': {"row_level_security_tag": "test"}
                 },
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-2',
                     'customer_id': '22222222-2222-2222-2222-222222222222',
-                    'row_level_security_tag': 'test2'
+                    'parameters': {"row_level_security_tag": "test"}
                 }
             ]
         }
@@ -1107,12 +1107,12 @@ class TestWorkspaceConfigValidation:
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-1',
                     'customer_id': '11111111-1111-1111-1111-111111111111',
-                    'row_level_security_tag': 'test1'
+                    'parameters': {"row_level_security_tag": "test"}
                 },
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-2',
                     'customer_id': '11111111-1111-1111-1111-111111111111',  # Duplicate
-                    'row_level_security_tag': 'test2'
+                    'parameters': {"row_level_security_tag": "test"}
                 }
             ]
         }
@@ -1615,19 +1615,19 @@ class TestWorkspaceSet:
             WorkspaceConfig(
                 resource_id="/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/prod-rg/providers/microsoft.operationalinsights/workspaces/prod-workspace",
                 customer_id="11111111-1111-1111-1111-111111111111",
-                row_level_security_tag="prod",
+                parameters={"row_level_security_tag": "prod"},
                 queries_list=["report_incident_summary", "report_workspace_usage"]
             ),
             WorkspaceConfig(
                 resource_id="/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/dev-rg/providers/microsoft.operationalinsights/workspaces/dev-workspace",
                 customer_id="22222222-2222-2222-2222-222222222222",
-                row_level_security_tag="dev",
+                parameters={"row_level_security_tag": "dev"},
                 queries_list=["report_incident_summary"]
             ),
             WorkspaceConfig(
                 resource_id="/subscriptions/87654321-4321-4321-4321-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace",
                 customer_id="33333333-3333-3333-3333-333333333333",
-                row_level_security_tag="test",
+                parameters={"row_level_security_tag": "test"},
                 queries_list=["report_workspace_usage"]
             )
         ]
@@ -1760,13 +1760,13 @@ class TestWorkspaceManager:
             WorkspaceConfig(
                 resource_id="/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/prod-rg/providers/microsoft.operationalinsights/workspaces/prod-workspace",
                 customer_id="11111111-1111-1111-1111-111111111111",
-                row_level_security_tag="prod",
+                parameters={"row_level_security_tag": "prod"},
                 queries_list=["report_incident_summary"]
             ),
             WorkspaceConfig(
                 resource_id="/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/dev-rg/providers/microsoft.operationalinsights/workspaces/dev-workspace",
                 customer_id="22222222-2222-2222-2222-222222222222",
-                row_level_security_tag="dev",
+                parameters={"row_level_security_tag": "dev"},
                 queries_list=["report_workspace_usage"]
             )
         ]
@@ -1789,7 +1789,7 @@ class TestWorkspaceManager:
         workspace = WorkspaceConfig(
             resource_id="/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace",
             customer_id="11111111-1111-1111-1111-111111111111",
-            row_level_security_tag="test",
+            parameters={"row_level_security_tag": "test"},
             queries_list=["report_incident_summary"]
         )
         
@@ -1806,7 +1806,7 @@ class TestWorkspaceManager:
         invalid_workspace = WorkspaceConfig(
             resource_id="/subscriptions/invalid/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace",
             customer_id="invalid-id",
-            row_level_security_tag="test",
+            parameters={"row_level_security_tag": "test"},
             queries_list=[]
         )
         
@@ -1865,7 +1865,7 @@ class TestWorkspaceManager:
             {
                 "resource_id": "/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace",
                 "customer_id": "11111111-1111-1111-1111-111111111111",
-                "row_level_security_tag": "test",
+                "parameters": {"row_level_security_tag": "test"},
                 "queries_list": ["report_incident_summary"]
             }
         ]
@@ -1888,7 +1888,7 @@ class TestWorkspaceManager:
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace',
                     'customer_id': '11111111-1111-1111-1111-111111111111',
-                    'row_level_security_tag': 'test',
+                    'parameters': {"row_level_security_tag": "test"},
                     'queries_list': ['report_incident_summary']
                 }
             ],
@@ -1903,7 +1903,7 @@ class TestWorkspaceManager:
         
         manager = WorkspaceManager.from_file(yaml_file)
         assert manager.count() == 1
-        assert manager.workspaces[0].row_level_security_tag == "test"
+        assert manager.workspaces[0].parameters["row_level_security_tag"] == "test"
     
     def test_from_file_legacy_format(self, tmp_path):
         """Test loading WorkspaceManager from legacy YAML format."""
@@ -1911,7 +1911,7 @@ class TestWorkspaceManager:
             {
                 'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace',
                 'customer_id': '11111111-1111-1111-1111-111111111111',
-                'row_level_security_tag': 'test',
+                'parameters': {"row_level_security_tag": "test"},
                 'queries_list': ['report_incident_summary']
             }
         ]
@@ -1974,7 +1974,7 @@ class TestWorkspaceManager:
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace',
                     'customer_id': '11111111-1111-1111-1111-111111111111',
-                    'row_level_security_tag': 'test',
+                    'parameters': {"row_level_security_tag": "test"},
                     'queries_list': ['report_incident_summary']
                 }
             ]
@@ -2006,7 +2006,7 @@ class TestWorkspaceConfigModel:
         config_data = {
             'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace',
             'customer_id': '11111111-1111-1111-1111-111111111111',
-            'row_level_security_tag': 'test',
+            'parameters': {"row_level_security_tag": "test"},
             'queries_list': ['report_incident_summary']
         }
         

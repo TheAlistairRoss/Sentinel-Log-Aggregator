@@ -318,15 +318,13 @@ class SentinelQueryEngine:
         for workspace in workspace_configs:
             workspace_id = workspace.customer_id
             queries_list = workspace.queries_list
-            workspace_alias = workspace.row_level_security_tag or workspace_id
+            workspace_alias = workspace.parameters.get('row_level_security_tag', workspace_id)
             
             for query_name in queries_list:
                 if query_name in AVAILABLE_QUERIES:
                     try:
                         # Build query with workspace-specific parameters
-                        query_parameters = {
-                            "row_level_security_tag": workspace.row_level_security_tag
-                        }
+                        query_parameters = workspace.parameters.copy()
                         
                         parameterized_query = self.build_query_with_parameters(
                             query_name, 

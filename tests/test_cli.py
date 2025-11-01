@@ -274,7 +274,7 @@ class TestMainFunction:
             WorkspaceConfig(
                 resource_id="/subscriptions/test/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace",
                 customer_id="test-customer-id",
-                row_level_security_tag="test"
+                parameters={"row_level_security_tag": "test"}
             )
         ]
     
@@ -391,7 +391,12 @@ class TestCLIMainWrapper:
     @patch('sentinel_log_aggregator.cli.asyncio.run')
     def test_cli_main_success(self, mock_asyncio_run):
         """Test successful CLI execution."""
-        mock_asyncio_run.return_value = 0
+        # Create a side effect that properly consumes the coroutine before returning
+        def success_side_effect(coro):
+            coro.close()  # Close the coroutine to avoid unawaited warning
+            return 0
+        
+        mock_asyncio_run.side_effect = success_side_effect
         
         result = cli_main()
         
@@ -401,7 +406,12 @@ class TestCLIMainWrapper:
     @patch('sentinel_log_aggregator.cli.asyncio.run')
     def test_cli_main_keyboard_interrupt(self, mock_asyncio_run):
         """Test handling of keyboard interrupt."""
-        mock_asyncio_run.side_effect = KeyboardInterrupt()
+        # Create a side effect that properly consumes the coroutine before raising
+        def keyboard_interrupt_side_effect(coro):
+            coro.close()  # Close the coroutine to avoid unawaited warning
+            raise KeyboardInterrupt()
+        
+        mock_asyncio_run.side_effect = keyboard_interrupt_side_effect
         
         with patch('builtins.print') as mock_print:
             result = cli_main()
@@ -412,7 +422,12 @@ class TestCLIMainWrapper:
     @patch('sentinel_log_aggregator.cli.asyncio.run')
     def test_cli_main_error(self, mock_asyncio_run):
         """Test CLI execution with error return code."""
-        mock_asyncio_run.return_value = 1
+        # Create a side effect that properly consumes the coroutine before returning
+        def error_side_effect(coro):
+            coro.close()  # Close the coroutine to avoid unawaited warning
+            return 1
+        
+        mock_asyncio_run.side_effect = error_side_effect
         
         result = cli_main()
         

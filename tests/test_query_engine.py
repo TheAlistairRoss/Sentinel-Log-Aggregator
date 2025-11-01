@@ -16,7 +16,7 @@ def sample_workspace_config():
     return WorkspaceConfig(
         resource_id="/subscriptions/test-sub-id/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace",
         customer_id="test-customer-id-12345",
-        row_level_security_tag="TEST_WS",
+        parameters={"row_level_security_tag": "TEST_WS"},
         queries_list=["query_incident_summary", "query_workspace_usage"]
     )
 
@@ -56,7 +56,7 @@ class TestWorkspaceConfig:
         config = WorkspaceConfig(
             resource_id="/subscriptions/test-sub/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-ws",
             customer_id="test-customer-id",
-            row_level_security_tag="TEST",
+            parameters={"row_level_security_tag": "TEST"},
             queries_list=["query_incident_summary"]
         )
         
@@ -317,13 +317,13 @@ class TestSentinelQueryEngine:
             WorkspaceConfig(
                 resource_id="/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/prod-rg/providers/microsoft.operationalinsights/workspaces/prod-workspace",
                 customer_id="11111111-1111-1111-1111-111111111111",
-                row_level_security_tag="prod",
+                parameters={"row_level_security_tag": "prod"},
                 queries_list=["report_incident_summary"]
             ),
             WorkspaceConfig(
                 resource_id="/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/dev-rg/providers/microsoft.operationalinsights/workspaces/dev-workspace",
                 customer_id="22222222-2222-2222-2222-222222222222",
-                row_level_security_tag="dev",
+                parameters={"row_level_security_tag": "dev"},
                 queries_list=["report_incident_summary"]
             )
         ]
@@ -619,7 +619,7 @@ class TestQueryEnginePerformance:
             workspaces.append(WorkspaceConfig(
                 resource_id=f"/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/rg-{i}/providers/microsoft.operationalinsights/workspaces/ws-{i}",
                 customer_id=f"{i:08d}-{i:04d}-{i:04d}-{i:04d}-{i:012d}",
-                row_level_security_tag=f"ws-{i}",
+                parameters={"row_level_security_tag": f"ws-{i}"},
                 queries_list=["report_incident_summary"]
             ))
         
@@ -1031,7 +1031,7 @@ class TestWorkspaceConfigValidation:
         config_data = {
             'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace',
             'customer_id': '11111111-1111-1111-1111-111111111111',
-            'row_level_security_tag': 'test',
+            'parameters': {"row_level_security_tag": "test"},
             'queries_list': ['query_incident_summary']
         }
         
@@ -1084,12 +1084,12 @@ class TestWorkspaceConfigValidation:
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-1',
                     'customer_id': '11111111-1111-1111-1111-111111111111',
-                    'row_level_security_tag': 'test1'
+                    'parameters': {"row_level_security_tag": "test1"}
                 },
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-2',
                     'customer_id': '22222222-2222-2222-2222-222222222222',
-                    'row_level_security_tag': 'test2'
+                    'parameters': {"row_level_security_tag": "test2"}
                 }
             ]
         }
@@ -1104,12 +1104,12 @@ class TestWorkspaceConfigValidation:
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-1',
                     'customer_id': '11111111-1111-1111-1111-111111111111',
-                    'row_level_security_tag': 'test1'
+                    'parameters': {"row_level_security_tag": "test"}
                 },
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-2',
                     'customer_id': '11111111-1111-1111-1111-111111111111',  # Duplicate
-                    'row_level_security_tag': 'test2'
+                    'parameters': {"row_level_security_tag": "test"}
                 }
             ]
         }
@@ -1612,19 +1612,19 @@ class TestWorkspaceSet:
             WorkspaceConfig(
                 resource_id="/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/prod-rg/providers/microsoft.operationalinsights/workspaces/prod-workspace",
                 customer_id="11111111-1111-1111-1111-111111111111",
-                row_level_security_tag="prod",
+                parameters={"row_level_security_tag": "prod"},
                 queries_list=["query_incident_summary", "query_workspace_usage"]
             ),
             WorkspaceConfig(
                 resource_id="/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/dev-rg/providers/microsoft.operationalinsights/workspaces/dev-workspace",
                 customer_id="22222222-2222-2222-2222-222222222222",
-                row_level_security_tag="dev",
+                parameters={"row_level_security_tag": "dev"},
                 queries_list=["query_incident_summary"]
             ),
             WorkspaceConfig(
                 resource_id="/subscriptions/87654321-4321-4321-4321-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace",
                 customer_id="33333333-3333-3333-3333-333333333333",
-                row_level_security_tag="test",
+                parameters={"row_level_security_tag": "test"},
                 queries_list=["query_workspace_usage"]
             )
         ]
@@ -1740,13 +1740,13 @@ class TestWorkspaceManager:
             WorkspaceConfig(
                 resource_id="/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/prod-rg/providers/microsoft.operationalinsights/workspaces/prod-workspace",
                 customer_id="11111111-1111-1111-1111-111111111111",
-                row_level_security_tag="prod",
+                parameters={"row_level_security_tag": "prod"},
                 queries_list=["query_incident_summary"]
             ),
             WorkspaceConfig(
                 resource_id="/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/dev-rg/providers/microsoft.operationalinsights/workspaces/dev-workspace",
                 customer_id="22222222-2222-2222-2222-222222222222",
-                row_level_security_tag="dev",
+                parameters={"row_level_security_tag": "dev"},
                 queries_list=["query_workspace_usage"]
             )
         ]
@@ -1769,7 +1769,7 @@ class TestWorkspaceManager:
         workspace = WorkspaceConfig(
             resource_id="/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace",
             customer_id="11111111-1111-1111-1111-111111111111",
-            row_level_security_tag="test",
+            parameters={"row_level_security_tag": "test"},
             queries_list=["report_incident_summary"]
         )
         
@@ -1786,7 +1786,7 @@ class TestWorkspaceManager:
         invalid_workspace = WorkspaceConfig(
             resource_id="/subscriptions/invalid/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace",
             customer_id="invalid-id",
-            row_level_security_tag="test",
+            parameters={"row_level_security_tag": "test"},
             queries_list=[]
         )
         
@@ -1845,7 +1845,7 @@ class TestWorkspaceManager:
             {
                 "resource_id": "/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace",
                 "customer_id": "11111111-1111-1111-1111-111111111111",
-                "row_level_security_tag": "test",
+                "parameters": {"row_level_security_tag": "test"},
                 "queries_list": ["report_incident_summary"]
             }
         ]
@@ -1868,7 +1868,7 @@ class TestWorkspaceManager:
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace',
                     'customer_id': '11111111-1111-1111-1111-111111111111',
-                    'row_level_security_tag': 'test',
+                    'parameters': {"row_level_security_tag": "test"},
                     'queries_list': ['report_incident_summary']
                 }
             ],
@@ -1883,7 +1883,7 @@ class TestWorkspaceManager:
         
         manager = WorkspaceManager.from_file(yaml_file)
         assert manager.count() == 1
-        assert manager.workspaces[0].row_level_security_tag == "test"
+        assert manager.workspaces[0].parameters["row_level_security_tag"] == "test"
     
     def test_from_file_legacy_format(self, tmp_path):
         """Test loading WorkspaceManager from legacy YAML format."""
@@ -1891,7 +1891,7 @@ class TestWorkspaceManager:
             {
                 'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace',
                 'customer_id': '11111111-1111-1111-1111-111111111111',
-                'row_level_security_tag': 'test',
+                'parameters': {"row_level_security_tag": "test"},
                 'queries_list': ['report_incident_summary']
             }
         ]
@@ -1954,7 +1954,7 @@ class TestWorkspaceManager:
                 {
                     'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace',
                     'customer_id': '11111111-1111-1111-1111-111111111111',
-                    'row_level_security_tag': 'test',
+                    'parameters': {"row_level_security_tag": "test"},
                     'queries_list': ['report_incident_summary']
                 }
             ]
@@ -1986,7 +1986,7 @@ class TestWorkspaceConfigModel:
         config_data = {
             'resource_id': '/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace',
             'customer_id': '11111111-1111-1111-1111-111111111111',
-            'row_level_security_tag': 'test',
+            'parameters': {"row_level_security_tag": "test"},
             'queries_list': ['report_incident_summary']
         }
         
@@ -2086,7 +2086,7 @@ class TestQueryEngineMissingCoverage:
         engine = SentinelQueryEngine(options, None)
         
         # Test with valid query name from AVAILABLE_QUERIES
-        result = engine.build_query_with_parameters("query_incident_summary", {"row_level_security_tag": "TEST"})
+        result = engine.build_query_with_parameters("query_incident_summary", {"parameters": {"row_level_security_tag": "TEST"}})
         
         # Should return a string (the built query)
         assert isinstance(result, str)
@@ -2251,13 +2251,13 @@ class TestQueryEngineMissingCoverage:
             WorkspaceConfig(
                 resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test1",
                 customer_id="test-workspace-1",
-                row_level_security_tag="TEST1",
+                parameters={"row_level_security_tag": "TEST1"},
                 queries_list=["query_incident_summary", "query_workspace_usage"]
             ),
             WorkspaceConfig(
                 resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test2", 
                 customer_id="test-workspace-2",
-                row_level_security_tag="TEST2",
+                parameters={"row_level_security_tag": "TEST2"},
                 queries_list=["query_incident_summary"]
             )
         ]
@@ -2315,7 +2315,7 @@ class TestQueryEngineMissingCoverage:
         workspace = WorkspaceConfig(
             resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
             customer_id="test-workspace-id",
-            row_level_security_tag="TEST",
+            parameters={"row_level_security_tag": "TEST"},
             queries_list=["query_incident_summary"]
         )
         
@@ -2480,7 +2480,7 @@ class TestQueryEngineCompleteCoverage:
         workspace = WorkspaceConfig(
             resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
             customer_id="test-workspace-id",
-            row_level_security_tag="TEST",
+            parameters={"row_level_security_tag": "TEST"},
             queries_list=["query_incident_summary"]
         )
         
@@ -2527,20 +2527,23 @@ class TestQueryEngineCompleteCoverage:
             succeeded=False,
             error_message="BadArgumentError: Invalid query syntax"
         ))
-        
+
         engine = SentinelQueryEngine(options, mock_client)
-        
+
         workspace = WorkspaceConfig(
             resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
             customer_id="test-workspace-id",
-            row_level_security_tag="TEST",
+            parameters={"row_level_security_tag": "TEST"},
             queries_list=["query_incident_summary", "query_workspace_usage"]  # Multiple queries to test batching
         )
-        
+
         detailed_summary_mock = {
             "overview": {"total_queries": 2},
             "workspace_query_details": []
         }
+
+        # Don't mock execute_single_query_with_upload - let it run normally 
+        # The mock_client will cause it to return syntax errors naturally
         
         with patch('sentinel_log_aggregator.models.BatchExecutionSummary.generate_detailed_summary', return_value=detailed_summary_mock), \
              patch.object(engine, 'logger') as mock_logger:
@@ -2572,7 +2575,7 @@ class TestQueryEngineCompleteCoverage:
         workspace = WorkspaceConfig(
             resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
             customer_id="test-workspace-id",
-            row_level_security_tag="TEST",
+            parameters={"row_level_security_tag": "TEST"},
             queries_list=["query_incident_summary"]
         )
         
@@ -2622,7 +2625,7 @@ class TestQueryEngineCompleteCoverage:
         workspace = WorkspaceConfig(
             resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
             customer_id="test-workspace-id", 
-            row_level_security_tag="TEST",
+            parameters={"row_level_security_tag": "TEST"},
             queries_list=["query_incident_summary"]
         )
         
@@ -2869,7 +2872,7 @@ class TestQueryEngineRemainingLines:
             WorkspaceConfig(
                 resource_id=f"/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test{i}",
                 customer_id=f"test-workspace-id-{i}",
-                row_level_security_tag="TEST",
+                parameters={"row_level_security_tag": "TEST"},
                 queries_list=["query_incident_summary"]
             ) for i in range(3)  # 3 workspaces * 1 query = 3 tasks, with max_concurrent=1 = 3 batches
         ]
@@ -2895,14 +2898,16 @@ class TestQueryEngineRemainingLines:
                     succeeded=False,
                     error_message="SyntaxError: Invalid KQL syntax detected"
                 )
-            
+
         mock_client.query_workspace = AsyncMock(side_effect=query_side_effect)
-        mock_client.upload_to_dcr = AsyncMock(return_value=True)
-        
+        mock_client.upload_logs = AsyncMock(return_value=MagicMock(succeeded=True, record_count=1, upload_time=0.1))
+
         detailed_summary_mock = {
             "overview": {"total_queries": 3},
             "workspace_query_details": []
         }
+
+        # Don't mock execute_single_query_with_upload - let the natural flow work
         
         with patch('sentinel_log_aggregator.models.BatchExecutionSummary.generate_detailed_summary', return_value=detailed_summary_mock), \
              patch.object(engine, 'logger') as mock_logger:
@@ -2910,9 +2915,7 @@ class TestQueryEngineRemainingLines:
             summary = await engine.execute_batch_queries_with_streaming_upload(
                 workspace_configs=workspaces,
                 days_back=1
-            )
-        
-        # Verify that critical error logging was called (lines 388-389)
+            )        # Verify that critical error logging was called (lines 388-389)
         # Check if the critical error message was logged - look for the actual message patterns
         error_calls = [str(call) for call in mock_logger.error.call_args_list]
         critical_logged = any("Critical errors detected - stopping execution" in call or 
@@ -2965,7 +2968,7 @@ class TestQueryEngineRemainingLines:
         workspace = WorkspaceConfig(
             resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
             customer_id="test-workspace-id",
-            row_level_security_tag="TEST"
+            parameters={"row_level_security_tag": "TEST"}
         )
 
         with patch.object(engine, 'logger') as mock_logger:
@@ -3056,7 +3059,7 @@ class TestQueryEngineRemainingLines:
         workspace = WorkspaceConfig(
             resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
             customer_id="test-workspace-id",
-            row_level_security_tag="TEST",
+            parameters={"row_level_security_tag": "TEST"},
             queries_list=["query_incident_summary"]
         )
         
