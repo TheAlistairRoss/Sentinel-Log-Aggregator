@@ -25,7 +25,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     
     - name: Cache pip dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
@@ -54,14 +54,14 @@ jobs:
         pip-audit --format=json --output=pip-audit-report.json || true
     
     - name: Upload Bandit results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: bandit-results-${{ matrix.python-version }}
         path: bandit-report.json
 
     - name: Upload Security Scan Results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: security-scan-results-${{ matrix.python-version }}
@@ -91,7 +91,7 @@ jobs:
         pytest tests/ -v --cov=sentinel_log_aggregator --cov-report=xml --cov-report=html --cov-fail-under=80
     
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       if: matrix.python-version == env.PYTHON_VERSION
       with:
         file: ./coverage.xml
@@ -152,7 +152,7 @@ jobs:
         twine check dist/*
     
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: dist
         path: dist/
@@ -201,7 +201,7 @@ jobs:
         sphinx-build -b html docs/ docs/_build/html
     
     - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./docs/_build/html
@@ -225,7 +225,7 @@ jobs:
         python-version: ${{ env.PYTHON_VERSION }}
     
     - name: Download build artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: dist
         path: dist/
