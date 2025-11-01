@@ -87,7 +87,7 @@ repos:
         description: Detect hardcoded secrets
         entry: trufflehog git file://. --since-commit HEAD --only-verified --fail
         language: system
-        stages: ["commit", "push"]
+        stages: ["pre-commit", "pre-push"]
 
   # YAML linting
   - repo: https://github.com/adrienverge/yamllint
@@ -128,7 +128,7 @@ repos:
         args: [tests/, --tb=short, -q]
         types: [python]
         pass_filenames: false
-        stages: [push]
+        stages: [pre-push]
 
       - id: security-check
         name: security-check
@@ -140,4 +140,4 @@ repos:
 
 # Global configuration
 fail_fast: false
-default_stages: [commit]
+default_stages: [pre-commit]
