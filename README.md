@@ -17,7 +17,7 @@ An Azure SDK-compliant Python client library for aggregating and processing logs
 ## Installation
 
 ### Requirements
-- Python 3.11 or higher
+- Python 3.11 or higher (tested on Python 3.11-3.15)
 - Azure subscription with Microsoft Sentinel workspaces
 - Appropriate Azure permissions (see Configuration section)
 
