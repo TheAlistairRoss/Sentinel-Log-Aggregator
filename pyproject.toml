@@ -31,7 +31,7 @@ dependencies = [
     "azure-monitor-query>=2.0.0", 
     "azure-monitor-ingestion>=1.1.0",
     "azure-core>=1.30.0",
-    "azure-core-tracing-opentelemetry>=1.0.0",
+    "azure-core-tracing-opentelemetry>=1.0.0b12",
     "pandas>=2.0.0",
     "python-dotenv>=1.0.0",
     "PyYAML>=6.0",
@@ -103,7 +103,7 @@ ensure_newline_before_comments = true
 
 # mypy configuration
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
