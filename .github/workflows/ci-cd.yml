@@ -94,7 +94,7 @@ jobs:
         pytest tests/ -v --cov=sentinel_log_aggregator --cov-report=xml --cov-report=html --cov-fail-under=80
     
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       if: matrix.python-version == env.PYTHON_VERSION
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
