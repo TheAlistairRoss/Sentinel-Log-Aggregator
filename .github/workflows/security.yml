@@ -22,12 +22,12 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4.2.2
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
     - name: Set up Python
-      uses: actions/setup-python@v5.3.0
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
@@ -125,7 +125,7 @@ jobs:
 
     # Upload Security Reports
     - name: Upload Security Scan Results
-      uses: actions/upload-artifact@v4.4.3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: security-reports
@@ -136,21 +136,21 @@ jobs:
 
     # Upload SARIF files to GitHub Security tab
     - name: Upload Trivy SARIF results
-      uses: github/codeql-action/upload-sarif@v3.27.6
+      uses: github/codeql-action/upload-sarif@v3
       if: always() && hashFiles('trivy-results.sarif') != ''
       with:
         sarif_file: trivy-results.sarif
         category: trivy-fs
 
     - name: Upload Trivy Config SARIF results
-      uses: github/codeql-action/upload-sarif@v3.27.6
+      uses: github/codeql-action/upload-sarif@v3
       if: always() && hashFiles('trivy-config-results.sarif') != ''
       with:
         sarif_file: trivy-config-results.sarif
         category: trivy-config
 
     - name: Upload Semgrep SARIF results
-      uses: github/codeql-action/upload-sarif@v3.27.6
+      uses: github/codeql-action/upload-sarif@v3
       if: always() && hashFiles('results.sarif') != ''
       with:
         sarif_file: results.sarif
@@ -194,19 +194,19 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4.2.2
+      uses: actions/checkout@v4
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3.27.6
+      uses: github/codeql-action/init@v3
       with:
         languages: python
         queries: security-extended,security-and-quality
 
     - name: Autobuild
-      uses: github/codeql-action/autobuild@v3.27.6
+      uses: github/codeql-action/autobuild@v3
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3.27.6
+      uses: github/codeql-action/analyze@v3
       with:
         category: "/language:python"
 
@@ -217,10 +217,10 @@ jobs:
     
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4.2.2
+      uses: actions/checkout@v4
       
     - name: Dependency Review
-      uses: actions/dependency-review-action@v4.4.0
+      uses: actions/dependency-review-action@v4
       with:
         fail-on-severity: moderate
         allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC
