@@ -129,7 +129,7 @@ class UploadResult:
     record_count: int
     upload_time: float
     stream_name: str
-    dcr_rule_id: str
+    dcr_rule_id: Optional[str] = None
     correlation_id: Optional[str] = None
     request_id: Optional[str] = None
     error_message: Optional[str] = None

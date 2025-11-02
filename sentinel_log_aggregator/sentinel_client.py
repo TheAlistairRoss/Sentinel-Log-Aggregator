@@ -77,8 +77,8 @@ class SentinelAggregatorClient:
         credential: AsyncTokenCredential,
         *,
         options: Optional[SentinelAggregatorClientOptions] = None,
-        **kwargs
-    ):
+        **kwargs: Any
+    ) -> None:
         """
         Initialize the Sentinel Aggregator client.
         
@@ -121,7 +121,7 @@ class SentinelAggregatorClient:
         *,
         credential: Optional[AsyncTokenCredential] = None,
         options: Optional[SentinelAggregatorClientOptions] = None,
-        **kwargs
+        **kwargs: Any
     ) -> "SentinelAggregatorClient":
         """
         Create client from connection string.
@@ -207,7 +207,7 @@ class SentinelAggregatorClient:
             )
         return self._logs_ingestion_client
     
-    @distributed_trace_async
+    @distributed_trace_async  # type: ignore[misc]
     async def validate_credentials(self) -> None:
         """
         Validate credentials and connectivity.
@@ -234,7 +234,7 @@ class SentinelAggregatorClient:
                 scope="https://api.loganalytics.io/.default"
             ) from e
     
-    @distributed_trace_async
+    @distributed_trace_async  # type: ignore[misc]
     async def get_service_properties(self) -> ServiceProperties:
         """
         Get service properties for health checks and diagnostics.
@@ -270,7 +270,7 @@ class SentinelAggregatorClient:
             last_check_time=datetime.now(timezone.utc)
         )
     
-    @distributed_trace_async
+    @distributed_trace_async  # type: ignore[misc]
     async def query_workspace(
         self,
         workspace_id: str,
@@ -432,7 +432,7 @@ class SentinelAggregatorClient:
         :return: Paginated query results
         :rtype: ItemPaged[Dict[str, Any]]
         """
-        async def get_page(continuation_token=None):
+        async def get_page(continuation_token: Optional[str] = None) -> tuple:
             """Get a page of results."""
             page_query = query
             
@@ -484,7 +484,7 @@ class SentinelAggregatorClient:
         import json
         from decimal import Decimal
         
-        def convert_value(value):
+        def convert_value(value: Any) -> Any:
             """Convert a single value to JSON-serializable format."""
             if isinstance(value, datetime):
                 # Convert datetime to ISO format string
@@ -507,7 +507,7 @@ class SentinelAggregatorClient:
         
         return serializable_data
     
-    @distributed_trace_async
+    @distributed_trace_async  # type: ignore[misc]
     async def upload_logs(
         self,
         data: List[Dict[str, Any]],
@@ -591,7 +591,7 @@ class SentinelAggregatorClient:
                 error_code=getattr(e, 'error_code', type(e).__name__)
             )
     
-    @distributed_trace_async
+    @distributed_trace_async  # type: ignore[misc]
     async def begin_batch_operation(
         self,
         workspaces: List[WorkspaceConfig],
@@ -661,7 +661,7 @@ class SentinelAggregatorClient:
         """Async context manager entry."""
         return self
     
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+    async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """Async context manager exit."""
         await self.close()
 

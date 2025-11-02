@@ -47,7 +47,7 @@ def load_environment_variables(env_file_path: Optional[Path] = None) -> None:
             load_dotenv(default_env)
 
 
-def create_client_options_from_args(args) -> SentinelAggregatorClientOptions:
+def create_client_options_from_args(args: Any) -> SentinelAggregatorClientOptions:
     """
     Create client options from command line arguments with environment variable fallback.
     
@@ -95,7 +95,7 @@ def create_client_options_from_args(args) -> SentinelAggregatorClientOptions:
     )
 
 
-def setup_logging(log_level: str = "INFO", log_format: str = None):
+def setup_logging(log_level: str = "INFO", log_format: Optional[str] = None) -> None:
     """Setup logging configuration using enhanced logging utilities."""
     configure_logging(
         level=log_level,
@@ -107,11 +107,15 @@ def setup_logging(log_level: str = "INFO", log_format: str = None):
 async def check_service_health(
     client_options: SentinelAggregatorClientOptions,
     workspaces: List[WorkspaceConfig]
-):
+) -> None:
     """Check service health using the Azure SDK-compliant client."""
     logger = logging.getLogger(__name__)
     
     logger.info("🔍 Performing service health check using Azure SDK-compliant client...")
+    
+    # Ensure endpoint is set (should be validated by this point)
+    if not client_options.dcr_logs_ingestion_endpoint:
+        raise ValueError("DCR logs ingestion endpoint is required")
     
     try:
         # Create Azure SDK-compliant client
@@ -172,18 +176,17 @@ async def check_service_health(
 async def run_aggregation(
     client_options: SentinelAggregatorClientOptions,
     workspaces: List[WorkspaceConfig],
-    days_back: int = None,
-    batch_hours: int = None
-):
+    days_back: Optional[int] = None,
+    batch_hours: Optional[int] = None
+) -> None:
     """Run the log aggregation process using Azure SDK-compliant components."""
     logger = logging.getLogger(__name__)
     
     # Validate configuration
-    config_errors = client_options.validate()
-    if config_errors:
-        logger.error("❌ Configuration validation failed:")
-        for error in config_errors:
-            logger.error(f"  • {error}")
+    try:
+        client_options.validate()
+    except ValueError as e:
+        logger.error(f"❌ Configuration validation failed: {e}")
         return False
     
     # Override configuration values if provided
@@ -197,6 +200,10 @@ async def run_aggregation(
     logger.info(f"  • Batch hours: {client_options.batch_hours}")
     logger.info(f"  • Max concurrent queries: {client_options.max_concurrent_queries}")
     logger.info(f"  • Workspaces: {len(workspaces)}")
+    
+    # Ensure endpoint is set
+    if not client_options.dcr_logs_ingestion_endpoint:
+        raise ValueError("DCR logs ingestion endpoint is required")
     
     try:
         # Create Azure SDK-compliant client
@@ -372,7 +379,7 @@ Examples:
     return parser
 
 
-async def main():
+async def main() -> None:
     """Main CLI entry point."""
     parser = create_parser()
     args = parser.parse_args()
@@ -429,14 +436,12 @@ async def main():
             logger.info("🔍 Validating configuration...")
             
             # Validate client options
-            config_errors = client_options.validate()
-            if config_errors:
-                logger.error("❌ Client options validation failed:")
-                for error in config_errors:
-                    logger.error(f"  • {error}")
-                success = False
-            else:
+            try:
+                client_options.validate()
                 logger.info("✅ Client options validation successful")
+            except ValueError as e:
+                logger.error(f"❌ Client options validation failed: {e}")
+                success = False
             
             # Validate workspace configuration
             if workspaces:
@@ -458,7 +463,7 @@ async def main():
         return 1
 
 
-def cli_main():
+def cli_main() -> None:
     """Synchronous entry point for the CLI."""
     try:
         return asyncio.run(main())
