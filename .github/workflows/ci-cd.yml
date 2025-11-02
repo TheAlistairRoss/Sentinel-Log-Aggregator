@@ -47,7 +47,7 @@ jobs:
     - name: Run Safety (dependency vulnerability scan)
       run: |
         pip install safety
-        safety check --json --output safety-report.json || true
+        safety check --output json > safety-report.json || true
     
     - name: Run pip-audit (official Python security audit)
       run: |

@@ -52,7 +52,8 @@ def sanitize_log_output(
         data = re.sub(guid_pattern, lambda m: m.group()[:8] + "...", data, flags=re.IGNORECASE)
 
         # Mask potential tokens (long alphanumeric strings including underscores)
-        token_pattern = r"\b[A-Za-z0-9_]{16,}\b"
+        # This is a regex pattern for sanitization, not a hardcoded password
+        token_pattern = r"\b[A-Za-z0-9_]{16,}\b"  # nosec B105
         data = re.sub(token_pattern, lambda m: m.group()[:8] + "...", data)
 
         return data
@@ -257,7 +258,7 @@ def validate_file_path(file_path: str, allowed_extensions: Optional[List[str]] =
     """
     import os
     import sys
-    
+
     if not file_path:
         raise SecurityError("File path cannot be empty")
 
@@ -266,24 +267,27 @@ def validate_file_path(file_path: str, allowed_extensions: Optional[List[str]] =
 
     # Convert to string if it's a Path object (common in tests)
     file_path_str = str(file_path)
-    
+
     # Check if we're in a test environment
-    is_testing = (
-        "pytest" in sys.modules or
-        "test" in sys.argv[0] if sys.argv else False
-    )
-    
+    is_testing = "pytest" in sys.modules or "test" in sys.argv[0] if sys.argv else False
+
     # Additional check for pytest temp directories and safe test paths
+    # nosec B108: These temp directory checks are intentional for test environment detection
     is_pytest_temp_path = (
-        "pytest-of-" in file_path_str or
-        "/tmp/" in file_path_str or
-        "\\tmp\\" in file_path_str.replace("/", "\\") or
-        "AppData\\Local\\Temp" in file_path_str or
-        (os.path.isabs(file_path_str) and (
-            file_path_str.startswith("/tmp/") or 
-            file_path_str.startswith("/var/tmp/") or
-            "pytest" in file_path_str
-        ))
+        "pytest-of-" in file_path_str
+        or "/tmp/" in file_path_str  # nosec B108: Intentional test directory check
+        or "\\tmp\\" in file_path_str.replace("/", "\\")
+        or "AppData\\Local\\Temp" in file_path_str
+        or (
+            os.path.isabs(file_path_str)
+            and (
+                file_path_str.startswith("/tmp/")  # nosec B108: Intentional test directory check
+                or file_path_str.startswith(
+                    "/var/tmp/"
+                )  # nosec B108: Intentional test directory check
+                or "pytest" in file_path_str
+            )
+        )
     )
 
     # Check for path traversal attempts (more nuanced for test environments)
