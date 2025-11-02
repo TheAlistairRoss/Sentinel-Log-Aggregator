@@ -17,15 +17,15 @@ jobs:
         python-version: ["3.11"]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.2
     
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5.3.0
       with:
         python-version: ${{ matrix.python-version }}
     
     - name: Cache pip dependencies
-      uses: actions/cache@v4
+      uses: actions/cache@v4.1.2
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
@@ -55,14 +55,14 @@ jobs:
         pip-audit --format=json --output=pip-audit-report.json || true
     
     - name: Upload Bandit results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4.4.3
       if: always()
       with:
         name: bandit-results-${{ matrix.python-version }}
         path: bandit-report.json
 
     - name: Upload Security Scan Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4.4.3
       if: always()
       with:
         name: security-scan-results-${{ matrix.python-version }}
@@ -94,7 +94,7 @@ jobs:
         pytest tests/ -v --cov=sentinel_log_aggregator --cov-report=xml --cov-report=html --cov-fail-under=80
     
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v5.0.7
       if: matrix.python-version == env.PYTHON_VERSION
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
@@ -109,10 +109,10 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.2
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5.3.0
       with:
         python-version: ${{ env.PYTHON_VERSION }}
     
@@ -135,10 +135,10 @@ jobs:
     needs: test
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.2
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5.3.0
       with:
         python-version: ${{ env.PYTHON_VERSION }}
     
@@ -156,7 +156,7 @@ jobs:
         twine check dist/*
     
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4.4.3
       with:
         name: dist
         path: dist/
@@ -166,10 +166,10 @@ jobs:
     needs: test
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.2
     
     - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
+      uses: aquasecurity/trivy-action@0.28.0
       with:
         scan-type: 'fs'
         scan-ref: '.'
@@ -177,7 +177,7 @@ jobs:
         output: 'trivy-results.sarif'
     
     - name: Upload Trivy scan results
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v3.27.6
       with:
         sarif_file: 'trivy-results.sarif'
 
@@ -187,10 +187,10 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.2
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5.3.0
       with:
         python-version: ${{ env.PYTHON_VERSION }}
     
@@ -205,7 +205,7 @@ jobs:
         sphinx-build -b html docs/ docs/_build/html
     
     - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v4
+      uses: peaceiris/actions-gh-pages@v4.0.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./docs/_build/html
@@ -219,17 +219,17 @@ jobs:
       id-token: write
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.2
       with:
         fetch-depth: 0
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5.3.0
       with:
         python-version: ${{ env.PYTHON_VERSION }}
     
     - name: Download build artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v4.1.8
       with:
         name: dist
         path: dist/
@@ -262,7 +262,7 @@ jobs:
         "
     
     - name: Create GitHub Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2.0.9
       with:
         files: dist/*
         body_path: release_notes.md

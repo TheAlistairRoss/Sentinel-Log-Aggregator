@@ -22,12 +22,12 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4.2.2
       with:
         fetch-depth: 0
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5.3.0
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
@@ -53,7 +53,6 @@ jobs:
           p/security-audit
           p/secrets
           p/python
-        generateSarif: "1"
 
     # Software Composition Analysis (SCA)
     - name: Run Safety (Python Package Vulnerabilities)
@@ -79,7 +78,7 @@ jobs:
 
     # Container and Infrastructure Security
     - name: Run Trivy Vulnerability Scanner
-      uses: aquasecurity/trivy-action@master
+      uses: aquasecurity/trivy-action@0.28.0
       with:
         scan-type: 'fs'
         scan-ref: '.'
@@ -89,7 +88,7 @@ jobs:
         exit-code: '0'  # Don't fail the job on vulnerabilities
 
     - name: Run Trivy Config Scan
-      uses: aquasecurity/trivy-action@master
+      uses: aquasecurity/trivy-action@0.28.0
       with:
         scan-type: 'config'
         scan-ref: '.'
@@ -126,7 +125,7 @@ jobs:
 
     # Upload Security Reports
     - name: Upload Security Scan Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4.4.3
       if: always()
       with:
         name: security-reports
@@ -137,21 +136,21 @@ jobs:
 
     # Upload SARIF files to GitHub Security tab
     - name: Upload Trivy SARIF results
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v3.27.6
       if: always() && hashFiles('trivy-results.sarif') != ''
       with:
         sarif_file: trivy-results.sarif
         category: trivy-fs
 
     - name: Upload Trivy Config SARIF results
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v3.27.6
       if: always() && hashFiles('trivy-config-results.sarif') != ''
       with:
         sarif_file: trivy-config-results.sarif
         category: trivy-config
 
     - name: Upload Semgrep SARIF results
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v3.27.6
       if: always() && hashFiles('results.sarif') != ''
       with:
         sarif_file: results.sarif
@@ -195,19 +194,19 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4.2.2
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@v3.27.6
       with:
         languages: python
         queries: security-extended,security-and-quality
 
     - name: Autobuild
-      uses: github/codeql-action/autobuild@v3
+      uses: github/codeql-action/autobuild@v3.27.6
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@v3.27.6
       with:
         category: "/language:python"
 
@@ -218,10 +217,10 @@ jobs:
     
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4.2.2
       
     - name: Dependency Review
-      uses: actions/dependency-review-action@v4
+      uses: actions/dependency-review-action@v4.4.0
       with:
         fail-on-severity: moderate
         allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC
