@@ -6,7 +6,7 @@ proper context tracking, and enhanced traceability for debugging and monitoring.
 """
 
 import logging
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Union
 from datetime import datetime
 from enum import Enum
 
@@ -196,12 +196,12 @@ class ContextualLogger:
     for better log traceability and debugging.
     """
     
-    def __init__(self, logger: logging.Logger, job_id: Optional[str] = None):
+    def __init__(self, logger: Union[logging.Logger, logging.LoggerAdapter], job_id: Optional[str] = None):  # type: ignore[type-arg]
         """
         Initialize contextual logger.
         
         Args:
-            logger: Base logger instance
+            logger: Base logger instance or logger adapter
             job_id: Optional job correlation ID for context
         """
         self.logger = logger

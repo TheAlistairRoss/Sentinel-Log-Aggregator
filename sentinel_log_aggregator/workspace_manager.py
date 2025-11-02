@@ -7,7 +7,7 @@ including filtering by queries, extracting metadata, and providing convenient ac
 
 import logging
 import yaml
-from typing import List, Dict, Set, Optional, Union
+from typing import List, Dict, Set, Optional, Union, Any
 from dataclasses import asdict
 from pathlib import Path
 
@@ -60,7 +60,7 @@ class WorkspaceSet:
         """Get list of unique resource group names."""
         return list(set(ws.resource_group for ws in self.workspaces if ws.resource_group))
     
-    def details(self) -> List[Dict[str, any]]:
+    def details(self) -> List[Dict[str, Any]]:
         """
         Get detailed workspace information as dictionaries.
         
@@ -136,7 +136,7 @@ class WorkspaceSet:
         filtered = [ws for ws in self.workspaces if query_name in ws.queries_list]
         return WorkspaceSet(filtered)
     
-    def display(self, logger: Optional[logging.Logger] = None):
+    def display(self, logger: Optional[logging.Logger] = None) -> None:
         """
         Display workspace information using logger or print.
         
@@ -167,7 +167,7 @@ class WorkspaceManager:
     including filtering, validation, and query association management.
     """
     
-    def __init__(self, workspace_configs: List[WorkspaceConfig] = None):
+    def __init__(self, workspace_configs: Optional[List[WorkspaceConfig]] = None) -> None:
         """
         Initialize workspace manager.
         
@@ -408,14 +408,14 @@ class WorkspaceManager:
         
         return errors
     
-    def get_subscription_summary(self) -> Dict[str, Dict[str, any]]:
+    def get_subscription_summary(self) -> Dict[str, Dict[str, Any]]:
         """
         Get summary of workspaces grouped by subscription.
         
         Returns:
             Dictionary mapping subscription IDs to workspace summaries
         """
-        subscription_summary = {}
+        subscription_summary: Dict[str, Dict[str, Any]] = {}
         
         for workspace in self.workspaces:
             sub_id = workspace.subscription_id
@@ -428,7 +428,7 @@ class WorkspaceManager:
                         'reports': set()
                     }
                 
-                subscription_summary[sub_id]['workspace_count'] += 1
+                subscription_summary[sub_id]['workspace_count'] = subscription_summary[sub_id]['workspace_count'] + 1
                 subscription_summary[sub_id]['workspaces'].append({
                     'name': workspace.workspace_name,
                     'customer_id': workspace.customer_id,
@@ -444,7 +444,7 @@ class WorkspaceManager:
         
         return subscription_summary
     
-    def display_summary(self):
+    def display_summary(self) -> None:
         """Display comprehensive workspace configuration summary."""
         errors = self.validate_configuration()
         reports = self.reports_summary()
@@ -476,7 +476,7 @@ class WorkspaceManager:
             self.logger.info(f"  • {sub_id}: {sub_data['workspace_count']} workspace(s)")
     
     @classmethod
-    def from_dict_list(cls, workspace_dicts: List[Dict[str, any]]) -> 'WorkspaceManager':
+    def from_dict_list(cls, workspace_dicts: List[Dict[str, Any]]) -> 'WorkspaceManager':
         """
         Create WorkspaceManager from list of dictionaries.
         
@@ -493,7 +493,7 @@ class WorkspaceManager:
         
         return cls(workspaces)
     
-    def to_dict_list(self) -> List[Dict[str, any]]:
+    def to_dict_list(self) -> List[Dict[str, Any]]:
         """
         Convert workspace configurations to list of dictionaries.
         

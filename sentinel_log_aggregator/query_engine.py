@@ -86,7 +86,7 @@ class SentinelQueryEngine:
         self.logger.info(f"Generated {len(batches)} time batches of {batch_hours}h each")
         return batches
     
-    def build_query_with_parameters(self, query_name: str, parameters: Dict[str, Any] = None) -> str:
+    def build_query_with_parameters(self, query_name: str, parameters: Optional[Dict[str, Any]] = None) -> str:
         """
         Build KQL query with parameter substitution.
         
@@ -169,7 +169,7 @@ class SentinelQueryEngine:
         
         time_range_str = f"{start_time.strftime('%Y-%m-%d %H:%M')} to {end_time.strftime('%Y-%m-%d %H:%M')}"
         
-        query_response = None
+        query_result = None
         transformed_data = None
         
         try:
@@ -241,8 +241,8 @@ class SentinelQueryEngine:
             
         finally:
             # Cleanup memory
-            if query_response is not None:
-                del query_response
+            if query_result is not None:
+                del query_result
             if transformed_data is not None:
                 del transformed_data
             gc.collect()
@@ -286,8 +286,8 @@ class SentinelQueryEngine:
     async def execute_batch_queries_with_streaming_upload(
         self,
         workspace_configs: List[WorkspaceConfig],
-        days_back: int = None,
-        batch_hours: int = None
+        days_back: Optional[int] = None,
+        batch_hours: Optional[int] = None
     ) -> BatchExecutionSummary:
         """
         Execute all queries for all workspaces with immediate streaming upload.
