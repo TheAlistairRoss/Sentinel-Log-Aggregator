@@ -122,6 +122,16 @@ show_error_codes = true
 module = "tests.*"
 disallow_untyped_defs = false
 
+[[tool.mypy.overrides]]
+module = [
+    "azure.*",
+    "yaml",
+    "dotenv",
+    "pydantic",
+    "pydantic.*",
+]
+ignore_missing_imports = true
+
 # pytest configuration
 [tool.pytest.ini_options]
 minversion = "7.0"

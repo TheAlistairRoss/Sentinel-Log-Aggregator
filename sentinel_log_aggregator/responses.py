@@ -278,8 +278,8 @@ class ServiceProperties:
     workspace_count: int
     available_queries: int
     available_reports: int
-    last_check_time: datetime = None
+    last_check_time: Optional[datetime] = None
     
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.last_check_time is None:
-            self.last_check_time = datetime.now(timezone.utc)
+            object.__setattr__(self, 'last_check_time', datetime.now(timezone.utc))

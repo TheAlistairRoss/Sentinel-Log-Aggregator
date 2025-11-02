@@ -74,7 +74,7 @@ class KQLQueryDefinition:
         self.parameters: Dict[str, QueryParameter] = {}
     
     def add_parameter(self, name: str, param_type: str, required: bool = False, 
-                     default: Any = None, description: str = ""):
+                     default: Any = None, description: str = "") -> 'KQLQueryDefinition':
         """Add a parameter to the query."""
         self.parameters[name] = QueryParameter(
             param_type=param_type,
@@ -84,7 +84,7 @@ class KQLQueryDefinition:
         )
         return self
     
-    def set_stream(self, stream_name: str):
+    def set_stream(self, stream_name: str) -> 'KQLQueryDefinition':
         """Set the stream association for this query."""
         self.stream_name = stream_name
         return self
@@ -121,7 +121,7 @@ class KQLQueryDefinition:
         
         return query_def
     
-    def build_query(self, parameters: Dict[str, Any] = None) -> str:
+    def build_query(self, parameters: Optional[Dict[str, Any]] = None) -> str:
         """Build query with parameter substitution."""
         if parameters is None:
             parameters = {}
@@ -259,14 +259,14 @@ class BatchExecutionSummary:
         from collections import defaultdict
         
         # Group executions by workspace and query
-        workspace_query_stats = defaultdict(lambda: defaultdict(list))
+        workspace_query_stats: Dict[str, Dict[str, List[QueryExecution]]] = defaultdict(lambda: defaultdict(list))
         
         for execution in self.executions:
             # Use full workspace ID as key, store execution for later access
             workspace_key = execution.workspace_id
             workspace_query_stats[workspace_key][execution.query_name].append(execution)
         
-        detailed_summary = {
+        detailed_summary: Dict[str, Any] = {
             'overview': {
                 'total_workspaces': len(workspace_query_stats),
                 'total_unique_queries': len(set(e.query_name for e in self.executions)),
@@ -349,7 +349,7 @@ def load_queries_from_yaml(queries_dir: Optional[Path] = None) -> Dict[str, KQLQ
     import logging
     logger = logging.getLogger(__name__)
     
-    queries = {}
+    queries: Dict[str, KQLQueryDefinition] = {}
     
     # Use provided directory or default to local-data/queries
     if queries_dir is None:
@@ -384,7 +384,7 @@ def load_queries_from_yaml(queries_dir: Optional[Path] = None) -> Dict[str, KQLQ
 AVAILABLE_QUERIES = load_queries_from_yaml()
 
 # Initialize query registry with loaded queries
-def _initialize_query_registry():
+def _initialize_query_registry() -> None:
     """Initialize the global query registry with YAML-based queries."""
     from .query_registry import query_registry
     
