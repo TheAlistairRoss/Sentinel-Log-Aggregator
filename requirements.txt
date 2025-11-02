@@ -1,5 +1,5 @@
 # Microsoft Sentinel Log Aggregator - Python Dependencies
-# Requires Python 3.11 only
+# Requires Python 3.11+ (supports 3.11, 3.12, 3.13, 3.14)
 
 # Azure SDK packages - Core authentication and monitoring (latest versions)
 azure-identity>=1.25.0
