@@ -85,9 +85,10 @@ include = ["sentinel_log_aggregator*"]
 sentinel_log_aggregator = ["py.typed", "queries/*.yaml"]
 
 # Black configuration
+# Black configuration
 [tool.black]
 line-length = 100
-target-version = ['py311', 'py312', 'py313', 'py314']
+target-version = ['py311']
 include = '\.pyi?$'
 extend-exclude = '''
 /(

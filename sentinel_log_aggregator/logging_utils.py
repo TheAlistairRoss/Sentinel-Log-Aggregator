@@ -11,7 +11,7 @@ import uuid
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from functools import wraps
-from typing import Any, Dict, Optional, Union, MutableMapping, Generator, Callable
+from typing import Any, Callable, Dict, Generator, MutableMapping, Optional, Union
 
 
 class SentinelLoggerAdapter(logging.LoggerAdapter):
@@ -29,7 +29,9 @@ class SentinelLoggerAdapter(logging.LoggerAdapter):
         # Type annotation to help MyPy understand this is always a dict
         self.extra: Dict[str, Any] = self.extra
 
-    def process(self, msg: str, kwargs: MutableMapping[str, Any]) -> tuple[str, MutableMapping[str, Any]]:
+    def process(
+        self, msg: str, kwargs: MutableMapping[str, Any]
+    ) -> tuple[str, MutableMapping[str, Any]]:
         """Process log message to include context information."""
         extra = kwargs.get("extra", {})
         extra.update(self.extra)
@@ -38,7 +40,9 @@ class SentinelLoggerAdapter(logging.LoggerAdapter):
         kwargs["extra"] = extra
         return msg, kwargs
 
-    def set_workspace_context(self, workspace_id: str, workspace_name: Optional[str] = None) -> None:
+    def set_workspace_context(
+        self, workspace_id: str, workspace_name: Optional[str] = None
+    ) -> None:
         """Set workspace context for all subsequent log messages."""
         self.extra["workspace_id"] = (
             workspace_id[:8] + "..." if len(workspace_id) > 8 else workspace_id
@@ -61,7 +65,9 @@ class SentinelLoggerAdapter(logging.LoggerAdapter):
 
 
 @contextmanager
-def performance_timer(logger: Union[logging.Logger, SentinelLoggerAdapter], operation_name: str) -> Generator[None, None, None]:
+def performance_timer(
+    logger: Union[logging.Logger, SentinelLoggerAdapter], operation_name: str
+) -> Generator[None, None, None]:
     """
     Context manager for timing operations and logging performance metrics.
 

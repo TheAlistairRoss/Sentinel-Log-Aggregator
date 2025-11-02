@@ -9,7 +9,7 @@ import hashlib
 import logging
 import re
 import secrets
-from typing import Any, Dict, List, Optional, Union, Mapping
+from typing import Any, Dict, List, Mapping, Optional, Union
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +76,7 @@ def sanitize_log_output(
 
     elif isinstance(data, list):
         return [sanitize_log_output(item, sensitive_fields) for item in data]
-    
+
     else:
         # For any other data types (int, float, bool, None, etc.)
         return data
@@ -334,7 +334,9 @@ class SecureLogger:
                 sanitized_extra = sanitized_data
         self.logger.info(sanitized_message, extra=sanitized_extra)
 
-    def error(self, message: str, extra: Optional[Dict[str, Any]] = None, exc_info: bool = False) -> None:
+    def error(
+        self, message: str, extra: Optional[Dict[str, Any]] = None, exc_info: bool = False
+    ) -> None:
         """Log error message with sanitized data."""
         sanitized_message = str(sanitize_log_output(message))
         sanitized_extra: Optional[Mapping[str, object]] = None

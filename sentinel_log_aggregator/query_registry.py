@@ -8,7 +8,7 @@ both YAML-based query definitions and runtime query registration.
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Type, Callable
+from typing import Callable, Dict, List, Optional, Type
 
 import yaml
 
@@ -203,7 +203,9 @@ class QueryRegistry:
 query_registry = QueryRegistry()
 
 
-def register_query(metadata: Optional[QueryMetadata] = None) -> Callable[[Type[KQLQueryDefinition]], Type[KQLQueryDefinition]]:
+def register_query(
+    metadata: Optional[QueryMetadata] = None,
+) -> Callable[[Type[KQLQueryDefinition]], Type[KQLQueryDefinition]]:
     """
     Decorator for registering query classes.
 
@@ -221,7 +223,7 @@ def register_query(metadata: Optional[QueryMetadata] = None) -> Callable[[Type[K
 def get_available_queries() -> Dict[str, KQLQueryDefinition]:
     """Get all available queries from the registry."""
     return {
-        name: query 
-        for name in query_registry.list_queries() 
+        name: query
+        for name in query_registry.list_queries()
         if (query := query_registry.get_query(name)) is not None
     }
