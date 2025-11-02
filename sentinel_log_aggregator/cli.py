@@ -10,7 +10,7 @@ import asyncio
 import logging
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from azure.identity.aio import DefaultAzureCredential
 from azure.core.exceptions import AzureError
@@ -107,7 +107,7 @@ def setup_logging(log_level: str = "INFO", log_format: Optional[str] = None) -> 
 async def check_service_health(
     client_options: SentinelAggregatorClientOptions,
     workspaces: List[WorkspaceConfig]
-) -> None:
+) -> bool:
     """Check service health using the Azure SDK-compliant client."""
     logger = logging.getLogger(__name__)
     
@@ -166,7 +166,7 @@ async def check_service_health(
                 else:
                     logger.warning(f"⚠️ Test query failed: {query_result.error_message}")
             
-            return service_props.connectivity_status == "connected" and service_props.authentication_status == "valid"
+            return bool(service_props.connectivity_status == "connected" and service_props.authentication_status == "valid")
             
     except Exception as e:
         logger.error(f"❌ Health check failed: {e}")
@@ -178,7 +178,7 @@ async def run_aggregation(
     workspaces: List[WorkspaceConfig],
     days_back: Optional[int] = None,
     batch_hours: Optional[int] = None
-) -> None:
+) -> bool:
     """Run the log aggregation process using Azure SDK-compliant components."""
     logger = logging.getLogger(__name__)
     
@@ -379,7 +379,7 @@ Examples:
     return parser
 
 
-async def main() -> None:
+async def main() -> int:
     """Main CLI entry point."""
     parser = create_parser()
     args = parser.parse_args()
@@ -463,7 +463,7 @@ async def main() -> None:
         return 1
 
 
-def cli_main() -> None:
+def cli_main() -> int:
     """Synchronous entry point for the CLI."""
     try:
         return asyncio.run(main())
