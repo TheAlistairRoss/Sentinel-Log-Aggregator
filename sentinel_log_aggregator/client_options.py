@@ -15,7 +15,7 @@ from pydantic import ValidationError
 from .validation import ClientOptionsModel, validate_client_options
 
 
-class SentinelAggregatorClientOptions(Configuration):  # type: ignore[type-arg]
+class SentinelAggregatorClientOptions(Configuration):
     """
     Client options for SentinelAggregatorClient.
 
@@ -53,7 +53,7 @@ class SentinelAggregatorClientOptions(Configuration):  # type: ignore[type-arg]
         max_retries: int = 3,
         retry_delay_seconds: int = 5,
         enable_distributed_tracing: bool = True,
-        custom_policies: Optional[List[HTTPPolicy]] = None,  # type: ignore[type-arg]
+        custom_policies: Optional[List[HTTPPolicy]] = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)

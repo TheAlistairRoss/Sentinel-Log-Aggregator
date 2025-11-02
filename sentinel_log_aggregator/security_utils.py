@@ -9,7 +9,7 @@ import hashlib
 import logging
 import re
 import secrets
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, Mapping
 
 logger = logging.getLogger(__name__)
 
@@ -21,13 +21,13 @@ class SecurityError(Exception):
 
 
 def sanitize_log_output(
-    data: Union[str, Dict[str, Any]], sensitive_fields: Optional[List[str]] = None
-) -> Union[str, Dict[str, Any]]:
+    data: Union[str, Dict[str, Any], List[Any], Any], sensitive_fields: Optional[List[str]] = None
+) -> Union[str, Dict[str, Any], List[Any], Any]:
     """
     Sanitize data for safe logging by masking sensitive information.
 
     Args:
-        data: Data to sanitize (string or dictionary)
+        data: Data to sanitize (string, dictionary, or list)
         sensitive_fields: List of field names to mask
 
     Returns:
@@ -58,7 +58,7 @@ def sanitize_log_output(
         return data
 
     elif isinstance(data, dict):
-        sanitized = {}
+        sanitized: Dict[str, Any] = {}
         for key, value in data.items():
             if any(field.lower() in key.lower() for field in sensitive_fields):
                 if isinstance(value, str) and len(value) > 8:
@@ -66,14 +66,20 @@ def sanitize_log_output(
                 else:
                     sanitized[key] = "***"
             elif isinstance(value, dict):
-                sanitized[key] = sanitize_log_output(value, sensitive_fields)
+                result = sanitize_log_output(value, sensitive_fields)
+                sanitized[key] = result if isinstance(result, dict) else str(result)
             elif isinstance(value, list):
                 sanitized[key] = [sanitize_log_output(item, sensitive_fields) for item in value]
             else:
                 sanitized[key] = value
         return sanitized
 
-    return data
+    elif isinstance(data, list):
+        return [sanitize_log_output(item, sensitive_fields) for item in data]
+    
+    else:
+        # For any other data types (int, float, bool, None, etc.)
+        return data
 
 
 def validate_kql_query(query: str) -> bool:
@@ -318,26 +324,42 @@ class SecureLogger:
     def __init__(self, logger: logging.Logger):
         self.logger = logger
 
-    def info(self, message: str, extra: Optional[Dict[str, Any]] = None):
+    def info(self, message: str, extra: Optional[Dict[str, Any]] = None) -> None:
         """Log info message with sanitized data."""
-        sanitized_message = sanitize_log_output(message)
-        sanitized_extra = sanitize_log_output(extra) if extra else None
+        sanitized_message = str(sanitize_log_output(message))
+        sanitized_extra: Optional[Mapping[str, object]] = None
+        if extra:
+            sanitized_data = sanitize_log_output(extra)
+            if isinstance(sanitized_data, dict):
+                sanitized_extra = sanitized_data
         self.logger.info(sanitized_message, extra=sanitized_extra)
 
-    def error(self, message: str, extra: Optional[Dict[str, Any]] = None, exc_info: bool = False):
+    def error(self, message: str, extra: Optional[Dict[str, Any]] = None, exc_info: bool = False) -> None:
         """Log error message with sanitized data."""
-        sanitized_message = sanitize_log_output(message)
-        sanitized_extra = sanitize_log_output(extra) if extra else None
+        sanitized_message = str(sanitize_log_output(message))
+        sanitized_extra: Optional[Mapping[str, object]] = None
+        if extra:
+            sanitized_data = sanitize_log_output(extra)
+            if isinstance(sanitized_data, dict):
+                sanitized_extra = sanitized_data
         self.logger.error(sanitized_message, extra=sanitized_extra, exc_info=exc_info)
 
-    def warning(self, message: str, extra: Optional[Dict[str, Any]] = None):
+    def warning(self, message: str, extra: Optional[Dict[str, Any]] = None) -> None:
         """Log warning message with sanitized data."""
-        sanitized_message = sanitize_log_output(message)
-        sanitized_extra = sanitize_log_output(extra) if extra else None
+        sanitized_message = str(sanitize_log_output(message))
+        sanitized_extra: Optional[Mapping[str, object]] = None
+        if extra:
+            sanitized_data = sanitize_log_output(extra)
+            if isinstance(sanitized_data, dict):
+                sanitized_extra = sanitized_data
         self.logger.warning(sanitized_message, extra=sanitized_extra)
 
-    def debug(self, message: str, extra: Optional[Dict[str, Any]] = None):
+    def debug(self, message: str, extra: Optional[Dict[str, Any]] = None) -> None:
         """Log debug message with sanitized data."""
-        sanitized_message = sanitize_log_output(message)
-        sanitized_extra = sanitize_log_output(extra) if extra else None
+        sanitized_message = str(sanitize_log_output(message))
+        sanitized_extra: Optional[Mapping[str, object]] = None
+        if extra:
+            sanitized_data = sanitize_log_output(extra)
+            if isinstance(sanitized_data, dict):
+                sanitized_extra = sanitized_data
         self.logger.debug(sanitized_message, extra=sanitized_extra)

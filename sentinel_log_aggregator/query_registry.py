@@ -8,7 +8,7 @@ both YAML-based query definitions and runtime query registration.
 import logging
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Type
+from typing import Dict, List, Optional, Type, Callable
 
 import yaml
 
@@ -25,9 +25,9 @@ class QueryMetadata:
     destination_stream: str
     file_path: Optional[Path] = None
     version: str = "1.0"
-    tags: List[str] = None
+    tags: Optional[List[str]] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.tags is None:
             self.tags = []
 
@@ -39,7 +39,7 @@ class QueryRegistry:
     Supports both programmatic registration and YAML-based query definitions.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._queries: Dict[str, KQLQueryDefinition] = {}
         self._metadata: Dict[str, QueryMetadata] = {}
         self.logger = logging.getLogger(__name__)
@@ -111,7 +111,7 @@ class QueryRegistry:
         """Create a KQL query instance from YAML data."""
 
         class YamlQuery(KQLQueryDefinition):
-            def __init__(self):
+            def __init__(self) -> None:
                 super().__init__(
                     name=query_data["name"],
                     destination_stream=query_data.get("destination_stream", ""),
@@ -129,7 +129,7 @@ class QueryRegistry:
                         description=param_config.get("description", ""),
                     )
 
-                self._query_text = query_data.get("query", "")
+                self._query_text: str = str(query_data.get("query", ""))
 
             def get_query(self) -> str:
                 return self._query_text
@@ -203,7 +203,7 @@ class QueryRegistry:
 query_registry = QueryRegistry()
 
 
-def register_query(metadata: Optional[QueryMetadata] = None):
+def register_query(metadata: Optional[QueryMetadata] = None) -> Callable[[Type[KQLQueryDefinition]], Type[KQLQueryDefinition]]:
     """
     Decorator for registering query classes.
 
@@ -211,7 +211,7 @@ def register_query(metadata: Optional[QueryMetadata] = None):
         metadata: Optional metadata for the query
     """
 
-    def decorator(query_class: Type[KQLQueryDefinition]):
+    def decorator(query_class: Type[KQLQueryDefinition]) -> Type[KQLQueryDefinition]:
         query_registry.register_query(query_class, metadata)
         return query_class
 
@@ -220,4 +220,8 @@ def register_query(metadata: Optional[QueryMetadata] = None):
 
 def get_available_queries() -> Dict[str, KQLQueryDefinition]:
     """Get all available queries from the registry."""
-    return {name: query_registry.get_query(name) for name in query_registry.list_queries()}
+    return {
+        name: query 
+        for name in query_registry.list_queries() 
+        if (query := query_registry.get_query(name)) is not None
+    }
