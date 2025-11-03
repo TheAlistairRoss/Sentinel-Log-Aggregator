@@ -2294,7 +2294,7 @@ class TestQueryEngineMissingCoverage:
             dcr_rule_id="dcr-12345678123456781234567812345678",
             max_concurrent_queries=2,
             lookback_period="P1D",  # Use 1 day instead of default 30 days
-            batch_time_size="PT24H"  # 24 hour batches = 1 batch total
+            batch_time_size="PT24H",  # 24 hour batches = 1 batch total
         )
 
         # Mock client
@@ -2389,7 +2389,7 @@ class TestQueryEngineMissingCoverage:
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
             dcr_rule_id="dcr-12345678123456781234567812345678",
             lookback_period="P1D",  # Use 1 day instead of default 30 days
-            batch_time_size="PT24H"  # 24 hour batches = 1 batch total
+            batch_time_size="PT24H",  # 24 hour batches = 1 batch total
         )
 
         # Mock client with large dataset

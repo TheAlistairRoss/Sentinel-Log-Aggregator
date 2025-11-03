@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 class SentinelAggregatorHealthLogger:
     """
     Health logger for comprehensive operational monitoring.
-    
+
     Logs job execution, query performance, workspace processing, and errors
     to the SentinelAggregatorHealth_CL Log Analytics table.
     """
@@ -31,11 +31,11 @@ class SentinelAggregatorHealthLogger:
         self,
         sentinel_client: SentinelAggregatorClient,
         enabled: bool = True,
-        health_to_sentinel: bool = False
+        health_to_sentinel: bool = False,
     ):
         """
         Initialize the health logger.
-        
+
         Args:
             sentinel_client: Configured Sentinel client for Log Analytics ingestion
             enabled: Whether health logging is enabled
@@ -45,27 +45,24 @@ class SentinelAggregatorHealthLogger:
         self.enabled = enabled
         self.health_to_sentinel = health_to_sentinel
         self.health_stream_name = "Custom-SentinelAggregator-Health_CL"
-        
+
         if self.enabled and not self.health_to_sentinel:
             logger.info("Health logging enabled - console only (not sent to Sentinel)")
         elif self.enabled and self.health_to_sentinel:
             logger.info("Health logging enabled - sending to Sentinel table")
         else:
             logger.debug("Health logging disabled")
-        
-        logger.debug(f"Health logger initialized - enabled: {enabled}, to_sentinel: {health_to_sentinel}")
+
+        logger.debug(
+            f"Health logger initialized - enabled: {enabled}, to_sentinel: {health_to_sentinel}"
+        )
 
     async def log_job_start(
-        self,
-        job_id: str,
-        job_type: str,
-        workspace_count: int,
-        query_count: int,
-        **kwargs
+        self, job_id: str, job_type: str, workspace_count: int, query_count: int, **kwargs
     ) -> None:
         """
         Log job start event.
-        
+
         Args:
             job_id: Unique job identifier
             job_type: Type of job (e.g., 'batch_execution', 'single_query')
@@ -79,14 +76,14 @@ class SentinelAggregatorHealthLogger:
         extended_properties = {
             "workspace_count": workspace_count,
             "query_count": query_count,
-            **kwargs
+            **kwargs,
         }
 
         await self._log_health_event(
             operation_name="JobStart",
             operation_status="Started",
             job_id=job_id,
-            extended_properties=extended_properties
+            extended_properties=extended_properties,
         )
 
     async def log_job_end(
@@ -97,11 +94,11 @@ class SentinelAggregatorHealthLogger:
         total_records_processed: int = 0,
         total_duration_seconds: float = 0.0,
         error_message: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Log job completion event.
-        
+
         Args:
             job_id: Unique job identifier
             job_type: Type of job
@@ -117,7 +114,7 @@ class SentinelAggregatorHealthLogger:
         extended_properties = {
             "total_records_processed": total_records_processed,
             "total_duration_seconds": total_duration_seconds,
-            **kwargs
+            **kwargs,
         }
 
         if error_message:
@@ -127,18 +124,15 @@ class SentinelAggregatorHealthLogger:
             operation_name="JobEnd",
             operation_status="Completed" if success else "Failed",
             job_id=job_id,
-            extended_properties=extended_properties
+            extended_properties=extended_properties,
         )
 
     async def log_query_execution(
-        self,
-        job_id: str,
-        query_execution: QueryExecution,
-        workspace_config: WorkspaceConfig
+        self, job_id: str, query_execution: QueryExecution, workspace_config: WorkspaceConfig
     ) -> None:
         """
         Log individual query execution details.
-        
+
         Args:
             job_id: Job identifier this query belongs to
             query_execution: Query execution details
@@ -160,7 +154,7 @@ class SentinelAggregatorHealthLogger:
             "time_range": query_execution.time_range_str,
             "duration_seconds": query_execution.query_duration_seconds or 0.0,
             "record_count": query_execution.record_count or 0,
-            "workspace_name": workspace_config.workspace_name
+            "workspace_name": workspace_config.workspace_name,
         }
 
         if query_execution.query_error_message:
@@ -175,18 +169,15 @@ class SentinelAggregatorHealthLogger:
             workspace_id=workspace_config.customer_id,
             query_name=query_execution.query_name,
             job_id=job_id,
-            extended_properties=extended_properties
+            extended_properties=extended_properties,
         )
 
     async def log_workspace_processing_start(
-        self,
-        job_id: str,
-        workspace_config: WorkspaceConfig,
-        query_names: List[str]
+        self, job_id: str, workspace_config: WorkspaceConfig, query_names: List[str]
     ) -> None:
         """
         Log start of workspace processing.
-        
+
         Args:
             job_id: Job identifier
             workspace_config: Workspace being processed
@@ -198,7 +189,7 @@ class SentinelAggregatorHealthLogger:
         extended_properties = {
             "workspace_name": workspace_config.workspace_name,
             "query_names": query_names,
-            "query_count": len(query_names)
+            "query_count": len(query_names),
         }
 
         await self._log_health_event(
@@ -206,7 +197,7 @@ class SentinelAggregatorHealthLogger:
             operation_status="Started",
             workspace_id=workspace_config.customer_id,
             job_id=job_id,
-            extended_properties=extended_properties
+            extended_properties=extended_properties,
         )
 
     async def log_workspace_processing_end(
@@ -216,11 +207,11 @@ class SentinelAggregatorHealthLogger:
         success: bool,
         records_processed: int = 0,
         duration_seconds: float = 0.0,
-        error_message: Optional[str] = None
+        error_message: Optional[str] = None,
     ) -> None:
         """
         Log end of workspace processing.
-        
+
         Args:
             job_id: Job identifier
             workspace_config: Workspace that was processed
@@ -235,7 +226,7 @@ class SentinelAggregatorHealthLogger:
         extended_properties = {
             "workspace_name": workspace_config.workspace_name,
             "records_processed": records_processed,
-            "duration_seconds": duration_seconds
+            "duration_seconds": duration_seconds,
         }
 
         if error_message:
@@ -246,7 +237,7 @@ class SentinelAggregatorHealthLogger:
             operation_status="Completed" if success else "Failed",
             workspace_id=workspace_config.customer_id,
             job_id=job_id,
-            extended_properties=extended_properties
+            extended_properties=extended_properties,
         )
 
     async def log_error(
@@ -256,11 +247,11 @@ class SentinelAggregatorHealthLogger:
         error_message: str,
         workspace_id: Optional[str] = None,
         query_name: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Log error event.
-        
+
         Args:
             job_id: Job identifier where error occurred
             error_type: Type/category of error
@@ -272,11 +263,7 @@ class SentinelAggregatorHealthLogger:
         if not self.enabled:
             return
 
-        extended_properties = {
-            "error_type": error_type,
-            "error_message": error_message,
-            **kwargs
-        }
+        extended_properties = {"error_type": error_type, "error_message": error_message, **kwargs}
 
         await self._log_health_event(
             operation_name="Error",
@@ -284,7 +271,7 @@ class SentinelAggregatorHealthLogger:
             workspace_id=workspace_id,
             query_name=query_name,
             job_id=job_id,
-            extended_properties=extended_properties
+            extended_properties=extended_properties,
         )
 
     async def log_watermark_update(
@@ -293,11 +280,11 @@ class SentinelAggregatorHealthLogger:
         workspace_id: str,
         query_name: str,
         watermark_timestamp: datetime,
-        previous_watermark: Optional[datetime] = None
+        previous_watermark: Optional[datetime] = None,
     ) -> None:
         """
         Log watermark update event.
-        
+
         Args:
             job_id: Job identifier
             workspace_id: Workspace ID
@@ -310,7 +297,7 @@ class SentinelAggregatorHealthLogger:
 
         extended_properties = {
             "watermark_timestamp": watermark_timestamp.isoformat(),
-            "workspace_id_short": workspace_id[:8] + "..."
+            "workspace_id_short": workspace_id[:8] + "...",
         }
 
         if previous_watermark:
@@ -325,7 +312,7 @@ class SentinelAggregatorHealthLogger:
             workspace_id=workspace_id,
             query_name=query_name,
             job_id=job_id,
-            extended_properties=extended_properties
+            extended_properties=extended_properties,
         )
 
     async def _log_health_event(
@@ -335,11 +322,11 @@ class SentinelAggregatorHealthLogger:
         job_id: str,
         workspace_id: Optional[str] = None,
         query_name: Optional[str] = None,
-        extended_properties: Optional[Dict[str, Any]] = None
+        extended_properties: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Internal method to log health event.
-        
+
         Args:
             operation_name: Name of the operation
             operation_status: Status of the operation
@@ -357,7 +344,7 @@ class SentinelAggregatorHealthLogger:
                 "TimeGenerated": datetime.now(timezone.utc).isoformat(),
                 "OperationName": operation_name,
                 "OperationStatus": operation_status,
-                "JobId": job_id
+                "JobId": job_id,
             }
 
             # Add optional fields if provided
@@ -377,12 +364,15 @@ class SentinelAggregatorHealthLogger:
             # Upload to Log Analytics only if health_to_sentinel is enabled
             if self.health_to_sentinel:
                 await self.sentinel_client.upload_logs(
-                    data=[health_record],
-                    stream_name=self.health_stream_name
+                    data=[health_record], stream_name=self.health_stream_name
                 )
-                logger.debug(f"Health event sent to Sentinel: {operation_name} - {operation_status} (Job: {job_id})")
+                logger.debug(
+                    f"Health event sent to Sentinel: {operation_name} - {operation_status} (Job: {job_id})"
+                )
             else:
-                logger.debug(f"Health event logged to console only: {operation_name} - {operation_status} (Job: {job_id})")
+                logger.debug(
+                    f"Health event logged to console only: {operation_name} - {operation_status} (Job: {job_id})"
+                )
 
         except Exception as e:
             # Log health logging errors but don't fail the main operation
@@ -390,13 +380,11 @@ class SentinelAggregatorHealthLogger:
             logger.debug(f"Health logging error details", exc_info=True)
 
     def _log_health_to_console(
-        self, 
-        health_record: Dict[str, Any], 
-        extended_properties: Optional[Dict[str, Any]] = None
+        self, health_record: Dict[str, Any], extended_properties: Optional[Dict[str, Any]] = None
     ) -> None:
         """
         Log health event to console as info message.
-        
+
         Args:
             health_record: Health record data
             extended_properties: Extended properties for additional context
@@ -405,16 +393,16 @@ class SentinelAggregatorHealthLogger:
         operation_name = health_record.get("OperationName", "Unknown")
         operation_status = health_record.get("OperationStatus", "Unknown")
         job_id = health_record.get("JobId", "")[:8]  # Truncate for readability
-        
+
         # Build context information
         context_parts = []
-        
+
         if workspace_id := health_record.get("WorkspaceId"):
             context_parts.append(f"Workspace: {workspace_id[:8]}")
-            
+
         if query_name := health_record.get("QueryName"):
             context_parts.append(f"Query: {query_name}")
-            
+
         # Add key extended properties
         if extended_properties:
             if record_count := extended_properties.get("record_count"):
@@ -423,12 +411,12 @@ class SentinelAggregatorHealthLogger:
                 context_parts.append(f"Duration: {duration_seconds:.1f}s")
             if error_message := extended_properties.get("error_message"):
                 context_parts.append(f"Error: {error_message}")
-        
+
         context_str = f" ({', '.join(context_parts)})" if context_parts else ""
-        
+
         # Format the log message
         health_message = f"🏥 {operation_name}: {operation_status} [Job: {job_id}]{context_str}"
-        
+
         # Use appropriate log level based on status
         if operation_status.lower() in ["failed", "error"]:
             logger.error(health_message)
@@ -440,10 +428,10 @@ class SentinelAggregatorHealthLogger:
     async def verify_health_table_setup(self, workspace_id: str) -> dict:
         """
         Verify that the health logging table and DCR are properly configured.
-        
+
         Args:
             workspace_id: Log Analytics workspace customer ID to test against
-            
+
         Returns:
             dict: Status information about health logging setup
         """
@@ -452,46 +440,41 @@ class SentinelAggregatorHealthLogger:
                 "enabled": False,
                 "table_exists": None,
                 "dcr_accessible": None,
-                "message": "Health logging is disabled"
+                "message": "Health logging is disabled",
             }
-            
+
         if not self.health_to_sentinel:
             return {
                 "enabled": True,
                 "table_exists": None,
                 "dcr_accessible": None,
-                "message": "Health logging enabled (console only, not sent to Sentinel)"
+                "message": "Health logging enabled (console only, not sent to Sentinel)",
             }
-            
-        result = {
-            "enabled": True,
-            "table_exists": False,
-            "dcr_accessible": False,
-            "message": ""
-        }
-        
+
+        result = {"enabled": True, "table_exists": False, "dcr_accessible": False, "message": ""}
+
         try:
             # Test table existence by attempting to query it
             from datetime import datetime, timezone, timedelta
-            
+
             table_name = self.health_stream_name.replace("Custom-", "")
             test_query = f"{table_name} | getschema | limit 1"
-            
+
             # Try to query the workspace using the sentinel client
             end_time = datetime.now(timezone.utc)
             start_time = end_time - timedelta(minutes=1)
-            
+
             query_result = await self.sentinel_client.query_workspace(
                 workspace_id=workspace_id,
                 query=test_query,
                 start_time=start_time,
-                end_time=end_time
+                end_time=end_time,
             )
-            
+
             if query_result.succeeded:
                 result["table_exists"] = True
                 result["message"] = "Health table exists and is accessible"
-                
+
                 # Test DCR accessibility by attempting a small upload
                 try:
                     test_record = {
@@ -499,30 +482,31 @@ class SentinelAggregatorHealthLogger:
                         "OperationName": "HealthCheck",
                         "OperationStatus": "Testing",
                         "JobId": "health-check-test",
-                        "ExtendedProperties": json.dumps({"test": True})
+                        "ExtendedProperties": json.dumps({"test": True}),
                     }
-                    
+
                     upload_result = await self.sentinel_client.upload_logs(
-                        data=[test_record],
-                        stream_name=self.health_stream_name
+                        data=[test_record], stream_name=self.health_stream_name
                     )
-                    
+
                     if upload_result.succeeded:
                         result["dcr_accessible"] = True
                         result["message"] = "Health logging is fully configured and operational"
                     else:
-                        result["message"] = f"Health table exists but DCR upload failed: {upload_result.error_message}"
-                        
+                        result["message"] = (
+                            f"Health table exists but DCR upload failed: {upload_result.error_message}"
+                        )
+
                 except Exception as upload_error:
                     result["message"] = f"Health table exists but DCR test failed: {upload_error}"
-                    
+
             else:
                 result["message"] = f"Health table query failed: {query_result.error_message}"
-                
+
         except Exception as e:
             result["message"] = f"Health setup verification failed: {e}"
             logger.debug(f"Health setup verification error: {e}", exc_info=True)
-            
+
         return result
 
     def create_job_id(self) -> str:
@@ -535,20 +519,17 @@ class SentinelAggregatorHealthLogger:
         from .sentinel_client import SentinelAggregatorClient
         from .client_options import SentinelAggregatorClientOptions
         from azure.identity.aio import DefaultAzureCredential
-        
+
         # Create minimal configuration for disabled logger
         config = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://disabled.ingest.monitor.azure.com",
-            dcr_rule_id="dcr-00000000000000000000000000000000"  # Valid format: dcr-[32 hex chars]
+            dcr_rule_id="dcr-00000000000000000000000000000000",  # Valid format: dcr-[32 hex chars]
         )
         credential = DefaultAzureCredential()
         client = SentinelAggregatorClient(
             dcr_logs_ingestion_endpoint="https://disabled.ingest.monitor.azure.com",
             credential=credential,
-            options=config
+            options=config,
         )
-        
-        return cls(
-            sentinel_client=client,
-            enabled=False
-        )
+
+        return cls(sentinel_client=client, enabled=False)

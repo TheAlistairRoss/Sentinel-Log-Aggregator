@@ -339,7 +339,14 @@ class TestMainFunction:
     @patch("sentinel_log_aggregator.cli.run_aggregation")
     @patch(
         "sys.argv",
-        ["sentinel-aggregator", "run", "--workspace-config", "test.yaml", "--lookback-period", "P7D"],
+        [
+            "sentinel-aggregator",
+            "run",
+            "--workspace-config",
+            "test.yaml",
+            "--lookback-period",
+            "P7D",
+        ],
     )
     @pytest.mark.asyncio
     async def test_main_run_command_success(
@@ -360,9 +367,7 @@ class TestMainFunction:
         result = await main()
 
         assert result == 0
-        mock_run.assert_called_once_with(
-            mock_client_options, mock_workspaces, None
-        )
+        mock_run.assert_called_once_with(mock_client_options, mock_workspaces, None)
 
     @patch("sentinel_log_aggregator.cli.load_environment_variables")
     @patch("sentinel_log_aggregator.cli.setup_logging")

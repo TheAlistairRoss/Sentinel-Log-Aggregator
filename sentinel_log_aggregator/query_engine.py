@@ -203,8 +203,8 @@ class SentinelQueryEngine:
                         resource_id=f"/subscriptions/unknown/resourceGroups/unknown/providers/Microsoft.OperationalInsights/workspaces/{workspace_alias}",
                         customer_id=workspace_id,
                         queries_list=[],
-                        parameters={}
-                    )
+                        parameters={},
+                    ),
                 )
 
             # Execute query using Azure SDK-compliant method
@@ -310,8 +310,8 @@ class SentinelQueryEngine:
                         resource_id=f"/subscriptions/unknown/resourceGroups/unknown/providers/Microsoft.OperationalInsights/workspaces/{workspace_alias}",
                         customer_id=workspace_id,
                         queries_list=[],
-                        parameters={}
-                    )
+                        parameters={},
+                    ),
                 )
 
         self.execution_log.append(execution)
@@ -374,18 +374,21 @@ class SentinelQueryEngine:
         self.logger.info(f"🚀 Starting batch execution with job ID: {job_id}")
 
         # Calculate execution time ranges using new time range calculator
-        from .time_range_calculator import calculate_execution_time_ranges, calculate_execution_batches
-        
+        from .time_range_calculator import (
+            calculate_execution_time_ranges,
+            calculate_execution_batches,
+        )
+
         try:
             start_time, end_time, batch_size = await calculate_execution_time_ranges(
                 client_options=self.client_options,
                 workspaces=workspace_configs,
-                health_logger=self.health_logger
+                health_logger=self.health_logger,
             )
-            
-            # Calculate time batches  
+
+            # Calculate time batches
             time_batches = calculate_execution_batches(start_time, end_time, batch_size)
-            
+
         except Exception as e:
             self.logger.error(f"❌ Failed to calculate execution time ranges: {e}")
             return BatchExecutionSummary(
@@ -400,13 +403,13 @@ class SentinelQueryEngine:
                 failed_executions=0,
                 total_records_processed=0,
                 success_rate=0.0,
-                executions=[]
+                executions=[],
             )
 
         self.logger.batch_start(
             total_days=(end_time - start_time).days,
             batch_hours=int(batch_size.total_seconds() / 3600),
-            workspace_count=len(workspace_configs)
+            workspace_count=len(workspace_configs),
         )
 
         # Collect all query tasks
@@ -422,16 +425,18 @@ class SentinelQueryEngine:
                 await self.health_logger.log_workspace_processing_start(
                     job_id=job_id,
                     workspace_config=workspace,
-                    query_names=[q.get('name', q.get('query_name', 'unknown')) for q in queries_list]
+                    query_names=[
+                        q.get("name", q.get("query_name", "unknown")) for q in queries_list
+                    ],
                 )
 
             for query_config in queries_list:
                 # Handle both dict and string query configurations
                 if isinstance(query_config, dict):
-                    query_name = query_config.get('name', query_config.get('query_name', 'unknown'))
+                    query_name = query_config.get("name", query_config.get("query_name", "unknown"))
                 else:
                     query_name = str(query_config)
-                
+
                 # Check if this is a file path or a query name
                 query_instance = None
                 actual_query_name = query_name
@@ -649,16 +654,20 @@ class SentinelQueryEngine:
         if self.health_logger:
             for workspace in workspace_configs:
                 # Calculate workspace-specific metrics
-                workspace_executions = [e for e in all_executions if e.workspace_id == workspace.customer_id]
+                workspace_executions = [
+                    e for e in all_executions if e.workspace_id == workspace.customer_id
+                ]
                 workspace_records = sum(e.record_count or 0 for e in workspace_executions)
-                workspace_success = all(e.query_status == QueryStatus.SUCCESS.value for e in workspace_executions)
-                
+                workspace_success = all(
+                    e.query_status == QueryStatus.SUCCESS.value for e in workspace_executions
+                )
+
                 await self.health_logger.log_workspace_processing_end(
                     job_id=job_id,
                     workspace_config=workspace,
                     success=workspace_success,
                     records_processed=workspace_records,
-                    duration_seconds=total_duration  # Approximation since we don't track individual workspace duration
+                    duration_seconds=total_duration,  # Approximation since we don't track individual workspace duration
                 )
 
         # Log detailed summary programmatically

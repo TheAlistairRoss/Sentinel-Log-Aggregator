@@ -91,11 +91,12 @@ class SentinelAggregatorClientOptions(Configuration):
             # Extract days_ago from lookback_period for backwards compatibility
             try:
                 from .time_utils import parse_iso8601_duration
+
                 duration = parse_iso8601_duration(self.lookback_period)
                 self.days_ago = int(duration.days)
             except:
                 self.days_ago = 30  # default fallback
-        
+
         if batch_hours is not None:
             self.batch_time_size = f"PT{batch_hours}H"
             self.batch_hours = batch_hours
@@ -104,6 +105,7 @@ class SentinelAggregatorClientOptions(Configuration):
             # Extract batch_hours from batch_time_size for backwards compatibility
             try:
                 from .time_utils import parse_iso8601_duration
+
                 duration = parse_iso8601_duration(self.batch_time_size)
                 self.batch_hours = int(duration.total_seconds() / 3600)
             except:
@@ -111,7 +113,7 @@ class SentinelAggregatorClientOptions(Configuration):
         self.start_time = start_time
         self.end_time = end_time
         self.use_last_successful = use_last_successful
-        
+
         # Health logging configuration
         self.health_to_sentinel = health_to_sentinel
 
@@ -137,7 +139,7 @@ class SentinelAggregatorClientOptions(Configuration):
         :rtype: List[str]
         """
         errors = []
-        
+
         try:
             # Core configuration validation
             if not self.dcr_logs_ingestion_endpoint:
@@ -156,27 +158,33 @@ class SentinelAggregatorClientOptions(Configuration):
                 validate_batch_time_size(self.batch_time_size)
             except TimeParsingError as e:
                 errors.append(f"Invalid batch_time_size: {e}")
-            
+
             # Start/end time validation
             if self.start_time:
                 try:
                     from .time_utils import parse_iso8601_datetime
+
                     parse_iso8601_datetime(self.start_time)
                 except TimeParsingError as e:
                     errors.append(f"Invalid start_time: {e}")
-                    
+
             if self.end_time:
                 try:
                     from .time_utils import parse_iso8601_datetime
+
                     parse_iso8601_datetime(self.end_time)
                 except TimeParsingError as e:
                     errors.append(f"Invalid end_time: {e}")
 
             # Backwards compatibility validation
-            if hasattr(self, 'days_ago') and self.days_ago is not None and self.days_ago <= 0:
+            if hasattr(self, "days_ago") and self.days_ago is not None and self.days_ago <= 0:
                 errors.append("days_ago must be positive")
-                
-            if hasattr(self, 'batch_hours') and self.batch_hours is not None and self.batch_hours <= 0:
+
+            if (
+                hasattr(self, "batch_hours")
+                and self.batch_hours is not None
+                and self.batch_hours <= 0
+            ):
                 errors.append("batch_hours must be positive")
 
             # Query configuration validation
@@ -195,7 +203,7 @@ class SentinelAggregatorClientOptions(Configuration):
 
         except Exception as e:
             errors.append(f"Validation error: {e}")
-            
+
         return errors
 
     @classmethod

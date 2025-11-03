@@ -79,8 +79,7 @@ class TestValidation:
     def test_validate_success_with_new_validation(self):
         """Test successful validation with all required fields."""
         options = SentinelAggregatorClientOptions(
-            dcr_logs_ingestion_endpoint="https://test.endpoint.com", 
-            dcr_rule_id="dcr-123456"
+            dcr_logs_ingestion_endpoint="https://test.endpoint.com", dcr_rule_id="dcr-123456"
         )
 
         # Should return empty list for successful validation
@@ -496,8 +495,7 @@ class TestEdgeCases:
     def test_validation_with_all_attributes(self):
         """Test that validation works with additional attributes."""
         options = SentinelAggregatorClientOptions(
-            dcr_logs_ingestion_endpoint="https://test.endpoint.com", 
-            dcr_rule_id="test-dcr-123"
+            dcr_logs_ingestion_endpoint="https://test.endpoint.com", dcr_rule_id="test-dcr-123"
         )
 
         # Set additional attributes (these don't affect validation)
