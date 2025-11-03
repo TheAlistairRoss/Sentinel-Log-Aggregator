@@ -572,7 +572,7 @@ class TestSentinelQueryEngine:
             )
 
             summary = await query_engine.execute_batch_queries_with_streaming_upload(
-                workspace_configs=sample_workspaces, days_back=1, batch_hours=24
+                workspace_configs=sample_workspaces
             )
 
             assert summary.successful_executions == 2
@@ -693,7 +693,7 @@ class TestQueryEnginePerformance:
             )
 
             summary = await query_engine.execute_batch_queries_with_streaming_upload(
-                workspace_configs=workspaces, days_back=1, batch_hours=24
+                workspace_configs=workspaces
             )
 
             # Verify that large batches can be processed
@@ -2293,6 +2293,8 @@ class TestQueryEngineMissingCoverage:
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
             dcr_rule_id="dcr-12345678123456781234567812345678",
             max_concurrent_queries=2,
+            lookback_period="P1D",  # Use 1 day instead of default 30 days
+            batch_time_size="PT24H"  # 24 hour batches = 1 batch total
         )
 
         # Mock client
@@ -2360,9 +2362,9 @@ class TestQueryEngineMissingCoverage:
             ),
             patch.object(engine, "logger") as mock_logger,
         ):
-            # Execute batch queries using default days_back from options
+            # Execute batch queries using default time configuration from options
             summary = await engine.execute_batch_queries_with_streaming_upload(
-                workspace_configs=workspaces, days_back=1, batch_hours=24
+                workspace_configs=workspaces
             )
 
         # Verify summary was created
@@ -2386,6 +2388,8 @@ class TestQueryEngineMissingCoverage:
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
             dcr_rule_id="dcr-12345678123456781234567812345678",
+            lookback_period="P1D",  # Use 1 day instead of default 30 days
+            batch_time_size="PT24H"  # 24 hour batches = 1 batch total
         )
 
         # Mock client with large dataset
@@ -2439,9 +2443,9 @@ class TestQueryEngineMissingCoverage:
             ),
             patch.object(engine, "logger") as mock_logger,
         ):
-            # Execute with large dataset using default days_back from options
+            # Execute with large dataset using default time configuration from options
             summary = await engine.execute_batch_queries_with_streaming_upload(
-                workspace_configs=[workspace], days_back=1, batch_hours=24
+                workspace_configs=[workspace]
             )
 
         # Verify processing completed
@@ -2626,7 +2630,7 @@ class TestQueryEngineCompleteCoverage:
         ):
 
             summary = await engine.execute_batch_queries_with_streaming_upload(
-                workspace_configs=[workspace], days_back=1, batch_hours=24
+                workspace_configs=[workspace]
             )
 
         # Verify that a failed execution was logged for the query build error
@@ -2711,7 +2715,7 @@ class TestQueryEngineCompleteCoverage:
         ):
 
             summary = await engine.execute_batch_queries_with_streaming_upload(
-                workspace_configs=[workspace], days_back=1, batch_hours=24
+                workspace_configs=[workspace]
             )
 
         # Verify critical error logging was called
@@ -2766,7 +2770,7 @@ class TestQueryEngineCompleteCoverage:
         ):
 
             summary = await engine.execute_batch_queries_with_streaming_upload(
-                workspace_configs=[workspace], days_back=1, batch_hours=24
+                workspace_configs=[workspace]
             )
 
         # Verify batch execution error was logged
@@ -2831,7 +2835,7 @@ class TestQueryEngineCompleteCoverage:
         ):
 
             summary = await engine.execute_batch_queries_with_streaming_upload(
-                workspace_configs=[workspace], days_back=1, batch_hours=24
+                workspace_configs=[workspace]
             )
 
         # Verify final critical error logging
@@ -3145,7 +3149,7 @@ class TestQueryEngineRemainingLines:
         ):
 
             summary = await engine.execute_batch_queries_with_streaming_upload(
-                workspace_configs=workspaces, days_back=1
+                workspace_configs=workspaces
             )  # Verify that critical error logging was called (lines 388-389)
         # Check if the critical error message was logged - look for the actual message patterns
         error_calls = [str(call) for call in mock_logger.error.call_args_list]
@@ -3342,7 +3346,7 @@ class TestQueryEngineRemainingLines:
         ):
 
             summary = await engine.execute_batch_queries_with_streaming_upload(
-                workspace_configs=[workspace], days_back=1, batch_hours=24
+                workspace_configs=[workspace]
             )
 
         # Verify progress was logged and garbage collection called

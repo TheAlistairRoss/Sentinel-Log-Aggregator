@@ -6,6 +6,7 @@ This directory contains comprehensive documentation for the Microsoft Sentinel L
 
 ### Setup and Installation
 - **[installation.md](installation.md)** - Complete installation guide with requirements and setup instructions
+- **[health-logging-deployment.md](health-logging-deployment.md)** - Deploy health logging infrastructure using Azure Bicep templates
 - **[packaging.md](packaging.md)** - Package distribution guide for development and release management
 
 ### Development and Operations

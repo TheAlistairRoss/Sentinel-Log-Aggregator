@@ -16,3 +16,4 @@ aiohttp>=3.10.11
 
 # Data validation and parsing
 pydantic>=2.9.2
+isodate>=0.6.1

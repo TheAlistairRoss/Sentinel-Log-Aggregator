@@ -76,188 +76,114 @@ class TestSentinelAggregatorClientOptions:
 class TestValidation:
     """Test client options validation functionality."""
 
-    def test_validate_success_with_pydantic(self):
+    def test_validate_success_with_new_validation(self):
         """Test successful validation with all required fields."""
         options = SentinelAggregatorClientOptions(
-            dcr_logs_ingestion_endpoint="https://test.endpoint.com", dcr_rule_id="dcr-123456"
+            dcr_logs_ingestion_endpoint="https://test.endpoint.com", 
+            dcr_rule_id="dcr-123456"
         )
 
-        # Mock the validation function to simulate successful validation
-        with patch(
-            "sentinel_log_aggregator.client_options.validate_client_options"
-        ) as mock_validate:
-            mock_validate.return_value = True
+        # Should return empty list for successful validation
+        errors = options.validate()
+        assert errors == []
 
-            # Should not raise any exception
-            options.validate()
+    def test_validate_failure_with_missing_endpoint(self):
+        """Test validation failure with missing DCR endpoint."""
+        options = SentinelAggregatorClientOptions(dcr_rule_id="dcr-123456")
 
-            mock_validate.assert_called_once()
-
-    def test_validate_failure_with_pydantic_validation_error(self):
-        """Test validation failure with Pydantic ValidationError."""
-        options = SentinelAggregatorClientOptions()
-
-        # Import ValidationError to create a real instance
-        from pydantic import BaseModel, ValidationError
-        from pydantic_core import ValidationError as CoreValidationError
-
-        # Create a simple model to generate real ValidationError
-        class TestModel(BaseModel):
-            dcr_logs_ingestion_endpoint: str
-            dcr_rule_id: str
-
-        try:
-            TestModel(dcr_logs_ingestion_endpoint=None, dcr_rule_id=None)
-        except ValidationError as real_error:
-            # Use this real error
-            with patch(
-                "sentinel_log_aggregator.client_options.validate_client_options"
-            ) as mock_validate:
-                mock_validate.side_effect = real_error
-
-                with pytest.raises(ValueError) as exc_info:
-                    options.validate()
-
-                assert "Client options validation failed" in str(exc_info.value)
+        errors = options.validate()
+        assert len(errors) > 0
+        assert any("dcr_logs_ingestion_endpoint is required" in error for error in errors)
 
     def test_validate_fallback_missing_endpoint(self):
-        """Test fallback validation when Pydantic validation fails - missing endpoint."""
+        """Test validation failure with missing endpoint."""
         options = SentinelAggregatorClientOptions(dcr_rule_id="dcr-123")
 
-        # Mock ValidationError import to fail, triggering fallback
-        with patch(
-            "sentinel_log_aggregator.client_options.validate_client_options"
-        ) as mock_validate:
-            mock_validate.side_effect = ImportError("Pydantic not available")
-
-            with pytest.raises(ValueError) as exc_info:
-                options.validate()
-
-            assert "dcr_logs_ingestion_endpoint is required" in str(exc_info.value)
+        errors = options.validate()
+        assert len(errors) > 0
+        assert any("dcr_logs_ingestion_endpoint is required" in error for error in errors)
 
     def test_validate_fallback_missing_rule_id(self):
-        """Test fallback validation - missing DCR rule ID."""
+        """Test validation failure with missing DCR rule ID."""
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.endpoint.com"
         )
 
-        with patch(
-            "sentinel_log_aggregator.client_options.validate_client_options"
-        ) as mock_validate:
-            mock_validate.side_effect = ImportError("Pydantic not available")
-
-            with pytest.raises(ValueError) as exc_info:
-                options.validate()
-
-            assert "dcr_rule_id is required" in str(exc_info.value)
+        errors = options.validate()
+        assert len(errors) > 0
+        assert any("dcr_rule_id is required" in error for error in errors)
 
     def test_validate_fallback_invalid_days_ago(self):
-        """Test fallback validation - invalid days_ago."""
+        """Test validation failure with invalid days_ago."""
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.endpoint.com",
             dcr_rule_id="dcr-123",
             days_ago=-1,
         )
 
-        with patch(
-            "sentinel_log_aggregator.client_options.validate_client_options"
-        ) as mock_validate:
-            mock_validate.side_effect = Exception("Validation failed")
-
-            with pytest.raises(ValueError) as exc_info:
-                options.validate()
-
-            assert "days_ago must be positive" in str(exc_info.value)
+        errors = options.validate()
+        assert len(errors) > 0
+        assert any("days_ago must be positive" in error for error in errors)
 
     def test_validate_fallback_invalid_batch_hours(self):
-        """Test fallback validation - invalid batch_hours."""
+        """Test validation failure with invalid batch_hours."""
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.endpoint.com",
             dcr_rule_id="dcr-123",
             batch_hours=0,
         )
 
-        with patch(
-            "sentinel_log_aggregator.client_options.validate_client_options"
-        ) as mock_validate:
-            mock_validate.side_effect = Exception("Validation failed")
-
-            with pytest.raises(ValueError) as exc_info:
-                options.validate()
-
-            assert "batch_hours must be positive" in str(exc_info.value)
+        errors = options.validate()
+        assert len(errors) > 0
+        assert any("batch_hours must be positive" in error for error in errors)
 
     def test_validate_fallback_invalid_max_concurrent_queries(self):
-        """Test fallback validation - invalid max_concurrent_queries."""
+        """Test validation failure with invalid max_concurrent_queries."""
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.endpoint.com",
             dcr_rule_id="dcr-123",
             max_concurrent_queries=-1,
         )
 
-        with patch(
-            "sentinel_log_aggregator.client_options.validate_client_options"
-        ) as mock_validate:
-            mock_validate.side_effect = Exception("Validation failed")
-
-            with pytest.raises(ValueError) as exc_info:
-                options.validate()
-
-            assert "max_concurrent_queries must be positive" in str(exc_info.value)
+        errors = options.validate()
+        assert len(errors) > 0
+        assert any("max_concurrent_queries must be positive" in error for error in errors)
 
     def test_validate_fallback_invalid_query_timeout(self):
-        """Test fallback validation - invalid query_timeout_seconds."""
+        """Test validation failure with invalid query_timeout_seconds."""
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.endpoint.com",
             dcr_rule_id="dcr-123",
             query_timeout_seconds=0,
         )
 
-        with patch(
-            "sentinel_log_aggregator.client_options.validate_client_options"
-        ) as mock_validate:
-            mock_validate.side_effect = Exception("Validation failed")
-
-            with pytest.raises(ValueError) as exc_info:
-                options.validate()
-
-            assert "query_timeout_seconds must be positive" in str(exc_info.value)
+        errors = options.validate()
+        assert len(errors) > 0
+        assert any("query_timeout_seconds must be at least 30" in error for error in errors)
 
     def test_validate_fallback_invalid_max_retries(self):
-        """Test fallback validation - invalid max_retries."""
+        """Test validation failure with invalid max_retries."""
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.endpoint.com",
             dcr_rule_id="dcr-123",
             max_retries=-1,
         )
 
-        with patch(
-            "sentinel_log_aggregator.client_options.validate_client_options"
-        ) as mock_validate:
-            mock_validate.side_effect = Exception("Validation failed")
-
-            with pytest.raises(ValueError) as exc_info:
-                options.validate()
-
-            assert "max_retries cannot be negative" in str(exc_info.value)
+        errors = options.validate()
+        assert len(errors) > 0
+        assert any("max_retries cannot be negative" in error for error in errors)
 
     def test_validate_fallback_invalid_retry_delay(self):
-        """Test fallback validation - invalid retry_delay_seconds."""
+        """Test validation failure with invalid retry_delay_seconds."""
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.endpoint.com",
             dcr_rule_id="dcr-123",
             retry_delay_seconds=0,
         )
 
-        with patch(
-            "sentinel_log_aggregator.client_options.validate_client_options"
-        ) as mock_validate:
-            mock_validate.side_effect = Exception("Validation failed")
-
-            with pytest.raises(ValueError) as exc_info:
-                options.validate()
-
-            assert "retry_delay_seconds must be positive" in str(exc_info.value)
+        errors = options.validate()
+        assert len(errors) > 0
+        assert any("retry_delay_seconds must be positive" in error for error in errors)
 
 
 class TestFromEnvironment:
@@ -567,33 +493,22 @@ class TestEdgeCases:
         assert options.max_retries == 0
         assert options.retry_delay_seconds == 1
 
-    def test_validation_dict_creation(self):
-        """Test that validation creates proper dict for Pydantic validation."""
+    def test_validation_with_all_attributes(self):
+        """Test that validation works with additional attributes."""
         options = SentinelAggregatorClientOptions(
-            dcr_logs_ingestion_endpoint="https://test.endpoint.com", dcr_rule_id="test-dcr-123"
+            dcr_logs_ingestion_endpoint="https://test.endpoint.com", 
+            dcr_rule_id="test-dcr-123"
         )
 
-        # Set additional attributes that should be included in validation
+        # Set additional attributes (these don't affect validation)
         options.upload_timeout_seconds = 600
         options.max_upload_retries = 5
         options.log_level = "DEBUG"
         options.enable_telemetry = False
 
-        with patch(
-            "sentinel_log_aggregator.client_options.validate_client_options"
-        ) as mock_validate:
-            mock_validate.return_value = True
-
-            options.validate()
-
-            # Check that the validation was called with correct dict
-            call_args = mock_validate.call_args[0][0]
-            assert call_args["dcr_logs_ingestion_endpoint"] == "https://test.endpoint.com"
-            assert call_args["dcr_rule_id"] == "test-dcr-123"
-            assert call_args["upload_timeout_seconds"] == 600
-            assert call_args["max_upload_retries"] == 5
-            assert call_args["log_level"] == "DEBUG"
-            assert call_args["enable_telemetry"] is False
+        # Should return empty list for successful validation
+        errors = options.validate()
+        assert errors == []
 
     def test_yaml_file_with_pathlib_path(self):
         """Test from_yaml_file works with pathlib.Path objects."""

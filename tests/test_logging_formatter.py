@@ -54,7 +54,7 @@ class TestSentinelLogFormatter:
     def test_format_batch_start(self):
         """Test batch start message formatting."""
         result = SentinelLogFormatter.format_batch_start(
-            job_id="test-job-123", days_back=7, batch_hours=24, workspace_count=5
+            job_id="test-job-123", total_days=7, batch_hours=24, workspace_count=5
         )
 
         expected = "[BATCH_START] Job: test-job-123 | Range: 7d (24h batches) | Workspaces: 5"
@@ -545,7 +545,7 @@ class TestContextualLogger:
 
     def test_batch_start(self, contextual_logger, mock_logger):
         """Test batch start logging."""
-        contextual_logger.batch_start(days_back=5, batch_hours=12, workspace_count=3)
+        contextual_logger.batch_start(total_days=5, batch_hours=12, workspace_count=3)
 
         mock_logger.info.assert_called_once()
         call_args = mock_logger.info.call_args[0][0]
@@ -558,7 +558,7 @@ class TestContextualLogger:
     def test_batch_start_no_job_id(self, mock_logger):
         """Test batch start logging without job ID."""
         logger = ContextualLogger(mock_logger)
-        logger.batch_start(days_back=7, batch_hours=24, workspace_count=2)
+        logger.batch_start(total_days=7, batch_hours=24, workspace_count=2)
 
         mock_logger.info.assert_not_called()
 
@@ -794,7 +794,7 @@ class TestContextualLogger:
         logger = ContextualLogger(mock_logger)  # No job_id
 
         # These methods should not call the underlying logger
-        logger.batch_start(days_back=7, batch_hours=24, workspace_count=1)
+        logger.batch_start(total_days=7, batch_hours=24, workspace_count=1)
         logger.batch_end({})
         logger.query_start("query", "workspace", "range")
         logger.query_end("query", "workspace", 100, 10.0)
@@ -831,7 +831,7 @@ class TestIntegrationScenarios:
         contextual_logger = ContextualLogger(real_logger, "integration-test-job")
 
         # Simulate batch execution
-        contextual_logger.batch_start(days_back=1, batch_hours=24, workspace_count=2)
+        contextual_logger.batch_start(total_days=1, batch_hours=24, workspace_count=2)
         contextual_logger.query_start("test_query", "workspace1", "2024-01-01 to 2024-01-02")
         contextual_logger.query_end("test_query", "workspace1", 500, 10.5, success=True)
         contextual_logger.upload_start("test_query", "workspace1", 500)

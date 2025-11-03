@@ -107,8 +107,23 @@ Create a simple environment configuration:
 export DCR_LOGS_INGESTION_ENDPOINT="https://your-dcr-endpoint.monitor.azure.com"
 export DCR_RULE_ID="dcr-your-rule-id"
 
-# Optional - adjust as needed
-export DAYS_AGO=7
+# Time range options (use one of these methods):
+
+# Option 1: Lookback period (ISO 8601 duration)
+export LOOKBACK_PERIOD="P7D"              # Look back 7 days
+export BATCH_TIME_SIZE="PT12H"            # Process in 12-hour batches
+
+# Option 2: Explicit time range
+export START_TIME="2025-01-01T00:00:00Z"  # Explicit start time (ISO 8601)
+export END_TIME="2025-01-07T00:00:00Z"    # Explicit end time (ISO 8601)
+export BATCH_TIME_SIZE="PT6H"             # Process in 6-hour batches
+
+# Option 3: Use last successful runs (requires health logging)
+export USE_LAST_SUCCESSFUL=true           # Start from last successful completion
+export HEALTH_LOGGING_ENABLED=true       # Enable health tracking
+export BATCH_TIME_SIZE="PT24H"           # Process in 24-hour batches
+
+# Optional settings
 export LOG_LEVEL=INFO
 ```
 
@@ -243,11 +258,24 @@ pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git@a
 DCR_LOGS_INGESTION_ENDPOINT=https://your-dcr-endpoint.monitor.azure.com
 DCR_RULE_ID=dcr-your-rule-id
 
+# Time range configuration (choose one method)
+# Method 1: Lookback period (recommended for scheduled runs)
+LOOKBACK_PERIOD=P30D                    # ISO 8601 duration: P30D (30 days), PT24H (24 hours), P1DT12H (1.5 days)
+
+# Method 2: Explicit time range (for historical analysis)
+START_TIME=2025-01-01T00:00:00Z         # ISO 8601 datetime
+END_TIME=2025-01-31T23:59:59Z           # ISO 8601 datetime
+
+# Method 3: Continue from last successful run (for incremental processing)
+USE_LAST_SUCCESSFUL=true               # Boolean: true/false
+HEALTH_LOGGING_ENABLED=true            # Required when using last successful
+
+# Batch processing configuration
+BATCH_TIME_SIZE=PT24H                  # ISO 8601 duration: batch size for time-based processing
+
 # Performance tuning
-DAYS_AGO=30
-BATCH_HOURS=24
-MAX_CONCURRENT_QUERIES=5
-QUERY_TIMEOUT_SECONDS=300
+MAX_CONCURRENT_QUERIES=5               # Number of concurrent queries
+QUERY_TIMEOUT_SECONDS=300              # Query timeout in seconds
 
 # Logging and monitoring
 LOG_LEVEL=INFO
@@ -276,9 +304,22 @@ Create a comprehensive `config.yaml`:
 dcr_logs_ingestion_endpoint: "https://your-endpoint.monitor.azure.com"
 dcr_rule_id: "dcr-your-rule-id"
 
+# Time range configuration (choose one method)
+# Method 1: Lookback period
+lookback_period: "P30D"              # ISO 8601 duration
+
+# Method 2: Explicit time range
+start_time: "2025-01-01T00:00:00Z"   # ISO 8601 datetime
+end_time: "2025-01-31T23:59:59Z"     # ISO 8601 datetime
+
+# Method 3: Last successful continuation
+use_last_successful: true           # Boolean
+health_logging_enabled: true        # Required for last successful
+
+# Batch processing
+batch_time_size: "PT24H"            # ISO 8601 duration
+
 # Performance settings
-days_ago: 30
-batch_hours: 24
 max_concurrent_queries: 10
 query_timeout_seconds: 600
 
@@ -414,10 +455,21 @@ from sentinel_log_aggregator import (
 )
 
 async def enterprise_example():
-    # Advanced client configuration
+    # Advanced client configuration with new time parameters
     options = SentinelAggregatorClientOptions(
-        days_ago=30,
-        batch_hours=12,
+        # Time range method 1: Lookback period
+        lookback_period="P30D",              # 30 days back (ISO 8601)
+        batch_time_size="PT12H",             # 12-hour batches (ISO 8601)
+        
+        # Alternative: Explicit time range
+        # start_time="2025-01-01T00:00:00Z",
+        # end_time="2025-01-31T23:59:59Z",
+        
+        # Alternative: Continue from last successful
+        # use_last_successful=True,
+        # health_logging_enabled=True,
+        
+        # Performance settings
         max_concurrent_queries=10,
         query_timeout_seconds=600,
         log_level="DEBUG",
@@ -623,14 +675,27 @@ sentinel-aggregator health \
 ### Production Execution
 
 ```bash
-# Production run with full configuration
+# Production run with lookback period (recommended)
 sentinel-aggregator run \
   --workspace-config workspaces.yaml \
   --config config.yaml \
-  --days-back 30 \
-  --batch-hours 12 \
+  --lookback-period "P30D" \
+  --batch-time-size "PT12H" \
   --max-concurrent 5 \
   --correlation-id "prod-run-$(date +%Y%m%d-%H%M%S)"
+
+# Run with explicit time range (historical analysis)
+sentinel-aggregator run \
+  --workspace-config workspaces.yaml \
+  --start-time "2025-01-01T00:00:00Z" \
+  --end-time "2025-01-31T23:59:59Z" \
+  --batch-time-size "PT6H"
+
+# Continue from last successful run (incremental processing)
+sentinel-aggregator run \
+  --workspace-config workspaces.yaml \
+  --use-last-successful \
+  --health-logging-enabled
 
 # Run with workspace filtering (enterprise scenarios)
 sentinel-aggregator run \
@@ -644,6 +709,27 @@ sentinel-aggregator run \
   --dry-run \
   --validate-only \
   --verbose
+```
+
+### New CLI Commands
+
+```bash
+# Check last successful runs across workspaces
+sentinel-aggregator query-status \
+  --workspace-config workspaces.yaml \
+  --show-details
+
+# Query status for specific queries
+sentinel-aggregator query-status \
+  --workspace-config workspaces.yaml \
+  --query-filter "incident_summary,threat_hunting" \
+  --lookback-days 7
+
+# Show execution history and timing
+sentinel-aggregator query-status \
+  --workspace-config workspaces.yaml \
+  --show-execution-history \
+  --format table
 ```
 
 ### Advanced Validation and Testing
@@ -706,11 +792,64 @@ sentinel-aggregator \
 |--------|---------------------|---------|-------------|
 | `dcr_logs_ingestion_endpoint` | `DCR_LOGS_INGESTION_ENDPOINT` | Required | Azure Monitor ingestion endpoint |
 | `dcr_rule_id` | `DCR_RULE_ID` | Required | Data Collection Rule ID |
-| `days_ago` | `DAYS_AGO` | 30 | Number of days to look back |
-| `batch_hours` | `BATCH_HOURS` | 24 | Batch size in hours |
+| **Time Range Options (choose one method)** | | | |
+| `lookback_period` | `LOOKBACK_PERIOD` | "P30D" | ISO 8601 duration for relative time range |
+| `start_time` | `START_TIME` | None | ISO 8601 datetime for explicit start time |
+| `end_time` | `END_TIME` | None | ISO 8601 datetime for explicit end time |
+| `use_last_successful` | `USE_LAST_SUCCESSFUL` | false | Continue from last successful completion |
+| **Batch Processing** | | | |
+| `batch_time_size` | `BATCH_TIME_SIZE` | "PT24H" | ISO 8601 duration for batch size |
+| **Performance** | | | |
 | `max_concurrent_queries` | `MAX_CONCURRENT_QUERIES` | 5 | Maximum concurrent query execution |
 | `query_timeout_seconds` | `QUERY_TIMEOUT_SECONDS` | 300 | Query timeout in seconds |
+| **Monitoring** | | | |
+| `health_logging_enabled` | `HEALTH_LOGGING_ENABLED` | false | Enable health tracking and logging |
 | `log_level` | `LOG_LEVEL` | INFO | Logging level |
+
+### ISO 8601 Time Format Reference
+
+The new time parameters use ISO 8601 standardized formats for maximum precision and clarity.
+
+#### Duration Examples (`lookback_period`, `batch_time_size`)
+
+| Duration | ISO 8601 Format | Description |
+|----------|----------------|-------------|
+| 1 hour | `PT1H` | 1 hour |
+| 6 hours | `PT6H` | 6 hours |
+| 12 hours | `PT12H` | 12 hours |
+| 1 day | `P1D` or `PT24H` | 24 hours |
+| 3 days | `P3D` | 3 days |
+| 1 week | `P7D` | 7 days |
+| 1 month | `P30D` | 30 days |
+| 1.5 days | `P1DT12H` | 1 day + 12 hours |
+| 2 hours 30 minutes | `PT2H30M` | 2.5 hours |
+
+#### DateTime Examples (`start_time`, `end_time`)
+
+| Description | ISO 8601 Format |
+|-------------|----------------|
+| UTC midnight | `2025-01-01T00:00:00Z` |
+| UTC with time | `2025-01-15T14:30:00Z` |
+| With microseconds | `2025-01-15T14:30:00.123456Z` |
+| Timezone offset | `2025-01-15T14:30:00+05:00` |
+
+#### Time Range Configuration Examples
+
+```yaml
+# Example 1: Lookback processing (scheduled runs)
+lookback_period: "P7D"        # Look back 7 days
+batch_time_size: "PT12H"      # Process in 12-hour chunks
+
+# Example 2: Historical analysis (specific period)
+start_time: "2025-01-01T00:00:00Z"
+end_time: "2025-01-31T23:59:59Z"
+batch_time_size: "PT6H"       # Process in 6-hour chunks
+
+# Example 3: Incremental processing (continue from last run)
+use_last_successful: true     # Start from last completion
+batch_time_size: "PT24H"      # Process in daily chunks
+health_logging_enabled: true  # Required for tracking
+```
 
 ### Workspace Parameters
 
@@ -912,6 +1051,7 @@ mypy sentinel_log_aggregator
 - **[Installation Guide](docs/installation.md)**: Complete installation instructions and setup
 - **[CLI Usage Guide](docs/cli-usage.md)**: Detailed command-line interface documentation
 - **[Configuration Guide](docs/configuration.md)**: Advanced configuration options and environment setup
+- **[Health Logging Deployment](docs/health-logging-deployment.md)**: Deploy health logging infrastructure using Bicep templates
 - **[SDK Usage Guide](docs/sdk-usage.md)**: Programmatic usage examples and API reference
 - **[Development Guide](docs/development.md)**: Development setup and contributing guidelines
 - **[Security Implementation](docs/security-implementation.md)**: Security features and compliance documentation

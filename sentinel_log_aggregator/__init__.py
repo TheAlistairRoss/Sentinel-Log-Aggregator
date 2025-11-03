@@ -55,6 +55,9 @@ from .version import __version__
 # Workspace management utilities
 from .workspace_manager import WorkspaceManager, load_workspace_config
 
+# Health logging
+from .health_logger import SentinelAggregatorHealthLogger
+
 __all__ = [
     "__version__",
     # Primary Azure SDK-compliant client
@@ -87,4 +90,6 @@ __all__ = [
     "WorkspaceManager",
     "SentinelQueryEngine",
     "load_workspace_config",
+    # Health logging
+    "SentinelAggregatorHealthLogger",
 ]

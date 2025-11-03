@@ -36,10 +36,10 @@ class SentinelLogFormatter:
 
     @staticmethod
     def format_batch_start(
-        job_id: str, days_back: int, batch_hours: int, workspace_count: int
+        job_id: str, total_days: int, batch_hours: int, workspace_count: int
     ) -> str:
         """Format batch execution start message."""
-        return f"[BATCH_START] Job: {job_id} | Range: {days_back}d ({batch_hours}h batches) | Workspaces: {workspace_count}"
+        return f"[BATCH_START] Job: {job_id} | Range: {total_days}d ({batch_hours}h batches) | Workspaces: {workspace_count}"
 
     @staticmethod
     def format_batch_end(job_id: str, summary: Dict[str, Any]) -> str:
@@ -249,11 +249,11 @@ class ContextualLogger:
         """Update the job correlation ID."""
         self.job_id = job_id
 
-    def batch_start(self, days_back: int, batch_hours: int, workspace_count: int) -> None:
+    def batch_start(self, total_days: int, batch_hours: int, workspace_count: int) -> None:
         """Log batch execution start."""
         if self.job_id:
             msg = self.formatter.format_batch_start(
-                self.job_id, days_back, batch_hours, workspace_count
+                self.job_id, total_days, batch_hours, workspace_count
             )
             self.logger.info(msg)
 

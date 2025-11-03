@@ -10,8 +10,9 @@ import asyncio
 import logging
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from azure.core.exceptions import AzureError
 from azure.identity.aio import DefaultAzureCredential
@@ -19,6 +20,7 @@ from dotenv import load_dotenv
 
 # Import Azure SDK-compliant components
 from .client_options import SentinelAggregatorClientOptions
+from .health_logger import SentinelAggregatorHealthLogger
 from .logging_utils import configure_logging
 from .models import WorkspaceConfig
 from .query_engine import SentinelQueryEngine
@@ -76,9 +78,17 @@ def create_client_options_from_args(args) -> SentinelAggregatorClientOptions:
             "Provide via --dcr-rule-id argument or DCR_RULE_ID environment variable."
         )
 
-    # Get optional configuration with defaults (these may not be present for all subcommands)
-    days_back = getattr(args, "days_back", None) or int(os.getenv("DAYS_AGO", "30"))
-    batch_hours = getattr(args, "batch_hours", None) or int(os.getenv("BATCH_HOURS", "24"))
+    # Get time configuration (these may not be present for all subcommands)
+    lookback_period = getattr(args, "lookback_period", None) or os.getenv("LOOKBACK_PERIOD", "P30D")
+    batch_time_size = getattr(args, "batch_time_size", None) or os.getenv("BATCH_TIME_SIZE", "PT24H")
+    start_time = getattr(args, "start_time", None) or os.getenv("START_TIME")
+    end_time = getattr(args, "end_time", None) or os.getenv("END_TIME")
+    use_last_successful = getattr(args, "use_last_successful", False) or os.getenv("USE_LAST_SUCCESSFUL", "false").lower() == "true"
+    
+    # Get health logging configuration
+    health_to_sentinel = getattr(args, "health_to_sentinel", False) or os.getenv("HEALTH_TO_SENTINEL", "false").lower() == "true"
+    
+    # Get other optional configuration
     max_concurrent = getattr(args, "max_concurrent_queries", None) or int(
         os.getenv("MAX_CONCURRENT_QUERIES", "5")
     )
@@ -87,8 +97,12 @@ def create_client_options_from_args(args) -> SentinelAggregatorClientOptions:
     return SentinelAggregatorClientOptions(
         dcr_logs_ingestion_endpoint=dcr_endpoint,
         dcr_rule_id=dcr_rule_id,
-        days_ago=days_back,
-        batch_hours=batch_hours,
+        lookback_period=lookback_period,
+        batch_time_size=batch_time_size,
+        start_time=start_time,
+        end_time=end_time,
+        use_last_successful=use_last_successful,
+        health_to_sentinel=health_to_sentinel,
         max_concurrent_queries=max_concurrent,
         query_timeout_seconds=int(os.getenv("QUERY_TIMEOUT_SECONDS", "300")),
         max_retries=int(os.getenv("MAX_RETRIES", "3")),
@@ -175,11 +189,84 @@ async def check_service_health(
         return False
 
 
+def create_health_logger_from_args(
+    args, 
+    client_options: SentinelAggregatorClientOptions, 
+    workspaces: List[WorkspaceConfig]
+) -> Optional[SentinelAggregatorHealthLogger]:
+    """
+    Create health logger from CLI arguments if health logging is enabled.
+    
+    Args:
+        args: CLI arguments
+        client_options: Main client options
+        workspaces: Available workspaces
+        
+    Returns:
+        SentinelAggregatorHealthLogger if enabled, None otherwise
+    """
+    if not getattr(args, 'enable_health_logging', False):
+        return None
+    
+    logger = logging.getLogger(__name__)
+    
+    # Determine health DCR configuration
+    health_dcr_endpoint = getattr(args, 'health_dcr_endpoint', None) or client_options.dcr_logs_ingestion_endpoint
+    health_dcr_rule_id = getattr(args, 'health_dcr_rule_id', None) or client_options.dcr_rule_id
+    
+    # Get health to sentinel flag
+    health_to_sentinel = getattr(args, 'health_to_sentinel', False) or client_options.health_to_sentinel
+    
+    # Create health client options with health-specific DCR settings
+    health_client_options = SentinelAggregatorClientOptions(
+        dcr_logs_ingestion_endpoint=health_dcr_endpoint,
+        dcr_rule_id=health_dcr_rule_id,
+        # Copy other settings from main options
+        lookback_period=client_options.lookback_period,
+        batch_time_size=client_options.batch_time_size,
+        start_time=client_options.start_time,
+        end_time=client_options.end_time,
+        use_last_successful=client_options.use_last_successful,
+        health_to_sentinel=health_to_sentinel,
+        max_concurrent_queries=client_options.max_concurrent_queries,
+        query_timeout_seconds=client_options.query_timeout_seconds,
+        max_retries=client_options.max_retries,
+        retry_delay_seconds=client_options.retry_delay_seconds
+    )
+    
+    # Import here to avoid circular import issues
+    from .sentinel_client import SentinelAggregatorClient
+    from azure.identity.aio import DefaultAzureCredential
+    
+    # Create sentinel client for health logging
+    credential = DefaultAzureCredential()
+    health_client = SentinelAggregatorClient(
+        dcr_logs_ingestion_endpoint=health_dcr_endpoint,
+        credential=credential,
+        options=health_client_options
+    )
+    
+    try:
+        health_logger = SentinelAggregatorHealthLogger(
+            sentinel_client=health_client,
+            enabled=True,
+            health_to_sentinel=health_to_sentinel
+        )
+        
+        health_mode = "Sentinel table" if health_to_sentinel else "console only"
+        logger.info(f"🏥 Health logging enabled - mode: {health_mode}")
+        return health_logger
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to create health logger: {e}")
+        logger.debug("Health logger creation error details", exc_info=True)
+        return None
+
+
 async def run_aggregation(
     client_options: SentinelAggregatorClientOptions,
     workspaces: List[WorkspaceConfig],
-    days_back: int = None,
-    batch_hours: int = None,
+    health_logger: Optional[SentinelAggregatorHealthLogger] = None,
 ):
     """Run the log aggregation process using Azure SDK-compliant components."""
     logger = logging.getLogger(__name__)
@@ -192,19 +279,46 @@ async def run_aggregation(
             logger.error(f"  • {error}")
         return False
 
-    # Override configuration values if provided
-    if days_back is not None:
-        client_options.days_ago = days_back
-    if batch_hours is not None:
-        client_options.batch_hours = batch_hours
+    # Validate time configuration
+    from .time_range_calculator import validate_time_configuration
+    time_errors = validate_time_configuration(client_options)
+    if time_errors:
+        logger.error("❌ Time configuration validation failed:")
+        for error in time_errors:
+            logger.error(f"  • {error}")
+        return False
 
     logger.info(f"🚀 Starting log aggregation process...")
-    logger.info(f"  • Days back: {client_options.days_ago}")
-    logger.info(f"  • Batch hours: {client_options.batch_hours}")
+    logger.info(f"  • Lookback period: {client_options.lookback_period}")
+    logger.info(f"  • Batch time size: {client_options.batch_time_size}")
     logger.info(f"  • Max concurrent queries: {client_options.max_concurrent_queries}")
     logger.info(f"  • Workspaces: {len(workspaces)}")
+    if health_logger:
+        logger.info(f"  • Health logging: ✅ Enabled")
+    else:
+        logger.info(f"  • Health logging: ❌ Disabled")
+
+    # Generate job ID for health logging
+    job_id = health_logger.create_job_id() if health_logger else "cli-job"
 
     try:
+        # Log job start if health logging is enabled
+        if health_logger:
+            await health_logger.log_job_start(
+                job_id=job_id,
+                job_type="cli_batch_execution",
+                workspace_count=len(workspaces),
+                query_count=0,  # Will be updated by query engine
+                cli_args={
+                    "lookback_period": client_options.lookback_period,
+                    "batch_time_size": client_options.batch_time_size,
+                    "max_concurrent_queries": client_options.max_concurrent_queries,
+                    "start_time": client_options.start_time,
+                    "end_time": client_options.end_time,
+                    "use_last_successful": client_options.use_last_successful,
+                }
+            )
+
         # Create Azure SDK-compliant client
         credential = DefaultAzureCredential()
         async with SentinelAggregatorClient(
@@ -214,10 +328,22 @@ async def run_aggregation(
         ) as client:
 
             # Use the high-level query engine for batch processing
-            query_engine = SentinelQueryEngine(client_options, client)
+            query_engine = SentinelQueryEngine(client_options, client, health_logger=health_logger)
 
             # Execute batch queries with streaming upload
-            summary = await query_engine.execute_batch_queries_with_streaming_upload(workspaces)
+            summary = await query_engine.execute_batch_queries_with_streaming_upload(
+                workspaces, job_id=job_id
+            )
+
+            # Log job end if health logging is enabled
+            if health_logger:
+                await health_logger.log_job_end(
+                    job_id=job_id,
+                    job_type="cli_batch_execution",
+                    success=(summary.failed_queries == 0),
+                    total_records_processed=summary.total_records_uploaded,
+                    total_duration_seconds=summary.total_duration_seconds
+                )
 
             # Display brief summary - detailed analysis available in logs
             detailed_summary = summary.generate_detailed_summary()
@@ -242,6 +368,19 @@ async def run_aggregation(
 
     except Exception as e:
         logger.error(f"❌ Aggregation failed: {e}")
+        
+        # Log error to health logger if available
+        if health_logger:
+            try:
+                await health_logger.log_job_end(
+                    job_id=job_id,
+                    job_type="cli_batch_execution",
+                    success=False,
+                    error_message=str(e)
+                )
+            except Exception as health_error:
+                logger.debug(f"Failed to log error to health logger: {health_error}")
+        
         return False
 
 
@@ -252,17 +391,27 @@ def create_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Using command line arguments (no .env file needed)
+  # Using command line arguments with time ranges
   sentinel-aggregator run --workspace-config workspaces.yaml \\
     --dcr-endpoint "https://myworkspace-abcd.centralus-1.ingest.monitor.azure.com" \\
     --dcr-rule-id "dcr-12345678901234567890" \\
-    --days-back 7
+    --start-time "2025-10-01T00:00:00Z" --end-time "2025-11-01T00:00:00Z"
   
-  # Using custom .env file
-  sentinel-aggregator run --workspace-config workspaces.yaml --env-file custom.env
+  # Using lookback period with custom batch size
+  sentinel-aggregator run --workspace-config workspaces.yaml \\
+    --lookback-period "P7D" --batch-time-size "PT12H"
   
-  # Using default .env file (if exists)
-  sentinel-aggregator run --workspace-config workspaces.yaml
+  # Using last successful timestamps
+  sentinel-aggregator run --workspace-config workspaces.yaml \\
+    --use-last-successful --batch-time-size "PT6H"
+  
+  # Health logging to Sentinel table
+  sentinel-aggregator run --workspace-config workspaces.yaml \\
+    --enable-health-logging --health-to-sentinel
+  
+  # Query last successful runs
+  sentinel-aggregator query-status --workspace-config workspaces.yaml \\
+    --lookback-period "P14D" --query-names "incident_summary,alert_summary"
   
   # Health check with custom DCR configuration
   sentinel-aggregator health --workspace-config workspaces.yaml \\
@@ -271,10 +420,6 @@ Examples:
   
   # Validate configuration with debug logging
   sentinel-aggregator --log-level DEBUG validate --workspace-config workspaces.yaml
-  
-  # Run with custom batch settings
-  sentinel-aggregator run --workspace-config workspaces.yaml \\
-    --days-back 14 --batch-hours 12 --max-concurrent-queries 3
         """,
     )
 
@@ -335,17 +480,65 @@ Examples:
         help="Path to workspace configuration file (YAML format)",
     )
 
-    # Optional query settings for run command
+    # Optional query settings for run command - Time specifications
+    time_group = run_parser.add_mutually_exclusive_group()
+    
+    time_group.add_argument(
+        "--lookback-period", 
+        help="ISO 8601 duration for how far back to query (e.g., P7D, PT48H) - default: P30D"
+    )
+    
+    time_group.add_argument(
+        "--start-time", 
+        help="Explicit start time in ISO 8601 format (e.g., 2025-10-01T17:00:00Z)"
+    )
+    
     run_parser.add_argument(
-        "--days-back", type=int, help="Number of days to look back for data (default: 30)"
+        "--end-time", 
+        help="Explicit end time in ISO 8601 format (defaults to now if start-time provided)"
     )
 
     run_parser.add_argument(
-        "--batch-hours", type=int, help="Number of hours per batch (default: 24)"
+        "--batch-time-size", 
+        help="ISO 8601 duration for batch size, multiple of 1 hour (e.g., PT24H, PT12H) - default: PT24H"
+    )
+
+    run_parser.add_argument(
+        "--use-last-successful",
+        action="store_true",
+        help="Use last successful run timestamps from health table"
     )
 
     run_parser.add_argument(
         "--max-concurrent-queries", type=int, help="Maximum concurrent queries (default: 5)"
+    )
+
+    # Health logging options for run command
+    run_parser.add_argument(
+        "--enable-health-logging",
+        action="store_true",
+        help="Enable health logging"
+    )
+
+    run_parser.add_argument(
+        "--health-to-sentinel",
+        action="store_true",
+        help="Send health logs to Sentinel table (otherwise console only)"
+    )
+
+    run_parser.add_argument(
+        "--health-workspace-id",
+        help="Workspace ID for health logging (if different from data workspaces)"
+    )
+
+    run_parser.add_argument(
+        "--health-dcr-endpoint",
+        help="DCR endpoint for health logging (if different from main DCR)"
+    )
+
+    run_parser.add_argument(
+        "--health-dcr-rule-id", 
+        help="DCR rule ID for health logging (if different from main DCR)"
     )
 
     # Validate configuration command
@@ -361,7 +554,368 @@ Examples:
         help="Path to workspace configuration file (YAML format)",
     )
 
+    # Verify health logging setup command
+    verify_health_parser = subparsers.add_parser(
+        "verify-health",
+        help="Verify health logging setup",
+        description="Check if health logging table and DCR are properly configured",
+    )
+    verify_health_parser.add_argument(
+        "--workspace-config",
+        type=Path,
+        required=True,
+        help="Path to workspace configuration file (YAML format)",
+    )
+    verify_health_parser.add_argument(
+        "--health-workspace-id",
+        help="Workspace ID for health logging (if different from first data workspace)"
+    )
+    verify_health_parser.add_argument(
+        "--health-dcr-endpoint",
+        help="DCR endpoint for health logging (if different from main DCR)"
+    )
+    verify_health_parser.add_argument(
+        "--health-dcr-rule-id", 
+        help="DCR rule ID for health logging (if different from main DCR)"
+    )
+
+    # Query status command
+    query_status_parser = subparsers.add_parser(
+        "query-status",
+        help="Query last successful run status",
+        description="Check the last successful runs for queries from health table",
+    )
+    query_status_parser.add_argument(
+        "--workspace-config",
+        type=Path,
+        required=True,
+        help="Path to workspace configuration file (YAML format)",
+    )
+    query_status_parser.add_argument(
+        "--lookback-period",
+        default="P30D",
+        help="ISO 8601 duration for how far back to search (default: P30D)"
+    )
+    query_status_parser.add_argument(
+        "--query-names",
+        help="Comma-separated list of query names to filter (optional)"
+    )
+    query_status_parser.add_argument(
+        "--health-workspace-id",
+        help="Workspace ID where health table is located (if different from first data workspace)"
+    )
+    query_status_parser.add_argument(
+        "--health-dcr-endpoint",
+        help="DCR endpoint for health logging (if different from main DCR)"
+    )
+    query_status_parser.add_argument(
+        "--health-dcr-rule-id", 
+        help="DCR rule ID for health logging (if different from main DCR)"
+    )
+
     return parser
+
+
+async def verify_health_logging_setup(args, client_options: SentinelAggregatorClientOptions, workspaces: List[WorkspaceConfig]) -> bool:
+    """
+    Verify that health logging infrastructure is properly set up.
+    
+    Args:
+        args: CLI arguments
+        client_options: Client configuration options
+        workspaces: Available workspace configurations
+        
+    Returns:
+        bool: True if health logging is properly configured, False otherwise
+    """
+    logger = logging.getLogger(__name__)
+    
+    logger.info("🏥 Verifying health logging setup...")
+    
+    try:
+        # Create health logger using the same logic as the run command
+        health_logger = create_health_logger_from_args(args, client_options, workspaces)
+        
+        if not health_logger:
+            logger.error("❌ Health logging is not enabled or configured")
+            logger.info("💡 Enable health logging with --enable-health-logging")
+            return False
+            
+        # Determine which workspace to test against
+        test_workspace_id = args.health_workspace_id
+        if not test_workspace_id and workspaces:
+            test_workspace_id = workspaces[0].customer_id
+            logger.info(f"🔍 Using first workspace for testing: {workspaces[0].workspace_name}")
+            
+        if not test_workspace_id:
+            logger.error("❌ No workspace available for health logging verification")
+            return False
+            
+        # Verify health logging setup
+        verification_result = await health_logger.verify_health_table_setup(test_workspace_id)
+        
+        logger.info("📊 Health Logging Verification Results:")
+        logger.info("=" * 50)
+        logger.info(f"  • Enabled: {'✅' if verification_result['enabled'] else '❌'}")
+        logger.info(f"  • Table Exists: {'✅' if verification_result['table_exists'] else '❌'}")
+        logger.info(f"  • DCR Accessible: {'✅' if verification_result['dcr_accessible'] else '❌'}")
+        logger.info(f"  • Status: {verification_result['message']}")
+        
+        if verification_result['enabled'] and verification_result['table_exists'] and verification_result['dcr_accessible']:
+            logger.info("")
+            logger.info("🎉 Health logging is fully operational!")
+            return True
+        elif verification_result['enabled'] and verification_result['table_exists']:
+            logger.warning("")
+            logger.warning("⚠️  Health table exists but DCR access failed")
+            logger.info("💡 Check DCR configuration and permissions")
+            return False
+        elif verification_result['enabled']:
+            logger.error("")
+            logger.error("❌ Health logging enabled but table not found")
+            logger.info("💡 Deploy the health logging infrastructure using:")
+            logger.info("   az deployment group create \\")
+            logger.info("     --resource-group <your-rg> \\")
+            logger.info("     --template-file Templates/main.bicep \\")
+            logger.info("     --parameters workspaceName=<your-workspace>")
+            return False
+        else:
+            logger.info("")
+            logger.info("ℹ️  Health logging is disabled")
+            return True
+            
+    except Exception as e:
+        logger.error(f"❌ Health logging verification failed: {e}")
+        logger.debug("Verification error details", exc_info=True)
+        return False
+
+
+async def query_last_successful_runs(args, client_options: SentinelAggregatorClientOptions, workspaces: List[WorkspaceConfig]) -> bool:
+    """
+    Query last successful runs from health table and display results.
+    
+    Args:
+        args: CLI arguments
+        client_options: Client configuration options
+        workspaces: Available workspace configurations
+        
+    Returns:
+        bool: True if query was successful, False otherwise
+    """
+    logger = logging.getLogger(__name__)
+    
+    logger.info("📊 Querying last successful runs...")
+    
+    try:
+        # Create health logger to access health table querying functionality
+        health_logger = create_health_logger_from_args(args, client_options, workspaces)
+        
+        if not health_logger:
+            logger.error("❌ Health logging is not enabled")
+            logger.info("💡 Enable health logging with --enable-health-logging")
+            return False
+
+        # Determine workspace to query against
+        health_workspace_id = getattr(args, 'health_workspace_id', None)
+        if not health_workspace_id and workspaces:
+            health_workspace_id = workspaces[0].customer_id
+            logger.debug(f"Using first workspace for health queries: {workspaces[0].workspace_name}")
+            
+        if not health_workspace_id:
+            logger.error("❌ No workspace available for health table queries")
+            return False
+
+        # Parse query filter if provided
+        query_names_filter = None
+        if hasattr(args, 'query_names') and args.query_names:
+            query_names_filter = [name.strip() for name in args.query_names.split(',')]
+            logger.debug(f"Filtering by query names: {query_names_filter}")
+
+        # Get lookback period
+        lookback_period = getattr(args, 'lookback_period', 'P30D')
+        
+        # Import time utilities
+        from .time_utils import calculate_time_range_from_lookback, format_datetime_for_display
+        
+        # Calculate time range
+        start_time, end_time = calculate_time_range_from_lookback(lookback_period)
+        
+        logger.info(f"🔍 Searching for successful runs from {format_datetime_for_display(start_time)} to {format_datetime_for_display(end_time)}")
+
+        # Query health table for last successful runs
+        successful_runs = await _query_health_table_for_last_successful(
+            health_logger, 
+            health_workspace_id, 
+            start_time, 
+            end_time, 
+            query_names_filter
+        )
+        
+        if not successful_runs:
+            logger.warning("⚠️  No successful runs found in the specified time period")
+            return True
+            
+        # Display results in table format
+        _display_successful_runs_table(successful_runs)
+        
+        logger.info(f"✅ Found {len(successful_runs)} successful run(s)")
+        return True
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to query last successful runs: {e}")
+        logger.debug("Query error details", exc_info=True)
+        return False
+
+
+async def _query_health_table_for_last_successful(
+    health_logger: SentinelAggregatorHealthLogger,
+    workspace_id: str,
+    start_time: datetime,
+    end_time: datetime,
+    query_names_filter: Optional[List[str]] = None
+) -> List[Dict[str, Any]]:
+    """
+    Query health table for last successful runs.
+    
+    Args:
+        health_logger: Health logger with sentinel client
+        workspace_id: Workspace ID to query
+        start_time: Start time for search
+        end_time: End time for search
+        query_names_filter: Optional list of query names to filter by
+        
+    Returns:
+        List of successful run records
+    """
+    from datetime import timezone
+    
+    # Build KQL query
+    kql_query = f"""
+    SentinelAggregator-Health_CL
+    | where TimeGenerated between (datetime({start_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')}) .. datetime({end_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')}))
+    | where OperationName == "QueryExecution" 
+    | where OperationStatus == "Completed"
+    | extend ExtendedProps = parse_json(ExtendedProperties)
+    | extend StartTime = todatetime(ExtendedProps.start_time)
+    | extend EndTime = todatetime(ExtendedProps.end_time)
+    | extend RecordCount = toint(ExtendedProps.record_count)
+    | where isnotnull(StartTime) and isnotnull(EndTime) and isnotnull(RecordCount)
+    """
+    
+    # Add query name filter if provided
+    if query_names_filter:
+        query_names_quoted = ', '.join([f'"{name}"' for name in query_names_filter])
+        kql_query += f"\n    | where QueryName in ({query_names_quoted})"
+    
+    # Get most recent successful run per query+workspace combination
+    kql_query += """
+    | summarize arg_max(TimeGenerated, StartTime, EndTime, RecordCount) by QueryName, WorkspaceId
+    | project QueryName, WorkspaceId, StartTime, EndTime, RecordCount, LastRunTime=TimeGenerated
+    | order by QueryName asc, WorkspaceId asc
+    """
+    
+    # Execute query
+    try:
+        from azure.monitor.query.aio import LogsQueryClient
+        from azure.identity.aio import DefaultAzureCredential
+        
+        credential = DefaultAzureCredential()
+        query_client = LogsQueryClient(credential=credential)
+        
+        # Execute the query
+        response = await query_client.query_workspace(
+            workspace_id=workspace_id,
+            query=kql_query,
+            timespan=(start_time, end_time)
+        )
+        
+        # Convert results to list of dictionaries
+        results = []
+        if response.tables:
+            table = response.tables[0]
+            column_names = [col.name for col in table.columns]
+            
+            for row in table.rows:
+                result = dict(zip(column_names, row))
+                results.append(result)
+        
+        await credential.close()
+        await query_client.close()
+        
+        return results
+        
+    except Exception as e:
+        logger = logging.getLogger(__name__)
+        logger.error(f"Failed to query health table: {e}")
+        raise
+
+
+def _display_successful_runs_table(runs: List[Dict[str, Any]]) -> None:
+    """
+    Display successful runs in table format.
+    
+    Args:
+        runs: List of successful run records
+    """
+    if not runs:
+        return
+        
+    from .time_utils import format_datetime_for_display
+    
+    logger = logging.getLogger(__name__)
+    
+    # Calculate column widths
+    max_query_name = max(len(run.get('QueryName', '')) for run in runs)
+    max_workspace_id = min(max(len(str(run.get('WorkspaceId', ''))[:12]) for run in runs), 12)
+    
+    # Table headers
+    headers = [
+        "Query Name".ljust(max_query_name),
+        "Workspace ID".ljust(max_workspace_id),
+        "Start Time".ljust(20),
+        "End Time".ljust(20),
+        "Records".rjust(10)
+    ]
+    
+    # Print table header
+    header_line = " | ".join(headers)
+    separator_line = "-" * len(header_line)
+    
+    logger.info("")
+    logger.info("📊 Last Successful Runs:")
+    logger.info(separator_line)
+    logger.info(header_line)
+    logger.info(separator_line)
+    
+    # Print table rows
+    for run in runs:
+        query_name = str(run.get('QueryName', '')).ljust(max_query_name)
+        workspace_id = str(run.get('WorkspaceId', ''))[:12].ljust(max_workspace_id)
+        
+        # Format times for display
+        start_time = run.get('StartTime')
+        end_time = run.get('EndTime')
+        
+        if isinstance(start_time, str):
+            start_str = start_time[:19] if len(start_time) >= 19 else start_time
+        else:
+            start_str = format_datetime_for_display(start_time, local_timezone=True)[:19]
+            
+        if isinstance(end_time, str):
+            end_str = end_time[:19] if len(end_time) >= 19 else end_time
+        else:
+            end_str = format_datetime_for_display(end_time, local_timezone=True)[:19]
+        
+        start_str = start_str.ljust(20)
+        end_str = end_str.ljust(20)
+        
+        record_count = str(run.get('RecordCount', 0)).rjust(10)
+        
+        row = " | ".join([query_name, workspace_id, start_str, end_str, record_count])
+        logger.info(row)
+    
+    logger.info(separator_line)
+    logger.info("")
 
 
 async def main():
@@ -406,13 +960,18 @@ async def main():
             success = await check_service_health(client_options, workspaces)
 
         elif args.command == "run":
-            # Use CLI arguments or fall back to client options
-            days_back = args.days_back if args.days_back is not None else client_options.days_ago
-            batch_hours = (
-                args.batch_hours if args.batch_hours is not None else client_options.batch_hours
+            # Create health logger if enabled
+            health_logger = create_health_logger_from_args(args, client_options, workspaces)
+
+            success = await run_aggregation(
+                client_options, workspaces, health_logger
             )
 
-            success = await run_aggregation(client_options, workspaces, days_back, batch_hours)
+        elif args.command == "verify-health":
+            success = await verify_health_logging_setup(args, client_options, workspaces)
+
+        elif args.command == "query-status":
+            success = await query_last_successful_runs(args, client_options, workspaces)
 
         elif args.command == "validate":
             logger.info("🔍 Validating configuration...")

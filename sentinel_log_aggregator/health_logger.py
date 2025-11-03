@@ -1,0 +1,554 @@
+"""
+Sentinel Log Aggregator Health Logger
+
+Provides comprehensive health and operational logging to Log Analytics tables
+for monitoring job execution, query performance, and workspace processing.
+"""
+
+import asyncio
+import json
+import logging
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional, Union
+from uuid import uuid4
+
+from .models import QueryExecution, WorkspaceConfig
+from .sentinel_client import SentinelAggregatorClient
+from .exceptions import SentinelAggregatorError
+
+logger = logging.getLogger(__name__)
+
+
+class SentinelAggregatorHealthLogger:
+    """
+    Health logger for comprehensive operational monitoring.
+    
+    Logs job execution, query performance, workspace processing, and errors
+    to the SentinelAggregatorHealth_CL Log Analytics table.
+    """
+
+    def __init__(
+        self,
+        sentinel_client: SentinelAggregatorClient,
+        enabled: bool = True,
+        health_to_sentinel: bool = False
+    ):
+        """
+        Initialize the health logger.
+        
+        Args:
+            sentinel_client: Configured Sentinel client for Log Analytics ingestion
+            enabled: Whether health logging is enabled
+            health_to_sentinel: Whether to send health logs to Sentinel table (vs console only)
+        """
+        self.sentinel_client = sentinel_client
+        self.enabled = enabled
+        self.health_to_sentinel = health_to_sentinel
+        self.health_stream_name = "Custom-SentinelAggregator-Health_CL"
+        
+        if self.enabled and not self.health_to_sentinel:
+            logger.info("Health logging enabled - console only (not sent to Sentinel)")
+        elif self.enabled and self.health_to_sentinel:
+            logger.info("Health logging enabled - sending to Sentinel table")
+        else:
+            logger.debug("Health logging disabled")
+        
+        logger.debug(f"Health logger initialized - enabled: {enabled}, to_sentinel: {health_to_sentinel}")
+
+    async def log_job_start(
+        self,
+        job_id: str,
+        job_type: str,
+        workspace_count: int,
+        query_count: int,
+        **kwargs
+    ) -> None:
+        """
+        Log job start event.
+        
+        Args:
+            job_id: Unique job identifier
+            job_type: Type of job (e.g., 'batch_execution', 'single_query')
+            workspace_count: Number of workspaces to process
+            query_count: Number of queries to execute
+            **kwargs: Additional properties to include in ExtendedProperties
+        """
+        if not self.enabled:
+            return
+
+        extended_properties = {
+            "workspace_count": workspace_count,
+            "query_count": query_count,
+            **kwargs
+        }
+
+        await self._log_health_event(
+            operation_name="JobStart",
+            operation_status="Started",
+            job_id=job_id,
+            extended_properties=extended_properties
+        )
+
+    async def log_job_end(
+        self,
+        job_id: str,
+        job_type: str,
+        success: bool,
+        total_records_processed: int = 0,
+        total_duration_seconds: float = 0.0,
+        error_message: Optional[str] = None,
+        **kwargs
+    ) -> None:
+        """
+        Log job completion event.
+        
+        Args:
+            job_id: Unique job identifier
+            job_type: Type of job
+            success: Whether job completed successfully
+            total_records_processed: Total records processed across all queries
+            total_duration_seconds: Total job execution time
+            error_message: Error message if job failed
+            **kwargs: Additional properties to include in ExtendedProperties
+        """
+        if not self.enabled:
+            return
+
+        extended_properties = {
+            "total_records_processed": total_records_processed,
+            "total_duration_seconds": total_duration_seconds,
+            **kwargs
+        }
+
+        if error_message:
+            extended_properties["error_message"] = error_message
+
+        await self._log_health_event(
+            operation_name="JobEnd",
+            operation_status="Completed" if success else "Failed",
+            job_id=job_id,
+            extended_properties=extended_properties
+        )
+
+    async def log_query_execution(
+        self,
+        job_id: str,
+        query_execution: QueryExecution,
+        workspace_config: WorkspaceConfig
+    ) -> None:
+        """
+        Log individual query execution details.
+        
+        Args:
+            job_id: Job identifier this query belongs to
+            query_execution: Query execution details
+            workspace_config: Workspace where query was executed
+        """
+        if not self.enabled:
+            return
+
+        # Determine operation status based on query execution
+        if query_execution.query_error_message:
+            status = "Failed"
+        elif query_execution.record_count is not None:
+            status = "Completed"
+        else:
+            status = "InProgress"
+
+        extended_properties = {
+            "query_name": query_execution.query_name,
+            "time_range": query_execution.time_range_str,
+            "duration_seconds": query_execution.query_duration_seconds or 0.0,
+            "record_count": query_execution.record_count or 0,
+            "workspace_name": workspace_config.workspace_name
+        }
+
+        if query_execution.query_error_message:
+            extended_properties["error_message"] = query_execution.query_error_message
+
+        if query_execution.job_correlation_id:
+            extended_properties["correlation_id"] = query_execution.job_correlation_id
+
+        await self._log_health_event(
+            operation_name="QueryExecution",
+            operation_status=status,
+            workspace_id=workspace_config.customer_id,
+            query_name=query_execution.query_name,
+            job_id=job_id,
+            extended_properties=extended_properties
+        )
+
+    async def log_workspace_processing_start(
+        self,
+        job_id: str,
+        workspace_config: WorkspaceConfig,
+        query_names: List[str]
+    ) -> None:
+        """
+        Log start of workspace processing.
+        
+        Args:
+            job_id: Job identifier
+            workspace_config: Workspace being processed
+            query_names: List of queries to execute on this workspace
+        """
+        if not self.enabled:
+            return
+
+        extended_properties = {
+            "workspace_name": workspace_config.workspace_name,
+            "query_names": query_names,
+            "query_count": len(query_names)
+        }
+
+        await self._log_health_event(
+            operation_name="WorkspaceProcessingStart",
+            operation_status="Started",
+            workspace_id=workspace_config.customer_id,
+            job_id=job_id,
+            extended_properties=extended_properties
+        )
+
+    async def log_workspace_processing_end(
+        self,
+        job_id: str,
+        workspace_config: WorkspaceConfig,
+        success: bool,
+        records_processed: int = 0,
+        duration_seconds: float = 0.0,
+        error_message: Optional[str] = None
+    ) -> None:
+        """
+        Log end of workspace processing.
+        
+        Args:
+            job_id: Job identifier
+            workspace_config: Workspace that was processed
+            success: Whether processing completed successfully
+            records_processed: Number of records processed from this workspace
+            duration_seconds: Processing duration
+            error_message: Error message if processing failed
+        """
+        if not self.enabled:
+            return
+
+        extended_properties = {
+            "workspace_name": workspace_config.workspace_name,
+            "records_processed": records_processed,
+            "duration_seconds": duration_seconds
+        }
+
+        if error_message:
+            extended_properties["error_message"] = error_message
+
+        await self._log_health_event(
+            operation_name="WorkspaceProcessingEnd",
+            operation_status="Completed" if success else "Failed",
+            workspace_id=workspace_config.customer_id,
+            job_id=job_id,
+            extended_properties=extended_properties
+        )
+
+    async def log_error(
+        self,
+        job_id: str,
+        error_type: str,
+        error_message: str,
+        workspace_id: Optional[str] = None,
+        query_name: Optional[str] = None,
+        **kwargs
+    ) -> None:
+        """
+        Log error event.
+        
+        Args:
+            job_id: Job identifier where error occurred
+            error_type: Type/category of error
+            error_message: Detailed error message
+            workspace_id: Workspace ID if error is workspace-specific
+            query_name: Query name if error is query-specific
+            **kwargs: Additional error context
+        """
+        if not self.enabled:
+            return
+
+        extended_properties = {
+            "error_type": error_type,
+            "error_message": error_message,
+            **kwargs
+        }
+
+        await self._log_health_event(
+            operation_name="Error",
+            operation_status="Failed",
+            workspace_id=workspace_id,
+            query_name=query_name,
+            job_id=job_id,
+            extended_properties=extended_properties
+        )
+
+    async def log_watermark_update(
+        self,
+        job_id: str,
+        workspace_id: str,
+        query_name: str,
+        watermark_timestamp: datetime,
+        previous_watermark: Optional[datetime] = None
+    ) -> None:
+        """
+        Log watermark update event.
+        
+        Args:
+            job_id: Job identifier
+            workspace_id: Workspace ID
+            query_name: Query name
+            watermark_timestamp: New watermark timestamp
+            previous_watermark: Previous watermark timestamp if available
+        """
+        if not self.enabled:
+            return
+
+        extended_properties = {
+            "watermark_timestamp": watermark_timestamp.isoformat(),
+            "workspace_id_short": workspace_id[:8] + "..."
+        }
+
+        if previous_watermark:
+            extended_properties["previous_watermark"] = previous_watermark.isoformat()
+            extended_properties["watermark_advance_seconds"] = (
+                watermark_timestamp - previous_watermark
+            ).total_seconds()
+
+        await self._log_health_event(
+            operation_name="WatermarkUpdate",
+            operation_status="Completed",
+            workspace_id=workspace_id,
+            query_name=query_name,
+            job_id=job_id,
+            extended_properties=extended_properties
+        )
+
+    async def _log_health_event(
+        self,
+        operation_name: str,
+        operation_status: str,
+        job_id: str,
+        workspace_id: Optional[str] = None,
+        query_name: Optional[str] = None,
+        extended_properties: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """
+        Internal method to log health event.
+        
+        Args:
+            operation_name: Name of the operation
+            operation_status: Status of the operation
+            job_id: Job identifier
+            workspace_id: Optional workspace ID
+            query_name: Optional query name
+            extended_properties: Optional additional properties
+        """
+        if not self.enabled:
+            return
+
+        try:
+            # Create health log record
+            health_record = {
+                "TimeGenerated": datetime.now(timezone.utc).isoformat(),
+                "OperationName": operation_name,
+                "OperationStatus": operation_status,
+                "JobId": job_id
+            }
+
+            # Add optional fields if provided
+            if workspace_id:
+                health_record["WorkspaceId"] = workspace_id
+
+            if query_name:
+                health_record["QueryName"] = query_name
+
+            # Add extended properties as JSON string
+            if extended_properties:
+                health_record["ExtendedProperties"] = json.dumps(extended_properties, default=str)
+
+            # Log to console (always)
+            self._log_health_to_console(health_record, extended_properties)
+
+            # Upload to Log Analytics only if health_to_sentinel is enabled
+            if self.health_to_sentinel:
+                await self.sentinel_client.upload_logs(
+                    data=[health_record],
+                    stream_name=self.health_stream_name
+                )
+                logger.debug(f"Health event sent to Sentinel: {operation_name} - {operation_status} (Job: {job_id})")
+            else:
+                logger.debug(f"Health event logged to console only: {operation_name} - {operation_status} (Job: {job_id})")
+
+        except Exception as e:
+            # Log health logging errors but don't fail the main operation
+            logger.error(f"Failed to log health event: {e}")
+            logger.debug(f"Health logging error details", exc_info=True)
+
+    def _log_health_to_console(
+        self, 
+        health_record: Dict[str, Any], 
+        extended_properties: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """
+        Log health event to console as info message.
+        
+        Args:
+            health_record: Health record data
+            extended_properties: Extended properties for additional context
+        """
+        # Format a human-readable health message
+        operation_name = health_record.get("OperationName", "Unknown")
+        operation_status = health_record.get("OperationStatus", "Unknown")
+        job_id = health_record.get("JobId", "")[:8]  # Truncate for readability
+        
+        # Build context information
+        context_parts = []
+        
+        if workspace_id := health_record.get("WorkspaceId"):
+            context_parts.append(f"Workspace: {workspace_id[:8]}")
+            
+        if query_name := health_record.get("QueryName"):
+            context_parts.append(f"Query: {query_name}")
+            
+        # Add key extended properties
+        if extended_properties:
+            if record_count := extended_properties.get("record_count"):
+                context_parts.append(f"Records: {record_count:,}")
+            if duration_seconds := extended_properties.get("duration_seconds"):
+                context_parts.append(f"Duration: {duration_seconds:.1f}s")
+            if error_message := extended_properties.get("error_message"):
+                context_parts.append(f"Error: {error_message}")
+        
+        context_str = f" ({', '.join(context_parts)})" if context_parts else ""
+        
+        # Format the log message
+        health_message = f"🏥 {operation_name}: {operation_status} [Job: {job_id}]{context_str}"
+        
+        # Use appropriate log level based on status
+        if operation_status.lower() in ["failed", "error"]:
+            logger.error(health_message)
+        elif operation_status.lower() in ["warning", "partial"]:
+            logger.warning(health_message)
+        else:
+            logger.info(health_message)
+
+    async def verify_health_table_setup(self, workspace_id: str) -> dict:
+        """
+        Verify that the health logging table and DCR are properly configured.
+        
+        Args:
+            workspace_id: Log Analytics workspace customer ID to test against
+            
+        Returns:
+            dict: Status information about health logging setup
+        """
+        if not self.enabled:
+            return {
+                "enabled": False,
+                "table_exists": None,
+                "dcr_accessible": None,
+                "message": "Health logging is disabled"
+            }
+            
+        if not self.health_to_sentinel:
+            return {
+                "enabled": True,
+                "table_exists": None,
+                "dcr_accessible": None,
+                "message": "Health logging enabled (console only, not sent to Sentinel)"
+            }
+            
+        result = {
+            "enabled": True,
+            "table_exists": False,
+            "dcr_accessible": False,
+            "message": ""
+        }
+        
+        try:
+            # Test table existence by attempting to query it
+            from datetime import datetime, timezone, timedelta
+            
+            table_name = self.health_stream_name.replace("Custom-", "")
+            test_query = f"{table_name} | getschema | limit 1"
+            
+            # Try to query the workspace using the sentinel client
+            end_time = datetime.now(timezone.utc)
+            start_time = end_time - timedelta(minutes=1)
+            
+            query_result = await self.sentinel_client.query_workspace(
+                workspace_id=workspace_id,
+                query=test_query,
+                start_time=start_time,
+                end_time=end_time
+            )
+            
+            if query_result.succeeded:
+                result["table_exists"] = True
+                result["message"] = "Health table exists and is accessible"
+                
+                # Test DCR accessibility by attempting a small upload
+                try:
+                    test_record = {
+                        "TimeGenerated": datetime.now(timezone.utc).isoformat(),
+                        "OperationName": "HealthCheck",
+                        "OperationStatus": "Testing",
+                        "JobId": "health-check-test",
+                        "ExtendedProperties": json.dumps({"test": True})
+                    }
+                    
+                    upload_result = await self.sentinel_client.upload_logs(
+                        data=[test_record],
+                        stream_name=self.health_stream_name
+                    )
+                    
+                    if upload_result.succeeded:
+                        result["dcr_accessible"] = True
+                        result["message"] = "Health logging is fully configured and operational"
+                    else:
+                        result["message"] = f"Health table exists but DCR upload failed: {upload_result.error_message}"
+                        
+                except Exception as upload_error:
+                    result["message"] = f"Health table exists but DCR test failed: {upload_error}"
+                    
+            else:
+                result["message"] = f"Health table query failed: {query_result.error_message}"
+                
+        except Exception as e:
+            result["message"] = f"Health setup verification failed: {e}"
+            logger.debug(f"Health setup verification error: {e}", exc_info=True)
+            
+        return result
+
+    def create_job_id(self) -> str:
+        """Create a new unique job ID."""
+        return str(uuid4())
+
+    @classmethod
+    def create_disabled(cls) -> "SentinelAggregatorHealthLogger":
+        """Create a disabled health logger for testing or when health logging is not needed."""
+        from .sentinel_client import SentinelAggregatorClient
+        from .client_options import SentinelAggregatorClientOptions
+        from azure.identity.aio import DefaultAzureCredential
+        
+        # Create minimal configuration for disabled logger
+        config = SentinelAggregatorClientOptions(
+            dcr_logs_ingestion_endpoint="https://disabled.ingest.monitor.azure.com",
+            dcr_rule_id="dcr-00000000000000000000000000000000"  # Valid format: dcr-[32 hex chars]
+        )
+        credential = DefaultAzureCredential()
+        client = SentinelAggregatorClient(
+            dcr_logs_ingestion_endpoint="https://disabled.ingest.monitor.azure.com",
+            credential=credential,
+            options=config
+        )
+        
+        return cls(
+            sentinel_client=client,
+            enabled=False
+        )

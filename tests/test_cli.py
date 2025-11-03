@@ -80,9 +80,18 @@ class TestClientOptionsCreation:
         args = MagicMock()
         args.dcr_endpoint = "https://test.ingest.monitor.azure.com"
         args.dcr_rule_id = "dcr-test-rule-id"
-        args.days_back = 7
-        args.batch_hours = 12
+        args.lookback_period = "P7D"  # 7 days in ISO 8601 format
+        args.batch_time_size = "PT12H"  # 12 hours in ISO 8601 format
+        args.start_time = None
+        args.end_time = None
+        args.use_last_successful = False
         args.max_concurrent_queries = 3
+        # Health logging parameters
+        args.enable_health_logging = False
+        args.health_to_sentinel = True
+        args.health_workspace_id = None
+        args.health_dcr_endpoint = None
+        args.health_dcr_rule_id = None
         return args
 
     def test_create_client_options_from_args_success(self, mock_args):
@@ -92,9 +101,12 @@ class TestClientOptionsCreation:
 
             assert options.dcr_logs_ingestion_endpoint == "https://test.ingest.monitor.azure.com"
             assert options.dcr_rule_id == "dcr-test-rule-id"
-            assert options.days_ago == 7
-            assert options.batch_hours == 12
+            assert options.lookback_period == "P7D"
+            assert options.batch_time_size == "PT12H"
             assert options.max_concurrent_queries == 3
+            assert options.start_time is None
+            assert options.end_time is None
+            assert options.use_last_successful is False
 
     def test_create_client_options_missing_dcr_endpoint(self, mock_args):
         """Test error when DCR endpoint is missing."""
@@ -116,15 +128,18 @@ class TestClientOptionsCreation:
         """Test fallback to environment variables when args are None."""
         mock_args.dcr_endpoint = None
         mock_args.dcr_rule_id = None
-        mock_args.days_back = None
-        mock_args.batch_hours = None
+        mock_args.lookback_period = None
+        mock_args.batch_time_size = None
+        mock_args.start_time = None
+        mock_args.end_time = None
+        mock_args.use_last_successful = None
         mock_args.max_concurrent_queries = None
 
         env_vars = {
             "DCR_LOGS_INGESTION_ENDPOINT": "https://env.ingest.monitor.azure.com",
             "DCR_RULE_ID": "dcr-env-rule-id",
-            "DAYS_AGO": "14",
-            "BATCH_HOURS": "6",
+            "LOOKBACK_PERIOD": "P14D",  # 14 days in ISO 8601 format
+            "BATCH_TIME_SIZE": "PT6H",  # 6 hours in ISO 8601 format
             "MAX_CONCURRENT_QUERIES": "8",
         }
 
@@ -133,8 +148,8 @@ class TestClientOptionsCreation:
 
             assert options.dcr_logs_ingestion_endpoint == "https://env.ingest.monitor.azure.com"
             assert options.dcr_rule_id == "dcr-env-rule-id"
-            assert options.days_ago == 14
-            assert options.batch_hours == 6
+            assert options.lookback_period == "P14D"
+            assert options.batch_time_size == "PT6H"
             assert options.max_concurrent_queries == 8
 
 
@@ -233,10 +248,10 @@ class TestArgumentParser:
                 "run",
                 "--workspace-config",
                 "workspaces.yaml",
-                "--days-back",
-                "14",
-                "--batch-hours",
-                "6",
+                "--lookback-period",
+                "P14D",
+                "--batch-time-size",
+                "PT6H",
                 "--max-concurrent-queries",
                 "10",
             ]
@@ -244,8 +259,8 @@ class TestArgumentParser:
 
         assert args.command == "run"
         assert args.workspace_config == Path("workspaces.yaml")
-        assert args.days_back == 14
-        assert args.batch_hours == 6
+        assert args.lookback_period == "P14D"
+        assert args.batch_time_size == "PT6H"
         assert args.max_concurrent_queries == 10
 
     def test_parser_validate_command(self):
@@ -324,7 +339,7 @@ class TestMainFunction:
     @patch("sentinel_log_aggregator.cli.run_aggregation")
     @patch(
         "sys.argv",
-        ["sentinel-aggregator", "run", "--workspace-config", "test.yaml", "--days-back", "7"],
+        ["sentinel-aggregator", "run", "--workspace-config", "test.yaml", "--lookback-period", "P7D"],
     )
     @pytest.mark.asyncio
     async def test_main_run_command_success(
@@ -346,7 +361,7 @@ class TestMainFunction:
 
         assert result == 0
         mock_run.assert_called_once_with(
-            mock_client_options, mock_workspaces, 7, mock_client_options.batch_hours
+            mock_client_options, mock_workspaces, None
         )
 
     @patch("sentinel_log_aggregator.cli.load_environment_variables")
@@ -514,8 +529,11 @@ class TestEnvironmentVariableDefaults:
         args = MagicMock()
         args.dcr_endpoint = "https://test.ingest.monitor.azure.com"
         args.dcr_rule_id = "dcr-test"
-        args.days_back = None
-        args.batch_hours = None
+        args.lookback_period = None
+        args.batch_time_size = None
+        args.start_time = None
+        args.end_time = None
+        args.use_last_successful = None
         args.max_concurrent_queries = None
 
         env_vars = {"QUERY_TIMEOUT_SECONDS": "600", "MAX_RETRIES": "5", "RETRY_DELAY_SECONDS": "10"}
@@ -526,9 +544,9 @@ class TestEnvironmentVariableDefaults:
             assert options.query_timeout_seconds == 600
             assert options.max_retries == 5
             assert options.retry_delay_seconds == 10
-            # Defaults for unset values
-            assert options.days_ago == 30
-            assert options.batch_hours == 24
+            # Defaults for unset values - should use default ISO 8601 durations
+            assert options.lookback_period == "P30D"  # 30 days default
+            assert options.batch_time_size == "PT24H"  # 24 hours default
             assert options.max_concurrent_queries == 5
 
 
@@ -739,8 +757,8 @@ class TestRunAggregation:
         client_options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
             dcr_rule_id="dcr-12345678901234567890123456789012",
-            days_ago=7,
-            batch_hours=24,
+            lookback_period="P7D",
+            batch_time_size="PT24H",
         )
 
         workspaces = [
@@ -784,7 +802,7 @@ class TestRunAggregation:
                     with patch("sentinel_log_aggregator.cli.DefaultAzureCredential") as mock_cred:
                         mock_cred.return_value = MagicMock()
 
-                        result = await run_aggregation(client_options, workspaces, 7, 24)
+                        result = await run_aggregation(client_options, workspaces)
 
                         assert result is True
                         mock_engine.execute_batch_queries_with_streaming_upload.assert_called_once()
@@ -806,7 +824,7 @@ class TestRunAggregation:
             "sentinel_log_aggregator.client_options.SentinelAggregatorClientOptions.validate",
             return_value=["Missing required field"],
         ):
-            result = await run_aggregation(client_options, [], 7, 24)
+            result = await run_aggregation(client_options, [])
 
             assert result is False
 
@@ -819,8 +837,8 @@ class TestRunAggregation:
         client_options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
             dcr_rule_id="dcr-12345678901234567890123456789012",
-            days_ago=30,  # Original value
-            batch_hours=12,  # Original value
+            lookback_period="P30D",  # Original value
+            batch_time_size="PT12H",  # Original value
         )
 
         with patch("sentinel_log_aggregator.cli.SentinelAggregatorClient") as mock_client_class:
@@ -832,13 +850,13 @@ class TestRunAggregation:
             with patch("sentinel_log_aggregator.cli.DefaultAzureCredential") as mock_cred:
                 mock_cred.return_value = MagicMock()
 
-                # Override values should be used
-                result = await run_aggregation(client_options, [], 7, 24)
+                # Test with new parameter structure
+                result = await run_aggregation(client_options, [])
 
                 assert result is True
-                # Verify overrides were applied
-                assert client_options.days_ago == 7
-                assert client_options.batch_hours == 24
+                # Verify original values are preserved (no overrides in new design)
+                assert client_options.lookback_period == "P30D"
+                assert client_options.batch_time_size == "PT12H"
 
     @pytest.mark.asyncio
     async def test_run_aggregation_execution_failure(self):
@@ -871,7 +889,7 @@ class TestRunAggregation:
                     with patch("sentinel_log_aggregator.cli.DefaultAzureCredential") as mock_cred:
                         mock_cred.return_value = MagicMock()
 
-                        result = await run_aggregation(client_options, [], 7, 24)
+                        result = await run_aggregation(client_options, [])
 
                         assert result is False
 
@@ -927,8 +945,17 @@ class TestMainCommandHandling:
             mock_args.log_level = "INFO"
             mock_args.config_file = None
             mock_args.workspace_config = "workspaces.yaml"
-            mock_args.days_back = 14
-            mock_args.batch_hours = 12
+            mock_args.lookback_period = "P14D"
+            mock_args.batch_time_size = "PT12H"
+            mock_args.start_time = None
+            mock_args.end_time = None
+            mock_args.use_last_successful = False
+            # Health logging arguments
+            mock_args.enable_health_logging = False
+            mock_args.health_to_sentinel = True
+            mock_args.health_workspace_id = None
+            mock_args.health_dcr_endpoint = None
+            mock_args.health_dcr_rule_id = None
             mock_parser.parse_args.return_value = mock_args
 
             with patch(
@@ -941,8 +968,9 @@ class TestMainCommandHandling:
                         "sentinel_log_aggregator.cli.load_workspace_config", return_value=[]
                     ):
                         mock_opts = MagicMock()
-                        mock_opts.days_ago = 7
-                        mock_opts.batch_hours = 24
+                        mock_opts.lookback_period = "P7D"
+                        mock_opts.batch_time_size = "PT24H"
+                        mock_opts.validate.return_value = []  # No validation errors
                         mock_create_opts.return_value = mock_opts
                         mock_run.return_value = True
 
@@ -950,10 +978,9 @@ class TestMainCommandHandling:
 
                         assert result == 0
                         mock_run.assert_called_once()
-                        # Verify that CLI arguments were passed
+                        # Verify that function was called with correct arguments count
                         call_args = mock_run.call_args[0]
-                        assert call_args[2] == 14  # days_back
-                        assert call_args[3] == 12  # batch_hours
+                        assert len(call_args) == 3  # client_options, workspaces, health_logger
 
     @pytest.mark.asyncio
     async def test_main_validate_command_success(self):
