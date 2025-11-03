@@ -27,44 +27,44 @@ Environment variables provide the highest precedence configuration method.
 
 ### Required settings
 
-```bash
+```powershell
 # Data Collection Rule endpoint and ID
-DCR_LOGS_INGESTION_ENDPOINT=https://your-dcr-endpoint.monitor.azure.com
-DCR_RULE_ID=dcr-your-rule-id
+$env:DCR_LOGS_INGESTION_ENDPOINT = "https://your-dcr-endpoint.monitor.azure.com"
+$env:DCR_RULE_ID = "dcr-your-rule-id"
 ```
 
 ### Optional settings
 
-```bash
+```powershell
 # Time range configuration
-DAYS_AGO=30                    # Number of days to look back
-BATCH_HOURS=24                 # Hours per batch for processing
+$env:DAYS_AGO = 30                    # Number of days to look back
+$env:BATCH_HOURS = 24                 # Hours per batch for processing
 
 # Performance settings
-MAX_CONCURRENT_QUERIES=5       # Maximum concurrent queries
-QUERY_TIMEOUT_SECONDS=300      # Query timeout in seconds
-MAX_RETRIES=3                  # Maximum retry attempts
-RETRY_DELAY_SECONDS=5          # Initial retry delay
+$env:MAX_CONCURRENT_QUERIES = 5       # Maximum concurrent queries
+$env:QUERY_TIMEOUT_SECONDS = 300      # Query timeout in seconds
+$env:MAX_RETRIES = 3                  # Maximum retry attempts
+$env:RETRY_DELAY_SECONDS = 5          # Initial retry delay
 
 # Logging configuration
-LOG_LEVEL=INFO                 # Logging level (DEBUG, INFO, WARNING, ERROR)
-LOG_FORMAT=json                # Log format (json, text)
+$env:LOG_LEVEL = "INFO"               # Logging level (DEBUG, INFO, WARNING, ERROR)
+$env:LOG_FORMAT = "json"              # Log format (json, text)
 
 # Authentication settings (choose one method)
 # Service Principal
-AZURE_CLIENT_ID=your-client-id
-AZURE_TENANT_ID=your-tenant-id
-AZURE_CLIENT_SECRET=your-client-secret
+$env:AZURE_CLIENT_ID = "your-client-id"
+$env:AZURE_TENANT_ID = "your-tenant-id"
+$env:AZURE_CLIENT_SECRET = "your-client-secret"
 
 # Or Certificate-based authentication
-AZURE_CLIENT_CERTIFICATE_PATH=/path/to/cert.pem
+$env:AZURE_CLIENT_CERTIFICATE_PATH = "C:/path/to/cert.pem"
 ```
 
 ### Environment file (.env)
 
 Create a `.env` file in your working directory:
 
-```bash
+```ini
 # .env file
 DCR_LOGS_INGESTION_ENDPOINT=https://my-dcr.monitor.azure.com
 DCR_RULE_ID=dcr-abc123def456
@@ -273,7 +273,7 @@ else:
 
 ### CLI validation
 
-```bash
+```powershell
 # Validate all configuration
 sentinel-aggregator validate --workspace-config workspaces.yaml
 

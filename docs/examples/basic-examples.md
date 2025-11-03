@@ -27,9 +27,9 @@ Verify connectivity and service health before performing operations.
 
 ### CLI approach
 
-```bash
+```powershell
 # Create workspace configuration file
-cat > workspaces.yaml << EOF
+@'
 workspaces:
   - resource_id: "/subscriptions/your-sub-id/resourcegroups/your-rg/providers/microsoft.operationalinsights/workspaces/your-workspace"
     customer_id: "your-workspace-customer-id"
@@ -37,7 +37,7 @@ workspaces:
       row_level_security_tag: "production"
     queries_list:
       - "query_incident_summary"
-EOF
+'@ | Out-File -FilePath workspaces.yaml -Encoding UTF8
 
 # Run health check
 sentinel-aggregator health --workspace-config workspaces.yaml
@@ -85,12 +85,14 @@ Execute a basic KQL query against a single workspace.
 
 ### Environment setup
 
-```bash
+```powershell
 # .env file
+@'
 DCR_LOGS_INGESTION_ENDPOINT=https://your-dcr-endpoint.monitor.azure.com
 DCR_RULE_ID=dcr-your-rule-id
 DAYS_AGO=7
 LOG_LEVEL=INFO
+'@ | Out-File -FilePath .env -Encoding UTF8
 ```
 
 ### SDK implementation
@@ -196,19 +198,19 @@ metadata:
 
 ### CLI approach
 
-```bash
+```powershell
 # Run aggregation across all workspaces
 sentinel-aggregator run --workspace-config workspaces.yaml --days-back 7
 
 # Run for specific workspaces only
-sentinel-aggregator run \
-  --workspace-config workspaces.yaml \
-  --workspaces "prod-east,prod-west" \
+sentinel-aggregator run `
+  --workspace-config workspaces.yaml `
+  --workspaces "prod-east,prod-west" `
   --days-back 3
 
 # Dry run to validate configuration
-sentinel-aggregator run \
-  --workspace-config workspaces.yaml \
+sentinel-aggregator run `
+  --workspace-config workspaces.yaml `
   --dry-run
 ```
 
@@ -795,44 +797,45 @@ asyncio.run(resilient_operations())
 ### Prerequisites setup
 
 1. **Install the package:**
-   ```bash
+   ```powershell
    pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git
    ```
 
 2. **Set up environment variables:**
-   ```bash
+   ```powershell
    # Create .env file
-   cat > .env << EOF
+   @'
    DCR_LOGS_INGESTION_ENDPOINT=https://your-dcr-endpoint.monitor.azure.com
    DCR_RULE_ID=dcr-your-rule-id
    DAYS_AGO=7
    BATCH_HOURS=24
    MAX_CONCURRENT_QUERIES=5
    LOG_LEVEL=INFO
-   EOF
+   '@ | Out-File -FilePath .env -Encoding UTF8
    ```
 
 3. **Configure authentication:**
-   ```bash
+   ```powershell
    # For Azure CLI (development)
    az login
    
    # For service principal (production)
-   export AZURE_CLIENT_ID=your-client-id
-   export AZURE_TENANT_ID=your-tenant-id
-   export AZURE_CLIENT_SECRET=your-client-secret
+   $env:AZURE_CLIENT_ID = "your-client-id"
+   $env:AZURE_TENANT_ID = "your-tenant-id"
+   $env:AZURE_CLIENT_SECRET = "your-client-secret"
    ```
 
 4. **Create workspace configuration:**
-   ```bash
+   ```powershell
    # Create workspaces.yaml with your actual workspace details
-   cp workspaces.yaml.example workspaces.yaml
-   # Edit workspaces.yaml with your workspace information
+   Copy-Item workspaces.yaml.example workspaces.yaml
+   # Edit workspaces.yaml with your workspace information using your preferred editor
+   code workspaces.yaml  # Opens in VS Code
    ```
 
 ### Running individual examples
 
-```bash
+```powershell
 # Save examples to files and run
 python health_check_example.py
 python simple_query_example.py
