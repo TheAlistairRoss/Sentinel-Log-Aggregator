@@ -86,8 +86,9 @@ class TestKQLQueryDefinition:
     def test_query_parameter_substitution(self):
         """Test parameter substitution in queries."""
         # Load test query from file path since AVAILABLE_QUERIES is now on-demand
-        from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
+
+        from sentinel_log_aggregator.query_registry import query_registry
 
         test_queries_dir = Path(__file__).parent / "data" / "queries"
         test_query_path = test_queries_dir / "tests_query_with_params.yaml"
@@ -222,8 +223,9 @@ class TestPredefinedQueries:
     def test_incident_summary_query(self):
         """Test query structure using test query file."""
         # Load test query from file path since AVAILABLE_QUERIES is now on-demand
-        from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
+
+        from sentinel_log_aggregator.query_registry import query_registry
 
         test_queries_dir = Path(__file__).parent / "data" / "queries"
         test_query_path = test_queries_dir / "tests_query_without_params.yaml"
@@ -243,8 +245,9 @@ class TestPredefinedQueries:
     def test_workspace_usage_query(self):
         """Test query structure using test query file with parameters."""
         # Load test query from file path since AVAILABLE_QUERIES is now on-demand
-        from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
+
+        from sentinel_log_aggregator.query_registry import query_registry
 
         test_queries_dir = Path(__file__).parent / "data" / "queries"
         test_query_path = test_queries_dir / "tests_query_with_params.yaml"
@@ -270,8 +273,9 @@ class TestPredefinedQueries:
     def test_yaml_queries_loaded(self):
         """Test that queries can be loaded from YAML files on demand."""
         # Since AVAILABLE_QUERIES is now on-demand, test that we can load queries from files
-        from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
+
+        from sentinel_log_aggregator.query_registry import query_registry
 
         test_queries_dir = Path(__file__).parent / "data" / "queries"
 

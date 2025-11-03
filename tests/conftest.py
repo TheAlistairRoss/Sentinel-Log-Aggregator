@@ -86,8 +86,9 @@ class TestKQLQueryDefinition:
     def test_query_parameter_substitution(self):
         """Test parameter substitution in queries."""
         # Load test query from file path since AVAILABLE_QUERIES is now on-demand
-        from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
+
+        from sentinel_log_aggregator.query_registry import query_registry
 
         test_queries_dir = Path(__file__).parent.parent / "tests" / "data" / "queries"
         test_query_path = test_queries_dir / "tests_query_with_params.yaml"

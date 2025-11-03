@@ -86,8 +86,9 @@ class TestKQLQueryDefinition:
     def test_query_parameter_substitution(self):
         """Test parameter substitution in queries."""
         # Load test query from file path since AVAILABLE_QUERIES is now on-demand
-        from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
+
+        from sentinel_log_aggregator.query_registry import query_registry
 
         test_queries_dir = Path(__file__).parent / "data" / "queries"
         test_query_path = test_queries_dir / "tests_query_with_params.yaml"
@@ -222,8 +223,9 @@ class TestPredefinedQueries:
     def test_incident_summary_query(self):
         """Test query structure using test query file."""
         # Load test query from file path since AVAILABLE_QUERIES is now on-demand
-        from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
+
+        from sentinel_log_aggregator.query_registry import query_registry
 
         test_queries_dir = Path(__file__).parent / "data" / "queries"
         test_query_path = test_queries_dir / "tests_query_without_params.yaml"
@@ -243,8 +245,9 @@ class TestPredefinedQueries:
     def test_workspace_usage_query(self):
         """Test query structure using test query file with parameters."""
         # Load test query from file path since AVAILABLE_QUERIES is now on-demand
-        from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
+
+        from sentinel_log_aggregator.query_registry import query_registry
 
         test_queries_dir = Path(__file__).parent / "data" / "queries"
         test_query_path = test_queries_dir / "tests_query_with_params.yaml"
@@ -265,8 +268,9 @@ class TestPredefinedQueries:
     def test_yaml_queries_loaded(self):
         """Test that queries can be loaded from YAML files on demand."""
         # Since AVAILABLE_QUERIES is now on-demand, test that we can load queries from files
-        from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
+
+        from sentinel_log_aggregator.query_registry import query_registry
 
         test_queries_dir = Path(__file__).parent / "data" / "queries"
 
@@ -2107,9 +2111,10 @@ class TestQueryEngineMissingCoverage:
         engine = SentinelQueryEngine(options, None)
 
         # Since AVAILABLE_QUERIES is now empty, we need to load a query first for testing
-        from sentinel_log_aggregator.query_registry import query_registry
-        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
         from pathlib import Path
+
+        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
+        from sentinel_log_aggregator.query_registry import query_registry
 
         # Load a test query for this test
         test_queries_dir = Path(__file__).parent / "data" / "queries"
@@ -2162,9 +2167,10 @@ class TestQueryEngineMissingCoverage:
         engine = SentinelQueryEngine(options, None)
 
         # Since AVAILABLE_QUERIES is now empty, we need to load a query first for testing
-        from sentinel_log_aggregator.query_registry import query_registry
-        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
         from pathlib import Path
+
+        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
+        from sentinel_log_aggregator.query_registry import query_registry
 
         # Load a test query for this test
         test_queries_dir = Path(__file__).parent / "data" / "queries"
@@ -2307,9 +2313,10 @@ class TestQueryEngineMissingCoverage:
         engine = SentinelQueryEngine(options, mock_client)
 
         # Since AVAILABLE_QUERIES is now empty, we need to load test queries first
-        from sentinel_log_aggregator.query_registry import query_registry
-        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
         from pathlib import Path
+
+        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
+        from sentinel_log_aggregator.query_registry import query_registry
 
         # Load test queries for this test
         test_queries_dir = Path(__file__).parent / "data" / "queries"
@@ -2402,9 +2409,10 @@ class TestQueryEngineMissingCoverage:
         engine = SentinelQueryEngine(options, mock_client)
 
         # Since AVAILABLE_QUERIES is now empty, we need to load a test query first
-        from sentinel_log_aggregator.query_registry import query_registry
-        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
         from pathlib import Path
+
+        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
+        from sentinel_log_aggregator.query_registry import query_registry
 
         # Load a test query for this test
         test_queries_dir = Path(__file__).parent / "data" / "queries"
@@ -2578,9 +2586,10 @@ class TestQueryEngineCompleteCoverage:
         engine = SentinelQueryEngine(options, mock_client)
 
         # Since AVAILABLE_QUERIES is now empty, we need to load a test query first
-        from sentinel_log_aggregator.query_registry import query_registry
-        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
         from pathlib import Path
+
+        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
+        from sentinel_log_aggregator.query_registry import query_registry
 
         # Load a test query for this test
         test_queries_dir = Path(__file__).parent / "data" / "queries"
@@ -2660,9 +2669,10 @@ class TestQueryEngineCompleteCoverage:
         engine = SentinelQueryEngine(options, mock_client)
 
         # Since AVAILABLE_QUERIES is now empty, we need to load test queries first
-        from sentinel_log_aggregator.query_registry import query_registry
-        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
         from pathlib import Path
+
+        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
+        from sentinel_log_aggregator.query_registry import query_registry
 
         # Load test queries for this test
         test_queries_dir = Path(__file__).parent / "data" / "queries"
@@ -2719,10 +2729,9 @@ class TestQueryEngineCompleteCoverage:
         from sentinel_log_aggregator.client_options import SentinelAggregatorClientOptions
         from sentinel_log_aggregator.models import AVAILABLE_QUERIES, WorkspaceConfig
         from sentinel_log_aggregator.query_engine import SentinelQueryEngine
-        from sentinel_log_aggregator.query_registry import QueryRegistry
 
         # Load test query for use in this test
-        from sentinel_log_aggregator.query_registry import query_registry
+        from sentinel_log_aggregator.query_registry import QueryRegistry, query_registry
 
         test_query_1 = query_registry.load_query_from_path(
             "tests/data/queries/tests_query_with_params.yaml"

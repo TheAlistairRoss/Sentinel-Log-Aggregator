@@ -185,8 +185,9 @@ class TestBatchOperationPollerCorrected:
     def sample_query_def(self):
         """Sample query definition."""
         # Load test query from file path since AVAILABLE_QUERIES is now on-demand
-        from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
+
+        from sentinel_log_aggregator.query_registry import query_registry
 
         test_queries_dir = Path(__file__).parent / "data" / "queries"
         test_query_path = test_queries_dir / "tests_query_without_params.yaml"
