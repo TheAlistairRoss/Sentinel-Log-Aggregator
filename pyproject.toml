@@ -64,7 +64,7 @@ docs = [
 ]
 
 [project.scripts]
-sentinel-aggregator = "sentinel_log_aggregator.cli:main"
+sentinel-aggregator = "sentinel_log_aggregator.cli:cli_main"
 
 [project.urls]
 "Homepage" = "https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator"
