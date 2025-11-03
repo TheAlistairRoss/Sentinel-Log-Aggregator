@@ -1637,31 +1637,86 @@
             <span class="n">workspace_alias</span> <span class="o">=</span> <span class="n">workspace</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;row_level_security_tag&quot;</span><span class="p">,</span> <span class="n">workspace_id</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">query_name</span> <span class="ow">in</span> <span class="n">queries_list</span><span class="p">:</span>
+                <span class="c1"># Check if this is a file path or a query name</span>
+                <span class="n">query_instance</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">actual_query_name</span> <span class="o">=</span> <span class="n">query_name</span>
+
                 <span class="k">if</span> <span class="n">query_name</span> <span class="ow">in</span> <span class="n">AVAILABLE_QUERIES</span><span class="p">:</span>
+                    <span class="c1"># Query already loaded by name</span>
+                    <span class="n">query_instance</span> <span class="o">=</span> <span class="n">AVAILABLE_QUERIES</span><span class="p">[</span><span class="n">query_name</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">query_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.yaml&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">query_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.yml&quot;</span><span class="p">):</span>
+                    <span class="c1"># This looks like a file path, try to load it</span>
+                    <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+                    <span class="kn">from</span><span class="w"> </span><span class="nn">.query_registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">QueryRegistry</span>
+
+                    <span class="n">query_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">query_name</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">query_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="c1"># Create a temporary registry to load this query</span>
+                            <span class="n">temp_registry</span> <span class="o">=</span> <span class="n">QueryRegistry</span><span class="p">()</span>
+                            <span class="n">temp_registry</span><span class="o">.</span><span class="n">load_from_yaml</span><span class="p">(</span><span class="n">query_file</span><span class="p">)</span>
+
+                            <span class="c1"># Get the loaded query - it should be the only one</span>
+                            <span class="n">loaded_queries</span> <span class="o">=</span> <span class="n">temp_registry</span><span class="o">.</span><span class="n">list_queries</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="n">loaded_queries</span><span class="p">:</span>
+                                <span class="n">loaded_query_name</span> <span class="o">=</span> <span class="n">loaded_queries</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                                <span class="n">query_instance</span> <span class="o">=</span> <span class="n">temp_registry</span><span class="o">.</span><span class="n">get_query</span><span class="p">(</span><span class="n">loaded_query_name</span><span class="p">)</span>
+                                <span class="n">actual_query_name</span> <span class="o">=</span> <span class="n">loaded_query_name</span>
+
+                                <span class="c1"># Register it in AVAILABLE_QUERIES for future use</span>
+                                <span class="n">AVAILABLE_QUERIES</span><span class="p">[</span><span class="n">loaded_query_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_instance</span>
+
+                                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                                    <span class="sa">f</span><span class="s2">&quot;Loaded query &#39;</span><span class="si">{</span><span class="n">loaded_query_name</span><span class="si">}</span><span class="s2">&#39; from file &#39;</span><span class="si">{</span><span class="n">query_file</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                                <span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                                    <span class="s2">&quot;QUERY_LOAD_EMPTY&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;No queries found in file &#39;</span><span class="si">{</span><span class="n">query_file</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                                <span class="p">)</span>
+                                <span class="k">continue</span>
+                        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                                <span class="s2">&quot;QUERY_LOAD_FILE&quot;</span><span class="p">,</span>
+                                <span class="sa">f</span><span class="s2">&quot;Failed to load query from file &#39;</span><span class="si">{</span><span class="n">query_file</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="p">)</span>
+                            <span class="k">continue</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                            <span class="s2">&quot;QUERY_FILE_NOT_FOUND&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Query file not found: &#39;</span><span class="si">{</span><span class="n">query_file</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                        <span class="p">)</span>
+                        <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Not a file path and not in AVAILABLE_QUERIES</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Query &#39;</span><span class="si">{</span><span class="n">query_name</span><span class="si">}</span><span class="s2">&#39; not found in AVAILABLE_QUERIES and not a file path&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">continue</span>
+
+                <span class="k">if</span> <span class="n">query_instance</span><span class="p">:</span>
                     <span class="k">try</span><span class="p">:</span>
                         <span class="c1"># Build query with workspace-specific parameters</span>
                         <span class="n">query_parameters</span> <span class="o">=</span> <span class="n">workspace</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
                         <span class="n">parameterized_query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_query_with_parameters</span><span class="p">(</span>
-                            <span class="n">query_name</span><span class="p">,</span> <span class="n">query_parameters</span>
+                            <span class="n">actual_query_name</span><span class="p">,</span> <span class="n">query_parameters</span>
                         <span class="p">)</span>
 
-                        <span class="c1"># Get query metadata</span>
-                        <span class="n">query_instance</span> <span class="o">=</span> <span class="n">AVAILABLE_QUERIES</span><span class="p">[</span><span class="n">query_name</span><span class="p">]</span>
+                        <span class="c1"># Get destination stream from the query instance</span>
                         <span class="n">destination_stream</span> <span class="o">=</span> <span class="n">query_instance</span><span class="o">.</span><span class="n">destination_stream</span>
 
                         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Built query &#39;</span><span class="si">{</span><span class="n">query_name</span><span class="si">}</span><span class="s2">&#39; for workspace </span><span class="si">{</span><span class="n">workspace_alias</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;Built query &#39;</span><span class="si">{</span><span class="n">actual_query_name</span><span class="si">}</span><span class="s2">&#39; for workspace </span><span class="si">{</span><span class="n">workspace_alias</span><span class="si">}</span><span class="s2">&quot;</span>
                         <span class="p">)</span>
 
                         <span class="c1"># Create tasks for each time batch</span>
                         <span class="k">for</span> <span class="n">batch_start</span><span class="p">,</span> <span class="n">batch_end</span> <span class="ow">in</span> <span class="n">time_batches</span><span class="p">:</span>
-                            <span class="n">execution_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">batch_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">workspace_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">query_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">batch_start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">_%H&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="n">execution_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">batch_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">workspace_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">actual_query_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">batch_start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">_%H&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
 
                             <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_single_query_with_upload</span><span class="p">(</span>
                                 <span class="n">workspace_id</span><span class="o">=</span><span class="n">workspace_id</span><span class="p">,</span>
                                 <span class="n">query</span><span class="o">=</span><span class="n">parameterized_query</span><span class="p">,</span>
-                                <span class="n">query_name</span><span class="o">=</span><span class="n">query_name</span><span class="p">,</span>
+                                <span class="n">query_name</span><span class="o">=</span><span class="n">actual_query_name</span><span class="p">,</span>
                                 <span class="n">destination_stream</span><span class="o">=</span><span class="n">destination_stream</span><span class="p">,</span>
                                 <span class="n">start_time</span><span class="o">=</span><span class="n">batch_start</span><span class="p">,</span>
                                 <span class="n">end_time</span><span class="o">=</span><span class="n">batch_end</span><span class="p">,</span>
@@ -1671,16 +1726,14 @@
                             <span class="n">all_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 
                     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;QUERY_BUILD&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">query_name</span><span class="o">=</span><span class="n">query_name</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;QUERY_BUILD&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">query_name</span><span class="o">=</span><span class="n">actual_query_name</span><span class="p">)</span>
 
                         <span class="c1"># Create failed execution record</span>
-                        <span class="n">query_instance</span> <span class="o">=</span> <span class="n">AVAILABLE_QUERIES</span><span class="p">[</span><span class="n">query_name</span><span class="p">]</span>
-
                         <span class="n">failed_execution</span> <span class="o">=</span> <span class="n">QueryExecution</span><span class="p">(</span>
                             <span class="n">job_correlation_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">job_correlation_id</span><span class="p">,</span>
-                            <span class="n">execution_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">batch_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">workspace_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">query_name</span><span class="si">}</span><span class="s2">_failed&quot;</span><span class="p">,</span>
+                            <span class="n">execution_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">batch_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">workspace_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">actual_query_name</span><span class="si">}</span><span class="s2">_failed&quot;</span><span class="p">,</span>
                             <span class="n">workspace_id</span><span class="o">=</span><span class="n">workspace_id</span><span class="p">,</span>
-                            <span class="n">query_name</span><span class="o">=</span><span class="n">query_name</span><span class="p">,</span>
+                            <span class="n">query_name</span><span class="o">=</span><span class="n">actual_query_name</span><span class="p">,</span>
                             <span class="n">destination_stream</span><span class="o">=</span><span class="n">query_instance</span><span class="o">.</span><span class="n">destination_stream</span><span class="p">,</span>
                             <span class="n">start_time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">),</span>
                             <span class="n">end_time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">),</span>
