@@ -1,6 +1,7 @@
 name: "tests_query_with_params"
 destination_stream: "Custom-Reports_LogAggregatorHealth_CL"
 description: "Used for log aggregator unit testing. This query is used for testing parameter replacement"
+stream_name: "stream_workspace_usage"
 
 parameters:
   non_required_param:
@@ -13,6 +14,15 @@ parameters:
     required: true
     description: "Required workspace parameter"
 query: |
-    print 
-      RequiredParam = "{required_param}",
-      NonRequiredParam = "{required_param}"
+    // Test query with parameters for unit testing
+    Usage
+    | where TimeGenerated > ago(30d)
+    | extend RequiredParam = "{required_param}"
+    | extend NonRequiredParam = "{non_required_param}"
+    | extend Operation = "TestOperation"
+    | project TimeGenerated, DataType, Quantity, RequiredParam, NonRequiredParam, Operation
+    | limit 100
+    //
+    print "Test query with parameters"
+    | extend RequiredParam = "{required_param}"
+    | extend NonRequiredParam = "{non_required_param}"

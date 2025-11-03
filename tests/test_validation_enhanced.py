@@ -172,30 +172,17 @@ class TestWorkspaceConfigModelEdgeCases:
             sys.modules.update(original_modules)
 
     def test_queries_list_validator_invalid_in_fallback(self):
-        """Test queries list validator with invalid query in fallback mode."""
+        """Test queries list validator with empty query name."""
         config_data = {
             "resource_id": "/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace",
             "customer_id": "11111111-1111-1111-1111-111111111111",
-            "queries_list": ["invalid_query_not_in_fallback"],
+            "queries_list": [""],  # Empty string should fail
         }
 
-        # Mock the import to trigger fallback path
-        import sys
+        with pytest.raises(ValidationError) as exc_info:
+            WorkspaceConfigModel(**config_data)
 
-        original_modules = sys.modules.copy()
-        try:
-            # Remove models module to trigger ImportError
-            if "sentinel_log_aggregator.models" in sys.modules:
-                del sys.modules["sentinel_log_aggregator.models"]
-
-            with patch("builtins.__import__", side_effect=ImportError):
-                with pytest.raises(ValidationError) as exc_info:
-                    WorkspaceConfigModel(**config_data)
-
-                assert "Invalid query name: invalid_query_not_in_fallback" in str(exc_info.value)
-        finally:
-            # Restore modules
-            sys.modules.update(original_modules)
+        assert "non-empty strings" in str(exc_info.value).lower()
 
     def test_subscription_id_extraction_edge_cases(self):
         """Test subscription ID extraction edge cases."""

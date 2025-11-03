@@ -26,9 +26,9 @@ def sample_workspace_config():
 @pytest.fixture
 def sample_config():
     """Fixture providing sample configuration."""
-    from sentinel_log_aggregator.config import SentinelAggregatorConfig
+    from sentinel_log_aggregator.client_options import SentinelAggregatorClientOptions
 
-    return SentinelAggregatorConfig(
+    return SentinelAggregatorClientOptions(
         dcr_logs_ingestion_endpoint="https://test-endpoint.monitor.azure.com",
         dcr_rule_id="dcr-test-rule-id",
         days_ago=7,
@@ -85,14 +85,21 @@ class TestKQLQueryDefinition:
 
     def test_query_parameter_substitution(self):
         """Test parameter substitution in queries."""
-        # Get the incident summary query from YAML
-        query = AVAILABLE_QUERIES.get("query_incident_summary")
-        assert query is not None, "Incident summary query should be loaded from YAML"
+        # Load test query from file path since AVAILABLE_QUERIES is now on-demand
+        from sentinel_log_aggregator.query_registry import query_registry
+        from pathlib import Path
+        
+        test_queries_dir = Path(__file__).parent.parent / "tests" / "data" / "queries"
+        test_query_path = test_queries_dir / "tests_query_with_params.yaml"
+        
+        # Load query from path
+        query = query_registry.load_query_from_path(str(test_query_path))
+        assert query is not None, "Test query should be loaded from YAML file"
 
-        built_query = query.build_query({"row_level_security_tag": "TEST_TAG"})
+        built_query = query.build_query({"required_param": "TEST_VALUE", "non_required_param": "OPTIONAL_VALUE"})
 
-        assert "TEST_TAG" in built_query
-        assert "{row_level_security_tag}" not in built_query
+        assert "TEST_VALUE" in built_query
+        assert "{required_param}" not in built_query
 
     def test_required_parameter_validation(self):
         """Test validation of required parameters."""

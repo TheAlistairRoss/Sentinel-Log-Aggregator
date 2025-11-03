@@ -51,20 +51,12 @@ class WorkspaceConfigModel(BaseModel):
         if v is None:
             return v
 
-        # Import here to avoid circular imports
-        try:
-            from .models import AVAILABLE_QUERIES
-
-            valid_queries = set(AVAILABLE_QUERIES.keys())
-        except ImportError:
-            # Fallback validation if models not available - allow any query names
-            # since queries are now externally defined
-            valid_queries = None
-
-        if valid_queries is not None:
-            for query in v:
-                if query not in valid_queries:
-                    raise ValueError(f"Invalid query name: {query}. Valid queries: {valid_queries}")
+        # With the new on-demand query architecture, we don't validate against 
+        # a hardcoded list since queries are loaded from workspace configurations.
+        # Basic validation: check that we have strings and they're not empty
+        for query in v:
+            if not isinstance(query, str) or not query.strip():
+                raise ValueError(f"Query names must be non-empty strings, got: {query}")
 
         return v
 

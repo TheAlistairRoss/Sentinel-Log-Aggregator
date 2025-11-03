@@ -28,7 +28,6 @@ __all__ = [
     "BatchExecutionSummary",
     "QueryStatus",
     "UploadStatus",
-    "load_queries_from_yaml",
     "AVAILABLE_QUERIES",
 ]
 
@@ -433,71 +432,18 @@ class BatchExecutionSummary:
         return detailed_summary
 
 
-def load_queries_from_yaml(queries_dir: Optional[Path] = None) -> Dict[str, KQLQueryDefinition]:
-    """Load all query definitions from YAML files in the specified directory."""
-    import logging
-
-    logger = logging.getLogger(__name__)
-
-    queries = {}
-
-    # Use provided directory or default directories for development/testing
-    if queries_dir is None:
-        current_dir = Path(__file__).parent
-        # Try development and testing directories
-        possible_dirs = [
-            current_dir.parent / "tests" / "data" / "queries",  # Test queries
-            current_dir.parent / "local-data" / "queries",  # Local development queries
-        ]
-    else:
-        possible_dirs = [queries_dir]
-
-    for queries_dir in possible_dirs:
-        logger.debug(f"📋 Checking for KQL queries in: {queries_dir}")
-
-        if not queries_dir.exists():
-            logger.debug(f"⚠️ Directory does not exist: {queries_dir}")
-            continue
-
-        # Load all YAML files in the queries directory
-        yaml_files = list(queries_dir.glob("*.yaml"))
-        logger.debug(f"🔧 Found {len(yaml_files)} YAML files in {queries_dir.name}")
-
-        for yaml_file in yaml_files:
-            try:
-                logger.debug(f"  • Processing: {yaml_file.name}")
-                query_def = KQLQueryDefinition.from_yaml(str(yaml_file))
-                queries[query_def.name] = query_def
-                logger.debug(
-                    f"    ✅ Loaded query: {query_def.name} (Stream: {query_def.stream_name})"
-                )
-            except Exception as e:
-                logger.warning(f"    ❌ Failed to load query from {yaml_file}: {e}")
-
-    logger.debug(f"✅ Successfully loaded {len(queries)} queries from YAML files")
-    return queries
+# Initialize an empty AVAILABLE_QUERIES dict - queries are loaded on-demand from workspace configs
+AVAILABLE_QUERIES: Dict[str, KQLQueryDefinition] = {}
 
 
-# Load queries from YAML files
-AVAILABLE_QUERIES = load_queries_from_yaml()
-
-
-# Initialize query registry with loaded queries
+# Initialize query registry - queries will be loaded on-demand from workspace configurations
 def _initialize_query_registry() -> None:
-    """Initialize the global query registry with YAML-based queries."""
+    """Initialize the global query registry. Queries are loaded on-demand from workspace configs."""
     from .query_registry import query_registry
 
-    # Register all YAML-based queries
-    for query_name, query_def in AVAILABLE_QUERIES.items():
-        try:
-            query_registry._queries[query_name] = query_def
-
-        except Exception as e:
-            import logging
-
-            logger = logging.getLogger(__name__)
-            logger.warning(f"Failed to register query {query_name} in registry: {e}")
+    # Registry starts empty - queries are loaded when workspace configurations are processed
+    query_registry._queries = {}
 
 
-# Initialize the registry
+# Initialize the empty registry
 _initialize_query_registry()

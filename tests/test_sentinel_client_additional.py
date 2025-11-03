@@ -184,9 +184,16 @@ class TestBatchOperationPollerCorrected:
     @pytest.fixture
     def sample_query_def(self):
         """Sample query definition."""
-        # Use the first available query from YAML
-        query_name = list(AVAILABLE_QUERIES.keys())[0]
-        return AVAILABLE_QUERIES[query_name]
+        # Load test query from file path since AVAILABLE_QUERIES is now on-demand
+        from sentinel_log_aggregator.query_registry import query_registry
+        from pathlib import Path
+        
+        test_queries_dir = Path(__file__).parent / "data" / "queries"
+        test_query_path = test_queries_dir / "tests_query_without_params.yaml"
+        
+        # Load query from path
+        query = query_registry.load_query_from_path(str(test_query_path))
+        return query
 
     @pytest.fixture
     def sample_initial_result(self):

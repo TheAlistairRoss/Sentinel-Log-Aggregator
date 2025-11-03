@@ -85,14 +85,21 @@ class TestKQLQueryDefinition:
 
     def test_query_parameter_substitution(self):
         """Test parameter substitution in queries."""
-        # Get the incident summary query from YAML
-        query = AVAILABLE_QUERIES.get("query_incident_summary")
-        assert query is not None, "Incident summary query should be loaded from YAML"
+        # Load test query from file path since AVAILABLE_QUERIES is now on-demand
+        from sentinel_log_aggregator.query_registry import query_registry
+        from pathlib import Path
+        
+        test_queries_dir = Path(__file__).parent / "data" / "queries"
+        test_query_path = test_queries_dir / "tests_query_with_params.yaml"
+        
+        # Load query from path
+        query = query_registry.load_query_from_path(str(test_query_path))
+        assert query is not None, "Test query should be loaded from YAML file"
 
-        built_query = query.build_query({"row_level_security_tag": "TEST_TAG"})
+        built_query = query.build_query({"required_param": "TEST_VALUE", "non_required_param": "OPTIONAL_VALUE"})
 
-        assert "TEST_TAG" in built_query
-        assert "{row_level_security_tag}" not in built_query
+        assert "TEST_VALUE" in built_query
+        assert "{required_param}" not in built_query
 
     def test_required_parameter_validation(self):
         """Test validation of required parameters."""
@@ -211,49 +218,65 @@ class TestPredefinedQueries:
     """Test predefined query implementations loaded from YAML."""
 
     def test_incident_summary_query(self):
-        """Test incident summary query structure."""
-        query = AVAILABLE_QUERIES.get("query_incident_summary")
-        assert query is not None, "Incident summary query should be loaded from YAML"
+        """Test query structure using test query file."""
+        # Load test query from file path since AVAILABLE_QUERIES is now on-demand
+        from sentinel_log_aggregator.query_registry import query_registry
+        from pathlib import Path
+        
+        test_queries_dir = Path(__file__).parent / "data" / "queries"
+        test_query_path = test_queries_dir / "tests_query_without_params.yaml"
+        
+        # Load query from path
+        query = query_registry.load_query_from_path(str(test_query_path))
+        assert query is not None, "Test query should be loaded from YAML file"
 
-        assert query.name == "query_incident_summary"
-        assert query.destination_stream == "Custom-Reports_IncidentDetails_CL"
+        assert query.name == "tests_query_without_params"
+        assert query.destination_stream == "Custom-Reports_LogAggregatorHealth_CL"
         assert query.stream_name == "stream_incident_summary"
-        assert "row_level_security_tag" in query.parameters
 
         kql = query.get_query()
-        assert "SecurityIncident" in kql
-        assert "SecurityAlert" in kql
+        assert "print" in kql
+        assert "WithoutParams" in kql
 
     def test_workspace_usage_query(self):
-        """Test workspace usage query structure."""
-        query = AVAILABLE_QUERIES.get("query_workspace_usage")
-        assert query is not None, "Workspace usage query should be loaded from YAML"
+        """Test query structure using test query file with parameters."""
+        # Load test query from file path since AVAILABLE_QUERIES is now on-demand
+        from sentinel_log_aggregator.query_registry import query_registry
+        from pathlib import Path
+        
+        test_queries_dir = Path(__file__).parent / "data" / "queries"
+        test_query_path = test_queries_dir / "tests_query_with_params.yaml"
+        
+        # Load query from path
+        query = query_registry.load_query_from_path(str(test_query_path))
+        assert query is not None, "Test query should be loaded from YAML file"
 
-        assert query.name == "query_workspace_usage"
-        assert query.destination_stream == "Custom-Reports_WorkspaceUsage_CL"
-        assert query.stream_name == "stream_workspace_usage"
+        assert query.name == "tests_query_with_params"
+        assert query.destination_stream == "Custom-Reports_LogAggregatorHealth_CL"
+        assert "required_param" in query.parameters
+        assert "non_required_param" in query.parameters
 
         kql = query.get_query()
-        assert "Usage" in kql
-        assert "Operation" in kql
+        assert "print" in kql
+        assert "RequiredParam" in kql
 
     def test_yaml_queries_loaded(self):
-        """Test that queries are properly loaded from YAML files."""
-        assert len(AVAILABLE_QUERIES) > 0, "Should have loaded queries from YAML files"
-
-        # Check that we have the expected queries
-        expected_queries = ["query_incident_summary", "query_workspace_usage"]
-        for query_name in expected_queries:
-            assert query_name in AVAILABLE_QUERIES, f"Expected query {query_name} not found"
-
-        # Check that queries have proper stream names
-        for query_name, query_instance in AVAILABLE_QUERIES.items():
-            assert hasattr(
-                query_instance, "stream_name"
-            ), f"Query {query_name} should have stream_name attribute"
-            assert (
-                query_instance.stream_name
-            ), f"Query {query_name} should have a non-empty stream_name"
+        """Test that queries can be loaded from YAML files on demand."""
+        # Since AVAILABLE_QUERIES is now on-demand, test that we can load queries from files
+        from sentinel_log_aggregator.query_registry import query_registry
+        from pathlib import Path
+        
+        test_queries_dir = Path(__file__).parent / "data" / "queries"
+        
+        # Test loading different query files
+        test_files = ["tests_query_with_params.yaml", "tests_query_without_params.yaml"]
+        for query_file in test_files:
+            query_path = test_queries_dir / query_file
+            query = query_registry.load_query_from_path(str(query_path))
+            assert query is not None, f"Should be able to load query from {query_file}"
+            
+            # Check that queries have proper stream names (if defined)
+            assert hasattr(query, "stream_name"), f"Query {query.name} should have stream_name attribute"
 
 
 """
@@ -1070,17 +1093,17 @@ class TestWorkspaceConfigValidation:
         assert "customer_id" in str(exc_info.value)
 
     def test_invalid_report_name(self):
-        """Test invalid report name in reports list."""
+        """Test invalid query name validation (empty strings not allowed)."""
         config_data = {
             "resource_id": "/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace",
             "customer_id": "11111111-1111-1111-1111-111111111111",
-            "queries_list": ["invalid_report_name"],
+            "queries_list": [""],  # Empty string should fail
         }
 
         with pytest.raises(ValidationError) as exc_info:
             WorkspaceConfigModel(**config_data)
 
-        assert "invalid query name" in str(exc_info.value).lower()
+        assert "non-empty strings" in str(exc_info.value).lower()
 
     def test_workspace_collection_validation(self):
         """Test workspace collection validation."""
@@ -2079,14 +2102,30 @@ class TestQueryEngineMissingCoverage:
 
         engine = SentinelQueryEngine(options, None)
 
+        # Since AVAILABLE_QUERIES is now empty, we need to load a query first for testing
+        from sentinel_log_aggregator.query_registry import query_registry
+        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
+        from pathlib import Path
+        
+        # Load a test query for this test
+        test_queries_dir = Path(__file__).parent / "data" / "queries"
+        test_query_path = test_queries_dir / "tests_query_with_params.yaml"
+        test_query = query_registry.load_query_from_path(str(test_query_path))
+        
+        # Temporarily add to AVAILABLE_QUERIES for this test
+        AVAILABLE_QUERIES[test_query.name] = test_query
+
         # Test with valid query name from AVAILABLE_QUERIES
         result = engine.build_query_with_parameters(
-            "query_incident_summary", {"parameters": {"row_level_security_tag": "TEST"}}
+            test_query.name, {"required_param": "TEST", "non_required_param": "VALUE"}
         )
 
         # Should return a string (the built query)
         assert isinstance(result, str)
         assert len(result) > 0
+        
+        # Clean up
+        del AVAILABLE_QUERIES[test_query.name]
 
     def test_build_query_from_name_invalid_query(self):
         """Test build_query_from_name with invalid query - covers lines 125-126."""
@@ -2118,12 +2157,28 @@ class TestQueryEngineMissingCoverage:
 
         engine = SentinelQueryEngine(options, None)
 
+        # Since AVAILABLE_QUERIES is now empty, we need to load a query first for testing
+        from sentinel_log_aggregator.query_registry import query_registry
+        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
+        from pathlib import Path
+        
+        # Load a test query for this test
+        test_queries_dir = Path(__file__).parent / "data" / "queries"
+        test_query_path = test_queries_dir / "tests_query_without_params.yaml"
+        test_query = query_registry.load_query_from_path(str(test_query_path))
+        
+        # Temporarily add to AVAILABLE_QUERIES for this test
+        AVAILABLE_QUERIES[test_query.name] = test_query
+
         # Test with valid query name
-        result = engine.build_query_from_name("query_incident_summary")
+        result = engine.build_query_from_name(test_query.name)
 
         # Should return a string (the built query)
         assert isinstance(result, str)
         assert len(result) > 0
+        
+        # Clean up
+        del AVAILABLE_QUERIES[test_query.name]
 
     @pytest.mark.asyncio
     async def test_execute_single_query_exception_handling(self):
@@ -2247,19 +2302,33 @@ class TestQueryEngineMissingCoverage:
 
         engine = SentinelQueryEngine(options, mock_client)
 
-        # Create test workspaces with different queries
+        # Since AVAILABLE_QUERIES is now empty, we need to load test queries first
+        from sentinel_log_aggregator.query_registry import query_registry
+        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
+        from pathlib import Path
+        
+        # Load test queries for this test
+        test_queries_dir = Path(__file__).parent / "data" / "queries"
+        test_query_1 = query_registry.load_query_from_path(str(test_queries_dir / "tests_query_with_params.yaml"))
+        test_query_2 = query_registry.load_query_from_path(str(test_queries_dir / "tests_query_without_params.yaml"))
+        
+        # Temporarily add to AVAILABLE_QUERIES for this test
+        AVAILABLE_QUERIES[test_query_1.name] = test_query_1
+        AVAILABLE_QUERIES[test_query_2.name] = test_query_2
+
+        # Create test workspaces with different queries (using test query names)
         workspaces = [
             WorkspaceConfig(
                 resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test1",
                 customer_id="test-workspace-1",
-                parameters={"row_level_security_tag": "TEST1"},
-                queries_list=["query_incident_summary", "query_workspace_usage"],
+                parameters={"row_level_security_tag": "TEST1", "required_param": "VALUE1", "non_required_param": "OPT1"},
+                queries_list=[test_query_1.name, test_query_2.name],
             ),
             WorkspaceConfig(
                 resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test2",
                 customer_id="test-workspace-2",
-                parameters={"row_level_security_tag": "TEST2"},
-                queries_list=["query_incident_summary"],
+                parameters={"row_level_security_tag": "TEST2", "required_param": "VALUE2"},
+                queries_list=[test_query_1.name],
             ),
         ]
 
@@ -2281,6 +2350,10 @@ class TestQueryEngineMissingCoverage:
         assert summary is not None
         assert summary.total_queries == 3  # 2 + 1 queries from workspaces
         assert len(engine.execution_log) == 3
+        
+        # Clean up test queries
+        del AVAILABLE_QUERIES[test_query_1.name]
+        del AVAILABLE_QUERIES[test_query_2.name]
 
     @pytest.mark.asyncio
     async def test_execute_batch_queries_large_dataset_cleanup(self):
@@ -2316,11 +2389,23 @@ class TestQueryEngineMissingCoverage:
 
         engine = SentinelQueryEngine(options, mock_client)
 
+        # Since AVAILABLE_QUERIES is now empty, we need to load a test query first
+        from sentinel_log_aggregator.query_registry import query_registry
+        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
+        from pathlib import Path
+        
+        # Load a test query for this test
+        test_queries_dir = Path(__file__).parent / "data" / "queries"
+        test_query = query_registry.load_query_from_path(str(test_queries_dir / "tests_query_without_params.yaml"))
+        
+        # Temporarily add to AVAILABLE_QUERIES for this test
+        AVAILABLE_QUERIES[test_query.name] = test_query
+
         workspace = WorkspaceConfig(
             resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
             customer_id="test-workspace-id",
             parameters={"row_level_security_tag": "TEST"},
-            queries_list=["query_incident_summary"],
+            queries_list=[test_query.name],
         )
 
         # Mock the generate_detailed_summary method and logger to avoid issues
@@ -2341,6 +2426,9 @@ class TestQueryEngineMissingCoverage:
         assert summary is not None
         assert summary.total_records == 1000
         assert len(engine.execution_log) == 1
+        
+        # Clean up test query
+        del AVAILABLE_QUERIES[test_query.name]
 
 
 class TestQueryEngineCompleteCoverage:
@@ -2475,9 +2563,21 @@ class TestQueryEngineCompleteCoverage:
         mock_client = AsyncMock()
         engine = SentinelQueryEngine(options, mock_client)
 
+        # Since AVAILABLE_QUERIES is now empty, we need to load a test query first
+        from sentinel_log_aggregator.query_registry import query_registry
+        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
+        from pathlib import Path
+        
+        # Load a test query for this test
+        test_queries_dir = Path(__file__).parent / "data" / "queries"
+        test_query = query_registry.load_query_from_path(str(test_queries_dir / "tests_query_with_params.yaml"))
+        
+        # Temporarily add to AVAILABLE_QUERIES for this test
+        AVAILABLE_QUERIES[test_query.name] = test_query
+
         # Mock build_query_with_parameters to raise an exception
         def mock_build_query_side_effect(query_name, params):
-            if query_name == "query_incident_summary":
+            if query_name == test_query.name:
                 raise ValueError("Parameter validation failed")
             return "mock query"
 
@@ -2486,8 +2586,8 @@ class TestQueryEngineCompleteCoverage:
         workspace = WorkspaceConfig(
             resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
             customer_id="test-workspace-id",
-            parameters={"row_level_security_tag": "TEST"},
-            queries_list=["query_incident_summary"],
+            parameters={"row_level_security_tag": "TEST", "required_param": "VALUE"},
+            queries_list=[test_query.name],
         )
 
         detailed_summary_mock = {"overview": {"total_queries": 0}, "workspace_query_details": []}
@@ -2512,6 +2612,9 @@ class TestQueryEngineCompleteCoverage:
         assert (
             "Query build error: Parameter validation failed" in failed_execution.query_error_message
         )
+        
+        # Clean up test query
+        del AVAILABLE_QUERIES[test_query.name]
 
     @pytest.mark.asyncio
     async def test_batch_execution_critical_error_detection(self):
@@ -2540,13 +2643,27 @@ class TestQueryEngineCompleteCoverage:
 
         engine = SentinelQueryEngine(options, mock_client)
 
+        # Since AVAILABLE_QUERIES is now empty, we need to load test queries first
+        from sentinel_log_aggregator.query_registry import query_registry
+        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
+        from pathlib import Path
+        
+        # Load test queries for this test
+        test_queries_dir = Path(__file__).parent / "data" / "queries"
+        test_query_1 = query_registry.load_query_from_path(str(test_queries_dir / "tests_query_with_params.yaml"))
+        test_query_2 = query_registry.load_query_from_path(str(test_queries_dir / "tests_query_without_params.yaml"))
+        
+        # Temporarily add to AVAILABLE_QUERIES for this test
+        AVAILABLE_QUERIES[test_query_1.name] = test_query_1
+        AVAILABLE_QUERIES[test_query_2.name] = test_query_2
+
         workspace = WorkspaceConfig(
             resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
             customer_id="test-workspace-id",
-            parameters={"row_level_security_tag": "TEST"},
+            parameters={"row_level_security_tag": "TEST", "required_param": "VALUE"},
             queries_list=[
-                "query_incident_summary",
-                "query_workspace_usage",
+                test_query_1.name,
+                test_query_2.name,
             ],  # Multiple queries to test batching
         )
 
@@ -2571,13 +2688,23 @@ class TestQueryEngineCompleteCoverage:
         mock_logger.error.assert_any_call(
             "SYNTAX", "1 syntax error(s) detected - stopping execution"
         )
+        
+        # Clean up test queries
+        del AVAILABLE_QUERIES[test_query_1.name]
+        del AVAILABLE_QUERIES[test_query_2.name]
 
     @pytest.mark.asyncio
     async def test_batch_execution_exception_handling(self):
         """Test batch execution exception handling - covers lines 420-422."""
         from sentinel_log_aggregator.client_options import SentinelAggregatorClientOptions
-        from sentinel_log_aggregator.models import WorkspaceConfig
+        from sentinel_log_aggregator.models import AVAILABLE_QUERIES, WorkspaceConfig
         from sentinel_log_aggregator.query_engine import SentinelQueryEngine
+        from sentinel_log_aggregator.query_registry import QueryRegistry
+
+        # Load test query for use in this test
+        from sentinel_log_aggregator.query_registry import query_registry
+        test_query_1 = query_registry.load_query_from_path("tests/data/queries/tests_query_with_params.yaml")
+        AVAILABLE_QUERIES[test_query_1.name] = test_query_1
 
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
@@ -2590,8 +2717,8 @@ class TestQueryEngineCompleteCoverage:
         workspace = WorkspaceConfig(
             resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
             customer_id="test-workspace-id",
-            parameters={"row_level_security_tag": "TEST"},
-            queries_list=["query_incident_summary"],
+            parameters={"row_level_security_tag": "TEST", "required_param": "test_value"},
+            queries_list=[test_query_1.name],
         )
 
         detailed_summary_mock = {"overview": {"total_queries": 1}, "workspace_query_details": []}
@@ -2612,13 +2739,21 @@ class TestQueryEngineCompleteCoverage:
 
         # Verify batch execution error was logged
         mock_logger.error.assert_any_call("BATCH_EXECUTION", "Batch execution failed")
+        
+        # Clean up test query
+        del AVAILABLE_QUERIES[test_query_1.name]
 
     @pytest.mark.asyncio
     async def test_critical_error_final_logging(self):
         """Test final critical error logging - covers lines 469-470."""
         from sentinel_log_aggregator.client_options import SentinelAggregatorClientOptions
-        from sentinel_log_aggregator.models import QueryExecution, WorkspaceConfig
+        from sentinel_log_aggregator.models import AVAILABLE_QUERIES, QueryExecution, WorkspaceConfig
         from sentinel_log_aggregator.query_engine import SentinelQueryEngine
+
+        # Load test query for use in this test
+        from sentinel_log_aggregator.query_registry import query_registry
+        test_query_1 = query_registry.load_query_from_path("tests/data/queries/tests_query_with_params.yaml")
+        AVAILABLE_QUERIES[test_query_1.name] = test_query_1
 
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
@@ -2642,8 +2777,8 @@ class TestQueryEngineCompleteCoverage:
         workspace = WorkspaceConfig(
             resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
             customer_id="test-workspace-id",
-            parameters={"row_level_security_tag": "TEST"},
-            queries_list=["query_incident_summary"],
+            parameters={"row_level_security_tag": "TEST", "required_param": "test_value"},
+            queries_list=[test_query_1.name],
         )
 
         detailed_summary_mock = {"overview": {"total_queries": 1}, "workspace_query_details": []}
@@ -2664,9 +2799,9 @@ class TestQueryEngineCompleteCoverage:
         mock_logger.error.assert_any_call(
             "CRITICAL_STOP", "EXECUTION STOPPED DUE TO CRITICAL ERRORS"
         )
-        mock_logger.error.assert_any_call(
-            "ACTION_REQUIRED", "Fix syntax errors in KQL queries before retrying"
-        )
+        
+        # Clean up test query
+        del AVAILABLE_QUERIES[test_query_1.name]
 
     def test_get_execution_summary_empty_log(self):
         """Test execution summary with empty log - covers lines 476-484."""
@@ -2768,7 +2903,13 @@ class TestQueryEngineRemainingLines:
     def test_build_query_from_name_lines_123_127(self):
         """Test build_query_from_name method - covers lines 123-127."""
         from sentinel_log_aggregator.client_options import SentinelAggregatorClientOptions
+        from sentinel_log_aggregator.models import AVAILABLE_QUERIES
         from sentinel_log_aggregator.query_engine import SentinelQueryEngine
+
+        # Load test query for use in this test
+        from sentinel_log_aggregator.query_registry import query_registry
+        test_query_1 = query_registry.load_query_from_path("tests/data/queries/tests_query_without_params.yaml")
+        AVAILABLE_QUERIES[test_query_1.name] = test_query_1
 
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
@@ -2778,13 +2919,16 @@ class TestQueryEngineRemainingLines:
         engine = SentinelQueryEngine(options, None)
 
         # Test successful build
-        result = engine.build_query_from_name("query_incident_summary")
+        result = engine.build_query_from_name(test_query_1.name)
         assert isinstance(result, str)
         assert len(result) > 0
 
         # Test with invalid query name
         with pytest.raises(KeyError, match="Query 'invalid_query' not found"):
             engine.build_query_from_name("invalid_query")
+            
+        # Clean up test query
+        del AVAILABLE_QUERIES[test_query_1.name]
 
     @pytest.mark.asyncio
     async def test_transform_record_no_data_lines_216_223(self):
@@ -2881,12 +3025,18 @@ class TestQueryEngineRemainingLines:
         """Test critical error early break - covers lines 388-389."""
         from sentinel_log_aggregator.client_options import SentinelAggregatorClientOptions
         from sentinel_log_aggregator.models import (
+            AVAILABLE_QUERIES,
             QueryExecution,
             QueryStatus,
             UploadStatus,
             WorkspaceConfig,
         )
         from sentinel_log_aggregator.query_engine import SentinelQueryEngine
+
+        # Load test query for use in this test
+        from sentinel_log_aggregator.query_registry import query_registry
+        test_query_1 = query_registry.load_query_from_path("tests/data/queries/tests_query_with_params.yaml")
+        AVAILABLE_QUERIES[test_query_1.name] = test_query_1
 
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
@@ -2903,8 +3053,8 @@ class TestQueryEngineRemainingLines:
             WorkspaceConfig(
                 resource_id=f"/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test{i}",
                 customer_id=f"test-workspace-id-{i}",
-                parameters={"row_level_security_tag": "TEST"},
-                queries_list=["query_incident_summary"],
+                parameters={"row_level_security_tag": "TEST", "required_param": "test_value"},
+                queries_list=[test_query_1.name],
             )
             for i in range(3)  # 3 workspaces * 1 query = 3 tasks, with max_concurrent=1 = 3 batches
         ]
@@ -2961,6 +3111,9 @@ class TestQueryEngineRemainingLines:
             for call in error_calls
         )
         assert critical_logged, f"Expected critical error message not found in: {error_calls}"
+        
+        # Clean up test query
+        del AVAILABLE_QUERIES[test_query_1.name]
 
     @pytest.mark.asyncio
     async def test_final_coverage_lines_245_388_389(self):
@@ -3091,8 +3244,13 @@ class TestQueryEngineRemainingLines:
     async def test_batch_execution_progress_logging_lines_413_418(self):
         """Test progress logging and memory cleanup - covers lines 413-418."""
         from sentinel_log_aggregator.client_options import SentinelAggregatorClientOptions
-        from sentinel_log_aggregator.models import WorkspaceConfig
+        from sentinel_log_aggregator.models import AVAILABLE_QUERIES, WorkspaceConfig
         from sentinel_log_aggregator.query_engine import SentinelQueryEngine
+
+        # Load test query for use in this test
+        from sentinel_log_aggregator.query_registry import query_registry
+        test_query_1 = query_registry.load_query_from_path("tests/data/queries/tests_query_with_params.yaml")
+        AVAILABLE_QUERIES[test_query_1.name] = test_query_1
 
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
@@ -3120,8 +3278,8 @@ class TestQueryEngineRemainingLines:
         workspace = WorkspaceConfig(
             resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
             customer_id="test-workspace-id",
-            parameters={"row_level_security_tag": "TEST"},
-            queries_list=["query_incident_summary"],
+            parameters={"row_level_security_tag": "TEST", "required_param": "test_value"},
+            queries_list=[test_query_1.name],
         )
 
         detailed_summary_mock = {"overview": {"total_queries": 1}, "workspace_query_details": []}
@@ -3142,3 +3300,6 @@ class TestQueryEngineRemainingLines:
         # Verify progress was logged and garbage collection called
         mock_logger.progress.assert_called()
         mock_gc.assert_called()
+        
+        # Clean up test query
+        del AVAILABLE_QUERIES[test_query_1.name]

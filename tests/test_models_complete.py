@@ -17,7 +17,6 @@ from sentinel_log_aggregator.models import (
     QueryExecution,
     QueryParameter,
     WorkspaceConfig,
-    load_queries_from_yaml,
 )
 from sentinel_log_aggregator.responses import QueryStatus, UploadStatus
 
@@ -226,34 +225,6 @@ class TestModelsComplete:
 
         # Should return 0.0 instead of division by zero (line 249)
         assert summary_zero_uploads.upload_success_rate == 0.0
-
-    def test_load_queries_from_yaml_error_handling_lines_363_377(self):
-        """Test load_queries_from_yaml error handling (lines 363-364, 376-377)"""
-        from sentinel_log_aggregator.models import load_queries_from_yaml
-
-        with patch("sentinel_log_aggregator.models.Path") as mock_path:
-            # Test non-existent directory (lines 363-364)
-            mock_queries_dir = MagicMock()
-            mock_queries_dir.exists.return_value = False
-            mock_path.return_value.parent.parent = MagicMock()
-            mock_path.return_value.parent.parent.__truediv__.return_value = mock_queries_dir
-
-            result = load_queries_from_yaml()
-            assert result == {}
-
-            # Test YAML processing error (lines 376-377)
-            mock_queries_dir.exists.return_value = True
-            mock_yaml_file = MagicMock()
-            mock_yaml_file.name = "test.yaml"
-            mock_queries_dir.glob.return_value = [mock_yaml_file]
-
-            with patch(
-                "sentinel_log_aggregator.models.KQLQueryDefinition.from_yaml"
-            ) as mock_from_yaml:
-                mock_from_yaml.side_effect = Exception("YAML parsing error")
-
-                result = load_queries_from_yaml()
-                assert result == {}
 
     def test_initialize_query_registry_error_handling_lines_396_399(self):
         """Test _initialize_query_registry error handling (lines 396-399)"""

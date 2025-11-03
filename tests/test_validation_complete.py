@@ -68,20 +68,16 @@ class TestValidationMissingLines:
         assert "potentially dangerous operation" in str(exc_info.value)
 
     def test_import_error_with_fallback_validation(self):
-        """Test that ImportError triggers fallback validation logic"""
-        # Test specifically for line 55 - the ImportError catch block
+        """Test that validation properly handles empty query names."""
+        # Test that empty query names are properly rejected
+        with pytest.raises(ValidationError) as exc_info:
+            WorkspaceConfigModel(
+                resource_id="/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/test/providers/Microsoft.OperationalInsights/workspaces/test",
+                customer_id="12345678-1234-1234-1234-123456789012",
+                queries_list=[""],  # Empty string should fail
+            )
 
-        # Mock the models import to fail
-        with patch.dict("sys.modules", {"sentinel_log_aggregator.models": None}):
-            # This should trigger the ImportError and use fallback validation
-            with pytest.raises(ValidationError) as exc_info:
-                WorkspaceConfigModel(
-                    resource_id="/subscriptions/12345678-1234-1234-1234-123456789012/resourceGroups/test/providers/Microsoft.OperationalInsights/workspaces/test",
-                    customer_id="12345678-1234-1234-1234-123456789012",
-                    queries_list=["invalid_query_name"],  # This should fail fallback validation
-                )
-
-            assert "Invalid query name" in str(exc_info.value)
+        assert "non-empty strings" in str(exc_info.value).lower()
 
     def test_workspace_config_subscription_id_no_subscriptions(self):
         """Test WorkspaceConfig.subscription_id when 'subscriptions' not in resource_id"""

@@ -85,14 +85,21 @@ class TestKQLQueryDefinition:
 
     def test_query_parameter_substitution(self):
         """Test parameter substitution in queries."""
-        # Get the incident summary query from YAML
-        query = AVAILABLE_QUERIES.get("query_incident_summary")
-        assert query is not None, "Incident summary query should be loaded from YAML"
+        # Load test query from file path since AVAILABLE_QUERIES is now on-demand
+        from sentinel_log_aggregator.query_registry import query_registry
+        from pathlib import Path
+        
+        test_queries_dir = Path(__file__).parent / "data" / "queries"
+        test_query_path = test_queries_dir / "tests_query_with_params.yaml"
+        
+        # Load query from path
+        query = query_registry.load_query_from_path(str(test_query_path))
+        assert query is not None, "Test query should be loaded from YAML file"
 
-        built_query = query.build_query({"row_level_security_tag": "TEST_TAG"})
+        built_query = query.build_query({"required_param": "TEST_VALUE", "non_required_param": "OPTIONAL_VALUE"})
 
-        assert "TEST_TAG" in built_query
-        assert "{row_level_security_tag}" not in built_query
+        assert "TEST_VALUE" in built_query
+        assert "{required_param}" not in built_query
 
     def test_required_parameter_validation(self):
         """Test validation of required parameters."""
@@ -211,49 +218,66 @@ class TestPredefinedQueries:
     """Test predefined query implementations loaded from YAML."""
 
     def test_incident_summary_query(self):
-        """Test incident summary query structure."""
-        query = AVAILABLE_QUERIES.get("query_incident_summary")
-        assert query is not None, "Incident summary query should be loaded from YAML"
+        """Test query structure using test query file."""
+        # Load test query from file path since AVAILABLE_QUERIES is now on-demand
+        from sentinel_log_aggregator.query_registry import query_registry
+        from pathlib import Path
+        
+        test_queries_dir = Path(__file__).parent / "data" / "queries"
+        test_query_path = test_queries_dir / "tests_query_without_params.yaml"
+        
+        # Load query from path
+        query = query_registry.load_query_from_path(str(test_query_path))
+        assert query is not None, "Test query should be loaded from YAML file"
 
-        assert query.name == "query_incident_summary"
-        assert query.destination_stream == "Custom-Reports_IncidentDetails_CL"
+        assert query.name == "tests_query_without_params"
+        assert query.destination_stream == "Custom-Reports_LogAggregatorHealth_CL"
         assert query.stream_name == "stream_incident_summary"
-        assert "row_level_security_tag" in query.parameters
 
         kql = query.get_query()
-        assert "SecurityIncident" in kql
-        assert "SecurityAlert" in kql
+        assert "print" in kql
+        assert "WithoutParams" in kql
 
     def test_workspace_usage_query(self):
-        """Test workspace usage query structure."""
-        query = AVAILABLE_QUERIES.get("query_workspace_usage")
-        assert query is not None, "Workspace usage query should be loaded from YAML"
+        """Test query structure using test query file with parameters."""
+        # Load test query from file path since AVAILABLE_QUERIES is now on-demand
+        from sentinel_log_aggregator.query_registry import query_registry
+        from pathlib import Path
+        
+        test_queries_dir = Path(__file__).parent / "data" / "queries"
+        test_query_path = test_queries_dir / "tests_query_with_params.yaml"
+        
+        # Load query from path
+        query = query_registry.load_query_from_path(str(test_query_path))
+        assert query is not None, "Test query should be loaded from YAML file"
 
-        assert query.name == "query_workspace_usage"
-        assert query.destination_stream == "Custom-Reports_WorkspaceUsage_CL"
-        assert query.stream_name == "stream_workspace_usage"
+        assert query.name == "tests_query_with_params"
+        assert query.destination_stream == "Custom-Reports_LogAggregatorHealth_CL"
+        assert "required_param" in query.parameters
+        assert "non_required_param" in query.parameters
 
         kql = query.get_query()
-        assert "Usage" in kql
-        assert "Operation" in kql
+        assert "print" in kql
+        assert "RequiredParam" in kql
 
     def test_yaml_queries_loaded(self):
-        """Test that queries are properly loaded from YAML files."""
-        assert len(AVAILABLE_QUERIES) > 0, "Should have loaded queries from YAML files"
-
-        # Check that we have the expected queries
-        expected_queries = ["query_incident_summary", "query_workspace_usage"]
-        for query_name in expected_queries:
-            assert query_name in AVAILABLE_QUERIES, f"Expected query {query_name} not found"
-
-        # Check that queries have proper stream names
-        for query_name, query_instance in AVAILABLE_QUERIES.items():
-            assert hasattr(
-                query_instance, "stream_name"
-            ), f"Query {query_name} should have stream_name attribute"
-            assert (
-                query_instance.stream_name
-            ), f"Query {query_name} should have a non-empty stream_name"
+        """Test that queries can be loaded from YAML files on demand."""
+        # Since AVAILABLE_QUERIES is now on-demand, test that we can load queries from files
+        from sentinel_log_aggregator.query_registry import query_registry
+        from pathlib import Path
+        
+        test_queries_dir = Path(__file__).parent / "data" / "queries"
+        
+        # Test loading different query files
+        test_files = ["tests_query_with_params.yaml", "tests_query_without_params.yaml"]
+        for query_file in test_files:
+            test_query_path = test_queries_dir / query_file
+            query = query_registry.load_query_from_path(str(test_query_path))
+            assert query is not None, f"Should be able to load query from {query_file}"
+            
+            # Check that query has proper attributes
+            assert hasattr(query, "stream_name"), f"Query from {query_file} should have stream_name attribute"
+            assert query.stream_name, f"Query from {query_file} should have a non-empty stream_name"
 
 
 """
@@ -1072,17 +1096,17 @@ class TestWorkspaceConfigValidation:
         assert "customer_id" in str(exc_info.value)
 
     def test_invalid_report_name(self):
-        """Test invalid report name in reports list."""
+        """Test that empty query names are still invalid."""
         config_data = {
             "resource_id": "/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace",
             "customer_id": "11111111-1111-1111-1111-111111111111",
-            "queries_list": ["invalid_report_name"],
+            "queries_list": [""],  # Empty string should fail
         }
 
         with pytest.raises(ValidationError) as exc_info:
             WorkspaceConfigModel(**config_data)
 
-        assert "invalid query name" in str(exc_info.value).lower()
+        assert "non-empty strings" in str(exc_info.value).lower()
 
     def test_workspace_collection_validation(self):
         """Test workspace collection validation."""
