@@ -1278,49 +1278,49 @@
 <p>Environment variables provide the highest precedence configuration method.</p>
 <section id="required-settings">
 <h3>Required settings<a class="headerlink" href="#required-settings" title="Link to this heading"></a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Data Collection Rule endpoint and ID</span>
-<span class="nv">DCR_LOGS_INGESTION_ENDPOINT</span><span class="o">=</span>https://your-dcr-endpoint.monitor.azure.com
-<span class="nv">DCR_RULE_ID</span><span class="o">=</span>dcr-your-rule-id
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="c"># Data Collection Rule endpoint and ID</span>
+<span class="nv">$env:DCR_LOGS_INGESTION_ENDPOINT</span> <span class="p">=</span> <span class="s2">&quot;https://your-dcr-endpoint.monitor.azure.com&quot;</span>
+<span class="nv">$env:DCR_RULE_ID</span> <span class="p">=</span> <span class="s2">&quot;dcr-your-rule-id&quot;</span>
 </pre></div>
 </div>
 </section>
 <section id="optional-settings">
 <h3>Optional settings<a class="headerlink" href="#optional-settings" title="Link to this heading"></a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Time range configuration</span>
-<span class="nv">DAYS_AGO</span><span class="o">=</span><span class="m">30</span><span class="w">                    </span><span class="c1"># Number of days to look back</span>
-<span class="nv">BATCH_HOURS</span><span class="o">=</span><span class="m">24</span><span class="w">                 </span><span class="c1"># Hours per batch for processing</span>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="c"># Time range configuration</span>
+<span class="nv">$env:DAYS_AGO</span> <span class="p">=</span> <span class="n">30</span>                    <span class="c"># Number of days to look back</span>
+<span class="nv">$env:BATCH_HOURS</span> <span class="p">=</span> <span class="n">24</span>                 <span class="c"># Hours per batch for processing</span>
 
-<span class="c1"># Performance settings</span>
-<span class="nv">MAX_CONCURRENT_QUERIES</span><span class="o">=</span><span class="m">5</span><span class="w">       </span><span class="c1"># Maximum concurrent queries</span>
-<span class="nv">QUERY_TIMEOUT_SECONDS</span><span class="o">=</span><span class="m">300</span><span class="w">      </span><span class="c1"># Query timeout in seconds</span>
-<span class="nv">MAX_RETRIES</span><span class="o">=</span><span class="m">3</span><span class="w">                  </span><span class="c1"># Maximum retry attempts</span>
-<span class="nv">RETRY_DELAY_SECONDS</span><span class="o">=</span><span class="m">5</span><span class="w">          </span><span class="c1"># Initial retry delay</span>
+<span class="c"># Performance settings</span>
+<span class="nv">$env:MAX_CONCURRENT_QUERIES</span> <span class="p">=</span> <span class="n">5</span>       <span class="c"># Maximum concurrent queries</span>
+<span class="nv">$env:QUERY_TIMEOUT_SECONDS</span> <span class="p">=</span> <span class="n">300</span>      <span class="c"># Query timeout in seconds</span>
+<span class="nv">$env:MAX_RETRIES</span> <span class="p">=</span> <span class="n">3</span>                  <span class="c"># Maximum retry attempts</span>
+<span class="nv">$env:RETRY_DELAY_SECONDS</span> <span class="p">=</span> <span class="n">5</span>          <span class="c"># Initial retry delay</span>
 
-<span class="c1"># Logging configuration</span>
-<span class="nv">LOG_LEVEL</span><span class="o">=</span>INFO<span class="w">                 </span><span class="c1"># Logging level (DEBUG, INFO, WARNING, ERROR)</span>
-<span class="nv">LOG_FORMAT</span><span class="o">=</span>json<span class="w">                </span><span class="c1"># Log format (json, text)</span>
+<span class="c"># Logging configuration</span>
+<span class="nv">$env:LOG_LEVEL</span> <span class="p">=</span> <span class="s2">&quot;INFO&quot;</span>               <span class="c"># Logging level (DEBUG, INFO, WARNING, ERROR)</span>
+<span class="nv">$env:LOG_FORMAT</span> <span class="p">=</span> <span class="s2">&quot;json&quot;</span>              <span class="c"># Log format (json, text)</span>
 
-<span class="c1"># Authentication settings (choose one method)</span>
-<span class="c1"># Service Principal</span>
-<span class="nv">AZURE_CLIENT_ID</span><span class="o">=</span>your-client-id
-<span class="nv">AZURE_TENANT_ID</span><span class="o">=</span>your-tenant-id
-<span class="nv">AZURE_CLIENT_SECRET</span><span class="o">=</span>your-client-secret
+<span class="c"># Authentication settings (choose one method)</span>
+<span class="c"># Service Principal</span>
+<span class="nv">$env:AZURE_CLIENT_ID</span> <span class="p">=</span> <span class="s2">&quot;your-client-id&quot;</span>
+<span class="nv">$env:AZURE_TENANT_ID</span> <span class="p">=</span> <span class="s2">&quot;your-tenant-id&quot;</span>
+<span class="nv">$env:AZURE_CLIENT_SECRET</span> <span class="p">=</span> <span class="s2">&quot;your-client-secret&quot;</span>
 
-<span class="c1"># Or Certificate-based authentication</span>
-<span class="nv">AZURE_CLIENT_CERTIFICATE_PATH</span><span class="o">=</span>/path/to/cert.pem
+<span class="c"># Or Certificate-based authentication</span>
+<span class="nv">$env:AZURE_CLIENT_CERTIFICATE_PATH</span> <span class="p">=</span> <span class="s2">&quot;C:/path/to/cert.pem&quot;</span>
 </pre></div>
 </div>
 </section>
 <section id="environment-file-env">
 <h3>Environment file (.env)<a class="headerlink" href="#environment-file-env" title="Link to this heading"></a></h3>
 <p>Create a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file in your working directory:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># .env file</span>
-<span class="nv">DCR_LOGS_INGESTION_ENDPOINT</span><span class="o">=</span>https://my-dcr.monitor.azure.com
-<span class="nv">DCR_RULE_ID</span><span class="o">=</span>dcr-abc123def456
-<span class="nv">DAYS_AGO</span><span class="o">=</span><span class="m">7</span>
-<span class="nv">BATCH_HOURS</span><span class="o">=</span><span class="m">12</span>
-<span class="nv">MAX_CONCURRENT_QUERIES</span><span class="o">=</span><span class="m">3</span>
-<span class="nv">LOG_LEVEL</span><span class="o">=</span>DEBUG
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># .env file</span>
+<span class="na">DCR_LOGS_INGESTION_ENDPOINT</span><span class="o">=</span><span class="s">https://my-dcr.monitor.azure.com</span>
+<span class="na">DCR_RULE_ID</span><span class="o">=</span><span class="s">dcr-abc123def456</span>
+<span class="na">DAYS_AGO</span><span class="o">=</span><span class="s">7</span>
+<span class="na">BATCH_HOURS</span><span class="o">=</span><span class="s">12</span>
+<span class="na">MAX_CONCURRENT_QUERIES</span><span class="o">=</span><span class="s">3</span>
+<span class="na">LOG_LEVEL</span><span class="o">=</span><span class="s">DEBUG</span>
 </pre></div>
 </div>
 </section>
@@ -1521,11 +1521,11 @@
 </section>
 <section id="cli-validation">
 <h3>CLI validation<a class="headerlink" href="#cli-validation" title="Link to this heading"></a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Validate all configuration</span>
-sentinel-aggregator<span class="w"> </span>validate<span class="w"> </span>--workspace-config<span class="w"> </span>workspaces.yaml
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="c"># Validate all configuration</span>
+<span class="n">sentinel-aggregator</span> <span class="n">validate</span> <span class="p">-</span><span class="n">-workspace-config</span> <span class="n">workspaces</span><span class="p">.</span><span class="n">yaml</span>
 
-<span class="c1"># Validate specific configuration file</span>
-sentinel-aggregator<span class="w"> </span>validate<span class="w"> </span>--config-file<span class="w"> </span>config.yaml<span class="w"> </span>--workspace-config<span class="w"> </span>workspaces.yaml
+<span class="c"># Validate specific configuration file</span>
+<span class="n">sentinel-aggregator</span> <span class="n">validate</span> <span class="p">-</span><span class="n">-config</span><span class="o">-file</span> <span class="n">config</span><span class="p">.</span><span class="n">yaml</span> <span class="p">-</span><span class="n">-workspace-config</span> <span class="n">workspaces</span><span class="p">.</span><span class="n">yaml</span>
 </pre></div>
 </div>
 </section>
