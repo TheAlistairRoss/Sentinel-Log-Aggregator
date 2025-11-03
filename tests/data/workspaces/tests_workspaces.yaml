@@ -13,7 +13,7 @@ workspaces:
     resource_id: "/subscriptions/10000000-0000-0000-0000-000000000000/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/testWorkspace01"
     customer_id: "11000000-0000-0000-0000-000000000000"
     queries_list:
-      - /data/tests/queries/tests_query_with_params
+      - tests/data/queries/tests_query_with_params.yaml
     
   - # Test Workspace with only required parameters. This should succeeed with the required_param as true and the non_required_param as false
     resource_id: "/subscriptions/20000000-0000-0000-0000-000000000000/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/testWorkspace02"
@@ -21,7 +21,7 @@ workspaces:
     parameters:
       required_param: "true"
     queries_list:
-      - /data/tests/queries/tests_query_with_params
+      - tests/data/queries/tests_query_with_params.yaml
 
   - # Test Workspace with queries that do and do not require parameters. 
     # This should succeed for tests_query_with_params with the required_param as true and the non_required_param as true
@@ -32,8 +32,8 @@ workspaces:
       required_param: "true"
       non_required_param: "true"
     queries_list:
-      - /data/tests/queries/tests_query_with_params
-      - /data/tests/queries/tests_query_without_params
+      - tests/data/queries/tests_query_with_params.yaml
+      - tests/data/queries/tests_query_without_params.yaml
 
 
   - # Test Workspace with all parameters, but a with a non-existent query listed. 
@@ -44,8 +44,8 @@ workspaces:
       required_param: "true"
       non_required_param: "true"
     queries_list:
-      - /data/tests/queries/tests_query_log_aggregator
-      - /data/tests/queries/tests_query_non_existent
+      - tests/data/queries/tests_query_log_aggregator.yaml
+      - tests/data/queries/tests_query_non_existent.yaml
 
   - # Test Workspace with a broken query
   # This should succeed for tests_query_with_params.
@@ -56,8 +56,8 @@ workspaces:
       required_param: "true"
       non_required_param: "true"
     queries_list:
-      - /data/tests/queries/tests_query_with_params
-      - /data/tests/queries/tests_query_broken_syntax
+      - tests/data/queries/tests_query_with_params.yaml
+      - tests/data/queries/tests_query_broken_syntax.yaml
 
 # Configuration metadata
 metadata:

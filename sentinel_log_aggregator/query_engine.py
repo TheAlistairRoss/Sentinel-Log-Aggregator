@@ -358,31 +358,74 @@ class SentinelQueryEngine:
             workspace_alias = workspace.parameters.get("row_level_security_tag", workspace_id)
 
             for query_name in queries_list:
+                # Check if this is a file path or a query name
+                query_instance = None
+                actual_query_name = query_name
+                
                 if query_name in AVAILABLE_QUERIES:
+                    # Query already loaded by name
+                    query_instance = AVAILABLE_QUERIES[query_name]
+                elif query_name.endswith('.yaml') or query_name.endswith('.yml'):
+                    # This looks like a file path, try to load it
+                    from pathlib import Path
+                    from .query_registry import QueryRegistry
+                    
+                    query_file = Path(query_name)
+                    if query_file.exists():
+                        try:
+                            # Create a temporary registry to load this query
+                            temp_registry = QueryRegistry()
+                            temp_registry.load_from_yaml(query_file)
+                            
+                            # Get the loaded query - it should be the only one
+                            loaded_queries = temp_registry.list_queries()
+                            if loaded_queries:
+                                loaded_query_name = loaded_queries[0]
+                                query_instance = temp_registry.get_query(loaded_query_name)
+                                actual_query_name = loaded_query_name
+                                
+                                # Register it in AVAILABLE_QUERIES for future use
+                                AVAILABLE_QUERIES[loaded_query_name] = query_instance
+                                
+                                self.logger.debug(f"Loaded query '{loaded_query_name}' from file '{query_file}'")
+                            else:
+                                self.logger.error("QUERY_LOAD_EMPTY", f"No queries found in file '{query_file}'")
+                                continue
+                        except Exception as e:
+                            self.logger.error("QUERY_LOAD_FILE", f"Failed to load query from file '{query_file}': {e}")
+                            continue
+                    else:
+                        self.logger.error("QUERY_FILE_NOT_FOUND", f"Query file not found: '{query_file}'")
+                        continue
+                else:
+                    # Not a file path and not in AVAILABLE_QUERIES
+                    self.logger.warning(f"Query '{query_name}' not found in AVAILABLE_QUERIES and not a file path")
+                    continue
+                
+                if query_instance:
                     try:
                         # Build query with workspace-specific parameters
                         query_parameters = workspace.parameters.copy()
 
                         parameterized_query = self.build_query_with_parameters(
-                            query_name, query_parameters
+                            actual_query_name, query_parameters
                         )
 
-                        # Get query metadata
-                        query_instance = AVAILABLE_QUERIES[query_name]
+                        # Get destination stream from the query instance
                         destination_stream = query_instance.destination_stream
 
                         self.logger.debug(
-                            f"Built query '{query_name}' for workspace {workspace_alias}"
+                            f"Built query '{actual_query_name}' for workspace {workspace_alias}"
                         )
 
                         # Create tasks for each time batch
                         for batch_start, batch_end in time_batches:
-                            execution_id = f"{batch_id}_{workspace_id[:8]}_{query_name}_{batch_start.strftime('%Y%m%d_%H')}"
+                            execution_id = f"{batch_id}_{workspace_id[:8]}_{actual_query_name}_{batch_start.strftime('%Y%m%d_%H')}"
 
                             task = self.execute_single_query_with_upload(
                                 workspace_id=workspace_id,
                                 query=parameterized_query,
-                                query_name=query_name,
+                                query_name=actual_query_name,
                                 destination_stream=destination_stream,
                                 start_time=batch_start,
                                 end_time=batch_end,
@@ -392,16 +435,14 @@ class SentinelQueryEngine:
                             all_tasks.append(task)
 
                     except Exception as e:
-                        self.logger.error("QUERY_BUILD", str(e), query_name=query_name)
+                        self.logger.error("QUERY_BUILD", str(e), query_name=actual_query_name)
 
                         # Create failed execution record
-                        query_instance = AVAILABLE_QUERIES[query_name]
-
                         failed_execution = QueryExecution(
                             job_correlation_id=self.job_correlation_id,
-                            execution_id=f"{batch_id}_{workspace_id[:8]}_{query_name}_failed",
+                            execution_id=f"{batch_id}_{workspace_id[:8]}_{actual_query_name}_failed",
                             workspace_id=workspace_id,
-                            query_name=query_name,
+                            query_name=actual_query_name,
                             destination_stream=query_instance.destination_stream,
                             start_time=datetime.now(timezone.utc),
                             end_time=datetime.now(timezone.utc),

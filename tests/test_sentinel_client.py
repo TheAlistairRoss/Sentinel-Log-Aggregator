@@ -242,7 +242,7 @@ class TestPredefinedQueries:
         assert "print" in kql
         assert "WithoutParams" in kql
 
-    def test_workspace_usage_query(self):
+    def test_query_with_parameters(self):
         """Test query structure using test query file with parameters."""
         # Load test query from file path since AVAILABLE_QUERIES is now on-demand
         from pathlib import Path
@@ -264,11 +264,12 @@ class TestPredefinedQueries:
         kql = query.get_query()
         assert "print" in kql
         assert "RequiredParam" in kql
-        assert query.stream_name == "stream_workspace_usage"
-
-        kql = query.get_query()
-        assert "Usage" in kql
-        assert "Operation" in kql
+        assert "TestMessage" in kql
+        
+        # Test parameter substitution
+        kql_with_params = query.build_query(parameters={"required_param": "test_value", "non_required_param": "optional_value"})
+        assert "test_value" in kql_with_params
+        assert "optional_value" in kql_with_params
 
     def test_yaml_queries_loaded(self):
         """Test that queries can be loaded from YAML files on demand."""
