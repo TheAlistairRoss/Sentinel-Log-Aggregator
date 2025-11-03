@@ -159,39 +159,41 @@ class QueryRegistry:
             except Exception as e:
                 self.logger.error(f"Failed to load query from {yaml_file}: {e}")
 
-    def load_query_from_path(self, query_path: str, base_directory: Optional[Path] = None) -> Optional[KQLQueryDefinition]:
+    def load_query_from_path(
+        self, query_path: str, base_directory: Optional[Path] = None
+    ) -> Optional[KQLQueryDefinition]:
         """
         Load a query from a relative or absolute path.
-        
+
         Args:
             query_path: Path to the query file (relative or absolute)
             base_directory: Base directory for resolving relative paths
-            
+
         Returns:
             Loaded query definition or None if loading failed
         """
         try:
             # Convert to Path object
             path_obj = Path(query_path)
-            
+
             # If it's not absolute and we have a base directory, make it relative to base
             if not path_obj.is_absolute() and base_directory:
                 path_obj = base_directory / path_obj
-            
+
             if not path_obj.exists():
                 self.logger.warning(f"Query file not found: {path_obj}")
                 return None
-                
+
             # Load the query
             self.load_from_yaml(path_obj)
-            
+
             # Return the loaded query (get the name from the loaded file)
             with open(path_obj, "r", encoding="utf-8") as f:
                 query_data = yaml.safe_load(f)
             query_name = query_data.get("name")
-            
+
             return self._queries.get(query_name) if query_name else None
-            
+
         except Exception as e:
             self.logger.error(f"Failed to load query from path {query_path}: {e}")
             return None

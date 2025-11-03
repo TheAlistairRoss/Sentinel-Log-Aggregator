@@ -51,7 +51,7 @@ class WorkspaceConfigModel(BaseModel):
         if v is None:
             return v
 
-        # With the new on-demand query architecture, we don't validate against 
+        # With the new on-demand query architecture, we don't validate against
         # a hardcoded list since queries are loaded from workspace configurations.
         # Basic validation: check that we have strings and they're not empty
         for query in v:

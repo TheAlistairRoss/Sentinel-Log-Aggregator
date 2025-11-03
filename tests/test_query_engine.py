@@ -88,15 +88,17 @@ class TestKQLQueryDefinition:
         # Load test query from file path since AVAILABLE_QUERIES is now on-demand
         from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
-        
+
         test_queries_dir = Path(__file__).parent / "data" / "queries"
         test_query_path = test_queries_dir / "tests_query_with_params.yaml"
-        
+
         # Load query from path
         query = query_registry.load_query_from_path(str(test_query_path))
         assert query is not None, "Test query should be loaded from YAML file"
 
-        built_query = query.build_query({"required_param": "TEST_VALUE", "non_required_param": "OPTIONAL_VALUE"})
+        built_query = query.build_query(
+            {"required_param": "TEST_VALUE", "non_required_param": "OPTIONAL_VALUE"}
+        )
 
         assert "TEST_VALUE" in built_query
         assert "{required_param}" not in built_query
@@ -222,10 +224,10 @@ class TestPredefinedQueries:
         # Load test query from file path since AVAILABLE_QUERIES is now on-demand
         from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
-        
+
         test_queries_dir = Path(__file__).parent / "data" / "queries"
         test_query_path = test_queries_dir / "tests_query_without_params.yaml"
-        
+
         # Load query from path
         query = query_registry.load_query_from_path(str(test_query_path))
         assert query is not None, "Test query should be loaded from YAML file"
@@ -243,10 +245,10 @@ class TestPredefinedQueries:
         # Load test query from file path since AVAILABLE_QUERIES is now on-demand
         from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
-        
+
         test_queries_dir = Path(__file__).parent / "data" / "queries"
         test_query_path = test_queries_dir / "tests_query_with_params.yaml"
-        
+
         # Load query from path
         query = query_registry.load_query_from_path(str(test_query_path))
         assert query is not None, "Test query should be loaded from YAML file"
@@ -265,18 +267,20 @@ class TestPredefinedQueries:
         # Since AVAILABLE_QUERIES is now on-demand, test that we can load queries from files
         from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
-        
+
         test_queries_dir = Path(__file__).parent / "data" / "queries"
-        
+
         # Test loading different query files
         test_files = ["tests_query_with_params.yaml", "tests_query_without_params.yaml"]
         for query_file in test_files:
             query_path = test_queries_dir / query_file
             query = query_registry.load_query_from_path(str(query_path))
             assert query is not None, f"Should be able to load query from {query_file}"
-            
+
             # Check that queries have proper stream names (if defined)
-            assert hasattr(query, "stream_name"), f"Query {query.name} should have stream_name attribute"
+            assert hasattr(
+                query, "stream_name"
+            ), f"Query {query.name} should have stream_name attribute"
 
 
 """
@@ -2106,12 +2110,12 @@ class TestQueryEngineMissingCoverage:
         from sentinel_log_aggregator.query_registry import query_registry
         from sentinel_log_aggregator.models import AVAILABLE_QUERIES
         from pathlib import Path
-        
+
         # Load a test query for this test
         test_queries_dir = Path(__file__).parent / "data" / "queries"
         test_query_path = test_queries_dir / "tests_query_with_params.yaml"
         test_query = query_registry.load_query_from_path(str(test_query_path))
-        
+
         # Temporarily add to AVAILABLE_QUERIES for this test
         AVAILABLE_QUERIES[test_query.name] = test_query
 
@@ -2123,7 +2127,7 @@ class TestQueryEngineMissingCoverage:
         # Should return a string (the built query)
         assert isinstance(result, str)
         assert len(result) > 0
-        
+
         # Clean up
         del AVAILABLE_QUERIES[test_query.name]
 
@@ -2161,12 +2165,12 @@ class TestQueryEngineMissingCoverage:
         from sentinel_log_aggregator.query_registry import query_registry
         from sentinel_log_aggregator.models import AVAILABLE_QUERIES
         from pathlib import Path
-        
+
         # Load a test query for this test
         test_queries_dir = Path(__file__).parent / "data" / "queries"
         test_query_path = test_queries_dir / "tests_query_without_params.yaml"
         test_query = query_registry.load_query_from_path(str(test_query_path))
-        
+
         # Temporarily add to AVAILABLE_QUERIES for this test
         AVAILABLE_QUERIES[test_query.name] = test_query
 
@@ -2176,7 +2180,7 @@ class TestQueryEngineMissingCoverage:
         # Should return a string (the built query)
         assert isinstance(result, str)
         assert len(result) > 0
-        
+
         # Clean up
         del AVAILABLE_QUERIES[test_query.name]
 
@@ -2306,12 +2310,16 @@ class TestQueryEngineMissingCoverage:
         from sentinel_log_aggregator.query_registry import query_registry
         from sentinel_log_aggregator.models import AVAILABLE_QUERIES
         from pathlib import Path
-        
+
         # Load test queries for this test
         test_queries_dir = Path(__file__).parent / "data" / "queries"
-        test_query_1 = query_registry.load_query_from_path(str(test_queries_dir / "tests_query_with_params.yaml"))
-        test_query_2 = query_registry.load_query_from_path(str(test_queries_dir / "tests_query_without_params.yaml"))
-        
+        test_query_1 = query_registry.load_query_from_path(
+            str(test_queries_dir / "tests_query_with_params.yaml")
+        )
+        test_query_2 = query_registry.load_query_from_path(
+            str(test_queries_dir / "tests_query_without_params.yaml")
+        )
+
         # Temporarily add to AVAILABLE_QUERIES for this test
         AVAILABLE_QUERIES[test_query_1.name] = test_query_1
         AVAILABLE_QUERIES[test_query_2.name] = test_query_2
@@ -2321,7 +2329,11 @@ class TestQueryEngineMissingCoverage:
             WorkspaceConfig(
                 resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test1",
                 customer_id="test-workspace-1",
-                parameters={"row_level_security_tag": "TEST1", "required_param": "VALUE1", "non_required_param": "OPT1"},
+                parameters={
+                    "row_level_security_tag": "TEST1",
+                    "required_param": "VALUE1",
+                    "non_required_param": "OPT1",
+                },
                 queries_list=[test_query_1.name, test_query_2.name],
             ),
             WorkspaceConfig(
@@ -2350,7 +2362,7 @@ class TestQueryEngineMissingCoverage:
         assert summary is not None
         assert summary.total_queries == 3  # 2 + 1 queries from workspaces
         assert len(engine.execution_log) == 3
-        
+
         # Clean up test queries
         del AVAILABLE_QUERIES[test_query_1.name]
         del AVAILABLE_QUERIES[test_query_2.name]
@@ -2393,11 +2405,13 @@ class TestQueryEngineMissingCoverage:
         from sentinel_log_aggregator.query_registry import query_registry
         from sentinel_log_aggregator.models import AVAILABLE_QUERIES
         from pathlib import Path
-        
+
         # Load a test query for this test
         test_queries_dir = Path(__file__).parent / "data" / "queries"
-        test_query = query_registry.load_query_from_path(str(test_queries_dir / "tests_query_without_params.yaml"))
-        
+        test_query = query_registry.load_query_from_path(
+            str(test_queries_dir / "tests_query_without_params.yaml")
+        )
+
         # Temporarily add to AVAILABLE_QUERIES for this test
         AVAILABLE_QUERIES[test_query.name] = test_query
 
@@ -2426,7 +2440,7 @@ class TestQueryEngineMissingCoverage:
         assert summary is not None
         assert summary.total_records == 1000
         assert len(engine.execution_log) == 1
-        
+
         # Clean up test query
         del AVAILABLE_QUERIES[test_query.name]
 
@@ -2567,11 +2581,13 @@ class TestQueryEngineCompleteCoverage:
         from sentinel_log_aggregator.query_registry import query_registry
         from sentinel_log_aggregator.models import AVAILABLE_QUERIES
         from pathlib import Path
-        
+
         # Load a test query for this test
         test_queries_dir = Path(__file__).parent / "data" / "queries"
-        test_query = query_registry.load_query_from_path(str(test_queries_dir / "tests_query_with_params.yaml"))
-        
+        test_query = query_registry.load_query_from_path(
+            str(test_queries_dir / "tests_query_with_params.yaml")
+        )
+
         # Temporarily add to AVAILABLE_QUERIES for this test
         AVAILABLE_QUERIES[test_query.name] = test_query
 
@@ -2612,7 +2628,7 @@ class TestQueryEngineCompleteCoverage:
         assert (
             "Query build error: Parameter validation failed" in failed_execution.query_error_message
         )
-        
+
         # Clean up test query
         del AVAILABLE_QUERIES[test_query.name]
 
@@ -2647,12 +2663,16 @@ class TestQueryEngineCompleteCoverage:
         from sentinel_log_aggregator.query_registry import query_registry
         from sentinel_log_aggregator.models import AVAILABLE_QUERIES
         from pathlib import Path
-        
+
         # Load test queries for this test
         test_queries_dir = Path(__file__).parent / "data" / "queries"
-        test_query_1 = query_registry.load_query_from_path(str(test_queries_dir / "tests_query_with_params.yaml"))
-        test_query_2 = query_registry.load_query_from_path(str(test_queries_dir / "tests_query_without_params.yaml"))
-        
+        test_query_1 = query_registry.load_query_from_path(
+            str(test_queries_dir / "tests_query_with_params.yaml")
+        )
+        test_query_2 = query_registry.load_query_from_path(
+            str(test_queries_dir / "tests_query_without_params.yaml")
+        )
+
         # Temporarily add to AVAILABLE_QUERIES for this test
         AVAILABLE_QUERIES[test_query_1.name] = test_query_1
         AVAILABLE_QUERIES[test_query_2.name] = test_query_2
@@ -2688,7 +2708,7 @@ class TestQueryEngineCompleteCoverage:
         mock_logger.error.assert_any_call(
             "SYNTAX", "1 syntax error(s) detected - stopping execution"
         )
-        
+
         # Clean up test queries
         del AVAILABLE_QUERIES[test_query_1.name]
         del AVAILABLE_QUERIES[test_query_2.name]
@@ -2703,7 +2723,10 @@ class TestQueryEngineCompleteCoverage:
 
         # Load test query for use in this test
         from sentinel_log_aggregator.query_registry import query_registry
-        test_query_1 = query_registry.load_query_from_path("tests/data/queries/tests_query_with_params.yaml")
+
+        test_query_1 = query_registry.load_query_from_path(
+            "tests/data/queries/tests_query_with_params.yaml"
+        )
         AVAILABLE_QUERIES[test_query_1.name] = test_query_1
 
         options = SentinelAggregatorClientOptions(
@@ -2739,7 +2762,7 @@ class TestQueryEngineCompleteCoverage:
 
         # Verify batch execution error was logged
         mock_logger.error.assert_any_call("BATCH_EXECUTION", "Batch execution failed")
-        
+
         # Clean up test query
         del AVAILABLE_QUERIES[test_query_1.name]
 
@@ -2747,12 +2770,19 @@ class TestQueryEngineCompleteCoverage:
     async def test_critical_error_final_logging(self):
         """Test final critical error logging - covers lines 469-470."""
         from sentinel_log_aggregator.client_options import SentinelAggregatorClientOptions
-        from sentinel_log_aggregator.models import AVAILABLE_QUERIES, QueryExecution, WorkspaceConfig
+        from sentinel_log_aggregator.models import (
+            AVAILABLE_QUERIES,
+            QueryExecution,
+            WorkspaceConfig,
+        )
         from sentinel_log_aggregator.query_engine import SentinelQueryEngine
 
         # Load test query for use in this test
         from sentinel_log_aggregator.query_registry import query_registry
-        test_query_1 = query_registry.load_query_from_path("tests/data/queries/tests_query_with_params.yaml")
+
+        test_query_1 = query_registry.load_query_from_path(
+            "tests/data/queries/tests_query_with_params.yaml"
+        )
         AVAILABLE_QUERIES[test_query_1.name] = test_query_1
 
         options = SentinelAggregatorClientOptions(
@@ -2799,7 +2829,7 @@ class TestQueryEngineCompleteCoverage:
         mock_logger.error.assert_any_call(
             "CRITICAL_STOP", "EXECUTION STOPPED DUE TO CRITICAL ERRORS"
         )
-        
+
         # Clean up test query
         del AVAILABLE_QUERIES[test_query_1.name]
 
@@ -2908,7 +2938,10 @@ class TestQueryEngineRemainingLines:
 
         # Load test query for use in this test
         from sentinel_log_aggregator.query_registry import query_registry
-        test_query_1 = query_registry.load_query_from_path("tests/data/queries/tests_query_without_params.yaml")
+
+        test_query_1 = query_registry.load_query_from_path(
+            "tests/data/queries/tests_query_without_params.yaml"
+        )
         AVAILABLE_QUERIES[test_query_1.name] = test_query_1
 
         options = SentinelAggregatorClientOptions(
@@ -2926,7 +2959,7 @@ class TestQueryEngineRemainingLines:
         # Test with invalid query name
         with pytest.raises(KeyError, match="Query 'invalid_query' not found"):
             engine.build_query_from_name("invalid_query")
-            
+
         # Clean up test query
         del AVAILABLE_QUERIES[test_query_1.name]
 
@@ -3035,7 +3068,10 @@ class TestQueryEngineRemainingLines:
 
         # Load test query for use in this test
         from sentinel_log_aggregator.query_registry import query_registry
-        test_query_1 = query_registry.load_query_from_path("tests/data/queries/tests_query_with_params.yaml")
+
+        test_query_1 = query_registry.load_query_from_path(
+            "tests/data/queries/tests_query_with_params.yaml"
+        )
         AVAILABLE_QUERIES[test_query_1.name] = test_query_1
 
         options = SentinelAggregatorClientOptions(
@@ -3111,7 +3147,7 @@ class TestQueryEngineRemainingLines:
             for call in error_calls
         )
         assert critical_logged, f"Expected critical error message not found in: {error_calls}"
-        
+
         # Clean up test query
         del AVAILABLE_QUERIES[test_query_1.name]
 
@@ -3249,7 +3285,10 @@ class TestQueryEngineRemainingLines:
 
         # Load test query for use in this test
         from sentinel_log_aggregator.query_registry import query_registry
-        test_query_1 = query_registry.load_query_from_path("tests/data/queries/tests_query_with_params.yaml")
+
+        test_query_1 = query_registry.load_query_from_path(
+            "tests/data/queries/tests_query_with_params.yaml"
+        )
         AVAILABLE_QUERIES[test_query_1.name] = test_query_1
 
         options = SentinelAggregatorClientOptions(
@@ -3300,6 +3339,6 @@ class TestQueryEngineRemainingLines:
         # Verify progress was logged and garbage collection called
         mock_logger.progress.assert_called()
         mock_gc.assert_called()
-        
+
         # Clean up test query
         del AVAILABLE_QUERIES[test_query_1.name]

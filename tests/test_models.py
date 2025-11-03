@@ -140,15 +140,17 @@ class TestKQLQueryDefinition:
         # Load test query from file path since AVAILABLE_QUERIES is now on-demand
         from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
-        
+
         test_queries_dir = Path(__file__).parent / "data" / "queries"
         test_query_path = test_queries_dir / "tests_query_with_params.yaml"
-        
+
         # Load query from path
         query = query_registry.load_query_from_path(str(test_query_path))
         assert query is not None, "Test query should be loaded from YAML file"
 
-        built_query = query.build_query({"required_param": "TEST_VALUE", "non_required_param": "OPTIONAL_VALUE"})
+        built_query = query.build_query(
+            {"required_param": "TEST_VALUE", "non_required_param": "OPTIONAL_VALUE"}
+        )
 
         assert "TEST_VALUE" in built_query
         assert "{required_param}" not in built_query
@@ -274,10 +276,10 @@ class TestPredefinedQueries:
         # Load test query from file path since AVAILABLE_QUERIES is now on-demand
         from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
-        
+
         test_queries_dir = Path(__file__).parent / "data" / "queries"
         test_query_path = test_queries_dir / "tests_query_without_params.yaml"
-        
+
         # Load query from path
         query = query_registry.load_query_from_path(str(test_query_path))
         assert query is not None, "Test query should be loaded from YAML file"
@@ -295,10 +297,10 @@ class TestPredefinedQueries:
         # Load test query from file path since AVAILABLE_QUERIES is now on-demand
         from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
-        
+
         test_queries_dir = Path(__file__).parent / "data" / "queries"
         test_query_path = test_queries_dir / "tests_query_with_params.yaml"
-        
+
         # Load query from path
         query = query_registry.load_query_from_path(str(test_query_path))
         assert query is not None, "Test query should be loaded from YAML file"
@@ -317,18 +319,20 @@ class TestPredefinedQueries:
         # Since AVAILABLE_QUERIES is now on-demand, test that we can load queries from files
         from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
-        
+
         test_queries_dir = Path(__file__).parent / "data" / "queries"
-        
+
         # Test loading different query files
         test_files = ["tests_query_with_params.yaml", "tests_query_without_params.yaml"]
         for query_file in test_files:
             query_path = test_queries_dir / query_file
             query = query_registry.load_query_from_path(str(query_path))
             assert query is not None, f"Should be able to load query from {query_file}"
-            
+
             # Check that queries have proper stream names (if defined)
-            assert hasattr(query, "stream_name"), f"Query {query.name} should have stream_name attribute"
+            assert hasattr(
+                query, "stream_name"
+            ), f"Query {query.name} should have stream_name attribute"
 
 
 """

@@ -107,6 +107,33 @@ force_grid_wrap = 0
 use_parentheses = true
 ensure_newline_before_comments = true
 
+# flake8 configuration
+[tool.flake8]
+max-line-length = 100
+extend-ignore = [
+    "E203",  # whitespace before ':' (conflicts with black)
+    "E501",  # line too long (handled by black)
+    "W503",  # line break before binary operator (conflicts with black)
+    "F401",  # imported but unused (common in test files)
+    "F811",  # redefinition of unused (common in test files)
+    "E402",  # module level import not at top (common in test files)
+    "F841",  # assigned but never used (common in test files)
+    "E712",  # comparison to True should be 'if cond is True:' (will be fixed manually if needed)
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".venv",
+    "venv",
+    ".eggs",
+    "*.egg",
+]
+per-file-ignores = [
+    "tests/*:F401,F811,E402,F841,E712",  # Allow test files to be more lenient
+]
+
 # mypy configuration
 [tool.mypy]
 python_version = "3.11"

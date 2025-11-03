@@ -155,10 +155,10 @@ class TestSentinelClientSpecificLineCoverage:
         # Load test query from file path since AVAILABLE_QUERIES is now on-demand
         from sentinel_log_aggregator.query_registry import query_registry
         from pathlib import Path
-        
+
         test_queries_dir = Path(__file__).parent / "data" / "queries"
         test_query_path = test_queries_dir / "tests_query_without_params.yaml"
-        
+
         # Load query from path
         query_def = query_registry.load_query_from_path(str(test_query_path))
 
