@@ -55,16 +55,20 @@ graph TB
 
 ### Prerequisites
 
-- Python 3.8 or later
+- Python 3.11 or later
 - Azure subscription with Microsoft Sentinel workspaces
 - Appropriate Azure permissions (Log Analytics Reader, Monitoring Metrics Publisher)
 
 ### Installation
 
-Install the package using pip:
+Install the package from GitHub:
 
 ```bash
-pip install sentinel-log-aggregator
+# Install from GitHub repository
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git
+
+# Or install from GitHub release
+pip install https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/releases/latest/download/sentinel_log_aggregator-0.1.0-py3-none-any.whl
 ```
 
 ### Quick start

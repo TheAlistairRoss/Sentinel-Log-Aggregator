@@ -21,9 +21,51 @@ An Azure SDK-compliant Python client library for aggregating and processing logs
 - Azure subscription with Microsoft Sentinel workspaces
 - Appropriate Azure permissions (see Configuration section)
 
-### Install from PyPI
+### Install from GitHub
+
+#### Install Latest Release (Recommended)
 ```bash
-pip install sentinel-log-aggregator
+# Install from latest GitHub release
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git
+
+# Install from specific tag/version
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git@v0.1.0
+```
+
+#### Install from Release Package
+```bash
+# Install wheel package from releases
+pip install https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/releases/latest/download/sentinel_log_aggregator-0.1.0-py3-none-any.whl
+
+# Install source distribution from releases
+pip install https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/releases/download/v0.1.0/sentinel-log-aggregator-0.1.0.tar.gz
+```
+
+#### Install from Development Branches
+```bash
+# Install from develop branch (latest development features)
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git@develop
+
+# Install from any specific branch
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git@feature/your-branch-name
+
+# Install from specific commit
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git@abc123f
+```
+
+> **⚠️ Development Branch Warning**: Development branches may contain unstable features and breaking changes. Always use tagged releases for production environments.
+
+#### Development Installation (Editable)
+```bash
+# Clone and install in editable mode for development
+git clone https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git
+cd Sentinel-Log-Aggregator
+
+# Switch to develop branch (optional)
+git checkout develop
+
+# Install in editable mode with development dependencies
+pip install -e ".[dev,security]"
 ```
 
 ## Quick Start

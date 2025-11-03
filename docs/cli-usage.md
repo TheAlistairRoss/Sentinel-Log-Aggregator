@@ -17,7 +17,11 @@ The Microsoft Sentinel Log Aggregator includes a comprehensive command-line inte
 The CLI is included when you install the package:
 
 ```bash
-pip install sentinel-log-aggregator
+# Install from GitHub repository
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git
+
+# Or install from GitHub release
+pip install https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/releases/latest/download/sentinel_log_aggregator-0.1.0-py3-none-any.whl
 ```
 
 ## Global options
@@ -499,7 +503,7 @@ stages:
         versionSpec: '$(pythonVersion)'
     
     - script: |
-        pip install sentinel-log-aggregator
+        pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git
       displayName: 'Install package'
     
     - script: |
@@ -549,7 +553,7 @@ jobs:
     
     - name: Install dependencies
       run: |
-        pip install sentinel-log-aggregator
+        pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git
     
     - name: Validate configuration
       run: |

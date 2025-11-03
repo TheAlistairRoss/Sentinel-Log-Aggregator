@@ -19,7 +19,6 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
     "Topic :: System :: Monitoring",
     "Topic :: Security",
     "Topic :: System :: Systems Administration",
@@ -87,7 +86,7 @@ sentinel_log_aggregator = ["py.typed", "queries/*.yaml"]
 # Black configuration
 [tool.black]
 line-length = 100
-target-version = ['py311', 'py312', 'py313', 'py314']
+target-version = ['py311', 'py312', 'py313']
 include = '\.pyi?$'
 extend-exclude = '''
 /(

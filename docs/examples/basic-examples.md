@@ -16,7 +16,7 @@ This article provides practical, step-by-step examples to help you get started w
 
 Before running these examples, ensure you have:
 
-- Installed the package: `pip install sentinel-log-aggregator`
+- Installed the package: `pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git`
 - Configured your environment variables or configuration files
 - Set up appropriate Azure permissions
 - Access to one or more Microsoft Sentinel workspaces
@@ -796,7 +796,7 @@ asyncio.run(resilient_operations())
 
 1. **Install the package:**
    ```bash
-   pip install sentinel-log-aggregator
+   pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git
    ```
 
 2. **Set up environment variables:**

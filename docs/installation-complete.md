@@ -12,19 +12,19 @@ This guide covers all installation methods for the Sentinel Log Aggregator packa
 
 ## 📦 Installation Methods
 
-### 1. Install from PyPI (Recommended for Production)
+### 1. Install from GitHub Repository (Recommended)
 
-Install the latest stable release from the Python Package Index:
+Install directly from the GitHub repository for the latest stable code:
 
 ```bash
-# Install the latest stable version
-pip install sentinel-log-aggregator
+# Install from latest release (main branch)
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git
 
-# Install with all optional dependencies
-pip install sentinel-log-aggregator[security,docs]
+# Install from specific version tag
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git@v0.1.0
 
-# Install specific version
-pip install sentinel-log-aggregator==0.1.0
+# Install from develop branch (latest features)
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git@develop
 ```
 
 ### 2. Install from GitHub Releases (Version-Controlled)
@@ -146,11 +146,11 @@ sentinel-log-aggregator>=0.1.0,<1.0.0
 Install pre-release versions for testing:
 
 ```bash
-# Install latest pre-release
-pip install --pre sentinel-log-aggregator
+# Install pre-release from GitHub
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git@develop
 
-# Install specific pre-release
-pip install sentinel-log-aggregator==0.2.0a1
+# Install specific pre-release tag
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git@v0.2.0a1
 ```
 
 ## 🐍 Virtual Environment Setup
@@ -169,8 +169,8 @@ source sentinel-env/bin/activate
 # Activate (Windows)
 sentinel-env\Scripts\activate
 
-# Install package
-pip install sentinel-log-aggregator
+# Install package from GitHub
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git
 
 # Deactivate when done
 deactivate
@@ -185,8 +185,8 @@ conda create -n sentinel-env python=3.11
 # Activate environment
 conda activate sentinel-env
 
-# Install from PyPI (conda-forge doesn't have it yet)
-pip install sentinel-log-aggregator
+# Install from GitHub (recommended)
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git
 
 # Or install from GitHub
 pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git
@@ -214,8 +214,8 @@ pip install --force-reinstall sentinel-log-aggregator
 # Upgrade Azure SDK packages
 pip install --upgrade azure-identity azure-monitor-query azure-monitor-ingestion
 
-# Or install with constraints
-pip install sentinel-log-aggregator --constraint constraints.txt
+# Or install with constraints from GitHub
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git --constraint constraints.txt
 ```
 
 #### Issue: Permission errors on Windows

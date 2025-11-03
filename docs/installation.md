@@ -16,18 +16,34 @@ This article explains how to install and set up the Microsoft Sentinel Log Aggre
 
 Before you begin, ensure you have:
 
-- **Python 3.8 or later**: The library requires Python 3.8+
+- **Python 3.11 or later**: The library requires Python 3.11+
 - **Azure subscription**: With access to Microsoft Sentinel workspaces
 - **Required permissions**: See [Azure permissions](#azure-permissions)
 
 ## Installation methods
 
-### Install from PyPI (recommended)
+### Install from GitHub (recommended)
 
-Install the latest stable version from PyPI:
+Install the latest stable version from GitHub:
 
 ```bash
-pip install sentinel-log-aggregator
+# Install from latest release
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git
+
+# Install from specific version tag
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git@v0.1.0
+```
+
+### Install from GitHub Release Packages
+
+Install directly from release artifacts:
+
+```bash
+# Install wheel package from releases
+pip install https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/releases/latest/download/sentinel_log_aggregator-0.1.0-py3-none-any.whl
+
+# Install source distribution from releases  
+pip install https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/releases/download/v0.1.0/sentinel-log-aggregator-0.1.0.tar.gz
 ```
 
 ### Install development version
@@ -35,7 +51,8 @@ pip install sentinel-log-aggregator
 For the latest development features:
 
 ```bash
-pip install git+https://github.com/your-org/sentinel-log-aggregator.git
+# Install from develop branch
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git@develop
 ```
 
 ### Install with development dependencies
@@ -43,8 +60,9 @@ pip install git+https://github.com/your-org/sentinel-log-aggregator.git
 For development and testing:
 
 ```bash
-git clone https://github.com/your-org/sentinel-log-aggregator.git
-cd sentinel-log-aggregator
+# Clone repository and install in editable mode
+git clone https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git
+cd Sentinel-Log-Aggregator
 pip install -e ".[dev]"
 ```
 
@@ -64,8 +82,8 @@ venv\Scripts\activate
 # On macOS/Linux:
 source venv/bin/activate
 
-# Install the package
-pip install sentinel-log-aggregator
+# Install the package from GitHub
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git
 ```
 
 ### Dependencies
@@ -282,7 +300,7 @@ pip list | grep sentinel-log-aggregator
 
 # Reinstall if necessary
 pip uninstall sentinel-log-aggregator
-pip install sentinel-log-aggregator
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git
 ```
 
 ### Permission errors
