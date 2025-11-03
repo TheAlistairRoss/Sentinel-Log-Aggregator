@@ -30,6 +30,9 @@ from .exceptions import (
     WorkspaceConfigurationError,
 )
 
+# Health logging
+from .health_logger import SentinelAggregatorHealthLogger
+
 # Core data models
 from .models import KQLQueryDefinition, QueryExecution, WorkspaceConfig
 
@@ -54,9 +57,6 @@ from .version import __version__
 
 # Workspace management utilities
 from .workspace_manager import WorkspaceManager, load_workspace_config
-
-# Health logging
-from .health_logger import SentinelAggregatorHealthLogger
 
 __all__ = [
     "__version__",

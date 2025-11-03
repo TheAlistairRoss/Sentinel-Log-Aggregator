@@ -375,8 +375,8 @@ class SentinelQueryEngine:
 
         # Calculate execution time ranges using new time range calculator
         from .time_range_calculator import (
-            calculate_execution_time_ranges,
             calculate_execution_batches,
+            calculate_execution_time_ranges,
         )
 
         try:

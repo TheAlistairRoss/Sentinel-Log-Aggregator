@@ -12,9 +12,9 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Union
 from uuid import uuid4
 
+from .exceptions import SentinelAggregatorError
 from .models import QueryExecution, WorkspaceConfig
 from .sentinel_client import SentinelAggregatorClient
-from .exceptions import SentinelAggregatorError
 
 logger = logging.getLogger(__name__)
 
@@ -455,7 +455,7 @@ class SentinelAggregatorHealthLogger:
 
         try:
             # Test table existence by attempting to query it
-            from datetime import datetime, timezone, timedelta
+            from datetime import datetime, timedelta, timezone
 
             table_name = self.health_stream_name.replace("Custom-", "")
             test_query = f"{table_name} | getschema | limit 1"
@@ -516,9 +516,10 @@ class SentinelAggregatorHealthLogger:
     @classmethod
     def create_disabled(cls) -> "SentinelAggregatorHealthLogger":
         """Create a disabled health logger for testing or when health logging is not needed."""
-        from .sentinel_client import SentinelAggregatorClient
-        from .client_options import SentinelAggregatorClientOptions
         from azure.identity.aio import DefaultAzureCredential
+
+        from .client_options import SentinelAggregatorClientOptions
+        from .sentinel_client import SentinelAggregatorClient
 
         # Create minimal configuration for disabled logger
         config = SentinelAggregatorClientOptions(

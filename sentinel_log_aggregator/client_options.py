@@ -13,7 +13,7 @@ from azure.core.credentials import TokenCredential
 from azure.core.pipeline.policies import HTTPPolicy
 from pydantic import ValidationError
 
-from .time_utils import parse_iso8601_duration, validate_batch_time_size, TimeParsingError
+from .time_utils import TimeParsingError, parse_iso8601_duration, validate_batch_time_size
 from .validation import ClientOptionsModel, validate_client_options
 
 

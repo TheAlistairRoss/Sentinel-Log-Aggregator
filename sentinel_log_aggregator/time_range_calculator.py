@@ -10,21 +10,21 @@ Also handles batch calculation from last successful runs with proper constraints
 """
 
 import logging
-from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Optional, Tuple, Any
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, List, Optional, Tuple
 
+from .health_logger import SentinelAggregatorHealthLogger
+from .models import WorkspaceConfig
 from .time_utils import (
+    InvalidTimeRangeError,
+    TimeParsingError,
+    calculate_batches,
+    calculate_time_range_from_lookback,
     parse_iso8601_datetime,
     parse_iso8601_duration,
     validate_batch_time_size,
-    calculate_time_range_from_lookback,
-    calculate_batches,
     validate_time_range,
-    InvalidTimeRangeError,
-    TimeParsingError,
 )
-from .health_logger import SentinelAggregatorHealthLogger
-from .models import WorkspaceConfig
 
 logger = logging.getLogger(__name__)
 
@@ -273,8 +273,8 @@ async def _query_last_successful_for_query_workspace(
     """
 
     try:
-        from azure.monitor.query.aio import LogsQueryClient
         from azure.identity.aio import DefaultAzureCredential
+        from azure.monitor.query.aio import LogsQueryClient
 
         credential = DefaultAzureCredential()
         query_client = LogsQueryClient(credential=credential)

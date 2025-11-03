@@ -5,11 +5,13 @@ Validates health logging functionality, data structure, and Log Analytics integr
 """
 
 import json
-import pytest
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, Mock, patch
 from uuid import uuid4
 
+import pytest
+
+from sentinel_log_aggregator.client_options import SentinelAggregatorClientOptions
 from sentinel_log_aggregator.health_logger import SentinelAggregatorHealthLogger
 from sentinel_log_aggregator.models import (
     QueryExecution,
@@ -17,7 +19,6 @@ from sentinel_log_aggregator.models import (
     UploadStatus,
     WorkspaceConfig,
 )
-from sentinel_log_aggregator.client_options import SentinelAggregatorClientOptions
 from sentinel_log_aggregator.sentinel_client import SentinelAggregatorClient
 
 

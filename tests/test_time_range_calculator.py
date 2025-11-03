@@ -2,24 +2,25 @@
 Tests for time_range_calculator module - time range calculation with precedence logic.
 """
 
-import pytest
 from datetime import datetime, timedelta, timezone
-from unittest.mock import AsyncMock, MagicMock, patch, PropertyMock
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+from unittest.mock import AsyncMock, MagicMock, PropertyMock, patch
 
-from sentinel_log_aggregator.time_range_calculator import (
-    calculate_execution_time_ranges,
-    calculate_execution_batches,
-    validate_time_configuration,
-    _calculate_from_explicit_times,
-    _calculate_from_last_successful,
-    _query_last_successful_for_query_workspace,
-    TimeRangeCalculationError,
-)
+import pytest
+
 from sentinel_log_aggregator.client_options import SentinelAggregatorClientOptions
 from sentinel_log_aggregator.health_logger import SentinelAggregatorHealthLogger
 from sentinel_log_aggregator.models import WorkspaceConfig
-from sentinel_log_aggregator.time_utils import TimeParsingError, InvalidTimeRangeError
+from sentinel_log_aggregator.time_range_calculator import (
+    TimeRangeCalculationError,
+    _calculate_from_explicit_times,
+    _calculate_from_last_successful,
+    _query_last_successful_for_query_workspace,
+    calculate_execution_batches,
+    calculate_execution_time_ranges,
+    validate_time_configuration,
+)
+from sentinel_log_aggregator.time_utils import InvalidTimeRangeError, TimeParsingError
 
 
 class TestTimeConfigurationValidation:

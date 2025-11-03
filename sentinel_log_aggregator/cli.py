@@ -245,8 +245,9 @@ def create_health_logger_from_args(
     )
 
     # Import here to avoid circular import issues
-    from .sentinel_client import SentinelAggregatorClient
     from azure.identity.aio import DefaultAzureCredential
+
+    from .sentinel_client import SentinelAggregatorClient
 
     # Create sentinel client for health logging
     credential = DefaultAzureCredential()
@@ -825,8 +826,8 @@ async def _query_health_table_for_last_successful(
 
     # Execute query
     try:
-        from azure.monitor.query.aio import LogsQueryClient
         from azure.identity.aio import DefaultAzureCredential
+        from azure.monitor.query.aio import LogsQueryClient
 
         credential = DefaultAzureCredential()
         query_client = LogsQueryClient(credential=credential)
