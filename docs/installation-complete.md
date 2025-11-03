@@ -265,7 +265,7 @@ pip list --outdated | grep sentinel
 
 ### Breaking Changes
 
-Always check the [CHANGELOG.md](https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/blob/main/CHANGELOG.md) before upgrading for:
+Always check the [Changelog](https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/blob/main/docs/changelog.md) before upgrading for:
 
 - Breaking API changes
 - Configuration file format changes

@@ -57,12 +57,14 @@ class WorkspaceConfigModel(BaseModel):
 
             valid_queries = set(AVAILABLE_QUERIES.keys())
         except ImportError:
-            # Fallback validation if models not available
-            valid_queries = {"query_incident_summary", "query_workspace_usage"}
+            # Fallback validation if models not available - allow any query names
+            # since queries are now externally defined
+            valid_queries = None
 
-        for query in v:
-            if query not in valid_queries:
-                raise ValueError(f"Invalid query name: {query}. Valid queries: {valid_queries}")
+        if valid_queries is not None:
+            for query in v:
+                if query not in valid_queries:
+                    raise ValueError(f"Invalid query name: {query}. Valid queries: {valid_queries}")
 
         return v
 

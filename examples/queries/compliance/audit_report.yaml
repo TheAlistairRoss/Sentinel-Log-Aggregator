@@ -1,0 +1,91 @@
+name: "compliance_audit_report"
+destination_stream: "Custom-ComplianceAudit_CL" 
+stream_name: "stream_compliance_audit"
+description: "Generates compliance audit report for regulatory requirements"
+version: "2.0"
+tags: ["compliance", "audit", "regulatory", "governance"]
+
+parameters:
+  row_level_security_tag:
+    type: "string"
+    required: false
+    default: ""
+    description: "Workspace identifier for data isolation"
+  
+  audit_period_days:
+    type: "int"
+    required: false
+    default: 90
+    description: "Audit period in days"
+  
+  compliance_framework:
+    type: "string"
+    required: false
+    default: "SOX"
+    description: "Compliance framework (SOX, PCI, GDPR, HIPAA)"
+  
+  include_failed_logins:
+    type: "bool"
+    required: false
+    default: true
+    description: "Include failed login analysis in audit"
+
+query: |
+  let auditPeriod = {audit_period_days}d;
+  let framework = "{compliance_framework}";
+  let includeFailed = {include_failed_logins};
+  
+  // Security events audit
+  let securityEvents = SecurityEvent
+  | where TimeGenerated > ago(auditPeriod)
+  | where EventID in (4624, 4625, 4648, 4672, 4720, 4726, 4728, 4732)
+  | summarize 
+      TotalEvents = count(),
+      SuccessfulLogins = countif(EventID == 4624),
+      FailedLogins = countif(EventID == 4625),
+      PrivilegedAccess = countif(EventID == 4672),
+      AccountCreations = countif(EventID == 4720),
+      AccountDeletions = countif(EventID == 4726),
+      GroupModifications = countif(EventID in (4728, 4732))
+      by bin(TimeGenerated, 1d);
+  
+  // Administrative actions audit
+  let adminActions = AuditLogs
+  | where TimeGenerated > ago(auditPeriod)
+  | where Category in ("UserManagement", "GroupManagement", "RoleManagement")
+  | summarize 
+      AdminActions = count(),
+      UserChanges = countif(Category == "UserManagement"),
+      GroupChanges = countif(Category == "GroupManagement"),
+      RoleChanges = countif(Category == "RoleManagement")
+      by bin(TimeGenerated, 1d);
+  
+  // Combine audit data
+  securityEvents
+  | join kind=fullouter adminActions on TimeGenerated
+  | extend TimeGenerated = coalesce(TimeGenerated, TimeGenerated1)
+  | project-away TimeGenerated1
+  
+  // Add compliance calculations
+  | extend 
+      ComplianceScore = case(
+          framework == "SOX", (TotalEvents + AdminActions) / 100.0,
+          framework == "PCI", (SuccessfulLogins + FailedLogins) / 50.0,
+          framework == "GDPR", (UserChanges + GroupChanges) / 25.0,
+          framework == "HIPAA", (PrivilegedAccess + AdminActions) / 75.0,
+          1.0  // Default score
+      ),
+      RiskLevel = case(
+          FailedLogins > 100, "High",
+          FailedLogins > 50, "Medium", 
+          "Low"
+      )
+  
+  | extend 
+      WorkspaceTag = "{row_level_security_tag}",
+      AuditDate = format_datetime(TimeGenerated, 'yyyy-MM-dd'),
+      ComplianceFramework = framework,
+      AuditPeriodDays = {audit_period_days},
+      IncludeFailedLogins = includeFailed
+  
+  | order by TimeGenerated desc

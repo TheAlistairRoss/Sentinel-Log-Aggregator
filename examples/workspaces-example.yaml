@@ -1,0 +1,50 @@
+# Microsoft Sentinel Workspaces Configuration
+# Demonstrates flexible query organization with relative paths
+
+metadata:
+  version: "2.0"
+  description: "Example workspace configuration with organized query structure"
+  last_updated: "2025-11-03"
+  environment: "example"
+
+workspaces:
+  # Production Security Operations Center
+  - resource_id: "/subscriptions/12345678-1234-1234-1234-123456789012/resourcegroups/security-rg/providers/microsoft.operationalinsights/workspaces/prod-soc-sentinel"
+    customer_id: "87654321-4321-4321-4321-210987654321"
+    queries_list:
+      # Security team queries - organized in security/ directory
+      - "queries/security/incident_trends.yaml"
+      
+      # Compliance queries - organized in compliance/ directory  
+      - "queries/compliance/audit_report.yaml"
+    parameters:
+      row_level_security_tag: "prod-soc"
+      environment: "production"
+      region: "east-us"
+      compliance_framework: "SOX"
+  
+  # Development Environment
+  - resource_id: "/subscriptions/12345678-1234-1234-1234-123456789012/resourcegroups/dev-rg/providers/microsoft.operationalinsights/workspaces/dev-sentinel"
+    customer_id: "11111111-2222-3333-4444-555555555555"
+    queries_list:
+      # Use same queries but with different parameters
+      - "queries/security/incident_trends.yaml"
+    parameters:
+      row_level_security_tag: "dev"
+      environment: "development"
+      region: "west-us"
+      # Different time window for development
+      time_window_days: 7
+  
+  # European Operations (GDPR Compliance)
+  - resource_id: "/subscriptions/12345678-1234-1234-1234-123456789012/resourcegroups/eu-rg/providers/microsoft.operationalinsights/workspaces/eu-sentinel"
+    customer_id: "22222222-3333-4444-5555-666666666666"
+    queries_list:
+      - "queries/security/incident_trends.yaml"
+      - "queries/compliance/audit_report.yaml"
+    parameters:
+      row_level_security_tag: "eu-ops"
+      environment: "production"
+      region: "north-europe"
+      compliance_framework: "GDPR"
+      data_residency: "eu"

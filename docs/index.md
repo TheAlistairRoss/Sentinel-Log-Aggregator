@@ -5,7 +5,7 @@ author: Microsoft
 ms.author: sentinel-team
 ms.service: sentinel
 ms.topic: overview
-ms.date: 2025-11-01
+ms.date: 2025-11-03
 ---
 
 # Microsoft Sentinel Log Aggregator
@@ -21,6 +21,7 @@ The Sentinel Log Aggregator provides a comprehensive solution for:
 - **Scalable processing**: Batch processing with configurable concurrency and time-based batching
 - **Azure integration**: Native Azure authentication and monitoring integration
 - **Production-ready**: Comprehensive error handling, logging, and health monitoring
+- **Flexible query organization**: Support for custom query directory structures and relative paths
 
 ## Key features
 
@@ -30,6 +31,39 @@ The Sentinel Log Aggregator provides a comprehensive solution for:
 - **Error handling**: Service-specific exceptions with detailed error information
 - **Health monitoring**: Built-in health checks and service diagnostics
 - **Long-running operations**: LRO support for batch operations with progress tracking
+- **Custom query organization**: Organize queries in any directory structure using relative paths
+
+## Quick Navigation
+
+### 🚀 Getting Started
+- **[Installation Guide](installation.md)**: Get up and running quickly
+- **[Quick Start Examples](examples/basic-examples.md)**: Simple examples to get you started
+- **[Configuration Guide](configuration.md)**: Basic to advanced configuration options
+
+### 📋 Query Management ⭐ NEW!
+- **[Query Setup and Configuration](query-setup.md)**: Comprehensive guide for organizing and configuring queries
+  - Flexible directory structures
+  - Relative path configuration  
+  - Parameter substitution
+  - Advanced query organization
+
+### 💻 Usage Guides
+- **[CLI Usage](cli-usage.md)**: Command-line interface documentation
+- **[SDK Usage](sdk-usage.md)**: Programmatic usage and API reference
+- **[Examples](examples/)**: Practical implementation examples
+
+### 🔧 Advanced Topics
+- **[Security Implementation](security-implementation.md)**: Security features and compliance
+- **[Development Guide](development.md)**: Development setup and contributing
+- **[GitHub Actions Workflows](workflows.md)**: CI/CD and automation
+- **[Packaging Guide](packaging.md)**: Package distribution and releases
+- **[Troubleshooting](troubleshooting.md)**: Common issues and solutions
+
+### 📚 Reference
+- **[API Reference](../README.md#configuration-reference)**: Complete configuration options
+- **[Best Practices](best-practices.md)**: Development and deployment guidelines
+- **[Changelog](changelog.md)**: Version history and changes
+- **[Security Policy](security.md)**: Security reporting and policies
 
 ## Architecture
 

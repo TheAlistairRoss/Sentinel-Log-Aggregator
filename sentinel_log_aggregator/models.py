@@ -55,7 +55,9 @@ class WorkspaceConfig:
     Attributes:
         resource_id: Full Azure resource ID for the Log Analytics workspace
         customer_id: Log Analytics workspace customer ID (GUID)
-        queries_list: List of query names this workspace should execute
+        queries_list: List of query names or relative paths to query files this workspace should execute.
+                     Supports both query names (for backward compatibility) and relative file paths
+                     (e.g., "queries/incident_summary.yaml", "custom/my_query.yaml")
         parameters: Dictionary of workspace-specific parameters including:
             - row_level_security_tag: Security tag for data isolation
             - environment: Environment designation (dev, test, prod)
@@ -439,14 +441,13 @@ def load_queries_from_yaml(queries_dir: Optional[Path] = None) -> Dict[str, KQLQ
 
     queries = {}
 
-    # Use provided directory or default directories
+    # Use provided directory or default directories for development/testing
     if queries_dir is None:
         current_dir = Path(__file__).parent
-        # Try multiple directories in order of preference
+        # Try development and testing directories
         possible_dirs = [
-            current_dir / "queries",  # Production queries
             current_dir.parent / "tests" / "data" / "queries",  # Test queries
-            current_dir.parent / "local-data" / "queries",  # Local queries
+            current_dir.parent / "local-data" / "queries",  # Local development queries
         ]
     else:
         possible_dirs = [queries_dir]

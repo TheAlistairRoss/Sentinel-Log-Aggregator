@@ -26,7 +26,7 @@ Thank you for contributing to the Microsoft Sentinel Log Aggregator! Please ensu
 - [ ] Code is documented with docstrings (Google style)
 - [ ] Public APIs have comprehensive documentation
 - [ ] README.md updated if needed
-- [ ] CHANGELOG.md updated for user-facing changes
+- [ ] Changelog updated for user-facing changes (docs/changelog.md)
 
 ## 📝 Pull Request Details
 

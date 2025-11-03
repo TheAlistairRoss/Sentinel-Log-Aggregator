@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel Log Aggregator - Documentation Branches</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            border-bottom: 2px solid #e1e5e9;
+            padding-bottom: 2rem;
+        }
+        .branch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        .branch-card {
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        .branch-card:hover {
+            border-color: #0366d6;
+            box-shadow: 0 4px 12px rgba(3, 102, 214, 0.15);
+            transform: translateY(-2px);
+        }
+        .branch-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #0366d6;
+        }
+        .branch-description {
+            color: #586069;
+            margin-bottom: 1rem;
+        }
+        .branch-status {
+            font-size: 0.875rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        .stable { background: #d4edda; color: #155724; }
+        .development { background: #fff3cd; color: #856404; }
+        .footer {
+            text-align: center;
+            color: #586069;
+            border-top: 1px solid #e1e5e9;
+            padding-top: 2rem;
+        }
+        .auto-redirect {
+            background: #e3f2fd;
+            border: 1px solid #1976d2;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Sentinel Log Aggregator</h1>
+        <p>Choose your documentation branch</p>
+    </div>
+
+    <div class="auto-redirect">
+        <strong>🔄 Auto-redirect:</strong> This page will automatically redirect to the <strong>main</strong> branch documentation in <span id="countdown">5</span> seconds.
+        <br><small>You can click any branch below to override the redirect.</small>
+    </div>
+
+    <div class="branch-grid">
+        <a href="./main/" class="branch-card" onclick="clearRedirect()">
+            <div class="branch-name">🌟 Main Branch</div>
+            <div class="branch-description">
+                Stable release documentation with tested features and complete API reference.
+                <br><strong>Recommended for production use.</strong>
+            </div>
+            <span class="branch-status stable">✅ Stable</span>
+        </a>
+
+        <a href="./develop/" class="branch-card" onclick="clearRedirect()">
+            <div class="branch-name">🚀 Develop Branch</div>
+            <div class="branch-description">
+                Latest development features and experimental functionality.
+                <br><strong>May contain breaking changes.</strong>
+            </div>
+            <span class="branch-status development">⚠️ Development</span>
+        </a>
+    </div>
+
+    <div class="footer">
+        <p>
+            <strong>Microsoft Sentinel Log Aggregator</strong><br>
+            GitHub: <a href="https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator">TheAlistairRoss/Sentinel-Log-Aggregator</a>
+        </p>
+    </div>
+
+    <script>
+        let redirectTimer;
+        let countdown = 5;
+
+        function clearRedirect() {
+            clearInterval(redirectTimer);
+            document.querySelector('.auto-redirect').style.display = 'none';
+        }
+
+        function updateCountdown() {
+            document.getElementById('countdown').textContent = countdown;
+            if (countdown <= 0) {
+                window.location.href = './main/';
+            }
+            countdown--;
+        }
+
+        // Start countdown
+        redirectTimer = setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // Clear redirect if user interacts with page
+        document.addEventListener('click', clearRedirect);
+        document.addEventListener('keydown', clearRedirect);
+    </script>
+</body>
+</html>

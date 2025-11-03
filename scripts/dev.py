@@ -74,7 +74,7 @@ def test():
 
 def security():
     """Run security scans."""
-    run_command("python run_security_scan.py", "Running comprehensive security scan")
+    run_command("python build/run_security_scan.py", "Running comprehensive security scan")
 
 
 def build():
