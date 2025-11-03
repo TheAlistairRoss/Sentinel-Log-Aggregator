@@ -265,9 +265,11 @@ class TestPredefinedQueries:
         assert "print" in kql
         assert "RequiredParam" in kql
         assert "TestMessage" in kql
-        
+
         # Test parameter substitution
-        kql_with_params = query.build_query(parameters={"required_param": "test_value", "non_required_param": "optional_value"})
+        kql_with_params = query.build_query(
+            parameters={"required_param": "test_value", "non_required_param": "optional_value"}
+        )
         assert "test_value" in kql_with_params
         assert "optional_value" in kql_with_params
 

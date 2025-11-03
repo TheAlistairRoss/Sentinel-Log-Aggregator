@@ -361,47 +361,58 @@ class SentinelQueryEngine:
                 # Check if this is a file path or a query name
                 query_instance = None
                 actual_query_name = query_name
-                
+
                 if query_name in AVAILABLE_QUERIES:
                     # Query already loaded by name
                     query_instance = AVAILABLE_QUERIES[query_name]
-                elif query_name.endswith('.yaml') or query_name.endswith('.yml'):
+                elif query_name.endswith(".yaml") or query_name.endswith(".yml"):
                     # This looks like a file path, try to load it
                     from pathlib import Path
                     from .query_registry import QueryRegistry
-                    
+
                     query_file = Path(query_name)
                     if query_file.exists():
                         try:
                             # Create a temporary registry to load this query
                             temp_registry = QueryRegistry()
                             temp_registry.load_from_yaml(query_file)
-                            
+
                             # Get the loaded query - it should be the only one
                             loaded_queries = temp_registry.list_queries()
                             if loaded_queries:
                                 loaded_query_name = loaded_queries[0]
                                 query_instance = temp_registry.get_query(loaded_query_name)
                                 actual_query_name = loaded_query_name
-                                
+
                                 # Register it in AVAILABLE_QUERIES for future use
                                 AVAILABLE_QUERIES[loaded_query_name] = query_instance
-                                
-                                self.logger.debug(f"Loaded query '{loaded_query_name}' from file '{query_file}'")
+
+                                self.logger.debug(
+                                    f"Loaded query '{loaded_query_name}' from file '{query_file}'"
+                                )
                             else:
-                                self.logger.error("QUERY_LOAD_EMPTY", f"No queries found in file '{query_file}'")
+                                self.logger.error(
+                                    "QUERY_LOAD_EMPTY", f"No queries found in file '{query_file}'"
+                                )
                                 continue
                         except Exception as e:
-                            self.logger.error("QUERY_LOAD_FILE", f"Failed to load query from file '{query_file}': {e}")
+                            self.logger.error(
+                                "QUERY_LOAD_FILE",
+                                f"Failed to load query from file '{query_file}': {e}",
+                            )
                             continue
                     else:
-                        self.logger.error("QUERY_FILE_NOT_FOUND", f"Query file not found: '{query_file}'")
+                        self.logger.error(
+                            "QUERY_FILE_NOT_FOUND", f"Query file not found: '{query_file}'"
+                        )
                         continue
                 else:
                     # Not a file path and not in AVAILABLE_QUERIES
-                    self.logger.warning(f"Query '{query_name}' not found in AVAILABLE_QUERIES and not a file path")
+                    self.logger.warning(
+                        f"Query '{query_name}' not found in AVAILABLE_QUERIES and not a file path"
+                    )
                     continue
-                
+
                 if query_instance:
                     try:
                         # Build query with workspace-specific parameters
