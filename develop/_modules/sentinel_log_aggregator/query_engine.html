@@ -227,6 +227,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../../cli-usage.html#id12">Examples</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli-usage.html#query-status">query-status</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cli-usage.html#id13">Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cli-usage.html#id14">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../cli-usage.html#output-examples">Output Examples</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../cli-usage.html#configuration-files">Configuration files</a><ul>
@@ -1024,6 +1030,20 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.load_workspace_config"><code class="docutils literal notranslate"><span class="pre">load_workspace_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.__init__"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.create_disabled"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.create_disabled()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.create_job_id"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.create_job_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_error"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_job_end"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_job_end()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_job_start"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_job_start()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_query_execution"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_query_execution()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_watermark_update"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_watermark_update()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_workspace_processing_end"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_workspace_processing_end()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_workspace_processing_start"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_workspace_processing_start()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.verify_health_table_setup"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.verify_health_table_setup()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../api-reference.html#module-sentinel_log_aggregator.client_options">Client Options</a><ul>
@@ -1272,7 +1292,10 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.health_logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentinelAggregatorHealthLogger</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.client_options</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentinelAggregatorClientOptions</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.logging_formatter</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContextualLogger</span>
@@ -1305,6 +1328,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">client_options</span><span class="p">:</span> <span class="n">SentinelAggregatorClientOptions</span><span class="p">,</span>
         <span class="n">azure_client</span><span class="p">:</span> <span class="n">SentinelAggregatorClient</span><span class="p">,</span>
+        <span class="n">health_logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SentinelAggregatorHealthLogger&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize query engine.</span>
@@ -1312,9 +1336,11 @@
 <span class="sd">        Args:</span>
 <span class="sd">            client_options: Azure SDK-compliant client options</span>
 <span class="sd">            azure_client: Azure SDK-compliant Sentinel client for queries and ingestion</span>
+<span class="sd">            health_logger: Optional health logger for operational monitoring</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">client_options</span> <span class="o">=</span> <span class="n">client_options</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">azure_client</span> <span class="o">=</span> <span class="n">azure_client</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">health_logger</span> <span class="o">=</span> <span class="n">health_logger</span>
 
         <span class="c1"># Generate unique job correlation ID</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">job_correlation_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -1464,6 +1490,19 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">query_start</span><span class="p">(</span><span class="n">query_name</span><span class="p">,</span> <span class="n">workspace_alias</span><span class="p">,</span> <span class="n">time_range_str</span><span class="p">)</span>
 
+            <span class="c1"># Log query execution start to health logger</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">health_logger</span><span class="p">:</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">health_logger</span><span class="o">.</span><span class="n">log_query_execution</span><span class="p">(</span>
+                    <span class="n">job_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">job_correlation_id</span><span class="p">,</span>
+                    <span class="n">query_execution</span><span class="o">=</span><span class="n">execution</span><span class="p">,</span>
+                    <span class="n">workspace_config</span><span class="o">=</span><span class="n">WorkspaceConfig</span><span class="p">(</span>
+                        <span class="n">resource_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;/subscriptions/unknown/resourceGroups/unknown/providers/Microsoft.OperationalInsights/workspaces/</span><span class="si">{</span><span class="n">workspace_alias</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">customer_id</span><span class="o">=</span><span class="n">workspace_id</span><span class="p">,</span>
+                        <span class="n">queries_list</span><span class="o">=</span><span class="p">[],</span>
+                        <span class="n">parameters</span><span class="o">=</span><span class="p">{},</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+
             <span class="c1"># Execute query using Azure SDK-compliant method</span>
             <span class="n">query_result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">azure_client</span><span class="o">.</span><span class="n">query_workspace</span><span class="p">(</span>
                 <span class="n">workspace_id</span><span class="o">=</span><span class="n">workspace_id</span><span class="p">,</span> <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="o">=</span><span class="n">end_time</span>
@@ -1558,6 +1597,19 @@
                 <span class="k">del</span> <span class="n">transformed_data</span>
             <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
 
+            <span class="c1"># Log final query execution status to health logger</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">health_logger</span><span class="p">:</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">health_logger</span><span class="o">.</span><span class="n">log_query_execution</span><span class="p">(</span>
+                    <span class="n">job_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">job_correlation_id</span><span class="p">,</span>
+                    <span class="n">query_execution</span><span class="o">=</span><span class="n">execution</span><span class="p">,</span>
+                    <span class="n">workspace_config</span><span class="o">=</span><span class="n">WorkspaceConfig</span><span class="p">(</span>
+                        <span class="n">resource_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;/subscriptions/unknown/resourceGroups/unknown/providers/Microsoft.OperationalInsights/workspaces/</span><span class="si">{</span><span class="n">workspace_alias</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">customer_id</span><span class="o">=</span><span class="n">workspace_id</span><span class="p">,</span>
+                        <span class="n">queries_list</span><span class="o">=</span><span class="p">[],</span>
+                        <span class="n">parameters</span><span class="o">=</span><span class="p">{},</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">execution_log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">execution</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">execution</span></div>
 
@@ -1602,31 +1654,62 @@
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">execute_batch_queries_with_streaming_upload</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">workspace_configs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">WorkspaceConfig</span><span class="p">],</span>
-        <span class="n">days_back</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">batch_hours</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BatchExecutionSummary</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Execute all queries for all workspaces with immediate streaming upload.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            workspace_configs: List of workspace configurations</span>
-<span class="sd">            days_back: Number of days to query (defaults to config value)</span>
-<span class="sd">            batch_hours: Hours per batch (defaults to config value)</span>
+<span class="sd">            job_id: Optional job ID for health logging correlation</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            BatchExecutionSummary with execution results</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">batch_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;batch_</span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">_%H%M%S&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">batch_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">job_id</span> <span class="o">=</span> <span class="n">job_id</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_correlation_id</span>
 
-        <span class="c1"># Use client options defaults if not provided</span>
-        <span class="n">days_back</span> <span class="o">=</span> <span class="n">days_back</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_options</span><span class="o">.</span><span class="n">days_ago</span>
-        <span class="n">batch_hours</span> <span class="o">=</span> <span class="n">batch_hours</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_options</span><span class="o">.</span><span class="n">batch_hours</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🚀 Starting batch execution with job ID: </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">batch_start</span><span class="p">(</span><span class="n">days_back</span><span class="p">,</span> <span class="n">batch_hours</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">workspace_configs</span><span class="p">))</span>
+        <span class="c1"># Calculate execution time ranges using new time range calculator</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.time_range_calculator</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+            <span class="n">calculate_execution_batches</span><span class="p">,</span>
+            <span class="n">calculate_execution_time_ranges</span><span class="p">,</span>
+        <span class="p">)</span>
 
-        <span class="c1"># Calculate time batches</span>
-        <span class="n">time_batches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_time_batches</span><span class="p">(</span><span class="n">days_back</span><span class="p">,</span> <span class="n">batch_hours</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="n">batch_size</span> <span class="o">=</span> <span class="k">await</span> <span class="n">calculate_execution_time_ranges</span><span class="p">(</span>
+                <span class="n">client_options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">client_options</span><span class="p">,</span>
+                <span class="n">workspaces</span><span class="o">=</span><span class="n">workspace_configs</span><span class="p">,</span>
+                <span class="n">health_logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">health_logger</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Calculate time batches</span>
+            <span class="n">time_batches</span> <span class="o">=</span> <span class="n">calculate_execution_batches</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Failed to calculate execution time ranges: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">BatchExecutionSummary</span><span class="p">(</span>
+                <span class="n">job_id</span><span class="o">=</span><span class="n">job_id</span><span class="p">,</span>
+                <span class="n">batch_id</span><span class="o">=</span><span class="n">batch_id</span><span class="p">,</span>
+                <span class="n">start_time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">),</span>
+                <span class="n">end_time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">),</span>
+                <span class="n">total_duration</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                <span class="n">total_workspaces</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">workspace_configs</span><span class="p">),</span>
+                <span class="n">total_queries</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">successful_executions</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">failed_executions</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">total_records_processed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">success_rate</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                <span class="n">executions</span><span class="o">=</span><span class="p">[],</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">batch_start</span><span class="p">(</span>
+            <span class="n">total_days</span><span class="o">=</span><span class="p">(</span><span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span><span class="o">.</span><span class="n">days</span><span class="p">,</span>
+            <span class="n">batch_hours</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">batch_size</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span> <span class="mi">3600</span><span class="p">),</span>
+            <span class="n">workspace_count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">workspace_configs</span><span class="p">),</span>
+        <span class="p">)</span>
 
         <span class="c1"># Collect all query tasks</span>
         <span class="n">all_tasks</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1636,7 +1719,23 @@
             <span class="n">queries_list</span> <span class="o">=</span> <span class="n">workspace</span><span class="o">.</span><span class="n">queries_list</span>
             <span class="n">workspace_alias</span> <span class="o">=</span> <span class="n">workspace</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;row_level_security_tag&quot;</span><span class="p">,</span> <span class="n">workspace_id</span><span class="p">)</span>
 
-            <span class="k">for</span> <span class="n">query_name</span> <span class="ow">in</span> <span class="n">queries_list</span><span class="p">:</span>
+            <span class="c1"># Log workspace processing start</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">health_logger</span><span class="p">:</span>
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">health_logger</span><span class="o">.</span><span class="n">log_workspace_processing_start</span><span class="p">(</span>
+                    <span class="n">job_id</span><span class="o">=</span><span class="n">job_id</span><span class="p">,</span>
+                    <span class="n">workspace_config</span><span class="o">=</span><span class="n">workspace</span><span class="p">,</span>
+                    <span class="n">query_names</span><span class="o">=</span><span class="p">[</span>
+                        <span class="n">q</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">q</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;query_name&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">queries_list</span>
+                    <span class="p">],</span>
+                <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">query_config</span> <span class="ow">in</span> <span class="n">queries_list</span><span class="p">:</span>
+                <span class="c1"># Handle both dict and string query configurations</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">query_config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="n">query_name</span> <span class="o">=</span> <span class="n">query_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">query_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;query_name&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">query_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">query_config</span><span class="p">)</span>
+
                 <span class="c1"># Check if this is a file path or a query name</span>
                 <span class="n">query_instance</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="n">actual_query_name</span> <span class="o">=</span> <span class="n">query_name</span>
@@ -1849,6 +1948,26 @@
             <span class="s2">&quot;total_duration&quot;</span><span class="p">:</span> <span class="n">total_duration</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">batch_end</span><span class="p">(</span><span class="n">summary_data</span><span class="p">)</span>
+
+        <span class="c1"># Log workspace processing completion to health logger</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">health_logger</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">workspace</span> <span class="ow">in</span> <span class="n">workspace_configs</span><span class="p">:</span>
+                <span class="c1"># Calculate workspace-specific metrics</span>
+                <span class="n">workspace_executions</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">all_executions</span> <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">workspace_id</span> <span class="o">==</span> <span class="n">workspace</span><span class="o">.</span><span class="n">customer_id</span>
+                <span class="p">]</span>
+                <span class="n">workspace_records</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">record_count</span> <span class="ow">or</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">workspace_executions</span><span class="p">)</span>
+                <span class="n">workspace_success</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span>
+                    <span class="n">e</span><span class="o">.</span><span class="n">query_status</span> <span class="o">==</span> <span class="n">QueryStatus</span><span class="o">.</span><span class="n">SUCCESS</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">workspace_executions</span>
+                <span class="p">)</span>
+
+                <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">health_logger</span><span class="o">.</span><span class="n">log_workspace_processing_end</span><span class="p">(</span>
+                    <span class="n">job_id</span><span class="o">=</span><span class="n">job_id</span><span class="p">,</span>
+                    <span class="n">workspace_config</span><span class="o">=</span><span class="n">workspace</span><span class="p">,</span>
+                    <span class="n">success</span><span class="o">=</span><span class="n">workspace_success</span><span class="p">,</span>
+                    <span class="n">records_processed</span><span class="o">=</span><span class="n">workspace_records</span><span class="p">,</span>
+                    <span class="n">duration_seconds</span><span class="o">=</span><span class="n">total_duration</span><span class="p">,</span>  <span class="c1"># Approximation since we don&#39;t track individual workspace duration</span>
+                <span class="p">)</span>
 
         <span class="c1"># Log detailed summary programmatically</span>
         <span class="n">detailed_summary</span> <span class="o">=</span> <span class="n">summary</span><span class="o">.</span><span class="n">generate_detailed_summary</span><span class="p">()</span>

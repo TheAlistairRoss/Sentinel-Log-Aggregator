@@ -230,6 +230,12 @@
 <li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id12">Examples</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#query-status">query-status</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id13">Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id14">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#output-examples">Output Examples</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cli-usage.html#configuration-files">Configuration files</a><ul>
@@ -1027,6 +1033,20 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.load_workspace_config"><code class="docutils literal notranslate"><span class="pre">load_workspace_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.__init__"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.create_disabled"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.create_disabled()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.create_job_id"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.create_job_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_error"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_job_end"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_job_end()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_job_start"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_job_start()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_query_execution"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_query_execution()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_watermark_update"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_watermark_update()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_workspace_processing_end"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_workspace_processing_end()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_workspace_processing_start"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_workspace_processing_start()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.verify_health_table_setup"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.verify_health_table_setup()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api-reference.html#module-sentinel_log_aggregator.client_options">Client Options</a><ul>
@@ -1286,9 +1306,20 @@
 </section>
 <section id="optional-settings">
 <h3>Optional settings<a class="headerlink" href="#optional-settings" title="Link to this heading"></a></h3>
-<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="c"># Time range configuration</span>
-<span class="nv">$env:DAYS_AGO</span> <span class="p">=</span> <span class="n">30</span>                    <span class="c"># Number of days to look back</span>
-<span class="nv">$env:BATCH_HOURS</span> <span class="p">=</span> <span class="n">24</span>                 <span class="c"># Hours per batch for processing</span>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="c"># Time range configuration (choose one method)</span>
+<span class="c"># Method 1: Lookback period (recommended for scheduled runs)</span>
+<span class="nv">$env:LOOKBACK_PERIOD</span> <span class="p">=</span> <span class="s2">&quot;P30D&quot;</span>         <span class="c"># ISO 8601 duration: P30D (30 days), PT24H (24 hours)</span>
+
+<span class="c"># Method 2: Explicit time range (for historical analysis)</span>
+<span class="nv">$env:START_TIME</span> <span class="p">=</span> <span class="s2">&quot;2025-01-01T00:00:00Z&quot;</span>  <span class="c"># ISO 8601 datetime</span>
+<span class="nv">$env:END_TIME</span> <span class="p">=</span> <span class="s2">&quot;2025-01-31T23:59:59Z&quot;</span>    <span class="c"># ISO 8601 datetime</span>
+
+<span class="c"># Method 3: Continue from last successful run (for incremental processing)</span>
+<span class="nv">$env:USE_LAST_SUCCESSFUL</span> <span class="p">=</span> <span class="s2">&quot;true&quot;</span>     <span class="c"># Boolean: true/false</span>
+<span class="nv">$env:HEALTH_LOGGING_ENABLED</span> <span class="p">=</span> <span class="s2">&quot;true&quot;</span>  <span class="c"># Required when using last successful</span>
+
+<span class="c"># Batch processing configuration</span>
+<span class="nv">$env:BATCH_TIME_SIZE</span> <span class="p">=</span> <span class="s2">&quot;PT24H&quot;</span>        <span class="c"># ISO 8601 duration for batch size</span>
 
 <span class="c"># Performance settings</span>
 <span class="nv">$env:MAX_CONCURRENT_QUERIES</span> <span class="p">=</span> <span class="n">5</span>       <span class="c"># Maximum concurrent queries</span>
@@ -1317,8 +1348,19 @@
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># .env file</span>
 <span class="na">DCR_LOGS_INGESTION_ENDPOINT</span><span class="o">=</span><span class="s">https://my-dcr.monitor.azure.com</span>
 <span class="na">DCR_RULE_ID</span><span class="o">=</span><span class="s">dcr-abc123def456</span>
-<span class="na">DAYS_AGO</span><span class="o">=</span><span class="s">7</span>
-<span class="na">BATCH_HOURS</span><span class="o">=</span><span class="s">12</span>
+
+<span class="c1"># Time range method 1: Lookback period</span>
+<span class="na">LOOKBACK_PERIOD</span><span class="o">=</span><span class="s">P7D</span>
+<span class="na">BATCH_TIME_SIZE</span><span class="o">=</span><span class="s">PT12H</span>
+
+<span class="c1"># Alternative: Explicit time range</span>
+<span class="c1"># START_TIME=2025-01-01T00:00:00Z</span>
+<span class="c1"># END_TIME=2025-01-31T23:59:59Z</span>
+
+<span class="c1"># Alternative: Last successful continuation</span>
+<span class="c1"># USE_LAST_SUCCESSFUL=true</span>
+<span class="c1"># HEALTH_LOGGING_ENABLED=true</span>
+
 <span class="na">MAX_CONCURRENT_QUERIES</span><span class="o">=</span><span class="s">3</span>
 <span class="na">LOG_LEVEL</span><span class="o">=</span><span class="s">DEBUG</span>
 </pre></div>
@@ -1333,8 +1375,23 @@
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># config.yaml</span>
 <span class="nt">dcr_logs_ingestion_endpoint</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://your-dcr-endpoint.monitor.azure.com&quot;</span>
 <span class="nt">dcr_rule_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;dcr-your-rule-id&quot;</span>
-<span class="nt">days_ago</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
-<span class="nt">batch_hours</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">24</span>
+
+<span class="c1"># Time range configuration (choose one method)</span>
+<span class="c1"># Method 1: Lookback period</span>
+<span class="nt">lookback_period</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;P30D&quot;</span><span class="w">               </span><span class="c1"># ISO 8601 duration</span>
+
+<span class="c1"># Method 2: Explicit time range</span>
+<span class="c1"># start_time: &quot;2025-01-01T00:00:00Z&quot;  # ISO 8601 datetime</span>
+<span class="c1"># end_time: &quot;2025-01-31T23:59:59Z&quot;    # ISO 8601 datetime</span>
+
+<span class="c1"># Method 3: Last successful continuation</span>
+<span class="c1"># use_last_successful: true           # Boolean</span>
+<span class="c1"># health_logging_enabled: true        # Required for last successful</span>
+
+<span class="c1"># Batch processing</span>
+<span class="nt">batch_time_size</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;PT24H&quot;</span><span class="w">              </span><span class="c1"># ISO 8601 duration</span>
+
+<span class="c1"># Performance settings</span>
 <span class="nt">max_concurrent_queries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
 <span class="nt">query_timeout_seconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
 <span class="nt">max_retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
@@ -1400,8 +1457,18 @@
 <span class="n">options</span> <span class="o">=</span> <span class="n">SentinelAggregatorClientOptions</span><span class="p">(</span>
     <span class="n">dcr_logs_ingestion_endpoint</span><span class="o">=</span><span class="s2">&quot;https://your-dcr.monitor.azure.com&quot;</span><span class="p">,</span>
     <span class="n">dcr_rule_id</span><span class="o">=</span><span class="s2">&quot;dcr-your-rule-id&quot;</span><span class="p">,</span>
-    <span class="n">days_ago</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
-    <span class="n">batch_hours</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+    
+    <span class="c1"># Time range method 1: Lookback period</span>
+    <span class="n">lookback_period</span><span class="o">=</span><span class="s2">&quot;P7D&quot;</span><span class="p">,</span>
+    <span class="n">batch_time_size</span><span class="o">=</span><span class="s2">&quot;PT12H&quot;</span><span class="p">,</span>
+    
+    <span class="c1"># Alternative: Explicit time range</span>
+    <span class="c1"># start_time=&quot;2025-01-01T00:00:00Z&quot;,</span>
+    <span class="c1"># end_time=&quot;2025-01-31T23:59:59Z&quot;,</span>
+    
+    <span class="c1"># Alternative: Last successful continuation</span>
+    <span class="c1"># use_last_successful=True,</span>
+    <span class="c1"># health_logging_enabled=True,</span>
     <span class="n">max_concurrent_queries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
     <span class="n">query_timeout_seconds</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
     <span class="n">log_level</span><span class="o">=</span><span class="s2">&quot;DEBUG&quot;</span>
@@ -1564,8 +1631,11 @@
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Production configuration example</span>
 <span class="nt">dcr_logs_ingestion_endpoint</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://prod-dcr.monitor.azure.com&quot;</span>
 <span class="nt">dcr_rule_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;dcr-prod-sentinel-analytics&quot;</span>
-<span class="nt">days_ago</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
-<span class="nt">batch_hours</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">24</span>
+
+<span class="c1"># Production time configuration - 30 day lookback with daily batches</span>
+<span class="nt">lookback_period</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;P30D&quot;</span>
+<span class="nt">batch_time_size</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;PT24H&quot;</span>
+
 <span class="nt">max_concurrent_queries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
 <span class="nt">query_timeout_seconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">600</span>
 <span class="nt">max_retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>

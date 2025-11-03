@@ -133,22 +133,41 @@ sentinel-aggregator run [options]
 | Option | Description | Required | Default |
 |--------|-------------|----------|---------|
 | `--workspace-config` | Path to workspace configuration file | Yes | |
-| `--days-back` | Number of days to look back | No | 30 |
-| `--batch-hours` | Hours per batch | No | 24 |
+| **Time Range Options (mutually exclusive)** | | | |
+| `--lookback-period` | ISO 8601 duration to look back | No | P30D |
+| `--start-time` | ISO 8601 start datetime | No | |
+| `--end-time` | ISO 8601 end datetime | No | |
+| `--use-last-successful` | Continue from last successful run | No | false |
+| **Batch Processing** | | | |
+| `--batch-time-size` | ISO 8601 duration for batch size | No | PT24H |
+| **Execution Control** | | | |
 | `--queries` | Specific queries to run (comma-separated) | No | All |
 | `--workspaces` | Specific workspaces to process (comma-separated) | No | All |
 | `--dry-run` | Validate and show what would be executed | No | `false` |
 | `--parallel` | Enable parallel execution | No | `true` |
 | `--max-workers` | Maximum parallel workers | No | 5 |
+| **Health Logging** | | | |
+| `--health-logging-enabled` | Enable health tracking | No | false |
 
 #### Examples
 
 ```bash
-# Basic run with default settings
+# Basic run with default settings (30 days lookback)
 sentinel-aggregator run --workspace-config workspaces.yaml
 
-# Run with custom time range
-sentinel-aggregator run --workspace-config workspaces.yaml --days-back 7 --batch-hours 12
+# Run with custom lookback period
+sentinel-aggregator run --workspace-config workspaces.yaml --lookback-period "P7D" --batch-time-size "PT12H"
+
+# Run with explicit time range (historical analysis)
+sentinel-aggregator run --workspace-config workspaces.yaml \
+  --start-time "2025-01-01T00:00:00Z" \
+  --end-time "2025-01-31T23:59:59Z" \
+  --batch-time-size "PT6H"
+
+# Continue from last successful run (incremental processing)
+sentinel-aggregator run --workspace-config workspaces.yaml \
+  --use-last-successful \
+  --health-logging-enabled
 
 # Run specific queries only
 sentinel-aggregator run --workspace-config workspaces.yaml --queries "query_incident_summary,query_user_summary"
@@ -355,6 +374,89 @@ sentinel-aggregator monitor --execution-id exec-2025-11-01-103000
 sentinel-aggregator monitor --tail 50
 ```
 
+### query-status
+
+Check the status of last successful query runs across workspaces. This command helps track execution history and determine starting points for incremental processing.
+
+```bash
+sentinel-aggregator query-status [options]
+```
+
+#### Options
+
+| Option | Description | Required | Default |
+|--------|-------------|----------|---------|
+| `--workspace-config` | Path to workspace configuration file | Yes | |
+| `--query-filter` | Specific queries to check (comma-separated) | No | All |
+| `--workspace-filter` | Specific workspaces to check (comma-separated) | No | All |
+| `--lookback-days` | Days to look back for execution history | No | 30 |
+| `--show-details` | Show detailed execution information | No | false |
+| `--show-execution-history` | Show execution history and timing | No | false |
+| `--format` | Output format (table, json, csv) | No | table |
+
+#### Examples
+
+```bash
+# Check status for all queries and workspaces
+sentinel-aggregator query-status --workspace-config workspaces.yaml
+
+# Check specific queries with details
+sentinel-aggregator query-status --workspace-config workspaces.yaml \
+  --query-filter "incident_summary,threat_hunting" \
+  --show-details
+
+# Show execution history for last 7 days
+sentinel-aggregator query-status --workspace-config workspaces.yaml \
+  --lookback-days 7 \
+  --show-execution-history
+
+# Get status in JSON format for automation
+sentinel-aggregator query-status --workspace-config workspaces.yaml \
+  --format json
+
+# Check specific workspace status
+sentinel-aggregator query-status --workspace-config workspaces.yaml \
+  --workspace-filter "prod-workspace-1,prod-workspace-2" \
+  --show-details
+```
+
+#### Output Examples
+
+**Table format (default):**
+```
+┌─────────────────┬────────────────────┬─────────────────────┬─────────────────┬────────────┐
+│ Workspace       │ Query Name         │ Last Successful     │ Records         │ Status     │
+├─────────────────┼────────────────────┼─────────────────────┼─────────────────┼────────────┤
+│ prod-ws-1       │ incident_summary   │ 2025-11-03 08:00Z  │ 1,234           │ Success    │
+│ prod-ws-1       │ threat_hunting     │ 2025-11-03 08:00Z  │ 567             │ Success    │
+│ prod-ws-2       │ incident_summary   │ 2025-11-03 07:45Z  │ 890             │ Success    │
+│ prod-ws-2       │ threat_hunting     │ 2025-11-02 20:15Z  │ 123             │ Warning    │
+└─────────────────┴────────────────────┴─────────────────────┴─────────────────┴────────────┘
+```
+
+**JSON format:**
+```json
+{
+  "query_status": [
+    {
+      "workspace_id": "prod-ws-1",
+      "workspace_alias": "Production Workspace 1",
+      "query_name": "incident_summary",
+      "last_successful_time": "2025-11-03T08:00:00Z",
+      "record_count": 1234,
+      "status": "success",
+      "execution_duration": "PT5M30S"
+    }
+  ],
+  "summary": {
+    "total_combinations": 4,
+    "successful": 3,
+    "warnings": 1,
+    "errors": 0
+  }
+}
+```
+
 ## Configuration files
 
 ### CLI configuration
@@ -402,18 +504,18 @@ LOG_LEVEL="INFO"
 
 # Function to run aggregation with error handling
 run_aggregation() {
-    local days_back=${1:-30}
-    local batch_hours=${2:-24}
+    local lookback_period=${1:-"P30D"}
+    local batch_time_size=${2:-"PT24H"}
     
-    echo "Starting aggregation: days_back=$days_back, batch_hours=$batch_hours"
+    echo "Starting aggregation: lookback_period=$lookback_period, batch_time_size=$batch_time_size"
     
     if sentinel-aggregator validate --workspace-config "$CONFIG_FILE"; then
         echo "Configuration validated successfully"
         
         sentinel-aggregator --log-level "$LOG_LEVEL" run \
             --workspace-config "$CONFIG_FILE" \
-            --days-back "$days_back" \
-            --batch-hours "$batch_hours"
+            --lookback-period "$lookback_period" \
+            --batch-time-size "$batch_time_size"
         
         echo "Aggregation completed successfully"
     else
@@ -425,7 +527,7 @@ run_aggregation() {
 # Health check before running
 if sentinel-aggregator health --workspace-config "$CONFIG_FILE"; then
     echo "Health check passed"
-    run_aggregation 7 12
+    run_aggregation "P7D" "PT12H"
 else
     echo "Health check failed"
     exit 1
@@ -444,9 +546,9 @@ param(
 
 # Function to run aggregation with error handling
 function Start-Aggregation {
-    param($DaysBack, $BatchHours, $ConfigFile)
+    param($LookbackPeriod, $BatchTimeSize, $ConfigFile)
     
-    Write-Host "Starting aggregation: DaysBack=$DaysBack, BatchHours=$BatchHours"
+    Write-Host "Starting aggregation: LookbackPeriod=$LookbackPeriod, BatchTimeSize=$BatchTimeSize"
     
     # Validate configuration
     $validateResult = sentinel-aggregator validate --workspace-config $ConfigFile
@@ -458,7 +560,7 @@ function Start-Aggregation {
     Write-Host "Configuration validated successfully"
     
     # Run aggregation
-    sentinel-aggregator run --workspace-config $ConfigFile --days-back $DaysBack --batch-hours $BatchHours
+    sentinel-aggregator run --workspace-config $ConfigFile --lookback-period $LookbackPeriod --batch-time-size $BatchTimeSize
     
     if ($LASTEXITCODE -eq 0) {
         Write-Host "Aggregation completed successfully"
@@ -472,7 +574,7 @@ function Start-Aggregation {
 $healthResult = sentinel-aggregator health --workspace-config $ConfigFile
 if ($LASTEXITCODE -eq 0) {
     Write-Host "Health check passed"
-    Start-Aggregation -DaysBack $DaysBack -BatchHours $BatchHours -ConfigFile $ConfigFile
+    Start-Aggregation -LookbackPeriod "P7D" -BatchTimeSize "PT12H" -ConfigFile $ConfigFile
 } else {
     Write-Error "Health check failed"
     exit 1
@@ -519,7 +621,7 @@ stages:
     steps:
     - script: |
         sentinel-aggregator health --workspace-config workspaces.yaml
-        sentinel-aggregator run --workspace-config workspaces.yaml --days-back 1
+        sentinel-aggregator run --workspace-config workspaces.yaml --lookback-period "P1D"
       displayName: 'Run aggregation'
       env:
         DCR_LOGS_INGESTION_ENDPOINT: $(DCR_ENDPOINT)

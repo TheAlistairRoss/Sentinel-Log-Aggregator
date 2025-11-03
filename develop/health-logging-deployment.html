@@ -3,24 +3,22 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Search &mdash; Microsoft Sentinel Log Aggregator v0.1.0</title>
+  <title>Health Logging Infrastructure Deployment Guide &mdash; Microsoft Sentinel Log Aggregator v0.1.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
-    
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=01f34227"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
-    <script src="_static/searchtools.js"></script>
-    <script src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="#" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -35,7 +33,7 @@
             Microsoft Sentinel Log Aggregator
           </a>
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="#" method="get">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -1270,8 +1268,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Search</li>
+      <li class="breadcrumb-item active">Health Logging Infrastructure Deployment Guide</li>
       <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/blob/main/docs/health-logging-deployment.md" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -1279,18 +1278,260 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <noscript>
-  <div id="fallback" class="admonition warning">
-    <p class="last">
-      Please activate JavaScript to enable the search functionality.
-    </p>
-  </div>
-  </noscript>
+  <section id="health-logging-infrastructure-deployment-guide">
+<h1>Health Logging Infrastructure Deployment Guide<a class="headerlink" href="#health-logging-infrastructure-deployment-guide" title="Link to this heading"></a></h1>
+<p>This guide explains how to deploy the health logging infrastructure for the Sentinel Log Aggregator using the provided Bicep template.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The health logging system captures operational metrics and execution status for the Sentinel Log Aggregator service. It creates:</p>
+<ul class="simple">
+<li><p>Custom Log Analytics table (<code class="docutils literal notranslate"><span class="pre">SentinelAggregator-Health_CL</span></code>) for health data</p></li>
+<li><p>Data Collection Rule (DCR) for secure log ingestion</p></li>
+<li><p>Stream definition for structured health data</p></li>
+</ul>
+</section>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<p>Before deploying the health logging infrastructure, ensure you have:</p>
+<ol class="arabic">
+<li><p><strong>Azure CLI installed and authenticated</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>az<span class="w"> </span>login
+az<span class="w"> </span>account<span class="w"> </span><span class="nb">set</span><span class="w"> </span>--subscription<span class="w"> </span>&lt;your-subscription-id&gt;
+</pre></div>
+</div>
+</li>
+<li><p><strong>Required permissions in your Azure subscription:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Contributor</span></code> or <code class="docutils literal notranslate"><span class="pre">Owner</span></code> role on the resource group</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Log</span> <span class="pre">Analytics</span> <span class="pre">Contributor</span></code> role on the Log Analytics workspace</p></li>
+</ul>
+</li>
+<li><p><strong>Existing Log Analytics workspace</strong> where Sentinel data is stored</p></li>
+</ol>
+</section>
+<section id="deployment-steps">
+<h2>Deployment Steps<a class="headerlink" href="#deployment-steps" title="Link to this heading"></a></h2>
+<section id="navigate-to-template-directory">
+<h3>1. Navigate to Template Directory<a class="headerlink" href="#navigate-to-template-directory" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>c:<span class="se">\R</span>epos<span class="se">\S</span>entinel-Log-Aggregator
+</pre></div>
+</div>
+</section>
+<section id="deploy-using-azure-cli">
+<h3>2. Deploy Using Azure CLI<a class="headerlink" href="#deploy-using-azure-cli" title="Link to this heading"></a></h3>
+<p>Replace the parameter values with your specific environment details:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>az<span class="w"> </span>deployment<span class="w"> </span>group<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--resource-group<span class="w"> </span>&lt;your-resource-group&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--template-file<span class="w"> </span>Templates/main.bicep<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--parameters<span class="w"> </span><span class="nv">workspaceName</span><span class="o">=</span>&lt;your-log-analytics-workspace-name&gt;
+</pre></div>
+</div>
+<p><strong>Example:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>az<span class="w"> </span>deployment<span class="w"> </span>group<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--resource-group<span class="w"> </span>rg-sentinel-prod<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--template-file<span class="w"> </span>Templates/main.bicep<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--parameters<span class="w"> </span><span class="nv">workspaceName</span><span class="o">=</span>law-sentinel-prod
+</pre></div>
+</div>
+</section>
+<section id="verify-deployment">
+<h3>3. Verify Deployment<a class="headerlink" href="#verify-deployment" title="Link to this heading"></a></h3>
+<p>The deployment will output important configuration values:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;dcrEndpoint&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;String&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://dcr-sentinel-health-xyz.eastus-1.ingest.monitor.azure.com&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;dcrRuleId&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;String&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dcr-abcd1234-5678-90ef-ghij-klmnopqrstuv&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;healthTableName&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;String&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SentinelAggregator-Health_CL&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Save these output values</strong> - you’ll need them for configuring the health logging client.</p>
+</section>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<section id="update-environment-variables">
+<h3>1. Update Environment Variables<a class="headerlink" href="#update-environment-variables" title="Link to this heading"></a></h3>
+<p>Add the deployment outputs to your environment configuration:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Environment variables (.env file or system environment)</span>
+<span class="nv">HEALTH_DCR_ENDPOINT</span><span class="o">=</span>https://dcr-sentinel-health-xyz.eastus-1.ingest.monitor.azure.com
+<span class="nv">HEALTH_DCR_RULE_ID</span><span class="o">=</span>dcr-abcd1234-5678-90ef-ghij-klmnopqrstuv
+<span class="nv">HEALTH_WORKSPACE_ID</span><span class="o">=</span>&lt;your-workspace-customer-id&gt;
+</pre></div>
+</div>
+</section>
+<section id="update-yaml-configuration-alternative">
+<h3>2. Update YAML Configuration (Alternative)<a class="headerlink" href="#update-yaml-configuration-alternative" title="Link to this heading"></a></h3>
+<p>Or add to your configuration YAML file:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># config.yaml</span>
+<span class="nt">health_logging</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">dcr_endpoint</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://dcr-sentinel-health-xyz.eastus-1.ingest.monitor.azure.com&quot;</span>
+<span class="w">  </span><span class="nt">dcr_rule_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;dcr-abcd1234-5678-90ef-ghij-klmnopqrstuv&quot;</span>
+<span class="w">  </span><span class="nt">workspace_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;your-workspace-customer-id&gt;&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="verification">
+<h2>Verification<a class="headerlink" href="#verification" title="Link to this heading"></a></h2>
+<section id="test-health-logging-setup">
+<h3>1. Test Health Logging Setup<a class="headerlink" href="#test-health-logging-setup" title="Link to this heading"></a></h3>
+<p>Use the CLI verification command to test your setup:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sentinel-aggregator<span class="w"> </span>verify-health<span class="w"> </span>--workspace-config<span class="w"> </span>workspaces.yaml<span class="w"> </span>--enable-health-logging
+</pre></div>
+</div>
+<p>This command will:</p>
+<ul class="simple">
+<li><p>✅ Verify the health table exists</p></li>
+<li><p>✅ Test DCR accessibility</p></li>
+<li><p>✅ Validate permissions</p></li>
+<li><p>✅ Confirm end-to-end connectivity</p></li>
+</ul>
+</section>
+<section id="expected-output">
+<h3>2. Expected Output<a class="headerlink" href="#expected-output" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>🏥 Verifying health logging setup...
+🔍 Using first workspace for testing: MyWorkspace
+📊 Health Logging Verification Results:
+==================================================
+  • Enabled: ✅
+  • Table Exists: ✅  
+  • DCR Accessible: ✅
+  • Status: Health logging is fully operational
 
-  
-  <div id="search-results">
-  
-  </div>
+🎉 Health logging is fully operational!
+</pre></div>
+</div>
+</section>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
+<section id="enable-health-logging-in-production">
+<h3>1. Enable Health Logging in Production<a class="headerlink" href="#enable-health-logging-in-production" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run aggregation with health logging enabled</span>
+sentinel-aggregator<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--workspace-config<span class="w"> </span>workspaces.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--enable-health-logging<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--days-back<span class="w"> </span><span class="m">7</span>
+</pre></div>
+</div>
+</section>
+<section id="monitor-health-data">
+<h3>2. Monitor Health Data<a class="headerlink" href="#monitor-health-data" title="Link to this heading"></a></h3>
+<p>Query the health table in your Log Analytics workspace:</p>
+<div class="highlight-kql notranslate"><div class="highlight"><pre><span></span><span class="n">SentinelAggregator</span><span class="p">-</span><span class="n">Health_CL</span>
+<span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="n">ago</span><span class="p">(</span><span class="mi">1</span><span class="n">h</span><span class="p">)</span>
+<span class="p">|</span><span class="w"> </span><span class="k">order</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">TimeGenerated</span><span class="w"> </span><span class="n">desc</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>“Health table not found”</strong></p>
+<ul class="simple">
+<li><p>Verify deployment completed successfully</p></li>
+<li><p>Check Log Analytics workspace name in deployment</p></li>
+<li><p>Ensure sufficient time has passed for table creation (up to 15 minutes)</p></li>
+</ul>
+</li>
+<li><p><strong>“DCR access failed”</strong></p>
+<ul class="simple">
+<li><p>Verify DCR endpoint and rule ID from deployment outputs</p></li>
+<li><p>Check managed identity or service principal permissions</p></li>
+<li><p>Ensure DCR is in the same region as your Log Analytics workspace</p></li>
+</ul>
+</li>
+<li><p><strong>“Health logging verification failed”</strong></p>
+<ul class="simple">
+<li><p>Check Azure authentication (<code class="docutils literal notranslate"><span class="pre">az</span> <span class="pre">login</span></code>)</p></li>
+<li><p>Verify workspace configuration file path</p></li>
+<li><p>Enable debug logging: <code class="docutils literal notranslate"><span class="pre">--log-level</span> <span class="pre">DEBUG</span></code></p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="debug-mode">
+<h3>Debug Mode<a class="headerlink" href="#debug-mode" title="Link to this heading"></a></h3>
+<p>Run verification with detailed logging:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sentinel-aggregator<span class="w"> </span>--log-level<span class="w"> </span>DEBUG<span class="w"> </span>verify-health<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--workspace-config<span class="w"> </span>workspaces.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--enable-health-logging
+</pre></div>
+</div>
+</section>
+</section>
+<section id="advanced-configuration">
+<h2>Advanced Configuration<a class="headerlink" href="#advanced-configuration" title="Link to this heading"></a></h2>
+<section id="custom-dcr-parameters">
+<h3>Custom DCR Parameters<a class="headerlink" href="#custom-dcr-parameters" title="Link to this heading"></a></h3>
+<p>If you need custom DCR settings, you can provide additional parameters during deployment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>az<span class="w"> </span>deployment<span class="w"> </span>group<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--resource-group<span class="w"> </span>&lt;your-resource-group&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--template-file<span class="w"> </span>Templates/main.bicep<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--parameters<span class="w"> </span><span class="nv">workspaceName</span><span class="o">=</span>&lt;workspace-name&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">               </span><span class="nv">dcrName</span><span class="o">=</span>&lt;custom-dcr-name&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">               </span><span class="nv">location</span><span class="o">=</span>&lt;specific-region&gt;
+</pre></div>
+</div>
+</section>
+<section id="multiple-environments">
+<h3>Multiple Environments<a class="headerlink" href="#multiple-environments" title="Link to this heading"></a></h3>
+<p>For multiple environments (dev/staging/prod), deploy separate DCRs:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Development environment</span>
+az<span class="w"> </span>deployment<span class="w"> </span>group<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--resource-group<span class="w"> </span>rg-sentinel-dev<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--template-file<span class="w"> </span>Templates/main.bicep<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--parameters<span class="w"> </span><span class="nv">workspaceName</span><span class="o">=</span>law-sentinel-dev
+
+<span class="c1"># Production environment  </span>
+az<span class="w"> </span>deployment<span class="w"> </span>group<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--resource-group<span class="w"> </span>rg-sentinel-prod<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--template-file<span class="w"> </span>Templates/main.bicep<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--parameters<span class="w"> </span><span class="nv">workspaceName</span><span class="o">=</span>law-sentinel-prod
+</pre></div>
+</div>
+</section>
+</section>
+<section id="security-considerations">
+<h2>Security Considerations<a class="headerlink" href="#security-considerations" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Managed Identity</strong>: The health logging system uses Azure Managed Identity for authentication when deployed to Azure</p></li>
+<li><p><strong>Least Privilege</strong>: The DCR only grants write access to the specific health table</p></li>
+<li><p><strong>Data Isolation</strong>: Health data is tagged with <code class="docutils literal notranslate"><span class="pre">row_level_security_tag</span></code> for workspace identification</p></li>
+<li><p><strong>Encryption</strong>: All data is encrypted in transit and at rest using Azure standards</p></li>
+</ul>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
+<p>After successful deployment:</p>
+<ol class="arabic simple">
+<li><p><strong>Enable health logging</strong> in your scheduled aggregation jobs</p></li>
+<li><p><strong>Set up monitoring alerts</strong> on health data for operational issues</p></li>
+<li><p><strong>Create dashboards</strong> in Azure Monitor or Sentinel for health visualization</p></li>
+<li><p><strong>Configure retention policies</strong> for health data based on your requirements</p></li>
+</ol>
+<p>For more information, see:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="cli-usage.html"><span class="std std-doc">CLI Usage Guide</span></a></p></li>
+<li><p><a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration Guide</span></a></p></li>
+<li><p><a class="reference internal" href="security-implementation.html"><span class="std std-doc">Security Implementation</span></a></p></li>
+</ul>
+</section>
+</section>
+
 
            </div>
           </div>
@@ -1316,14 +1557,7 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-  <script>
-    jQuery(function() { Search.loadIndex("searchindex.js"); });
-  </script>
-  
-  <script id="searchindexloader"></script>
-   
-
+  </script> 
 
 </body>
 </html>

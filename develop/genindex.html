@@ -227,6 +227,12 @@
 <li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id12">Examples</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#query-status">query-status</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id13">Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id14">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#output-examples">Output Examples</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cli-usage.html#configuration-files">Configuration files</a><ul>
@@ -1024,6 +1030,20 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.load_workspace_config"><code class="docutils literal notranslate"><span class="pre">load_workspace_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.__init__"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.create_disabled"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.create_disabled()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.create_job_id"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.create_job_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_error"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_job_end"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_job_end()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_job_start"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_job_start()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_query_execution"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_query_execution()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_watermark_update"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_watermark_update()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_workspace_processing_end"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_workspace_processing_end()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_workspace_processing_start"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_workspace_processing_start()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.verify_health_table_setup"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.verify_health_table_setup()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api-reference.html#module-sentinel_log_aggregator.client_options">Client Options</a><ul>
@@ -1348,6 +1368,8 @@
 </li>
         <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorError.__init__">(sentinel_log_aggregator.SentinelAggregatorError method)</a>
 </li>
+        <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.__init__">(sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
+</li>
         <li><a href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine.__init__">(sentinel_log_aggregator.SentinelQueryEngine method)</a>
 </li>
         <li><a href="api-reference.html#sentinel_log_aggregator.ServiceProperties.__init__">(sentinel_log_aggregator.ServiceProperties method)</a>
@@ -1479,10 +1501,10 @@
       </ul></li>
       <li><a href="api-reference.html#sentinel_log_aggregator.ConfigurationError">ConfigurationError</a>, <a href="api-reference.html#sentinel_log_aggregator.exceptions.ConfigurationError">[1]</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api-reference.html#sentinel_log_aggregator.ServiceProperties.connectivity_status">connectivity_status (sentinel_log_aggregator.ServiceProperties attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api-reference.html#sentinel_log_aggregator.QueryResult.correlation_id">correlation_id (sentinel_log_aggregator.QueryResult attribute)</a>
 
       <ul>
@@ -1499,6 +1521,10 @@
         <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.count">(sentinel_log_aggregator.WorkspaceManager method)</a>
 </li>
       </ul></li>
+      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.create_disabled">create_disabled() (sentinel_log_aggregator.SentinelAggregatorHealthLogger class method)</a>
+</li>
+      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.create_job_id">create_job_id() (sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
+</li>
       <li><a href="api-reference.html#sentinel_log_aggregator.CredentialValidationError">CredentialValidationError</a>, <a href="api-reference.html#sentinel_log_aggregator.exceptions.CredentialValidationError">[1]</a>
 </li>
       <li><a href="api-reference.html#id5">customer_id (sentinel_log_aggregator.models.WorkspaceConfig attribute)</a>, <a href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig.customer_id">[1]</a>
@@ -1809,14 +1835,28 @@
 </li>
       <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.list_query_results">list_query_results() (sentinel_log_aggregator.SentinelAggregatorClient method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api-reference.html#sentinel_log_aggregator.load_workspace_config">load_workspace_config() (in module sentinel_log_aggregator)</a>
 
       <ul>
         <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.load_workspace_config">(in module sentinel_log_aggregator.workspace_manager)</a>
 </li>
       </ul></li>
+      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_error">log_error() (sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_job_end">log_job_end() (sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
+</li>
+      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_job_start">log_job_start() (sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
+</li>
+      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_query_execution">log_query_execution() (sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
+</li>
+      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_watermark_update">log_watermark_update() (sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
+</li>
+      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_workspace_processing_end">log_workspace_processing_end() (sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
+</li>
+      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_workspace_processing_start">log_workspace_processing_start() (sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -2064,6 +2104,8 @@
       </ul></li>
       <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorError">SentinelAggregatorError</a>, <a href="api-reference.html#sentinel_log_aggregator.exceptions.SentinelAggregatorError">[1]</a>
 </li>
+      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger">SentinelAggregatorHealthLogger (class in sentinel_log_aggregator)</a>
+</li>
       <li><a href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine">SentinelQueryEngine (class in sentinel_log_aggregator)</a>
 
       <ul>
@@ -2278,15 +2320,17 @@
         <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClientOptions.validate">(sentinel_log_aggregator.SentinelAggregatorClientOptions method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.validate_configuration">validate_configuration() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
 
       <ul>
         <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.validate_configuration">(sentinel_log_aggregator.WorkspaceManager method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.validate_credentials">validate_credentials() (sentinel_log_aggregator.SentinelAggregatorClient method)</a>
+</li>
+      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.verify_health_table_setup">verify_health_table_setup() (sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
 </li>
   </ul></td>
 </tr></table>

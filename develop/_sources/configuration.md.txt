@@ -36,9 +36,20 @@ $env:DCR_RULE_ID = "dcr-your-rule-id"
 ### Optional settings
 
 ```powershell
-# Time range configuration
-$env:DAYS_AGO = 30                    # Number of days to look back
-$env:BATCH_HOURS = 24                 # Hours per batch for processing
+# Time range configuration (choose one method)
+# Method 1: Lookback period (recommended for scheduled runs)
+$env:LOOKBACK_PERIOD = "P30D"         # ISO 8601 duration: P30D (30 days), PT24H (24 hours)
+
+# Method 2: Explicit time range (for historical analysis)
+$env:START_TIME = "2025-01-01T00:00:00Z"  # ISO 8601 datetime
+$env:END_TIME = "2025-01-31T23:59:59Z"    # ISO 8601 datetime
+
+# Method 3: Continue from last successful run (for incremental processing)
+$env:USE_LAST_SUCCESSFUL = "true"     # Boolean: true/false
+$env:HEALTH_LOGGING_ENABLED = "true"  # Required when using last successful
+
+# Batch processing configuration
+$env:BATCH_TIME_SIZE = "PT24H"        # ISO 8601 duration for batch size
 
 # Performance settings
 $env:MAX_CONCURRENT_QUERIES = 5       # Maximum concurrent queries
@@ -68,8 +79,19 @@ Create a `.env` file in your working directory:
 # .env file
 DCR_LOGS_INGESTION_ENDPOINT=https://my-dcr.monitor.azure.com
 DCR_RULE_ID=dcr-abc123def456
-DAYS_AGO=7
-BATCH_HOURS=12
+
+# Time range method 1: Lookback period
+LOOKBACK_PERIOD=P7D
+BATCH_TIME_SIZE=PT12H
+
+# Alternative: Explicit time range
+# START_TIME=2025-01-01T00:00:00Z
+# END_TIME=2025-01-31T23:59:59Z
+
+# Alternative: Last successful continuation
+# USE_LAST_SUCCESSFUL=true
+# HEALTH_LOGGING_ENABLED=true
+
 MAX_CONCURRENT_QUERIES=3
 LOG_LEVEL=DEBUG
 ```
@@ -84,8 +106,23 @@ Create a `config.yaml` file for client settings:
 # config.yaml
 dcr_logs_ingestion_endpoint: "https://your-dcr-endpoint.monitor.azure.com"
 dcr_rule_id: "dcr-your-rule-id"
-days_ago: 30
-batch_hours: 24
+
+# Time range configuration (choose one method)
+# Method 1: Lookback period
+lookback_period: "P30D"               # ISO 8601 duration
+
+# Method 2: Explicit time range
+# start_time: "2025-01-01T00:00:00Z"  # ISO 8601 datetime
+# end_time: "2025-01-31T23:59:59Z"    # ISO 8601 datetime
+
+# Method 3: Last successful continuation
+# use_last_successful: true           # Boolean
+# health_logging_enabled: true        # Required for last successful
+
+# Batch processing
+batch_time_size: "PT24H"              # ISO 8601 duration
+
+# Performance settings
 max_concurrent_queries: 5
 query_timeout_seconds: 300
 max_retries: 3
@@ -154,8 +191,18 @@ from sentinel_log_aggregator import SentinelAggregatorClientOptions
 options = SentinelAggregatorClientOptions(
     dcr_logs_ingestion_endpoint="https://your-dcr.monitor.azure.com",
     dcr_rule_id="dcr-your-rule-id",
-    days_ago=7,
-    batch_hours=12,
+    
+    # Time range method 1: Lookback period
+    lookback_period="P7D",
+    batch_time_size="PT12H",
+    
+    # Alternative: Explicit time range
+    # start_time="2025-01-01T00:00:00Z",
+    # end_time="2025-01-31T23:59:59Z",
+    
+    # Alternative: Last successful continuation
+    # use_last_successful=True,
+    # health_logging_enabled=True,
     max_concurrent_queries=3,
     query_timeout_seconds=300,
     log_level="DEBUG"
@@ -310,8 +357,11 @@ sentinel-aggregator validate --config-file config.yaml --workspace-config worksp
 # Production configuration example
 dcr_logs_ingestion_endpoint: "https://prod-dcr.monitor.azure.com"
 dcr_rule_id: "dcr-prod-sentinel-analytics"
-days_ago: 30
-batch_hours: 24
+
+# Production time configuration - 30 day lookback with daily batches
+lookback_period: "P30D"
+batch_time_size: "PT24H"
+
 max_concurrent_queries: 10
 query_timeout_seconds: 600
 max_retries: 5

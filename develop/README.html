@@ -228,6 +228,12 @@
 <li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id12">Examples</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#query-status">query-status</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id13">Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id14">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#output-examples">Output Examples</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cli-usage.html#configuration-files">Configuration files</a><ul>
@@ -1025,6 +1031,20 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.load_workspace_config"><code class="docutils literal notranslate"><span class="pre">load_workspace_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.__init__"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.create_disabled"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.create_disabled()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.create_job_id"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.create_job_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_error"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_job_end"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_job_end()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_job_start"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_job_start()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_query_execution"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_query_execution()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_watermark_update"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_watermark_update()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_workspace_processing_end"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_workspace_processing_end()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_workspace_processing_start"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_workspace_processing_start()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.verify_health_table_setup"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.verify_health_table_setup()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api-reference.html#module-sentinel_log_aggregator.client_options">Client Options</a><ul>
@@ -1267,6 +1287,7 @@
 <h3>Setup and Installation<a class="headerlink" href="#setup-and-installation" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><strong><a class="reference internal" href="installation.html"><span class="std std-doc">installation.md</span></a></strong> - Complete installation guide with requirements and setup instructions</p></li>
+<li><p><strong><a class="reference internal" href="health-logging-deployment.html"><span class="std std-doc">health-logging-deployment.md</span></a></strong> - Deploy health logging infrastructure using Azure Bicep templates</p></li>
 <li><p><strong><a class="reference internal" href="packaging.html"><span class="std std-doc">packaging.md</span></a></strong> - Package distribution guide for development and release management</p></li>
 </ul>
 </section>
