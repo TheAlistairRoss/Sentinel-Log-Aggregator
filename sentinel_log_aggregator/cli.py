@@ -76,10 +76,10 @@ def create_client_options_from_args(args) -> SentinelAggregatorClientOptions:
             "Provide via --dcr-rule-id argument or DCR_RULE_ID environment variable."
         )
 
-    # Get optional configuration with defaults
-    days_back = args.days_back or int(os.getenv("DAYS_AGO", "30"))
-    batch_hours = args.batch_hours or int(os.getenv("BATCH_HOURS", "24"))
-    max_concurrent = args.max_concurrent_queries or int(os.getenv("MAX_CONCURRENT_QUERIES", "5"))
+    # Get optional configuration with defaults (these may not be present for all subcommands)
+    days_back = getattr(args, 'days_back', None) or int(os.getenv("DAYS_AGO", "30"))
+    batch_hours = getattr(args, 'batch_hours', None) or int(os.getenv("BATCH_HOURS", "24"))
+    max_concurrent = getattr(args, 'max_concurrent_queries', None) or int(os.getenv("MAX_CONCURRENT_QUERIES", "5"))
 
     # Create client options
     return SentinelAggregatorClientOptions(
