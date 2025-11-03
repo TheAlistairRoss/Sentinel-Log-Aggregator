@@ -1,0 +1,1364 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Documentation Index &mdash; Microsoft Sentinel Log Aggregator v0.1.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Microsoft Sentinel Log Aggregator
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation and setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installation-methods">Installation methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#install-from-github-recommended">Install from GitHub (recommended)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#install-from-github-release-packages">Install from GitHub Release Packages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#install-development-version">Install development version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#install-with-development-dependencies">Install with development dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#environment-setup">Environment setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#virtual-environment-recommended">Virtual environment (recommended)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#dependencies">Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#azure-permissions">Azure permissions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#log-analytics-reader">Log Analytics Reader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#monitoring-metrics-publisher">Monitoring Metrics Publisher</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#data-collection-rule-permissions">Data Collection Rule permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#environment-variables">Environment variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#workspace-configuration">Workspace configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#authentication-setup">Authentication setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#managed-identity-recommended-for-azure-hosted">Managed Identity (recommended for Azure-hosted)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#service-principal-ci-cd-and-automation">Service Principal (CI/CD and automation)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#azure-cli-development">Azure CLI (development)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#verification">Verification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#test-installation">Test installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#test-configuration">Test configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#test-connectivity">Test connectivity</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#development-setup">Development setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#pre-commit-hooks">Pre-commit hooks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#common-issues">Common issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#import-errors">Import errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#permission-errors">Permission errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#configuration-errors">Configuration errors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#configuration-methods">Configuration methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#environment-variables">Environment variables</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#required-settings">Required settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#optional-settings">Optional settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#environment-file-env">Environment file (.env)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#yaml-configuration">YAML configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#client-configuration">Client configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#workspace-configuration">Workspace configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#configuration-in-code">Configuration in code</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#client-options">Client options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#id1">Workspace configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#advanced-configuration">Advanced configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#custom-retry-policies">Custom retry policies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#logging-configuration">Logging configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#connection-string-configuration">Connection string configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#configuration-validation">Configuration validation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#validate-client-configuration">Validate client configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#validate-workspace-configuration">Validate workspace configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#cli-validation">CLI validation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#configuration-best-practices">Configuration best practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#security">Security</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#performance">Performance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#monitoring">Monitoring</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#example-production-configuration">Example production configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="query-setup.html">Query Setup and Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="query-setup.html#query-organization">Query Organization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#recommended-directory-structures">Recommended Directory Structures</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="query-setup.html#option-1-by-query-type">Option 1: By Query Type</a></li>
+<li class="toctree-l4"><a class="reference internal" href="query-setup.html#option-2-by-environment">Option 2: By Environment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="query-setup.html#option-3-by-team-department">Option 3: By Team/Department</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="query-setup.html#query-file-format">Query File Format</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#basic-query-structure">Basic Query Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#query-file-fields">Query File Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#parameter-types">Parameter Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#parameter-substitution">Parameter Substitution</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="query-setup.html#workspace-configuration">Workspace Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#using-query-names-legacy">Using Query Names (Legacy)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#using-relative-file-paths-recommended">Using Relative File Paths (Recommended)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#mixed-configuration-backward-compatibility">Mixed Configuration (Backward Compatibility)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="query-setup.html#loading-queries">Loading Queries</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#programmatic-loading">Programmatic Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#cli-loading">CLI Loading</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="query-setup.html#query-development-best-practices">Query Development Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#use-descriptive-names">1. Use Descriptive Names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#include-comprehensive-parameters">2. Include Comprehensive Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#add-meaningful-metadata">3. Add Meaningful Metadata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#use-efficient-kql">4. Use Efficient KQL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#test-queries-thoroughly">5. Test Queries Thoroughly</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="query-setup.html#advanced-configuration">Advanced Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#custom-query-loaders">Custom Query Loaders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#query-validation">Query Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="query-setup.html#migration-from-legacy-format">Migration from Legacy Format</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#step-1-organize-query-files">Step 1: Organize Query Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#step-2-update-workspace-configuration">Step 2: Update Workspace Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#step-3-test-configuration">Step 3: Test Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="query-setup.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#common-issues">Common Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="query-setup.html#debug-mode">Debug Mode</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cli-usage.html">CLI usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli-usage.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli-usage.html#global-options">Global options</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#global-options-reference">Global options reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cli-usage.html#commands">Commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#health">health</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#options">Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id1">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#output">Output</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#run">run</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id2">Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id3">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id4">Output</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#validate">validate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id5">Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id6">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id7">Output</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#query">query</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id8">Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id9">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#list">list</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#subcommands">Subcommands</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id10">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#monitor">monitor</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id11">Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#id12">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cli-usage.html#configuration-files">Configuration files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#cli-configuration">CLI configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#environment-variables-for-cli">Environment variables for CLI</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cli-usage.html#automation-and-scripting">Automation and scripting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#bash-scripting">Bash scripting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#powershell-scripting">PowerShell scripting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#ci-cd-integration">CI/CD integration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#azure-devops-pipeline">Azure DevOps Pipeline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#github-actions">GitHub Actions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cli-usage.html#error-handling">Error handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#exit-codes">Exit codes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#error-output">Error output</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cli-usage.html#best-practices">Best practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#performance-optimization">Performance optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#monitoring-and-logging">Monitoring and logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#security-considerations">Security considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cli-usage.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sdk-usage.html">SDK usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sdk-usage.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sdk-usage.html#core-components">Core components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#sentinelaggregatorclient">SentinelAggregatorClient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#sentinelaggregatorclientoptions">SentinelAggregatorClientOptions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sdk-usage.html#authentication">Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#managed-identity-recommended">Managed Identity (recommended)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#service-principal">Service Principal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#azure-cli">Azure CLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#connection-string">Connection string</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sdk-usage.html#basic-operations">Basic operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#health-checks">Health checks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#single-workspace-queries">Single workspace queries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#data-upload">Data upload</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sdk-usage.html#advanced-operations">Advanced operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#batch-operations-with-lro">Batch operations with LRO</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#workspace-management">Workspace management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#high-level-query-engine">High-level query engine</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sdk-usage.html#response-models">Response models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#queryresult">QueryResult</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#uploadresult">UploadResult</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#batchexecutionresult">BatchExecutionResult</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#serviceproperties">ServiceProperties</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sdk-usage.html#error-handling">Error handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#exception-hierarchy">Exception hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#error-context-information">Error context information</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sdk-usage.html#advanced-patterns">Advanced patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#retry-and-resilience">Retry and resilience</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#parallel-processing">Parallel processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#custom-data-transformations">Custom data transformations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#integration-with-pandas">Integration with pandas</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sdk-usage.html#best-practices">Best practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#resource-management">Resource management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#configuration-validation">Configuration validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#monitoring-and-observability">Monitoring and observability</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sdk-usage.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="security-implementation.html">Security Implementation Summary</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="security-implementation.html#comprehensive-security-architecture">🛡️ Comprehensive Security Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="security-implementation.html#security-implementation-status-fully-operational">🎯 Security Implementation Status: <strong>FULLY OPERATIONAL</strong></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#current-security-health-score-96-100">Current Security Health Score: <strong>🟢 96/100</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="security-implementation.html#core-security-features-implemented">🔒 Core Security Features Implemented</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#azure-native-authentication-authorization">1. <strong>Azure-Native Authentication &amp; Authorization</strong></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="security-implementation.html#managed-identity-integration-primary"><strong>Managed Identity Integration (Primary)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="security-implementation.html#multi-method-authentication-chain"><strong>Multi-Method Authentication Chain</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="security-implementation.html#required-azure-permissions-validated"><strong>Required Azure Permissions (Validated)</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#application-security-framework">2. <strong>Application Security Framework</strong></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="security-implementation.html#input-validation-sanitization"><strong>Input Validation &amp; Sanitization</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="security-implementation.html#data-security-privacy"><strong>Data Security &amp; Privacy</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#static-application-security-testing-sast">3. <strong>Static Application Security Testing (SAST)</strong></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="security-implementation.html#primary-sast-tools-active"><strong>Primary SAST Tools (Active)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="security-implementation.html#code-quality-security"><strong>Code Quality Security</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#software-composition-analysis-sca">4. <strong>Software Composition Analysis (SCA)</strong></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="security-implementation.html#dependency-vulnerability-scanning"><strong>Dependency Vulnerability Scanning</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="security-implementation.html#license-compliance-supply-chain-security"><strong>License Compliance &amp; Supply Chain Security</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#secrets-detection-prevention">5. <strong>Secrets Detection &amp; Prevention</strong></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="security-implementation.html#multi-layer-secrets-protection"><strong>Multi-Layer Secrets Protection</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#azure-specific-security-implementation">6. <strong>Azure-Specific Security Implementation</strong></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="security-implementation.html#data-protection-patterns"><strong>Data Protection Patterns</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="security-implementation.html#secure-communication"><strong>Secure Communication</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="security-implementation.html#audit-compliance"><strong>Audit &amp; Compliance</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#ci-cd-security-pipeline">7. <strong>CI/CD Security Pipeline</strong></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="security-implementation.html#automated-security-scanning-github-actions"><strong>Automated Security Scanning (GitHub Actions)</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="security-implementation.html#security-report-integration"><strong>Security Report Integration</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#local-development-security">8. <strong>Local Development Security</strong></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="security-implementation.html#pre-commit-security-hooks"><strong>Pre-commit Security Hooks</strong></a></li>
+<li class="toctree-l4"><a class="reference internal" href="security-implementation.html#local-security-scanning"><strong>Local Security Scanning</strong></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="security-implementation.html#security-automation-integration">🚀 Security Automation &amp; Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#real-time-security-enforcement"><strong>Real-Time Security Enforcement</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#enterprise-security-compliance"><strong>Enterprise Security Compliance</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#developer-security-experience"><strong>Developer Security Experience</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="security-implementation.html#security-metrics-monitoring">📊 Security Metrics &amp; Monitoring</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#current-security-scan-results"><strong>Current Security Scan Results</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#security-tool-coverage-matrix"><strong>Security Tool Coverage Matrix</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="security-implementation.html#security-best-practices-embedded">🎯 Security Best Practices Embedded</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#secure-by-design"><strong>Secure by Design</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#azure-security-integration"><strong>Azure Security Integration</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#data-protection"><strong>Data Protection</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="security-implementation.html#security-operations">🔧 Security Operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#security-incident-response"><strong>Security Incident Response</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="security-implementation.html#continuous-security-improvement"><strong>Continuous Security Improvement</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="security-implementation.html#summary">📋 Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development Setup Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="development.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#initial-setup">Initial Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="development.html#clone-and-setup-repository">1. Clone and Setup Repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#install-development-tools">2. Install Development Tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#configure-environment">3. Configure Environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#validate-setup">4. Validate Setup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#development-workflow">Development Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="development.html#code-quality-standards">Code Quality Standards</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#pre-commit-hooks">Pre-commit Hooks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#testing-strategy">Testing Strategy</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="development.html#unit-tests">Unit Tests</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#integration-tests">Integration Tests</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#performance-tests">Performance Tests</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#code-organization">Code Organization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#adding-new-features">Adding New Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#debugging">Debugging</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="development.html#vs-code-configuration">VS Code Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#logging-configuration">Logging Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#azure-sdk-logging">Azure SDK Logging</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#ci-cd-pipeline">CI/CD Pipeline</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="development.html#github-actions-workflow">GitHub Actions Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#local-ci-simulation">Local CI Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#release-process">Release Process</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="development.html#common-issues">Common Issues</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="development.html#import-errors">Import Errors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#authentication-issues">Authentication Issues</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#test-failures">Test Failures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#pre-commit-issues">Pre-commit Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#performance-optimization">Performance Optimization</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="development.html#memory-usage">Memory Usage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#query-performance">Query Performance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#logging-performance">Logging Performance</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="development.html#security">Security</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#code-quality">Code Quality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#testing">Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#documentation">Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#additional-resources">Additional Resources</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="workflows.html">GitHub Actions Workflows Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="workflows.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflows.html#ci-cd-pipeline-workflow">CI/CD Pipeline Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="workflows.html#purpose">Purpose</a></li>
+<li class="toctree-l3"><a class="reference internal" href="workflows.html#triggers">Triggers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="workflows.html#environment-variables">Environment Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="workflows.html#jobs-overview">Jobs Overview</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="workflows.html#test-job-test">1. Test Job (<code class="docutils literal notranslate"><span class="pre">test</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="workflows.html#integration-test-job-integration-test">2. Integration Test Job (<code class="docutils literal notranslate"><span class="pre">integration-test</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="workflows.html#build-job-build">3. Build Job (<code class="docutils literal notranslate"><span class="pre">build</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="workflows.html#security-scan-job-security-scan">4. Security Scan Job (<code class="docutils literal notranslate"><span class="pre">security-scan</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="workflows.html#documentation-job-documentation">5. Documentation Job (<code class="docutils literal notranslate"><span class="pre">documentation</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="workflows.html#release-job-release">6. Release Job (<code class="docutils literal notranslate"><span class="pre">release</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="workflows.html#workflow-dependencies">Workflow Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="workflows.html#security-scanning-workflow">Security Scanning Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="workflows.html#id1">Purpose</a></li>
+<li class="toctree-l3"><a class="reference internal" href="workflows.html#id2">Triggers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="workflows.html#id3">Environment Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="workflows.html#id4">Jobs Overview</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="workflows.html#comprehensive-security-scan-security-comprehensive">1. Comprehensive Security Scan (<code class="docutils literal notranslate"><span class="pre">security-comprehensive</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="workflows.html#codeql-analysis-codeql">2. CodeQL Analysis (<code class="docutils literal notranslate"><span class="pre">codeql</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="workflows.html#dependency-review-dependency-review">3. Dependency Review (<code class="docutils literal notranslate"><span class="pre">dependency-review</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="workflows.html#security-integration">Security Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="workflows.html#microsoft-sdl-compliance">Microsoft SDL Compliance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="workflows.html#security-reporting">Security Reporting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="workflows.html#troubleshooting-guide">Troubleshooting Guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="workflows.html#common-issues-and-solutions">Common Issues and Solutions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="workflows.html#ci-cd-pipeline-issues">CI/CD Pipeline Issues</a></li>
+<li class="toctree-l4"><a class="reference internal" href="workflows.html#security-workflow-issues">Security Workflow Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="workflows.html#performance-optimization">Performance Optimization</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="workflows.html#reducing-workflow-runtime">Reducing Workflow Runtime</a></li>
+<li class="toctree-l4"><a class="reference internal" href="workflows.html#resource-management">Resource Management</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="workflows.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="workflows.html#workflow-maintenance">Workflow Maintenance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="workflows.html#security-best-practices">Security Best Practices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="workflows.html#development-integration">Development Integration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="workflows.html#monitoring-and-metrics">Monitoring and Metrics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="workflows.html#key-performance-indicators">Key Performance Indicators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="workflows.html#workflow-metrics">Workflow Metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="workflows.html#contact-and-support">Contact and Support</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="packaging.html">📦 GitHub Packaging and Distribution Setup Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="packaging.html#complete-setup-for-version-controlled-downloads">Complete Setup for Version-Controlled Downloads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packaging.html#whats-been-configured">✅ What’s Been Configured</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#enhanced-package-configuration-pyproject-toml">1. <strong>Enhanced Package Configuration</strong> (<code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#automated-release-pipeline-github-workflows-ci-cd-yml">2. <strong>Automated Release Pipeline</strong> (<code class="docutils literal notranslate"><span class="pre">.github/workflows/ci-cd.yml</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#version-management-scripts-release-py">3. <strong>Version Management</strong> (<code class="docutils literal notranslate"><span class="pre">scripts/release.py</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#package-distribution-files">4. <strong>Package Distribution Files</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="packaging.html#how-to-create-and-distribute-releases">🚀 How to Create and Distribute Releases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#step-1-prepare-a-release">Step 1: Prepare a Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#step-2-push-and-trigger-release">Step 2: Push and Trigger Release</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="packaging.html#how-users-can-install-your-package">📥 How Users Can Install Your Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#from-pypi-after-publishing">From PyPI (After Publishing)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#from-github-releases-version-controlled-downloads">From GitHub Releases (Version-Controlled Downloads)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#from-git-repository-development">From Git Repository (Development)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="packaging.html#version-management-strategy">🏷️ Version Management Strategy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#semantic-versioning">Semantic Versioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#pre-release-versions">Pre-release Versions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#version-commands">Version Commands</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="packaging.html#required-github-secrets">🔐 Required GitHub Secrets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#for-pypi-production">For PyPI (Production)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#for-test-pypi-testing">For Test PyPI (Testing)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="packaging.html#release-asset-types">📊 Release Asset Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="packaging.html#release-verification">🔍 Release Verification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#test-installation">Test Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#distribution-testing">Distribution Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="packaging.html#development-workflow-integration">🛠️ Development Workflow Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#daily-development">Daily Development</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#release-workflow">Release Workflow</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="packaging.html#advanced-features">📈 Advanced Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#conditional-publishing">Conditional Publishing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#security-integration">Security Integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="packaging.html#documentation">Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="packaging.html#summary">🎉 Summary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#authentication-issues">Authentication issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#problem-authentication-failed-with-defaultazurecredential">Problem: Authentication failed with DefaultAzureCredential</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#check-authentication-chain-order">1. Check authentication chain order</a></li>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#service-principal-configuration">2. Service principal configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#azure-cli-authentication">3. Azure CLI authentication</a></li>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#managed-identity-configuration">4. Managed identity configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#problem-token-expired-or-invalid">Problem: Token expired or invalid</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#connectivity-issues">Connectivity issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#problem-connection-timeout-to-azure-monitor">Problem: Connection timeout to Azure Monitor</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#network-connectivity-test">1. Network connectivity test</a></li>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#firewall-and-proxy-configuration">2. Firewall and proxy configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#dns-resolution-issues">3. DNS resolution issues</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#problem-ssl-tls-certificate-errors">Problem: SSL/TLS certificate errors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#query-execution-issues">Query execution issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#problem-kql-query-syntax-errors">Problem: KQL query syntax errors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#query-validation-tool">1. Query validation tool</a></li>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#query-debugging-with-dry-run">2. Query debugging with dry run</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#problem-query-timeout-errors">Problem: Query timeout errors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#query-optimization">1. Query optimization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#batch-processing-for-large-queries">2. Batch processing for large queries</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#data-ingestion-issues">Data ingestion issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#problem-data-ingestion-failures">Problem: Data ingestion failures</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#data-validation-and-formatting">1. Data validation and formatting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#dcr-configuration-validation">2. DCR configuration validation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#problem-rate-limiting-and-throttling">Problem: Rate limiting and throttling</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#implement-exponential-backoff">1. Implement exponential backoff</a></li>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#request-batching-and-queuing">2. Request batching and queuing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#configuration-issues">Configuration issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#problem-workspace-configuration-errors">Problem: Workspace configuration errors</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#configuration-validation-tool">1. Configuration validation tool</a></li>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#environment-variable-debugging">2. Environment variable debugging</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#performance-issues">Performance issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#problem-slow-query-execution">Problem: Slow query execution</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#query-performance-analysis">1. Query performance analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="troubleshooting.html#memory-usage-monitoring">2. Memory usage monitoring</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#getting-help-and-support">Getting help and support</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#enable-detailed-logging">Enable detailed logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#collect-diagnostic-information">Collect diagnostic information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#report-issues">Report issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="best-practices.html">Best practices and recommendations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="best-practices.html#security-best-practices">Security best practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="best-practices.html#authentication-and-authorization">Authentication and authorization</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#use-managed-identity-recommended">Use managed identity (recommended)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#service-principal-for-ci-cd">Service principal for CI/CD</a></li>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#required-azure-permissions">Required Azure permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="best-practices.html#data-security-and-privacy">Data security and privacy</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#row-level-security-tagging">Row-level security tagging</a></li>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#data-encryption-and-transmission">Data encryption and transmission</a></li>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#sensitive-data-handling">Sensitive data handling</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="best-practices.html#performance-optimization">Performance optimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="best-practices.html#batch-processing-configuration">Batch processing configuration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#optimal-batch-sizing">Optimal batch sizing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#memory-management">Memory management</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="best-practices.html#concurrent-execution-limits">Concurrent execution limits</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#azure-service-limits">Azure service limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#adaptive-concurrency">Adaptive concurrency</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="best-practices.html#configuration-management">Configuration management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="best-practices.html#environment-based-configuration">Environment-based configuration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#development-environment">Development environment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#production-environment">Production environment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#configuration-validation">Configuration validation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="best-practices.html#workspace-management">Workspace management</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#workspace-organization">Workspace organization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#configuration-versioning">Configuration versioning</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="best-practices.html#monitoring-and-observability">Monitoring and observability</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="best-practices.html#comprehensive-logging">Comprehensive logging</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#structured-logging-configuration">Structured logging configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#key-metrics-to-monitor">Key metrics to monitor</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="best-practices.html#health-checks-and-monitoring">Health checks and monitoring</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#health-check-implementation">Health check implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="best-practices.html#error-handling-and-resilience">Error handling and resilience</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="best-practices.html#circuit-breaker-pattern">Circuit breaker pattern</a></li>
+<li class="toctree-l3"><a class="reference internal" href="best-practices.html#retry-strategies">Retry strategies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="best-practices.html#deployment-best-practices">Deployment best practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="best-practices.html#container-deployment">Container deployment</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#production-dockerfile">Production Dockerfile</a></li>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#kubernetes-deployment">Kubernetes deployment</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="best-practices.html#ci-cd-pipeline">CI/CD pipeline</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#azure-devops-pipeline">Azure DevOps pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="best-practices.html#monitoring-and-alerting">Monitoring and alerting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="best-practices.html#azure-monitor-alerts">Azure Monitor alerts</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="best-practices.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#unreleased">Unreleased</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#added">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#changed">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#security">Security</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">0.1.0 - 2025-11-01</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#id2">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#features">Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#technical-details">Technical Details</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security Policy</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="security.html#supported-versions">Supported Versions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="security.html#security-standards">Security Standards</a></li>
+<li class="toctree-l2"><a class="reference internal" href="security.html#reporting-a-vulnerability">Reporting a Vulnerability</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="security.html#for-high-severity-vulnerabilities-recommended">For High-Severity Vulnerabilities (Recommended)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="security.html#for-lower-severity-issues">For Lower-Severity Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="security.html#what-to-include">What to Include</a></li>
+<li class="toctree-l3"><a class="reference internal" href="security.html#response-timeline">Response Timeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="security.html#security-update-process">Security Update Process</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="security.html#security-best-practices-for-users">Security Best Practices for Users</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="security.html#authentication">Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="security.html#configuration-security">Configuration Security</a></li>
+<li class="toctree-l3"><a class="reference internal" href="security.html#azure-integration-security">Azure Integration Security</a></li>
+<li class="toctree-l3"><a class="reference internal" href="security.html#deployment-security">Deployment Security</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="security.html#security-scanning-tools">Security Scanning Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="security.html#continuous-scanning">Continuous Scanning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="security.html#tools-integrated">Tools Integrated</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="security.html#vulnerability-disclosure-policy">Vulnerability Disclosure Policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="security.html#security-contact">Security Contact</a></li>
+<li class="toctree-l2"><a class="reference internal" href="security.html#legal">Legal</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html#available-examples">Available Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/basic-examples.html">Basic examples</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="examples/basic-examples.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/basic-examples.html#example-1-basic-health-check">Example 1: Basic health check</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/basic-examples.html#example-2-simple-workspace-query">Example 2: Simple workspace query</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/basic-examples.html#example-3-multi-workspace-aggregation">Example 3: Multi-workspace aggregation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/basic-examples.html#example-4-configuration-management">Example 4: Configuration management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/basic-examples.html#example-5-data-upload-and-ingestion">Example 5: Data upload and ingestion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/basic-examples.html#example-6-error-handling-and-resilience">Example 6: Error handling and resilience</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/basic-examples.html#running-the-examples">Running the examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/basic-examples.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="examples/advanced-examples.html">Advanced examples</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="examples/advanced-examples.html#example-1-long-running-operations-with-progress-tracking">Example 1: Long-running operations with progress tracking</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/advanced-examples.html#example-2-advanced-data-transformation-and-analytics">Example 2: Advanced data transformation and analytics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/advanced-examples.html#example-3-enterprise-automation-workflow">Example 3: Enterprise automation workflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="examples/advanced-examples.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="examples/index.html#quick-start">Quick Start</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api-reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api-reference.html#core-classes">Core Classes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClient</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.__aenter__"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClient.__aenter__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.__aexit__"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClient.__aexit__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.__init__"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClient.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.begin_batch_operation"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClient.begin_batch_operation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.close"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClient.close()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.from_connection_string"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClient.from_connection_string()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.get_service_properties"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClient.get_service_properties()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.list_query_results"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClient.list_query_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.query_workspace"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClient.query_workspace()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.upload_logs"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClient.upload_logs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.validate_credentials"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClient.validate_credentials()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClientOptions"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClientOptions</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClientOptions.__init__"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClientOptions.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClientOptions.from_environment"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClientOptions.from_environment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClientOptions.from_yaml_file"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClientOptions.from_yaml_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClientOptions.validate"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClientOptions.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult"><code class="docutils literal notranslate"><span class="pre">QueryResult</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.__init__"><code class="docutils literal notranslate"><span class="pre">QueryResult.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.correlation_id"><code class="docutils literal notranslate"><span class="pre">QueryResult.correlation_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.end_time"><code class="docutils literal notranslate"><span class="pre">QueryResult.end_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.error_code"><code class="docutils literal notranslate"><span class="pre">QueryResult.error_code</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.error_message"><code class="docutils literal notranslate"><span class="pre">QueryResult.error_message</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.failed"><code class="docutils literal notranslate"><span class="pre">QueryResult.failed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.request_id"><code class="docutils literal notranslate"><span class="pre">QueryResult.request_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.start_time"><code class="docutils literal notranslate"><span class="pre">QueryResult.start_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.succeeded"><code class="docutils literal notranslate"><span class="pre">QueryResult.succeeded</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.workspace_alias"><code class="docutils literal notranslate"><span class="pre">QueryResult.workspace_alias</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.status"><code class="docutils literal notranslate"><span class="pre">QueryResult.status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.data"><code class="docutils literal notranslate"><span class="pre">QueryResult.data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.record_count"><code class="docutils literal notranslate"><span class="pre">QueryResult.record_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.execution_time"><code class="docutils literal notranslate"><span class="pre">QueryResult.execution_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.workspace_id"><code class="docutils literal notranslate"><span class="pre">QueryResult.workspace_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.query"><code class="docutils literal notranslate"><span class="pre">QueryResult.query</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadResult"><code class="docutils literal notranslate"><span class="pre">UploadResult</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadResult.__init__"><code class="docutils literal notranslate"><span class="pre">UploadResult.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadResult.bytes_uploaded"><code class="docutils literal notranslate"><span class="pre">UploadResult.bytes_uploaded</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadResult.correlation_id"><code class="docutils literal notranslate"><span class="pre">UploadResult.correlation_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadResult.error_code"><code class="docutils literal notranslate"><span class="pre">UploadResult.error_code</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadResult.error_message"><code class="docutils literal notranslate"><span class="pre">UploadResult.error_message</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadResult.failed"><code class="docutils literal notranslate"><span class="pre">UploadResult.failed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadResult.request_id"><code class="docutils literal notranslate"><span class="pre">UploadResult.request_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadResult.succeeded"><code class="docutils literal notranslate"><span class="pre">UploadResult.succeeded</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadResult.status"><code class="docutils literal notranslate"><span class="pre">UploadResult.status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadResult.record_count"><code class="docutils literal notranslate"><span class="pre">UploadResult.record_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadResult.upload_time"><code class="docutils literal notranslate"><span class="pre">UploadResult.upload_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadResult.stream_name"><code class="docutils literal notranslate"><span class="pre">UploadResult.stream_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadResult.dcr_rule_id"><code class="docutils literal notranslate"><span class="pre">UploadResult.dcr_rule_id</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.__init__"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.duration"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult.duration</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.end_time"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult.end_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.failed"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult.failed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.failed_workspaces"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult.failed_workspaces</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.partial_success"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult.partial_success</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.query_name"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult.query_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.report_name"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult.report_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.succeeded"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult.succeeded</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.success_rate"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult.success_rate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.successful_workspaces"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult.successful_workspaces</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.status"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult.status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.workspace_results"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult.workspace_results</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.total_records"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult.total_records</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.total_execution_time"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult.total_execution_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.job_correlation_id"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult.job_correlation_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.start_time"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult.start_time</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.ServiceProperties"><code class="docutils literal notranslate"><span class="pre">ServiceProperties</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.ServiceProperties.__init__"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.ServiceProperties.last_check_time"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.last_check_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.ServiceProperties.service_version"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.service_version</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.ServiceProperties.connectivity_status"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.connectivity_status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.ServiceProperties.authentication_status"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.authentication_status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.ServiceProperties.dcr_endpoint"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.dcr_endpoint</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.ServiceProperties.dcr_rule_id"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.dcr_rule_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.ServiceProperties.workspace_count"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.workspace_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.ServiceProperties.available_queries"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.available_queries</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.ServiceProperties.available_reports"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.available_reports</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceQueryExecution"><code class="docutils literal notranslate"><span class="pre">WorkspaceQueryExecution</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceQueryExecution.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceQueryExecution.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceQueryExecution.correlation_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceQueryExecution.correlation_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceQueryExecution.succeeded"><code class="docutils literal notranslate"><span class="pre">WorkspaceQueryExecution.succeeded</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceQueryExecution.upload_result"><code class="docutils literal notranslate"><span class="pre">WorkspaceQueryExecution.upload_result</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceQueryExecution.workspace_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceQueryExecution.workspace_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceQueryExecution.workspace_alias"><code class="docutils literal notranslate"><span class="pre">WorkspaceQueryExecution.workspace_alias</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceQueryExecution.query_result"><code class="docutils literal notranslate"><span class="pre">WorkspaceQueryExecution.query_result</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryStatus"><code class="docutils literal notranslate"><span class="pre">QueryStatus</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryStatus.PENDING"><code class="docutils literal notranslate"><span class="pre">QueryStatus.PENDING</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryStatus.SUCCESS"><code class="docutils literal notranslate"><span class="pre">QueryStatus.SUCCESS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryStatus.COMPLETED"><code class="docutils literal notranslate"><span class="pre">QueryStatus.COMPLETED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryStatus.FAILED"><code class="docutils literal notranslate"><span class="pre">QueryStatus.FAILED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryStatus.TIMEOUT"><code class="docutils literal notranslate"><span class="pre">QueryStatus.TIMEOUT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryStatus.CANCELLED"><code class="docutils literal notranslate"><span class="pre">QueryStatus.CANCELLED</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadStatus"><code class="docutils literal notranslate"><span class="pre">UploadStatus</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadStatus.PENDING"><code class="docutils literal notranslate"><span class="pre">UploadStatus.PENDING</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadStatus.SUCCESS"><code class="docutils literal notranslate"><span class="pre">UploadStatus.SUCCESS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadStatus.FAILED"><code class="docutils literal notranslate"><span class="pre">UploadStatus.FAILED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadStatus.SKIPPED"><code class="docutils literal notranslate"><span class="pre">UploadStatus.SKIPPED</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchStatus"><code class="docutils literal notranslate"><span class="pre">BatchStatus</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchStatus.PENDING"><code class="docutils literal notranslate"><span class="pre">BatchStatus.PENDING</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchStatus.RUNNING"><code class="docutils literal notranslate"><span class="pre">BatchStatus.RUNNING</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchStatus.SUCCESS"><code class="docutils literal notranslate"><span class="pre">BatchStatus.SUCCESS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchStatus.FAILED"><code class="docutils literal notranslate"><span class="pre">BatchStatus.FAILED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchStatus.CANCELLED"><code class="docutils literal notranslate"><span class="pre">BatchStatus.CANCELLED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchStatus.PARTIAL_SUCCESS"><code class="docutils literal notranslate"><span class="pre">BatchStatus.PARTIAL_SUCCESS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorError"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorError</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorError.__init__"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorError.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecutionError"><code class="docutils literal notranslate"><span class="pre">QueryExecutionError</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecutionError.__init__"><code class="docutils literal notranslate"><span class="pre">QueryExecutionError.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceAccessError"><code class="docutils literal notranslate"><span class="pre">WorkspaceAccessError</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceAccessError.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceAccessError.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.DataIngestionError"><code class="docutils literal notranslate"><span class="pre">DataIngestionError</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.DataIngestionError.__init__"><code class="docutils literal notranslate"><span class="pre">DataIngestionError.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.ConfigurationError"><code class="docutils literal notranslate"><span class="pre">ConfigurationError</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.ConfigurationError.__init__"><code class="docutils literal notranslate"><span class="pre">ConfigurationError.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceConfigurationError"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfigurationError</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceConfigurationError.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfigurationError.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchOperationError"><code class="docutils literal notranslate"><span class="pre">BatchOperationError</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.BatchOperationError.__init__"><code class="docutils literal notranslate"><span class="pre">BatchOperationError.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.CredentialValidationError"><code class="docutils literal notranslate"><span class="pre">CredentialValidationError</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.CredentialValidationError.__init__"><code class="docutils literal notranslate"><span class="pre">CredentialValidationError.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig.resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.resource_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig.customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.customer_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig.queries_list"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.queries_list</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig.parameters"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.parameters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig.resource_group"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.resource_group</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig.subscription_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.subscription_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig.workspace_name"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.workspace_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#id0"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.resource_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#id1"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.customer_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#id2"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.queries_list</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#id3"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.parameters</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.KQLQueryDefinition"><code class="docutils literal notranslate"><span class="pre">KQLQueryDefinition</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.KQLQueryDefinition.__init__"><code class="docutils literal notranslate"><span class="pre">KQLQueryDefinition.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.KQLQueryDefinition.add_parameter"><code class="docutils literal notranslate"><span class="pre">KQLQueryDefinition.add_parameter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.KQLQueryDefinition.build_query"><code class="docutils literal notranslate"><span class="pre">KQLQueryDefinition.build_query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.KQLQueryDefinition.from_yaml"><code class="docutils literal notranslate"><span class="pre">KQLQueryDefinition.from_yaml()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.KQLQueryDefinition.get_query"><code class="docutils literal notranslate"><span class="pre">KQLQueryDefinition.get_query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.KQLQueryDefinition.set_stream"><code class="docutils literal notranslate"><span class="pre">KQLQueryDefinition.set_stream()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.KQLQueryDefinition.to_dict"><code class="docutils literal notranslate"><span class="pre">KQLQueryDefinition.to_dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution"><code class="docutils literal notranslate"><span class="pre">QueryExecution</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.__init__"><code class="docutils literal notranslate"><span class="pre">QueryExecution.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.error_message"><code class="docutils literal notranslate"><span class="pre">QueryExecution.error_message</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.query_duration_seconds"><code class="docutils literal notranslate"><span class="pre">QueryExecution.query_duration_seconds</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.query_error_message"><code class="docutils literal notranslate"><span class="pre">QueryExecution.query_error_message</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.query_status"><code class="docutils literal notranslate"><span class="pre">QueryExecution.query_status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.record_count"><code class="docutils literal notranslate"><span class="pre">QueryExecution.record_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.status"><code class="docutils literal notranslate"><span class="pre">QueryExecution.status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.time_range_str"><code class="docutils literal notranslate"><span class="pre">QueryExecution.time_range_str</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.upload_duration_seconds"><code class="docutils literal notranslate"><span class="pre">QueryExecution.upload_duration_seconds</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.upload_error_message"><code class="docutils literal notranslate"><span class="pre">QueryExecution.upload_error_message</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.upload_status"><code class="docutils literal notranslate"><span class="pre">QueryExecution.upload_status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.uploaded_count"><code class="docutils literal notranslate"><span class="pre">QueryExecution.uploaded_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.workspace_alias"><code class="docutils literal notranslate"><span class="pre">QueryExecution.workspace_alias</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.job_correlation_id"><code class="docutils literal notranslate"><span class="pre">QueryExecution.job_correlation_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.execution_id"><code class="docutils literal notranslate"><span class="pre">QueryExecution.execution_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.workspace_id"><code class="docutils literal notranslate"><span class="pre">QueryExecution.workspace_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.query_name"><code class="docutils literal notranslate"><span class="pre">QueryExecution.query_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.destination_stream"><code class="docutils literal notranslate"><span class="pre">QueryExecution.destination_stream</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.start_time"><code class="docutils literal notranslate"><span class="pre">QueryExecution.start_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.end_time"><code class="docutils literal notranslate"><span class="pre">QueryExecution.end_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryExecution.execution_timestamp"><code class="docutils literal notranslate"><span class="pre">QueryExecution.execution_timestamp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.add_workspace"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspace()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.add_workspaces"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspaces()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.all"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.all()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.count"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.display_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.display_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.for_query"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.for_query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.for_subscription"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.for_subscription()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.from_dict_list"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.from_dict_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.from_file"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_alias_by_customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_alias_by_customer_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_alias_by_resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_alias_by_resource_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_subscription_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_subscription_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_alias"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_alias()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_customer_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_resource_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.reports_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.reports_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.save_to_file"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.save_to_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.to_dict_list"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.to_dict_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.unique_reports"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.unique_reports()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.unique_subscriptions"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.unique_subscriptions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.validate_configuration"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.validate_configuration()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine"><code class="docutils literal notranslate"><span class="pre">SentinelQueryEngine</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine.__init__"><code class="docutils literal notranslate"><span class="pre">SentinelQueryEngine.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine.build_query_from_name"><code class="docutils literal notranslate"><span class="pre">SentinelQueryEngine.build_query_from_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine.build_query_with_parameters"><code class="docutils literal notranslate"><span class="pre">SentinelQueryEngine.build_query_with_parameters()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine.calculate_time_batches"><code class="docutils literal notranslate"><span class="pre">SentinelQueryEngine.calculate_time_batches()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine.execute_batch_queries_with_streaming_upload"><code class="docutils literal notranslate"><span class="pre">SentinelQueryEngine.execute_batch_queries_with_streaming_upload()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine.execute_single_query_with_upload"><code class="docutils literal notranslate"><span class="pre">SentinelQueryEngine.execute_single_query_with_upload()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine.get_execution_summary"><code class="docutils literal notranslate"><span class="pre">SentinelQueryEngine.get_execution_summary()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.load_workspace_config"><code class="docutils literal notranslate"><span class="pre">load_workspace_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api-reference.html#module-sentinel_log_aggregator.client_options">Client Options</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.client_options.SentinelAggregatorClientOptions"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClientOptions</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.client_options.SentinelAggregatorClientOptions.__init__"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClientOptions.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.client_options.SentinelAggregatorClientOptions.validate"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClientOptions.validate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.client_options.SentinelAggregatorClientOptions.from_environment"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClientOptions.from_environment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.client_options.SentinelAggregatorClientOptions.from_yaml_file"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorClientOptions.from_yaml_file()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api-reference.html#module-sentinel_log_aggregator.models">Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryParameter"><code class="docutils literal notranslate"><span class="pre">QueryParameter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryParameter.param_type"><code class="docutils literal notranslate"><span class="pre">QueryParameter.param_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryParameter.required"><code class="docutils literal notranslate"><span class="pre">QueryParameter.required</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryParameter.default"><code class="docutils literal notranslate"><span class="pre">QueryParameter.default</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryParameter.description"><code class="docutils literal notranslate"><span class="pre">QueryParameter.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryParameter.__init__"><code class="docutils literal notranslate"><span class="pre">QueryParameter.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig.resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.resource_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig.customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.customer_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig.queries_list"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.queries_list</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig.parameters"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.parameters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#id4"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.resource_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#id5"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.customer_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#id6"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.queries_list</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#id7"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.parameters</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig.workspace_name"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.workspace_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig.subscription_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.subscription_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig.resource_group"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.resource_group</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfig.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.KQLQueryDefinition"><code class="docutils literal notranslate"><span class="pre">KQLQueryDefinition</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.KQLQueryDefinition.__init__"><code class="docutils literal notranslate"><span class="pre">KQLQueryDefinition.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.KQLQueryDefinition.add_parameter"><code class="docutils literal notranslate"><span class="pre">KQLQueryDefinition.add_parameter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.KQLQueryDefinition.set_stream"><code class="docutils literal notranslate"><span class="pre">KQLQueryDefinition.set_stream()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.KQLQueryDefinition.get_query"><code class="docutils literal notranslate"><span class="pre">KQLQueryDefinition.get_query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.KQLQueryDefinition.from_yaml"><code class="docutils literal notranslate"><span class="pre">KQLQueryDefinition.from_yaml()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.KQLQueryDefinition.build_query"><code class="docutils literal notranslate"><span class="pre">KQLQueryDefinition.build_query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.KQLQueryDefinition.to_dict"><code class="docutils literal notranslate"><span class="pre">KQLQueryDefinition.to_dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution"><code class="docutils literal notranslate"><span class="pre">QueryExecution</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.job_correlation_id"><code class="docutils literal notranslate"><span class="pre">QueryExecution.job_correlation_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.execution_id"><code class="docutils literal notranslate"><span class="pre">QueryExecution.execution_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.workspace_id"><code class="docutils literal notranslate"><span class="pre">QueryExecution.workspace_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.query_name"><code class="docutils literal notranslate"><span class="pre">QueryExecution.query_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.destination_stream"><code class="docutils literal notranslate"><span class="pre">QueryExecution.destination_stream</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.start_time"><code class="docutils literal notranslate"><span class="pre">QueryExecution.start_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.end_time"><code class="docutils literal notranslate"><span class="pre">QueryExecution.end_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.execution_timestamp"><code class="docutils literal notranslate"><span class="pre">QueryExecution.execution_timestamp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.query_status"><code class="docutils literal notranslate"><span class="pre">QueryExecution.query_status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.query_duration_seconds"><code class="docutils literal notranslate"><span class="pre">QueryExecution.query_duration_seconds</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.query_error_message"><code class="docutils literal notranslate"><span class="pre">QueryExecution.query_error_message</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.record_count"><code class="docutils literal notranslate"><span class="pre">QueryExecution.record_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.upload_status"><code class="docutils literal notranslate"><span class="pre">QueryExecution.upload_status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.upload_duration_seconds"><code class="docutils literal notranslate"><span class="pre">QueryExecution.upload_duration_seconds</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.upload_error_message"><code class="docutils literal notranslate"><span class="pre">QueryExecution.upload_error_message</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.uploaded_count"><code class="docutils literal notranslate"><span class="pre">QueryExecution.uploaded_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.time_range_str"><code class="docutils literal notranslate"><span class="pre">QueryExecution.time_range_str</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.workspace_alias"><code class="docutils literal notranslate"><span class="pre">QueryExecution.workspace_alias</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.status"><code class="docutils literal notranslate"><span class="pre">QueryExecution.status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.error_message"><code class="docutils literal notranslate"><span class="pre">QueryExecution.error_message</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.__init__"><code class="docutils literal notranslate"><span class="pre">QueryExecution.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.job_correlation_id"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary.job_correlation_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.batch_id"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary.batch_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.notebook_run_timestamp"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary.notebook_run_timestamp</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.total_queries"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary.total_queries</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.successful_queries"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary.successful_queries</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.failed_queries"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary.failed_queries</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.successful_uploads"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary.successful_uploads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.failed_uploads"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary.failed_uploads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.total_records"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary.total_records</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.total_uploaded_records"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary.total_uploaded_records</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.total_duration_seconds"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary.total_duration_seconds</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.time_range_start"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary.time_range_start</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.time_range_end"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary.time_range_end</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.executions"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary.executions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.success_rate"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary.success_rate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.upload_success_rate"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary.upload_success_rate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.generate_detailed_summary"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary.generate_detailed_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.__init__"><code class="docutils literal notranslate"><span class="pre">BatchExecutionSummary.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryStatus"><code class="docutils literal notranslate"><span class="pre">QueryStatus</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryStatus.PENDING"><code class="docutils literal notranslate"><span class="pre">QueryStatus.PENDING</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryStatus.SUCCESS"><code class="docutils literal notranslate"><span class="pre">QueryStatus.SUCCESS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryStatus.COMPLETED"><code class="docutils literal notranslate"><span class="pre">QueryStatus.COMPLETED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryStatus.FAILED"><code class="docutils literal notranslate"><span class="pre">QueryStatus.FAILED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryStatus.TIMEOUT"><code class="docutils literal notranslate"><span class="pre">QueryStatus.TIMEOUT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.QueryStatus.CANCELLED"><code class="docutils literal notranslate"><span class="pre">QueryStatus.CANCELLED</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.UploadStatus"><code class="docutils literal notranslate"><span class="pre">UploadStatus</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.UploadStatus.PENDING"><code class="docutils literal notranslate"><span class="pre">UploadStatus.PENDING</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.UploadStatus.SUCCESS"><code class="docutils literal notranslate"><span class="pre">UploadStatus.SUCCESS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.UploadStatus.FAILED"><code class="docutils literal notranslate"><span class="pre">UploadStatus.FAILED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.models.UploadStatus.SKIPPED"><code class="docutils literal notranslate"><span class="pre">UploadStatus.SKIPPED</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api-reference.html#module-sentinel_log_aggregator.exceptions">Exceptions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.exceptions.SentinelAggregatorError"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorError</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.exceptions.SentinelAggregatorError.__init__"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorError.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.exceptions.QueryExecutionError"><code class="docutils literal notranslate"><span class="pre">QueryExecutionError</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.exceptions.QueryExecutionError.__init__"><code class="docutils literal notranslate"><span class="pre">QueryExecutionError.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.exceptions.WorkspaceAccessError"><code class="docutils literal notranslate"><span class="pre">WorkspaceAccessError</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.exceptions.WorkspaceAccessError.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceAccessError.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.exceptions.DataIngestionError"><code class="docutils literal notranslate"><span class="pre">DataIngestionError</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.exceptions.DataIngestionError.__init__"><code class="docutils literal notranslate"><span class="pre">DataIngestionError.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.exceptions.ConfigurationError"><code class="docutils literal notranslate"><span class="pre">ConfigurationError</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.exceptions.ConfigurationError.__init__"><code class="docutils literal notranslate"><span class="pre">ConfigurationError.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.exceptions.WorkspaceConfigurationError"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfigurationError</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.exceptions.WorkspaceConfigurationError.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceConfigurationError.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.exceptions.BatchOperationError"><code class="docutils literal notranslate"><span class="pre">BatchOperationError</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.exceptions.BatchOperationError.__init__"><code class="docutils literal notranslate"><span class="pre">BatchOperationError.__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.exceptions.CredentialValidationError"><code class="docutils literal notranslate"><span class="pre">CredentialValidationError</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.exceptions.CredentialValidationError.__init__"><code class="docutils literal notranslate"><span class="pre">CredentialValidationError.__init__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api-reference.html#module-sentinel_log_aggregator.query_engine">Query Engine</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.query_engine.SentinelQueryEngine"><code class="docutils literal notranslate"><span class="pre">SentinelQueryEngine</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.query_engine.SentinelQueryEngine.__init__"><code class="docutils literal notranslate"><span class="pre">SentinelQueryEngine.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.query_engine.SentinelQueryEngine.calculate_time_batches"><code class="docutils literal notranslate"><span class="pre">SentinelQueryEngine.calculate_time_batches()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.query_engine.SentinelQueryEngine.build_query_with_parameters"><code class="docutils literal notranslate"><span class="pre">SentinelQueryEngine.build_query_with_parameters()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.query_engine.SentinelQueryEngine.build_query_from_name"><code class="docutils literal notranslate"><span class="pre">SentinelQueryEngine.build_query_from_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.query_engine.SentinelQueryEngine.execute_single_query_with_upload"><code class="docutils literal notranslate"><span class="pre">SentinelQueryEngine.execute_single_query_with_upload()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.query_engine.SentinelQueryEngine.execute_batch_queries_with_streaming_upload"><code class="docutils literal notranslate"><span class="pre">SentinelQueryEngine.execute_batch_queries_with_streaming_upload()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.query_engine.SentinelQueryEngine.get_execution_summary"><code class="docutils literal notranslate"><span class="pre">SentinelQueryEngine.get_execution_summary()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api-reference.html#module-sentinel_log_aggregator.workspace_manager">Workspace Manager</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet"><code class="docutils literal notranslate"><span class="pre">WorkspaceSet</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceSet.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.ids"><code class="docutils literal notranslate"><span class="pre">WorkspaceSet.ids()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.names"><code class="docutils literal notranslate"><span class="pre">WorkspaceSet.names()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.aliases"><code class="docutils literal notranslate"><span class="pre">WorkspaceSet.aliases()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.resource_ids"><code class="docutils literal notranslate"><span class="pre">WorkspaceSet.resource_ids()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.subscription_ids"><code class="docutils literal notranslate"><span class="pre">WorkspaceSet.subscription_ids()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.resource_groups"><code class="docutils literal notranslate"><span class="pre">WorkspaceSet.resource_groups()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.details"><code class="docutils literal notranslate"><span class="pre">WorkspaceSet.details()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.count"><code class="docutils literal notranslate"><span class="pre">WorkspaceSet.count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.filter_by_subscription"><code class="docutils literal notranslate"><span class="pre">WorkspaceSet.filter_by_subscription()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.filter_by_resource_group"><code class="docutils literal notranslate"><span class="pre">WorkspaceSet.filter_by_resource_group()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.filter_by_alias"><code class="docutils literal notranslate"><span class="pre">WorkspaceSet.filter_by_alias()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.filter_by_parameter"><code class="docutils literal notranslate"><span class="pre">WorkspaceSet.filter_by_parameter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.has_query"><code class="docutils literal notranslate"><span class="pre">WorkspaceSet.has_query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.display"><code class="docutils literal notranslate"><span class="pre">WorkspaceSet.display()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.to_configs"><code class="docutils literal notranslate"><span class="pre">WorkspaceSet.to_configs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.count"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspace"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspace()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspaces"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspaces()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.for_query"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.for_query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.for_subscription"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.for_subscription()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.unique_reports"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.unique_reports()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.unique_subscriptions"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.unique_subscriptions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.all"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.all()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_workspace_by_customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_customer_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_workspace_by_resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_resource_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_workspace_by_alias"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_alias()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_alias_by_customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_alias_by_customer_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_alias_by_resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_alias_by_resource_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.reports_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.reports_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.validate_configuration"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.validate_configuration()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_subscription_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_subscription_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.display_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.display_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.from_dict_list"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.from_dict_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.to_dict_list"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.to_dict_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.from_file"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.from_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.save_to_file"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.save_to_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.load_workspace_config"><code class="docutils literal notranslate"><span class="pre">load_workspace_config()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Microsoft Sentinel Log Aggregator</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Documentation Index</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/blob/main/docs/README.md" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="documentation-index">
+<h1>Documentation Index<a class="headerlink" href="#documentation-index" title="Link to this heading"></a></h1>
+<p>This directory contains comprehensive documentation for the Microsoft Sentinel Log Aggregator project.</p>
+<section id="available-documentation">
+<h2>Available Documentation<a class="headerlink" href="#available-documentation" title="Link to this heading"></a></h2>
+<section id="setup-and-installation">
+<h3>Setup and Installation<a class="headerlink" href="#setup-and-installation" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong><a class="reference internal" href="installation.html"><span class="std std-doc">installation.md</span></a></strong> - Complete installation guide with requirements and setup instructions</p></li>
+<li><p><strong><a class="reference internal" href="packaging.html"><span class="std std-doc">packaging.md</span></a></strong> - Package distribution guide for development and release management</p></li>
+</ul>
+</section>
+<section id="development-and-operations">
+<h3>Development and Operations<a class="headerlink" href="#development-and-operations" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong><a class="reference internal" href="workflows.html"><span class="std std-doc">workflows.md</span></a></strong> - Complete GitHub Actions workflows documentation including:</p>
+<ul>
+<li><p>CI/CD Pipeline (6 jobs: test, integration-test, build, security-scan, documentation, release)</p></li>
+<li><p>Security Scanning (Microsoft SDL compliance with 12+ security tools)</p></li>
+<li><p>Troubleshooting and best practices</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="generated-documentation">
+<h3>Generated Documentation<a class="headerlink" href="#generated-documentation" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>API Documentation</strong> - Generated from code docstrings during CI/CD</p></li>
+<li><p><strong>Sphinx Documentation</strong> - Built automatically and deployed to GitHub Pages</p></li>
+</ul>
+</section>
+</section>
+<section id="quick-reference">
+<h2>Quick Reference<a class="headerlink" href="#quick-reference" title="Link to this heading"></a></h2>
+<section id="for-users">
+<h3>For Users<a class="headerlink" href="#for-users" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Start with <a class="reference internal" href="installation.html"><span class="std std-doc">installation.md</span></a> for setup</p></li>
+<li><p>See main README.md for usage examples</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">sentinel-aggregator</span> <span class="pre">--help</span></code> for CLI reference</p></li>
+</ol>
+</section>
+<section id="for-contributors">
+<h3>For Contributors<a class="headerlink" href="#for-contributors" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Review <a class="reference internal" href="workflows.html"><span class="std std-doc">workflows.md</span></a> for CI/CD understanding</p></li>
+<li><p>See <a class="reference internal" href="packaging.html"><span class="std std-doc">packaging.md</span></a> for release processes</p></li>
+<li><p>Check security scanning requirements in workflows documentation</p></li>
+</ol>
+</section>
+<section id="for-maintainers">
+<h3>For Maintainers<a class="headerlink" href="#for-maintainers" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="workflows.html"><span class="std std-doc">workflows.md</span></a> contains complete automation documentation</p></li>
+<li><p><a class="reference internal" href="packaging.html"><span class="std std-doc">packaging.md</span></a> covers release and distribution management</p></li>
+<li><p>Security compliance details in workflows documentation</p></li>
+</ol>
+</section>
+</section>
+<section id="documentation-standards">
+<h2>Documentation Standards<a class="headerlink" href="#documentation-standards" title="Link to this heading"></a></h2>
+<p>All documentation follows Microsoft Learn style guidelines:</p>
+<ul class="simple">
+<li><p>Clear, concise language</p></li>
+<li><p>Structured with proper headings</p></li>
+<li><p>Code examples with syntax highlighting</p></li>
+<li><p>Step-by-step procedures</p></li>
+<li><p>Troubleshooting sections</p></li>
+<li><p>Regular updates with project changes</p></li>
+</ul>
+<hr class="docutils" />
+<p><em>For questions about documentation, create an issue with the <code class="docutils literal notranslate"><span class="pre">documentation</span></code> label.</em></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Microsoft Corporation.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
