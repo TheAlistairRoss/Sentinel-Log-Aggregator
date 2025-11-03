@@ -582,8 +582,8 @@ class TestContextualLogger:
             time_range="2024-01-01 to 2024-01-02",
         )
 
-        mock_logger.info.assert_called_once()
-        call_args = mock_logger.info.call_args[0][0]
+        mock_logger.debug.assert_called_once()
+        call_args = mock_logger.debug.call_args[0][0]
         assert "[QUERY_START]" in call_args
         assert "test_query" in call_args
         assert "test_workspace" in call_args
@@ -598,8 +598,8 @@ class TestContextualLogger:
             success=True,
         )
 
-        mock_logger.info.assert_called_once()
-        call_args = mock_logger.info.call_args[0][0]
+        mock_logger.debug.assert_called_once()
+        call_args = mock_logger.debug.call_args[0][0]
         assert "[QUERY_END]" in call_args
         assert "SUCCESS" in call_args
         assert "500" in call_args
@@ -640,8 +640,8 @@ class TestContextualLogger:
             success=True,
         )
 
-        mock_logger.info.assert_called_once()
-        call_args = mock_logger.info.call_args[0][0]
+        mock_logger.debug.assert_called_once()
+        call_args = mock_logger.debug.call_args[0][0]
         assert "[UPLOAD_END]" in call_args
         assert "SUCCESS" in call_args
 

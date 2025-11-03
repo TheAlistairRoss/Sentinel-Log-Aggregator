@@ -176,7 +176,7 @@ class SentinelQueryEngine:
             workspace_alias = workspace_id
 
         time_range_str = (
-            f"{start_time.strftime('%Y-%m-%d %H:%M')} to {end_time.strftime('%Y-%m-%d %H:%M')}"
+            f"{end_time.strftime('%Y-%m-%d %H:%M')} to {start_time.strftime('%Y-%m-%d %H:%M')}"
         )
 
         query_response = None

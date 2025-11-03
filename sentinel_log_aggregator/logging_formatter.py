@@ -269,7 +269,7 @@ class ContextualLogger:
             msg = self.formatter.format_query_start(
                 self.job_id, query_name, workspace_alias, time_range
             )
-            self.logger.info(msg)
+            self.logger.debug(msg)
 
     def query_end(
         self,
@@ -285,7 +285,7 @@ class ContextualLogger:
                 self.job_id, query_name, workspace_alias, record_count, duration, success
             )
             if success:
-                self.logger.info(msg)
+                self.logger.debug(msg)
             else:
                 self.logger.error(msg)
 
@@ -311,7 +311,7 @@ class ContextualLogger:
                 self.job_id, query_name, workspace_alias, uploaded_count, duration, success
             )
             if success:
-                self.logger.info(msg)
+                self.logger.debug(msg)
             else:
                 self.logger.error(msg)
 

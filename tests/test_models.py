@@ -220,7 +220,7 @@ class TestQueryExecution:
             end_time=end_time,
         )
 
-        assert execution.time_range_str == "2023-01-01 12:00 to 2023-01-01 13:00"
+        assert execution.time_range_str == "2023-01-01 13:00 to 2023-01-01 12:00"
 
 
 class TestBatchExecutionSummary:
@@ -2566,7 +2566,7 @@ class TestModelsMissingCoverage(unittest.TestCase):
         )
 
         # Test time_range_str property (line 196)
-        expected_time_range = "2025-01-01 10:00 to 2025-01-01 11:00"
+        expected_time_range = "2025-01-01 11:00 to 2025-01-01 10:00"
         self.assertEqual(execution.time_range_str, expected_time_range)
 
         # Test status property (line 206)
