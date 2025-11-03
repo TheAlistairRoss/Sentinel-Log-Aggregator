@@ -368,6 +368,7 @@ class SentinelQueryEngine:
                 elif query_name.endswith(".yaml") or query_name.endswith(".yml"):
                     # This looks like a file path, try to load it
                     from pathlib import Path
+
                     from .query_registry import QueryRegistry
 
                     query_file = Path(query_name)

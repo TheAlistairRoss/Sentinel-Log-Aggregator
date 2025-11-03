@@ -10,13 +10,14 @@ dynamically using TEST_WORKSPACE_ID and TEST_WORKSPACE_CUSTOMER_ID from the .env
 
 import asyncio
 import os
-import pytest
 from pathlib import Path
+
+import pytest
 from azure.identity.aio import DefaultAzureCredential
 
 from sentinel_log_aggregator import SentinelAggregatorClient, SentinelAggregatorClientOptions
-from sentinel_log_aggregator.query_engine import SentinelQueryEngine
 from sentinel_log_aggregator.models import WorkspaceConfig
+from sentinel_log_aggregator.query_engine import SentinelQueryEngine
 
 
 class TestRealAzureIntegration:
