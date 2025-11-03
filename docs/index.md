@@ -146,3 +146,25 @@ asyncio.run(main())
 - [Best practices](best-practices.md)
 - [Troubleshooting](troubleshooting.md)
 - [API reference](api-reference.md)
+
+```{toctree}
+:maxdepth: 2
+:caption: Contents:
+:hidden:
+
+installation
+configuration
+query-setup
+cli-usage
+sdk-usage
+security-implementation
+development
+workflows
+packaging
+troubleshooting
+best-practices
+changelog
+security
+examples/index
+api-reference
+```
