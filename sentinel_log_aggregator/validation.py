@@ -244,7 +244,9 @@ class WorkspaceCollectionModel(BaseModel):
         for i, ws in enumerate(v):
             param_names = list(ws.parameters.keys())
             if len(param_names) != len(set(param_names)):
-                raise ValueError(f"Workspace {i+1} has duplicate parameter names in its parameters list")
+                raise ValueError(
+                    f"Workspace {i+1} has duplicate parameter names in its parameters list"
+                )
 
         # Validate aggregation workspace configuration
         aggregation_workspaces = [ws for ws in v if ws.aggregation_workspace]

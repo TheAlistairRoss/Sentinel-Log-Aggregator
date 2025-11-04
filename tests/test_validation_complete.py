@@ -94,7 +94,7 @@ class TestValidationMissingLines:
         """Test that dangerous operations are now allowed since we removed this validation"""
         dangerous_ops = [
             ".drop",
-            ".delete", 
+            ".delete",
             ".create",
             ".alter",
             ".set",

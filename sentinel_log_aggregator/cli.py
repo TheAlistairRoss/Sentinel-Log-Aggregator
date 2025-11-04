@@ -250,7 +250,9 @@ def create_health_logger_from_args(
     health_dcr_endpoint = (
         getattr(args, "health_dcr_endpoint", None) or client_options.dcr_logs_ingestion_endpoint
     )
-    health_dcr_immutable_id = getattr(args, "health_dcr_immutable_id", None) or client_options.dcr_immutable_id
+    health_dcr_immutable_id = (
+        getattr(args, "health_dcr_immutable_id", None) or client_options.dcr_immutable_id
+    )
 
     # Get health to sentinel flag
     health_to_sentinel = (
@@ -483,7 +485,9 @@ Examples:
         "--dcr-endpoint", help="Azure Monitor Data Collection Rule logs ingestion endpoint"
     )
 
-    parser.add_argument("--dcr-immutable-id", help="Azure Monitor Data Collection Rule immutable ID")
+    parser.add_argument(
+        "--dcr-immutable-id", help="Azure Monitor Data Collection Rule immutable ID"
+    )
 
     parser.add_argument(
         "--config-file",
@@ -585,7 +589,8 @@ Examples:
     )
 
     run_parser.add_argument(
-        "--health-dcr-immutable-id", help="DCR immutable ID for health logging (if different from main DCR)"
+        "--health-dcr-immutable-id",
+        help="DCR immutable ID for health logging (if different from main DCR)",
     )
 
     # Validate configuration command
@@ -621,7 +626,8 @@ Examples:
         "--health-dcr-endpoint", help="DCR endpoint for health logging (if different from main DCR)"
     )
     verify_health_parser.add_argument(
-        "--health-dcr-immutable-id", help="DCR immutable ID for health logging (if different from main DCR)"
+        "--health-dcr-immutable-id",
+        help="DCR immutable ID for health logging (if different from main DCR)",
     )
 
     # Query status command
@@ -652,7 +658,8 @@ Examples:
         "--health-dcr-endpoint", help="DCR endpoint for health logging (if different from main DCR)"
     )
     query_status_parser.add_argument(
-        "--health-dcr-immutable-id", help="DCR immutable ID for health logging (if different from main DCR)"
+        "--health-dcr-immutable-id",
+        help="DCR immutable ID for health logging (if different from main DCR)",
     )
 
     return parser

@@ -557,7 +557,9 @@ class SentinelAggregatorClient:
             serializable_data = self._prepare_data_for_upload(data)
 
             response = await self._logs_ingestion_client_instance.upload(
-                rule_id=self._options.dcr_immutable_id, stream_name=stream_name, logs=serializable_data
+                rule_id=self._options.dcr_immutable_id,
+                stream_name=stream_name,
+                logs=serializable_data,
             )
 
             upload_time = (datetime.now(timezone.utc) - start_upload).total_seconds()

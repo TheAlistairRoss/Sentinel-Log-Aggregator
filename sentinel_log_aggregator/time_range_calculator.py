@@ -254,7 +254,7 @@ async def _query_all_last_successful_runs(
         if workspace.aggregation_workspace:
             aggregation_workspace = workspace
             break
-    
+
     if not aggregation_workspace:
         logger.warning("No aggregation workspace found, using first workspace for health queries")
         aggregation_workspace = workspaces[0]
@@ -282,35 +282,35 @@ async def _query_all_last_successful_runs(
 
         # Execute the query against the aggregation workspace
         response = await query_client.query_workspace(
-            workspace_id=aggregation_workspace.customer_id, 
-            query=kql_query, 
-            timespan=(start_time, end_time)
+            workspace_id=aggregation_workspace.customer_id,
+            query=kql_query,
+            timespan=(start_time, end_time),
         )
 
         # Process all results and map to (query_name, workspace_id) -> latest result
         results_map = {}
-        
+
         if response.tables and response.tables[0].rows:
             table = response.tables[0]
             column_names = [col.name for col in table.columns]
-            
+
             # Process each row and keep the latest result per query+workspace combination
             for row in table.rows:
                 row_dict = dict(zip(column_names, row))
-                
+
                 query_name = row_dict.get("QueryName")
                 workspace_id = row_dict.get("WorkspaceId")
                 last_run_time = row_dict.get("LastRunTime")
-                
+
                 if not query_name or not workspace_id:
                     continue
-                
+
                 # Convert timestamp for comparison
                 if isinstance(last_run_time, str):
                     last_run_time = parse_iso8601_datetime(last_run_time)
-                
+
                 key = (query_name, workspace_id)
-                
+
                 # Keep the record with the latest timestamp for each key
                 if key not in results_map:
                     results_map[key] = row_dict.copy()
@@ -318,10 +318,10 @@ async def _query_all_last_successful_runs(
                     existing_time = results_map[key].get("LastRunTime")
                     if isinstance(existing_time, str):
                         existing_time = parse_iso8601_datetime(existing_time)
-                    
+
                     if last_run_time and (not existing_time or last_run_time > existing_time):
                         results_map[key] = row_dict.copy()
-            
+
             # Convert datetime fields for all results
             for result in results_map.values():
                 for field in ["StartTime", "EndTime", "LastRunTime"]:
@@ -350,7 +350,7 @@ async def _query_last_successful_for_query_workspace(
 ) -> Optional[Dict[str, Any]]:
     """
     Query last successful run for a specific query+workspace combination.
-    
+
     Note: This function is kept for backward compatibility but the optimized
     _query_all_last_successful_runs should be used instead for better performance.
 
@@ -419,9 +419,7 @@ async def _query_last_successful_for_query_workspace(
         return result
 
     except Exception as e:
-        logger.debug(
-            f"Failed to query last successful run for {query_name}/{workspace_id}: {e}"
-        )
+        logger.debug(f"Failed to query last successful run for {query_name}/{workspace_id}: {e}")
         return None
 
 

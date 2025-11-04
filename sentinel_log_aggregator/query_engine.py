@@ -418,17 +418,21 @@ class SentinelQueryEngine:
         for workspace in workspace_configs:
             workspace_id = workspace.customer_id
             queries_list = workspace.queries_list
-            
+
             # Extract workspace name from resource ID with validation
             try:
                 resource_parts = workspace.resource_id.split("/")
                 if len(resource_parts) >= 9 and resource_parts[8]:
                     workspace_alias = resource_parts[8]
                 else:
-                    self.logger.warning(f"Malformed resource ID: {workspace.resource_id}, using workspace ID as alias")
+                    self.logger.warning(
+                        f"Malformed resource ID: {workspace.resource_id}, using workspace ID as alias"
+                    )
                     workspace_alias = workspace_id
             except (IndexError, AttributeError):
-                self.logger.warning(f"Failed to extract workspace name from resource ID: {workspace.resource_id}, using workspace ID as alias")
+                self.logger.warning(
+                    f"Failed to extract workspace name from resource ID: {workspace.resource_id}, using workspace ID as alias"
+                )
                 workspace_alias = workspace_id
 
             # Log workspace processing start
