@@ -842,7 +842,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.record_count"><code class="docutils literal notranslate"><span class="pre">UploadResult.record_count</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.upload_time"><code class="docutils literal notranslate"><span class="pre">UploadResult.upload_time</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.stream_name"><code class="docutils literal notranslate"><span class="pre">UploadResult.stream_name</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.dcr_rule_id"><code class="docutils literal notranslate"><span class="pre">UploadResult.dcr_rule_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.dcr_immutable_id"><code class="docutils literal notranslate"><span class="pre">UploadResult.dcr_immutable_id</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.BatchExecutionResult"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult</span></code></a><ul>
@@ -872,7 +872,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.connectivity_status"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.connectivity_status</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.authentication_status"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.authentication_status</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.dcr_endpoint"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.dcr_endpoint</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.dcr_rule_id"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.dcr_rule_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.dcr_immutable_id"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.dcr_immutable_id</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.workspace_count"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.workspace_count</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.available_queries"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.available_queries</span></code></a></li>
 </ul>
@@ -1314,8 +1314,8 @@
 
 <span class="sd">    :param dcr_logs_ingestion_endpoint: Azure Monitor DCR logs ingestion endpoint</span>
 <span class="sd">    :type dcr_logs_ingestion_endpoint: str</span>
-<span class="sd">    :param dcr_rule_id: Data Collection Rule ID for log ingestion</span>
-<span class="sd">    :type dcr_rule_id: str</span>
+<span class="sd">    :param dcr_immutable_id: Data Collection Rule immutable ID for log ingestion</span>
+<span class="sd">    :type dcr_immutable_id: str</span>
 <span class="sd">    :param lookback_period: ISO 8601 duration for how far back to query (default: &quot;P30D&quot;)</span>
 <span class="sd">    :type lookback_period: str</span>
 <span class="sd">    :param batch_time_size: ISO 8601 duration for batch size (default: &quot;PT24H&quot;)</span>
@@ -1348,7 +1348,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">dcr_logs_ingestion_endpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">dcr_rule_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dcr_immutable_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">lookback_period</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">batch_time_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">start_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1367,7 +1367,7 @@
 
         <span class="c1"># Core configuration</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dcr_logs_ingestion_endpoint</span> <span class="o">=</span> <span class="n">dcr_logs_ingestion_endpoint</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dcr_rule_id</span> <span class="o">=</span> <span class="n">dcr_rule_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dcr_immutable_id</span> <span class="o">=</span> <span class="n">dcr_immutable_id</span>
 
         <span class="c1"># Time configuration</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lookback_period</span> <span class="o">=</span> <span class="n">lookback_period</span> <span class="ow">or</span> <span class="s2">&quot;P30D&quot;</span>
@@ -1410,8 +1410,8 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dcr_logs_ingestion_endpoint</span><span class="p">:</span>
                 <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;dcr_logs_ingestion_endpoint is required&quot;</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dcr_rule_id</span><span class="p">:</span>
-                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;dcr_rule_id is required&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dcr_immutable_id</span><span class="p">:</span>
+                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;dcr_immutable_id is required&quot;</span><span class="p">)</span>
 
             <span class="c1"># Time configuration validation</span>
             <span class="k">try</span><span class="p">:</span>
@@ -1475,7 +1475,7 @@
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">dcr_logs_ingestion_endpoint</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DCR_LOGS_INGESTION_ENDPOINT&quot;</span><span class="p">),</span>
-            <span class="n">dcr_rule_id</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DCR_RULE_ID&quot;</span><span class="p">),</span>
+            <span class="n">dcr_immutable_id</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DCR_IMMUTABLE_ID&quot;</span><span class="p">),</span>
             <span class="n">lookback_period</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;LOOKBACK_PERIOD&quot;</span><span class="p">),</span>
             <span class="n">batch_time_size</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;BATCH_TIME_SIZE&quot;</span><span class="p">),</span>
             <span class="n">start_time</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;START_TIME&quot;</span><span class="p">),</span>
@@ -1515,7 +1515,7 @@
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">dcr_logs_ingestion_endpoint</span><span class="o">=</span><span class="n">config_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dcr_logs_ingestion_endpoint&quot;</span><span class="p">),</span>
-            <span class="n">dcr_rule_id</span><span class="o">=</span><span class="n">config_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dcr_rule_id&quot;</span><span class="p">),</span>
+            <span class="n">dcr_immutable_id</span><span class="o">=</span><span class="n">config_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dcr_immutable_id&quot;</span><span class="p">),</span>
             <span class="n">lookback_period</span><span class="o">=</span><span class="n">config_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lookback_period&quot;</span><span class="p">),</span>
             <span class="n">batch_time_size</span><span class="o">=</span><span class="n">config_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;batch_time_size&quot;</span><span class="p">),</span>
             <span class="n">start_time</span><span class="o">=</span><span class="n">config_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_time&quot;</span><span class="p">),</span>

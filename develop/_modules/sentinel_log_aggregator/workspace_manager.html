@@ -842,7 +842,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.record_count"><code class="docutils literal notranslate"><span class="pre">UploadResult.record_count</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.upload_time"><code class="docutils literal notranslate"><span class="pre">UploadResult.upload_time</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.stream_name"><code class="docutils literal notranslate"><span class="pre">UploadResult.stream_name</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.dcr_rule_id"><code class="docutils literal notranslate"><span class="pre">UploadResult.dcr_rule_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.dcr_immutable_id"><code class="docutils literal notranslate"><span class="pre">UploadResult.dcr_immutable_id</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.BatchExecutionResult"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult</span></code></a><ul>
@@ -872,7 +872,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.connectivity_status"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.connectivity_status</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.authentication_status"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.authentication_status</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.dcr_endpoint"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.dcr_endpoint</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.dcr_rule_id"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.dcr_rule_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.dcr_immutable_id"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.dcr_immutable_id</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.workspace_count"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.workspace_count</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.available_queries"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.available_queries</span></code></a></li>
 </ul>
@@ -2038,13 +2038,18 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;🔧 Loading YAML workspace configuration&quot;</span><span class="p">)</span>
             <span class="n">config_data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
+            <span class="c1"># For debug troubleshooting, use raw logger to show full content without sanitization</span>
+            <span class="n">raw_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
             <span class="c1"># Log the loaded YAML content for debugging</span>
             <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">yaml_module</span>
 
             <span class="n">formatted_yaml</span> <span class="o">=</span> <span class="n">yaml_module</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span>
-                <span class="n">config_data</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span>
+                <span class="n">config_data</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="kc">None</span>
             <span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📄 Loaded YAML content:</span><span class="se">\n</span><span class="si">{</span><span class="n">sanitize_log_output</span><span class="p">(</span><span class="n">formatted_yaml</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">raw_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;📄 Loaded YAML content (unsanitized for debugging):</span><span class="se">\n</span><span class="si">{</span><span class="n">formatted_yaml</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
 
             <span class="c1"># Handle new YAML structure with &#39;workspaces&#39; key</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config_data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;workspaces&quot;</span> <span class="ow">in</span> <span class="n">config_data</span><span class="p">:</span>

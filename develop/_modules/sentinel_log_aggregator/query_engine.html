@@ -842,7 +842,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.record_count"><code class="docutils literal notranslate"><span class="pre">UploadResult.record_count</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.upload_time"><code class="docutils literal notranslate"><span class="pre">UploadResult.upload_time</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.stream_name"><code class="docutils literal notranslate"><span class="pre">UploadResult.stream_name</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.dcr_rule_id"><code class="docutils literal notranslate"><span class="pre">UploadResult.dcr_rule_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.dcr_immutable_id"><code class="docutils literal notranslate"><span class="pre">UploadResult.dcr_immutable_id</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.BatchExecutionResult"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult</span></code></a><ul>
@@ -872,7 +872,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.connectivity_status"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.connectivity_status</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.authentication_status"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.authentication_status</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.dcr_endpoint"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.dcr_endpoint</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.dcr_rule_id"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.dcr_rule_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.dcr_immutable_id"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.dcr_immutable_id</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.workspace_count"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.workspace_count</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.available_queries"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.available_queries</span></code></a></li>
 </ul>
@@ -1726,7 +1726,22 @@
         <span class="k">for</span> <span class="n">workspace</span> <span class="ow">in</span> <span class="n">workspace_configs</span><span class="p">:</span>
             <span class="n">workspace_id</span> <span class="o">=</span> <span class="n">workspace</span><span class="o">.</span><span class="n">customer_id</span>
             <span class="n">queries_list</span> <span class="o">=</span> <span class="n">workspace</span><span class="o">.</span><span class="n">queries_list</span>
-            <span class="n">workspace_alias</span> <span class="o">=</span> <span class="n">workspace</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;row_level_security_tag&quot;</span><span class="p">,</span> <span class="n">workspace_id</span><span class="p">)</span>
+
+            <span class="c1"># Extract workspace name from resource ID with validation</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">resource_parts</span> <span class="o">=</span> <span class="n">workspace</span><span class="o">.</span><span class="n">resource_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">resource_parts</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">9</span> <span class="ow">and</span> <span class="n">resource_parts</span><span class="p">[</span><span class="mi">8</span><span class="p">]:</span>
+                    <span class="n">workspace_alias</span> <span class="o">=</span> <span class="n">resource_parts</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Malformed resource ID: </span><span class="si">{</span><span class="n">workspace</span><span class="o">.</span><span class="n">resource_id</span><span class="si">}</span><span class="s2">, using workspace ID as alias&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">workspace_alias</span> <span class="o">=</span> <span class="n">workspace_id</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Failed to extract workspace name from resource ID: </span><span class="si">{</span><span class="n">workspace</span><span class="o">.</span><span class="n">resource_id</span><span class="si">}</span><span class="s2">, using workspace ID as alias&quot;</span>
+                <span class="p">)</span>
+                <span class="n">workspace_alias</span> <span class="o">=</span> <span class="n">workspace_id</span>
 
             <span class="c1"># Log workspace processing start</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">health_logger</span><span class="p">:</span>
@@ -1819,7 +1834,7 @@
 
                         <span class="c1"># Create tasks for each time batch</span>
                         <span class="k">for</span> <span class="n">batch_start</span><span class="p">,</span> <span class="n">batch_end</span> <span class="ow">in</span> <span class="n">time_batches</span><span class="p">:</span>
-                            <span class="n">execution_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">batch_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">workspace_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">actual_query_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">batch_start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">_%H&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="n">execution_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">batch_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">workspace_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">actual_query_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">batch_start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">_%H&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
 
                             <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_single_query_with_upload</span><span class="p">(</span>
                                 <span class="n">workspace_id</span><span class="o">=</span><span class="n">workspace_id</span><span class="p">,</span>
@@ -1839,7 +1854,7 @@
                         <span class="c1"># Create failed execution record</span>
                         <span class="n">failed_execution</span> <span class="o">=</span> <span class="n">QueryExecution</span><span class="p">(</span>
                             <span class="n">job_correlation_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">job_correlation_id</span><span class="p">,</span>
-                            <span class="n">execution_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">batch_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">workspace_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">actual_query_name</span><span class="si">}</span><span class="s2">_failed&quot;</span><span class="p">,</span>
+                            <span class="n">execution_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">batch_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">workspace_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">actual_query_name</span><span class="si">}</span><span class="s2">_failed&quot;</span><span class="p">,</span>
                             <span class="n">workspace_id</span><span class="o">=</span><span class="n">workspace_id</span><span class="p">,</span>
                             <span class="n">query_name</span><span class="o">=</span><span class="n">actual_query_name</span><span class="p">,</span>
                             <span class="n">destination_stream</span><span class="o">=</span><span class="n">query_instance</span><span class="o">.</span><span class="n">destination_stream</span><span class="p">,</span>

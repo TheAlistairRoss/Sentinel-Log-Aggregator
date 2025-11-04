@@ -842,7 +842,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.record_count"><code class="docutils literal notranslate"><span class="pre">UploadResult.record_count</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.upload_time"><code class="docutils literal notranslate"><span class="pre">UploadResult.upload_time</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.stream_name"><code class="docutils literal notranslate"><span class="pre">UploadResult.stream_name</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.dcr_rule_id"><code class="docutils literal notranslate"><span class="pre">UploadResult.dcr_rule_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult.dcr_immutable_id"><code class="docutils literal notranslate"><span class="pre">UploadResult.dcr_immutable_id</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.BatchExecutionResult"><code class="docutils literal notranslate"><span class="pre">BatchExecutionResult</span></code></a><ul>
@@ -872,7 +872,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.connectivity_status"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.connectivity_status</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.authentication_status"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.authentication_status</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.dcr_endpoint"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.dcr_endpoint</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.dcr_rule_id"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.dcr_rule_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.dcr_immutable_id"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.dcr_immutable_id</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.workspace_count"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.workspace_count</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.ServiceProperties.available_queries"><code class="docutils literal notranslate"><span class="pre">ServiceProperties.available_queries</span></code></a></li>
 </ul>
@@ -1611,7 +1611,7 @@
 
         <span class="n">extended_properties</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;watermark_timestamp&quot;</span><span class="p">:</span> <span class="n">watermark_timestamp</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
-            <span class="s2">&quot;workspace_id_short&quot;</span><span class="p">:</span> <span class="n">workspace_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;workspace_id&quot;</span><span class="p">:</span> <span class="n">workspace_id</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="k">if</span> <span class="n">previous_watermark</span><span class="p">:</span>
@@ -1713,7 +1713,7 @@
         <span class="n">context_parts</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">if</span> <span class="n">workspace_id</span> <span class="o">:=</span> <span class="n">health_record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;WorkspaceId&quot;</span><span class="p">):</span>
-            <span class="n">context_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Workspace: </span><span class="si">{</span><span class="n">workspace_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">context_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Workspace: </span><span class="si">{</span><span class="n">workspace_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">query_name</span> <span class="o">:=</span> <span class="n">health_record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;QueryName&quot;</span><span class="p">):</span>
             <span class="n">context_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Query: </span><span class="si">{</span><span class="n">query_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1847,7 +1847,7 @@
         <span class="c1"># Create minimal configuration for disabled logger</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">SentinelAggregatorClientOptions</span><span class="p">(</span>
             <span class="n">dcr_logs_ingestion_endpoint</span><span class="o">=</span><span class="s2">&quot;https://disabled.ingest.monitor.azure.com&quot;</span><span class="p">,</span>
-            <span class="n">dcr_rule_id</span><span class="o">=</span><span class="s2">&quot;dcr-00000000000000000000000000000000&quot;</span><span class="p">,</span>  <span class="c1"># Valid format: dcr-[32 hex chars]</span>
+            <span class="n">dcr_immutable_id</span><span class="o">=</span><span class="s2">&quot;dcr-00000000000000000000000000000000&quot;</span><span class="p">,</span>  <span class="c1"># Valid format: dcr-[32 hex chars]</span>
         <span class="p">)</span>
         <span class="n">credential</span> <span class="o">=</span> <span class="n">DefaultAzureCredential</span><span class="p">()</span>
         <span class="n">client</span> <span class="o">=</span> <span class="n">SentinelAggregatorClient</span><span class="p">(</span>
