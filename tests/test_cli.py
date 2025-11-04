@@ -121,7 +121,7 @@ class TestClientOptionsCreation:
         mock_args.dcr_immutable_id = None
 
         with patch.dict(os.environ, {}, clear=True):
-            with pytest.raises(ValueError, match="DCR rule ID is required"):
+            with pytest.raises(ValueError, match="DCR immutable ID is required"):
                 create_client_options_from_args(mock_args)
 
     def test_create_client_options_env_fallback(self, mock_args):
