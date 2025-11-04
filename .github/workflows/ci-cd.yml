@@ -91,6 +91,11 @@ jobs:
     #     mypy sentinel_log_aggregator/ --ignore-missing-imports
     
     - name: Test with pytest
+      env:
+        # Set mock Azure credentials for tests that need them
+        AZURE_CLIENT_ID: "00000000-0000-0000-0000-000000000000"
+        AZURE_TENANT_ID: "00000000-0000-0000-0000-000000000000"
+        AZURE_CLIENT_SECRET: "fake-secret-for-testing"
       run: |
         pytest tests/ -v --cov=sentinel_log_aggregator --cov-report=xml --cov-report=html --cov-fail-under=80
     

@@ -257,7 +257,7 @@ class TestTimeRangeCalculation:
         assert batch_size == timedelta(hours=24)
 
     @pytest.mark.asyncio
-    async def test_last_successful_calculation(self):
+    async def test_last_successful_calculation(self, mock_azure_credentials):
         """Test time range calculation using last successful runs."""
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
@@ -271,6 +271,7 @@ class TestTimeRangeCalculation:
                 customer_id="test-customer-1",
                 resource_id="/subscriptions/test/resourceGroups/test/providers/Microsoft.OperationalInsights/workspaces/test1",
                 queries_list=[{"name": "test_query"}],
+                aggregation_workspace=True,
             ),
             WorkspaceConfig(
                 customer_id="test-customer-2",
@@ -282,14 +283,14 @@ class TestTimeRangeCalculation:
         # Mock health logger
         mock_health_logger = AsyncMock()
 
-        # Mock the query function to return successful results
+        # Mock the batch query function to return successful results
         with patch(
-            "sentinel_log_aggregator.time_range_calculator._query_last_successful_for_query_workspace"
+            "sentinel_log_aggregator.time_range_calculator._query_all_last_successful_runs"
         ) as mock_query:
-            mock_query.side_effect = [
-                {"end_time": "2025-11-01T12:00:00Z"},  # First workspace
-                {"end_time": "2025-11-01T10:00:00Z"},  # Second workspace (earlier)
-            ]
+            mock_query.return_value = {
+                ("test_query", "test-customer-1"): {"end_time": "2025-11-01T12:00:00Z"},
+                ("test_query", "test-customer-2"): {"end_time": "2025-11-01T10:00:00Z"},
+            }
 
             with patch("sentinel_log_aggregator.time_range_calculator.datetime") as mock_datetime:
                 mock_now = datetime(2025, 11, 3, 12, 0, 0, tzinfo=timezone.utc)
@@ -452,7 +453,7 @@ class TestLastSuccessfulRunsProcessing:
             assert result is None
 
     @pytest.mark.asyncio
-    async def test_calculate_from_last_successful_success(self):
+    async def test_calculate_from_last_successful_success(self, mock_azure_credentials):
         """Test successful calculation from last successful runs."""
         from sentinel_log_aggregator.client_options import SentinelAggregatorClientOptions
 
@@ -465,7 +466,7 @@ class TestLastSuccessfulRunsProcessing:
 
         workspaces = [
             WorkspaceConfig(
-                customer_id="ws1", resource_id="/path/to/ws1", queries_list=[{"name": "test_query"}]
+                customer_id="ws1", resource_id="/path/to/ws1", queries_list=[{"name": "test_query"}], aggregation_workspace=True
             ),
             WorkspaceConfig(
                 customer_id="ws2", resource_id="/path/to/ws2", queries_list=[{"name": "test_query"}]
@@ -475,14 +476,14 @@ class TestLastSuccessfulRunsProcessing:
         mock_health_logger = AsyncMock()
         batch_size = timedelta(hours=12)
 
-        # Mock the individual query function
+        # Mock the batch query function to return successful results
         with patch(
-            "sentinel_log_aggregator.time_range_calculator._query_last_successful_for_query_workspace"
+            "sentinel_log_aggregator.time_range_calculator._query_all_last_successful_runs"
         ) as mock_query:
-            mock_query.side_effect = [
-                {"end_time": "2025-11-01T12:00:00Z"},  # ws1
-                {"end_time": "2025-11-01T10:00:00Z"},  # ws2 (earlier)
-            ]
+            mock_query.return_value = {
+                ("test_query", "ws1"): {"end_time": "2025-11-01T12:00:00Z"},
+                ("test_query", "ws2"): {"end_time": "2025-11-01T10:00:00Z"},
+            }
 
             with patch("sentinel_log_aggregator.time_range_calculator.datetime") as mock_datetime:
                 mock_now = datetime(2025, 11, 3, 12, 0, 0, tzinfo=timezone.utc)
@@ -513,18 +514,21 @@ class TestLastSuccessfulRunsProcessing:
 
         workspaces = [
             WorkspaceConfig(
-                customer_id="ws1", resource_id="/path/to/ws1", queries_list=[{"name": "test_query"}]
+                customer_id="ws1", 
+                resource_id="/path/to/ws1", 
+                queries_list=[{"name": "test_query"}],
+                aggregation_workspace=True
             )
         ]
 
         mock_health_logger = AsyncMock()
         batch_size = timedelta(hours=12)
 
-        # Mock missing results
+        # Mock missing results - return empty dict (no successful runs found)
         with patch(
-            "sentinel_log_aggregator.time_range_calculator._query_last_successful_for_query_workspace"
+            "sentinel_log_aggregator.time_range_calculator._query_all_last_successful_runs"
         ) as mock_query:
-            mock_query.return_value = None  # No successful runs found
+            mock_query.return_value = {}  # No successful runs found
 
             with pytest.raises(
                 TimeRangeCalculationError, match="Cannot use last successful timestamps"
