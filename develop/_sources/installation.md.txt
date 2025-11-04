@@ -102,15 +102,15 @@ The package automatically installs required dependencies:
 
 Your identity (user, service principal, or managed identity) requires the following permissions:
 
-### Log Analytics Reader
+### Microsoft Sentinel Reader
 
-Grant **Log Analytics Reader** role on all source Sentinel workspaces:
+Grant **Microsoft Sentinel Reader** role on all source Sentinel workspaces:
 
 ```bash
 # Using Azure CLI
 az role assignment create \
   --assignee <your-principal-id> \
-  --role "Log Analytics Reader" \
+  --role "Microsoft Sentinel Reader" \
   --scope "/subscriptions/<subscription-id>/resourcegroups/<resource-group>/providers/microsoft.operationalinsights/workspaces/<workspace-name>"
 ```
 
@@ -146,10 +146,12 @@ DCR_LOGS_INGESTION_ENDPOINT=https://your-dcr-endpoint.monitor.azure.com
 DCR_RULE_ID=dcr-your-rule-id
 
 # Optional settings
-DAYS_AGO=30
-BATCH_HOURS=24
+LOOKBACK_PERIOD=P30D
+BATCH_TIME_SIZE=PT24H
 MAX_CONCURRENT_QUERIES=5
 QUERY_TIMEOUT_SECONDS=300
+MAX_RETRIES=3
+RETRY_DELAY_SECONDS=5
 LOG_LEVEL=INFO
 
 # Authentication (choose one method)

@@ -59,7 +59,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../installation.html#azure-permissions">Azure permissions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../installation.html#log-analytics-reader">Log Analytics Reader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#microsoft-sentinel-reader">Microsoft Sentinel Reader</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../installation.html#monitoring-metrics-publisher">Monitoring Metrics Publisher</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../installation.html#data-collection-rule-permissions">Data Collection Rule permissions</a></li>
 </ul>
@@ -1013,9 +1013,11 @@
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_alias_by_customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_alias_by_customer_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_alias_by_resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_alias_by_resource_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_subscription_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_subscription_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_alias"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_alias()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_customer_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_resource_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.has_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.has_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.reports_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.reports_summary()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.save_to_file"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.save_to_file()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.to_dict_list"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.to_dict_list()</span></code></a></li>
@@ -1231,6 +1233,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.count"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.has_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.has_validation_errors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspace"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspace()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspaces"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspaces()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.for_query"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.for_query()</span></code></a></li>
@@ -1366,7 +1370,7 @@
 <span class="sh">@&#39;</span>
 <span class="sh">DCR_LOGS_INGESTION_ENDPOINT=https://your-dcr-endpoint.monitor.azure.com</span>
 <span class="sh">DCR_RULE_ID=dcr-your-rule-id</span>
-<span class="sh">DAYS_AGO=7</span>
+<span class="sh">LOOKBACK_PERIOD=P7D</span>
 <span class="sh">LOG_LEVEL=INFO</span>
 <span class="sh">&#39;@</span> <span class="p">|</span> <span class="nb">Out-File</span> <span class="n">-FilePath</span> <span class="p">.</span><span class="n">env</span> <span class="n">-Encoding</span> <span class="n">UTF8</span>
 </pre></div>
@@ -1725,8 +1729,8 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✓ Client configuration is valid&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  DCR endpoint: </span><span class="si">{</span><span class="n">options</span><span class="o">.</span><span class="n">dcr_logs_ingestion_endpoint</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  DCR rule ID: </span><span class="si">{</span><span class="n">options</span><span class="o">.</span><span class="n">dcr_rule_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Days ago: </span><span class="si">{</span><span class="n">options</span><span class="o">.</span><span class="n">days_ago</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Batch hours: </span><span class="si">{</span><span class="n">options</span><span class="o">.</span><span class="n">batch_hours</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Lookback period: </span><span class="si">{</span><span class="n">options</span><span class="o">.</span><span class="n">lookback_period</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Batch time size: </span><span class="si">{</span><span class="n">options</span><span class="o">.</span><span class="n">batch_time_size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Max concurrent queries: </span><span class="si">{</span><span class="n">options</span><span class="o">.</span><span class="n">max_concurrent_queries</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -2082,8 +2086,8 @@
 <span class="sh">@&#39;</span>
 <span class="sh">DCR_LOGS_INGESTION_ENDPOINT=https://your-dcr-endpoint.monitor.azure.com</span>
 <span class="sh">DCR_RULE_ID=dcr-your-rule-id</span>
-<span class="sh">DAYS_AGO=7</span>
-<span class="sh">BATCH_HOURS=24</span>
+<span class="sh">LOOKBACK_PERIOD=P7D</span>
+<span class="sh">BATCH_TIME_SIZE=PT24H</span>
 <span class="sh">MAX_CONCURRENT_QUERIES=5</span>
 <span class="sh">LOG_LEVEL=INFO</span>
 <span class="sh">&#39;@</span> <span class="p">|</span> <span class="nb">Out-File</span> <span class="n">-FilePath</span> <span class="p">.</span><span class="n">env</span> <span class="n">-Encoding</span> <span class="n">UTF8</span>

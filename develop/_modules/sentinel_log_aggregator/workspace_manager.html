@@ -56,7 +56,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../installation.html#azure-permissions">Azure permissions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../installation.html#log-analytics-reader">Log Analytics Reader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../installation.html#microsoft-sentinel-reader">Microsoft Sentinel Reader</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../installation.html#monitoring-metrics-publisher">Monitoring Metrics Publisher</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../installation.html#data-collection-rule-permissions">Data Collection Rule permissions</a></li>
 </ul>
@@ -1010,9 +1010,11 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_alias_by_customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_alias_by_customer_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_alias_by_resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_alias_by_resource_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_subscription_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_subscription_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_alias"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_alias()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_customer_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_resource_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.has_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.has_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.reports_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.reports_summary()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.save_to_file"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.save_to_file()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.to_dict_list"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.to_dict_list()</span></code></a></li>
@@ -1228,6 +1230,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.count"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.has_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.has_validation_errors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspace"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspace()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspaces"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspaces()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.for_query"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.for_query()</span></code></a></li>
@@ -1542,7 +1546,8 @@
 <span class="sd">            workspace_configs: List of workspace configurations</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">workspaces</span> <span class="o">=</span> <span class="n">workspace_configs</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">SecureLogger</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">SecureLogger</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validation_errors</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Track validation errors</span></div>
 
 
 <div class="viewcode-block" id="WorkspaceManager.count">
@@ -1550,6 +1555,20 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the number of workspaces.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workspaces</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WorkspaceManager.has_validation_errors">
+<a class="viewcode-back" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.has_validation_errors">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_validation_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if there were validation errors during loading.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_validation_errors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="WorkspaceManager.get_validation_errors">
+<a class="viewcode-back" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_validation_errors">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_validation_errors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get list of validation errors that occurred during loading.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validation_errors</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="WorkspaceManager.add_workspace">
@@ -2020,7 +2039,12 @@
             <span class="n">config_data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
             <span class="c1"># Log the loaded YAML content for debugging</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📄 Loaded YAML content: </span><span class="si">{</span><span class="n">sanitize_log_output</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">config_data</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">yaml_module</span>
+
+            <span class="n">formatted_yaml</span> <span class="o">=</span> <span class="n">yaml_module</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span>
+                <span class="n">config_data</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📄 Loaded YAML content:</span><span class="se">\n</span><span class="si">{</span><span class="n">sanitize_log_output</span><span class="p">(</span><span class="n">formatted_yaml</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="c1"># Handle new YAML structure with &#39;workspaces&#39; key</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config_data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;workspaces&quot;</span> <span class="ow">in</span> <span class="n">config_data</span><span class="p">:</span>
@@ -2050,15 +2074,21 @@
                 <span class="sa">f</span><span class="s2">&quot;✅ Configuration validation successful: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">workspace_data</span><span class="p">)</span><span class="si">}</span><span class="s2"> workspaces&quot;</span>
             <span class="p">)</span>
 
+            <span class="c1"># Create and return workspace manager with successful validation</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dict_list</span><span class="p">(</span><span class="n">workspace_data</span><span class="p">)</span>
+
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚠️ Pydantic validation failed, using basic validation: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="c1"># Fallback to basic validation</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Pydantic validation failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># Fallback to basic validation but track the failure</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">workspace_data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Workspace configuration must be a list of workspace objects, got: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">workspace_data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dict_list</span><span class="p">(</span><span class="n">workspace_data</span><span class="p">)</span></div>
+            <span class="c1"># Create workspace manager with validation failure flag</span>
+            <span class="n">manager</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dict_list</span><span class="p">(</span><span class="n">workspace_data</span><span class="p">)</span>
+            <span class="n">manager</span><span class="o">.</span><span class="n">_validation_errors</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)]</span>  <span class="c1"># Track validation errors</span>
+            <span class="k">return</span> <span class="n">manager</span></div>
 
 
 <div class="viewcode-block" id="WorkspaceManager.save_to_file">

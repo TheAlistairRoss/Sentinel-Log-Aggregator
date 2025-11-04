@@ -41,7 +41,7 @@ credential = DefaultAzureCredential()
 4. **Interactive Browser** (Jupyter): Fallback for notebook scenarios
 
 #### **Required Azure Permissions (Validated)**
-- **Log Analytics Reader** on all source Sentinel workspaces
+- **Microsoft Sentinel Reader** on all source Sentinel workspaces
 - **Monitoring Metrics Publisher** for DCR ingestion endpoint
 - **Data Collection Rule permissions** configured for authenticated identity
 

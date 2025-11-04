@@ -58,7 +58,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#azure-permissions">Azure permissions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#log-analytics-reader">Log Analytics Reader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#microsoft-sentinel-reader">Microsoft Sentinel Reader</a></li>
 <li class="toctree-l3"><a class="reference internal" href="installation.html#monitoring-metrics-publisher">Monitoring Metrics Publisher</a></li>
 <li class="toctree-l3"><a class="reference internal" href="installation.html#data-collection-rule-permissions">Data Collection Rule permissions</a></li>
 </ul>
@@ -1012,9 +1012,11 @@
 <li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.WorkspaceManager.get_alias_by_customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_alias_by_customer_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.WorkspaceManager.get_alias_by_resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_alias_by_resource_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.WorkspaceManager.get_subscription_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_subscription_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.WorkspaceManager.get_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_alias"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_alias()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_customer_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_resource_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.WorkspaceManager.has_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.has_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.WorkspaceManager.reports_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.reports_summary()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.WorkspaceManager.save_to_file"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.save_to_file()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.WorkspaceManager.to_dict_list"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.to_dict_list()</span></code></a></li>
@@ -1230,6 +1232,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#sentinel_log_aggregator.workspace_manager.WorkspaceManager"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.workspace_manager.WorkspaceManager.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.workspace_manager.WorkspaceManager.count"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.workspace_manager.WorkspaceManager.has_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.has_validation_errors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspace"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspace()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspaces"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspaces()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.workspace_manager.WorkspaceManager.for_query"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.for_query()</span></code></a></li>
@@ -2680,6 +2684,12 @@ are stored in the parameters dictionary for maximum flexibility.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sentinel_log_aggregator.WorkspaceManager.get_validation_errors">
+<span class="sig-name descname"><span class="pre">get_validation_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/sentinel_log_aggregator/workspace_manager.html#WorkspaceManager.get_validation_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sentinel_log_aggregator.WorkspaceManager.get_validation_errors" title="Link to this definition"></a></dt>
+<dd><p>Get list of validation errors that occurred during loading.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sentinel_log_aggregator.WorkspaceManager.get_workspace_by_alias">
 <span class="sig-name descname"><span class="pre">get_workspace_by_alias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#sentinel_log_aggregator.models.WorkspaceConfig" title="sentinel_log_aggregator.models.WorkspaceConfig"><span class="pre">WorkspaceConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/sentinel_log_aggregator/workspace_manager.html#WorkspaceManager.get_workspace_by_alias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_alias" title="Link to this definition"></a></dt>
 <dd><p>Get workspace configuration by row-level security tag alias.</p>
@@ -2719,6 +2729,12 @@ are stored in the parameters dictionary for maximum flexibility.</p>
 <dd class="field-even"><p>WorkspaceConfig if found, None otherwise</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sentinel_log_aggregator.WorkspaceManager.has_validation_errors">
+<span class="sig-name descname"><span class="pre">has_validation_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="_modules/sentinel_log_aggregator/workspace_manager.html#WorkspaceManager.has_validation_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sentinel_log_aggregator.WorkspaceManager.has_validation_errors" title="Link to this definition"></a></dt>
+<dd><p>Check if there were validation errors during loading.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -4103,6 +4119,18 @@ are stored in the parameters dictionary for maximum flexibility.</p>
 <dt class="sig sig-object py" id="sentinel_log_aggregator.workspace_manager.WorkspaceManager.count">
 <span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span></span><a class="reference internal" href="_modules/sentinel_log_aggregator/workspace_manager.html#WorkspaceManager.count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sentinel_log_aggregator.workspace_manager.WorkspaceManager.count" title="Link to this definition"></a></dt>
 <dd><p>Get the number of workspaces.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sentinel_log_aggregator.workspace_manager.WorkspaceManager.has_validation_errors">
+<span class="sig-name descname"><span class="pre">has_validation_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="_modules/sentinel_log_aggregator/workspace_manager.html#WorkspaceManager.has_validation_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sentinel_log_aggregator.workspace_manager.WorkspaceManager.has_validation_errors" title="Link to this definition"></a></dt>
+<dd><p>Check if there were validation errors during loading.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_validation_errors">
+<span class="sig-name descname"><span class="pre">get_validation_errors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/sentinel_log_aggregator/workspace_manager.html#WorkspaceManager.get_validation_errors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_validation_errors" title="Link to this definition"></a></dt>
+<dd><p>Get list of validation errors that occurred during loading.</p>
 </dd></dl>
 
 <dl class="py method">

@@ -59,7 +59,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#azure-permissions">Azure permissions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#log-analytics-reader">Log Analytics Reader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#microsoft-sentinel-reader">Microsoft Sentinel Reader</a></li>
 <li class="toctree-l3"><a class="reference internal" href="installation.html#monitoring-metrics-publisher">Monitoring Metrics Publisher</a></li>
 <li class="toctree-l3"><a class="reference internal" href="installation.html#data-collection-rule-permissions">Data Collection Rule permissions</a></li>
 </ul>
@@ -1013,9 +1013,11 @@
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_alias_by_customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_alias_by_customer_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_alias_by_resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_alias_by_resource_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_subscription_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_subscription_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_alias"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_alias()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_customer_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_resource_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.has_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.has_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.reports_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.reports_summary()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.save_to_file"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.save_to_file()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.to_dict_list"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.to_dict_list()</span></code></a></li>
@@ -1231,6 +1233,8 @@
 <li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.count"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.has_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.has_validation_errors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspace"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspace()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspaces"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspaces()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.for_query"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.for_query()</span></code></a></li>
@@ -1332,7 +1336,7 @@
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Minimum required permissions</span>
 <span class="nt">permissions</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/subscriptions/{subscription-id}/resourceGroups/{rg}/providers/Microsoft.OperationalInsights/workspaces/{workspace}&quot;</span>
-<span class="w">    </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Log</span><span class="nv"> </span><span class="s">Analytics</span><span class="nv"> </span><span class="s">Reader&quot;</span>
+<span class="w">    </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Microsoft</span><span class="nv"> </span><span class="s">Sentinel</span><span class="nv"> </span><span class="s">Reader&quot;</span>
 <span class="w">    </span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/subscriptions/{subscription-id}/resourceGroups/{rg}/providers/Microsoft.Insights/dataCollectionEndpoints/{dce}&quot;</span>
 <span class="w">    </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Monitoring</span><span class="nv"> </span><span class="s">Metrics</span><span class="nv"> </span><span class="s">Publisher&quot;</span>
@@ -1400,7 +1404,7 @@
 <h4>Optimal batch sizing<a class="headerlink" href="#optimal-batch-sizing" title="Link to this heading"></a></h4>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Recommended batch configuration</span>
 <span class="nt">batch_configuration</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">batch_hours</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">24</span><span class="w">  </span><span class="c1"># 24-hour batches for large workspaces</span>
+<span class="w">  </span><span class="nt">batch_time_size</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;PT24H&quot;</span><span class="w">  </span><span class="c1"># 24-hour batches for large workspaces</span>
 <span class="w">  </span><span class="nt">max_concurrent_queries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span><span class="w">  </span><span class="c1"># Adjust based on Azure quota limits</span>
 <span class="w">  </span><span class="nt">query_timeout_minutes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w">  </span><span class="c1"># Allow sufficient time for large queries</span>
 <span class="w">  </span><span class="nt">retry_max_attempts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
@@ -1525,9 +1529,9 @@
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># dev-config.yaml</span>
 <span class="nt">environment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">development</span>
 <span class="nt">log_level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DEBUG</span>
-<span class="nt">batch_hours</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">batch_time_size</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;PT1H&quot;</span>
 <span class="nt">max_concurrent_queries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-<span class="nt">days_back</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">lookback_period</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;P1D&quot;</span>
 <span class="nt">upload_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">  </span><span class="c1"># Disable uploads in dev</span>
 <span class="nt">dry_run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </pre></div>
@@ -1538,9 +1542,9 @@
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># prod-config.yaml</span>
 <span class="nt">environment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">production</span>
 <span class="nt">log_level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">INFO</span>
-<span class="nt">batch_hours</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">24</span>
+<span class="nt">batch_time_size</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;PT24H&quot;</span>
 <span class="nt">max_concurrent_queries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
-<span class="nt">days_back</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">7</span>
+<span class="nt">lookback_period</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;P7D&quot;</span>
 <span class="nt">upload_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="nt">dry_run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 <span class="nt">retry_max_attempts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
@@ -1559,7 +1563,7 @@
     
     <span class="n">environment</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">log_level</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">batch_hours</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">batch_time_size</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">max_concurrent_queries</span><span class="p">:</span> <span class="nb">int</span>
     
     <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -1572,8 +1576,8 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_level</span> <span class="o">==</span> <span class="s2">&quot;DEBUG&quot;</span><span class="p">:</span>
             <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;DEBUG log level not recommended for production&quot;</span><span class="p">)</span>
         
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_hours</span> <span class="o">&lt;</span> <span class="mi">12</span><span class="p">:</span>
-            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Batch hours should be &gt;= 12 for production efficiency&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_time_size</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;PT1H&quot;</span><span class="p">,</span> <span class="s2">&quot;PT2H&quot;</span><span class="p">,</span> <span class="s2">&quot;PT4H&quot;</span><span class="p">,</span> <span class="s2">&quot;PT6H&quot;</span><span class="p">]:</span>
+            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Batch time size should be &gt;= PT12H for production efficiency&quot;</span><span class="p">)</span>
         
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_concurrent_queries</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
             <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Max concurrent queries should not exceed 10 to avoid throttling&quot;</span><span class="p">)</span>

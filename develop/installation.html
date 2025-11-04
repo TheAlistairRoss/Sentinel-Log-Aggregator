@@ -59,7 +59,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#azure-permissions">Azure permissions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#log-analytics-reader">Log Analytics Reader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#microsoft-sentinel-reader">Microsoft Sentinel Reader</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#monitoring-metrics-publisher">Monitoring Metrics Publisher</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#data-collection-rule-permissions">Data Collection Rule permissions</a></li>
 </ul>
@@ -1013,9 +1013,11 @@
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_alias_by_customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_alias_by_customer_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_alias_by_resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_alias_by_resource_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_subscription_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_subscription_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_alias"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_alias()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_customer_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_resource_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.has_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.has_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.reports_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.reports_summary()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.save_to_file"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.save_to_file()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.to_dict_list"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.to_dict_list()</span></code></a></li>
@@ -1231,6 +1233,8 @@
 <li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.count"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.has_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.has_validation_errors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspace"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspace()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspaces"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspaces()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.for_query"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.for_query()</span></code></a></li>
@@ -1376,13 +1380,13 @@ pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com
 <section id="azure-permissions">
 <h2>Azure permissions<a class="headerlink" href="#azure-permissions" title="Link to this heading"></a></h2>
 <p>Your identity (user, service principal, or managed identity) requires the following permissions:</p>
-<section id="log-analytics-reader">
-<h3>Log Analytics Reader<a class="headerlink" href="#log-analytics-reader" title="Link to this heading"></a></h3>
-<p>Grant <strong>Log Analytics Reader</strong> role on all source Sentinel workspaces:</p>
+<section id="microsoft-sentinel-reader">
+<h3>Microsoft Sentinel Reader<a class="headerlink" href="#microsoft-sentinel-reader" title="Link to this heading"></a></h3>
+<p>Grant <strong>Microsoft Sentinel Reader</strong> role on all source Sentinel workspaces:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using Azure CLI</span>
 az<span class="w"> </span>role<span class="w"> </span>assignment<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--assignee<span class="w"> </span>&lt;your-principal-id&gt;<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--role<span class="w"> </span><span class="s2">&quot;Log Analytics Reader&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--role<span class="w"> </span><span class="s2">&quot;Microsoft Sentinel Reader&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--scope<span class="w"> </span><span class="s2">&quot;/subscriptions/&lt;subscription-id&gt;/resourcegroups/&lt;resource-group&gt;/providers/microsoft.operationalinsights/workspaces/&lt;workspace-name&gt;&quot;</span>
 </pre></div>
 </div>
@@ -1418,10 +1422,12 @@ az<span class="w"> </span>role<span class="w"> </span>assignment<span class="w">
 <span class="nv">DCR_RULE_ID</span><span class="o">=</span>dcr-your-rule-id
 
 <span class="c1"># Optional settings</span>
-<span class="nv">DAYS_AGO</span><span class="o">=</span><span class="m">30</span>
-<span class="nv">BATCH_HOURS</span><span class="o">=</span><span class="m">24</span>
+<span class="nv">LOOKBACK_PERIOD</span><span class="o">=</span>P30D
+<span class="nv">BATCH_TIME_SIZE</span><span class="o">=</span>PT24H
 <span class="nv">MAX_CONCURRENT_QUERIES</span><span class="o">=</span><span class="m">5</span>
 <span class="nv">QUERY_TIMEOUT_SECONDS</span><span class="o">=</span><span class="m">300</span>
+<span class="nv">MAX_RETRIES</span><span class="o">=</span><span class="m">3</span>
+<span class="nv">RETRY_DELAY_SECONDS</span><span class="o">=</span><span class="m">5</span>
 <span class="nv">LOG_LEVEL</span><span class="o">=</span>INFO
 
 <span class="c1"># Authentication (choose one method)</span>

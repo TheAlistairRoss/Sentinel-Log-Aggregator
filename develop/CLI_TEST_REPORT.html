@@ -57,7 +57,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="installation.html#azure-permissions">Azure permissions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="installation.html#log-analytics-reader">Log Analytics Reader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#microsoft-sentinel-reader">Microsoft Sentinel Reader</a></li>
 <li class="toctree-l3"><a class="reference internal" href="installation.html#monitoring-metrics-publisher">Monitoring Metrics Publisher</a></li>
 <li class="toctree-l3"><a class="reference internal" href="installation.html#data-collection-rule-permissions">Data Collection Rule permissions</a></li>
 </ul>
@@ -1011,9 +1011,11 @@
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_alias_by_customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_alias_by_customer_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_alias_by_resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_alias_by_resource_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_subscription_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_subscription_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_alias"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_alias()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_customer_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_resource_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.has_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.has_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.reports_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.reports_summary()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.save_to_file"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.save_to_file()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.to_dict_list"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.to_dict_list()</span></code></a></li>
@@ -1229,6 +1231,8 @@
 <li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.count"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.has_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.has_validation_errors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspace"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspace()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspaces"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspaces()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.for_query"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.for_query()</span></code></a></li>
@@ -1400,16 +1404,16 @@ pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </s
 <p><strong>Expected</strong>: Detailed help for run command with all options<br />
 <strong>Result</strong>: ✅ <strong>PASS</strong></p>
 <p><strong>Output</strong>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">sentinel</span><span class="o">-</span><span class="n">aggregator</span> <span class="n">run</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">--</span><span class="n">workspace</span><span class="o">-</span><span class="n">config</span> <span class="n">WORKSPACE_CONFIG</span> <span class="p">[</span><span class="o">--</span><span class="n">days</span><span class="o">-</span><span class="n">back</span> <span class="n">DAYS_BACK</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">batch</span><span class="o">-</span><span class="n">hours</span> <span class="n">BATCH_HOURS</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">config</span><span class="o">-</span><span class="n">file</span> <span class="n">CONFIG_FILE</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">sentinel</span><span class="o">-</span><span class="n">aggregator</span> <span class="n">run</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">--</span><span class="n">workspace</span><span class="o">-</span><span class="n">config</span> <span class="n">WORKSPACE_CONFIG</span> <span class="p">[</span><span class="o">--</span><span class="n">lookback</span><span class="o">-</span><span class="n">period</span> <span class="n">LOOKBACK_PERIOD</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">batch</span><span class="o">-</span><span class="n">time</span><span class="o">-</span><span class="n">size</span> <span class="n">BATCH_TIME_SIZE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">config</span><span class="o">-</span><span class="n">file</span> <span class="n">CONFIG_FILE</span><span class="p">]</span>
 
 <span class="n">options</span><span class="p">:</span>
   <span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>            <span class="n">show</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span>
   <span class="o">--</span><span class="n">workspace</span><span class="o">-</span><span class="n">config</span> <span class="n">WORKSPACE_CONFIG</span>
-                        <span class="n">Path</span> <span class="n">to</span> <span class="n">workspace</span> <span class="n">configuration</span> <span class="n">JSON</span> <span class="n">file</span>
-  <span class="o">--</span><span class="n">days</span><span class="o">-</span><span class="n">back</span> <span class="n">DAYS_BACK</span>
-                        <span class="n">Number</span> <span class="n">of</span> <span class="n">days</span> <span class="n">to</span> <span class="n">go</span> <span class="n">back</span> <span class="p">(</span><span class="n">overrides</span> <span class="n">config</span><span class="p">)</span>
-  <span class="o">--</span><span class="n">batch</span><span class="o">-</span><span class="n">hours</span> <span class="n">BATCH_HOURS</span>
-                        <span class="n">Hours</span> <span class="n">per</span> <span class="n">batch</span> <span class="p">(</span><span class="n">overrides</span> <span class="n">config</span><span class="p">)</span>
+                        <span class="n">Path</span> <span class="n">to</span> <span class="n">workspace</span> <span class="n">configuration</span> <span class="n">YAML</span> <span class="n">file</span>
+  <span class="o">--</span><span class="n">lookback</span><span class="o">-</span><span class="n">period</span> <span class="n">LOOKBACK_PERIOD</span>
+                        <span class="n">ISO</span> <span class="mi">8601</span> <span class="n">duration</span> <span class="k">for</span> <span class="n">how</span> <span class="n">far</span> <span class="n">back</span> <span class="n">to</span> <span class="n">query</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="p">,</span> <span class="n">P7D</span><span class="p">,</span> <span class="n">PT48H</span><span class="p">)</span>
+  <span class="o">--</span><span class="n">batch</span><span class="o">-</span><span class="n">time</span><span class="o">-</span><span class="n">size</span> <span class="n">BATCH_TIME_SIZE</span>
+                        <span class="n">ISO</span> <span class="mi">8601</span> <span class="n">duration</span> <span class="k">for</span> <span class="n">batch</span> <span class="n">size</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="p">,</span> <span class="n">PT24H</span><span class="p">,</span> <span class="n">PT12H</span><span class="p">)</span>
   <span class="o">--</span><span class="n">config</span><span class="o">-</span><span class="n">file</span> <span class="n">CONFIG_FILE</span>
                         <span class="n">Path</span> <span class="n">to</span> <span class="n">YAML</span> <span class="n">configuration</span> <span class="n">file</span> <span class="p">(</span><span class="n">optional</span><span class="p">)</span>
 </pre></div>
@@ -1469,8 +1473,8 @@ pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </s
 <span class="nv">DCR_RULE_ID</span><span class="o">=</span>dcr-your-actual-dcr-rule-id
 
 <span class="c1"># Query execution settings</span>
-<span class="nv">DAYS_AGO</span><span class="o">=</span><span class="m">30</span>
-<span class="nv">BATCH_HOURS</span><span class="o">=</span><span class="m">24</span>
+<span class="nv">LOOKBACK_PERIOD</span><span class="o">=</span>P30D
+<span class="nv">BATCH_TIME_SIZE</span><span class="o">=</span>PT24H
 <span class="nv">MAX_CONCURRENT_QUERIES</span><span class="o">=</span><span class="m">5</span>
 <span class="nv">QUERY_TIMEOUT_SECONDS</span><span class="o">=</span><span class="m">300</span>
 

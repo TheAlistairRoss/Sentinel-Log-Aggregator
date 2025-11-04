@@ -59,7 +59,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../installation.html#azure-permissions">Azure permissions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../installation.html#log-analytics-reader">Log Analytics Reader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#microsoft-sentinel-reader">Microsoft Sentinel Reader</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../installation.html#monitoring-metrics-publisher">Monitoring Metrics Publisher</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../installation.html#data-collection-rule-permissions">Data Collection Rule permissions</a></li>
 </ul>
@@ -1013,9 +1013,11 @@
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_alias_by_customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_alias_by_customer_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_alias_by_resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_alias_by_resource_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_subscription_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_subscription_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_alias"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_alias()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_customer_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_customer_id()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_resource_id"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_workspace_by_resource_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.has_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.has_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.reports_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.reports_summary()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.save_to_file"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.save_to_file()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.WorkspaceManager.to_dict_list"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.to_dict_list()</span></code></a></li>
@@ -1231,6 +1233,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.count"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.has_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.has_validation_errors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_validation_errors"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.get_validation_errors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspace"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspace()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspaces"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspaces()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.for_query"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.for_query()</span></code></a></li>
@@ -1312,13 +1316,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">is_cancelled</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_poller</span> <span class="o">=</span> <span class="kc">None</span>
     
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">execute_comprehensive_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">days_back</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">batch_hours</span><span class="o">=</span><span class="mi">24</span><span class="p">):</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">execute_comprehensive_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lookback_period</span><span class="o">=</span><span class="s2">&quot;P30D&quot;</span><span class="p">,</span> <span class="n">batch_time_size</span><span class="o">=</span><span class="s2">&quot;PT24H&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute comprehensive batch operation with full progress tracking.&quot;&quot;&quot;</span>
         
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting comprehensive batch operation...&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Workspaces: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">workspace_manager</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Time range: </span><span class="si">{</span><span class="n">days_back</span><span class="si">}</span><span class="s2"> days back&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Batch size: </span><span class="si">{</span><span class="n">batch_hours</span><span class="si">}</span><span class="s2"> hours&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Lookback period: </span><span class="si">{</span><span class="n">lookback_period</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Batch time size: </span><span class="si">{</span><span class="n">batch_time_size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
         
         <span class="c1"># Prepare query list</span>
         <span class="n">queries</span> <span class="o">=</span> <span class="p">[</span>
@@ -1350,8 +1354,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">current_poller</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">begin_batch_operation</span><span class="p">(</span>
                 <span class="n">workspaces</span><span class="o">=</span><span class="n">unique_workspaces</span><span class="p">,</span>
                 <span class="n">queries</span><span class="o">=</span><span class="n">queries</span><span class="p">,</span>
-                <span class="n">time_range_days</span><span class="o">=</span><span class="n">days_back</span><span class="p">,</span>
-                <span class="n">batch_hours</span><span class="o">=</span><span class="n">batch_hours</span>
+                <span class="n">lookback_period</span><span class="o">=</span><span class="n">lookback_period</span><span class="p">,</span>
+                <span class="n">batch_time_size</span><span class="o">=</span><span class="n">batch_time_size</span>
             <span class="p">)</span>
             
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Batch operation started: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_poller</span><span class="o">.</span><span class="n">get_status</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1543,8 +1547,8 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># Execute comprehensive batch operation</span>
             <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">batch_manager</span><span class="o">.</span><span class="n">execute_comprehensive_batch</span><span class="p">(</span>
-                <span class="n">days_back</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
-                <span class="n">batch_hours</span><span class="o">=</span><span class="mi">12</span>
+                <span class="n">lookback_period</span><span class="o">=</span><span class="s2">&quot;P7D&quot;</span><span class="p">,</span>
+                <span class="n">batch_time_size</span><span class="o">=</span><span class="s2">&quot;PT12H&quot;</span>
             <span class="p">)</span>
             
             <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
@@ -2277,8 +2281,8 @@
                 <span class="n">query_engine</span><span class="o">.</span><span class="n">execute_batch_queries_with_streaming_upload</span><span class="p">(</span>
                     <span class="n">workspaces</span><span class="o">=</span><span class="n">workspace_manager</span><span class="o">.</span><span class="n">workspaces</span><span class="p">,</span>
                     <span class="n">query_names</span><span class="o">=</span><span class="n">workflow</span><span class="o">.</span><span class="n">queries</span><span class="p">,</span>
-                    <span class="n">days_back</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
-                    <span class="n">batch_hours</span><span class="o">=</span><span class="mi">24</span>
+                    <span class="n">lookback_period</span><span class="o">=</span><span class="s2">&quot;P7D&quot;</span><span class="p">,</span>
+                    <span class="n">batch_time_size</span><span class="o">=</span><span class="s2">&quot;PT24H&quot;</span>
                 <span class="p">),</span>
                 <span class="n">timeout</span><span class="o">=</span><span class="n">workflow</span><span class="o">.</span><span class="n">timeout_minutes</span> <span class="o">*</span> <span class="mi">60</span>
             <span class="p">)</span>
