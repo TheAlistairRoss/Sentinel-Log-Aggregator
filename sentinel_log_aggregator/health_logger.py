@@ -524,7 +524,7 @@ class SentinelAggregatorHealthLogger:
         # Create minimal configuration for disabled logger
         config = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://disabled.ingest.monitor.azure.com",
-            dcr_rule_id="dcr-00000000000000000000000000000000",  # Valid format: dcr-[32 hex chars]
+            dcr_immutable_id="dcr-00000000000000000000000000000000",  # Valid format: dcr-[32 hex chars]
         )
         credential = DefaultAzureCredential()
         client = SentinelAggregatorClient(

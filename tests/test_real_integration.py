@@ -34,7 +34,7 @@ class TestRealAzureIntegration:
         # Validate required environment variables
         required_vars = [
             "DCR_LOGS_INGESTION_ENDPOINT",
-            "DCR_RULE_ID",
+            "DCR_IMMUTABLE_ID",
             "AZURE_CLIENT_ID",
             "AZURE_TENANT_ID",
             "AZURE_CLIENT_SECRET",

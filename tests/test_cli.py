@@ -91,7 +91,7 @@ class TestClientOptionsCreation:
         args.health_to_sentinel = True
         args.health_workspace_id = None
         args.health_dcr_endpoint = None
-        args.health_dcr_rule_id = None
+        args.health_dcr_immutable_id = None
         return args
 
     def test_create_client_options_from_args_success(self, mock_args):
@@ -116,7 +116,7 @@ class TestClientOptionsCreation:
             with pytest.raises(ValueError, match="DCR logs ingestion endpoint is required"):
                 create_client_options_from_args(mock_args)
 
-    def test_create_client_options_missing_dcr_rule_id(self, mock_args):
+    def test_create_client_options_missing_dcr_immutable_id(self, mock_args):
         """Test error when DCR rule ID is missing."""
         mock_args.dcr_immutable_id = None
 
@@ -137,7 +137,7 @@ class TestClientOptionsCreation:
 
         env_vars = {
             "DCR_LOGS_INGESTION_ENDPOINT": "https://env.ingest.monitor.azure.com",
-            "DCR_RULE_ID": "dcr-env-rule-id",
+            "DCR_IMMUTABLE_ID": "dcr-env-rule-id",
             "LOOKBACK_PERIOD": "P14D",  # 14 days in ISO 8601 format
             "BATCH_TIME_SIZE": "PT6H",  # 6 hours in ISO 8601 format
             "MAX_CONCURRENT_QUERIES": "8",
@@ -989,7 +989,7 @@ class TestMainCommandHandling:
             mock_args.health_to_sentinel = True
             mock_args.health_workspace_id = None
             mock_args.health_dcr_endpoint = None
-            mock_args.health_dcr_rule_id = None
+            mock_args.health_dcr_immutable_id = None
             mock_parser.parse_args.return_value = mock_args
 
             with patch(

@@ -168,7 +168,7 @@ class TestFromEnvironment:
         """Test creating options from complete environment variables."""
         env_vars = {
             "DCR_LOGS_INGESTION_ENDPOINT": "https://env.endpoint.com",
-            "DCR_RULE_ID": "env-dcr-123",
+            "DCR_IMMUTABLE_ID": "env-dcr-123",
             "LOOKBACK_PERIOD": "P14D",
             "BATCH_TIME_SIZE": "PT6H",
             "MAX_CONCURRENT_QUERIES": "8",
@@ -193,7 +193,7 @@ class TestFromEnvironment:
         """Test creating options from environment with missing variables (uses defaults)."""
         env_vars = {
             "DCR_LOGS_INGESTION_ENDPOINT": "https://env.endpoint.com",
-            "DCR_RULE_ID": "env-dcr-123",
+            "DCR_IMMUTABLE_ID": "env-dcr-123",
         }
 
         with patch.dict(os.environ, env_vars, clear=True):
@@ -212,7 +212,7 @@ class TestFromEnvironment:
         """Test from_environment passes through additional kwargs."""
         env_vars = {
             "DCR_LOGS_INGESTION_ENDPOINT": "https://env.endpoint.com",
-            "DCR_RULE_ID": "env-dcr-123",
+            "DCR_IMMUTABLE_ID": "env-dcr-123",
         }
 
         with patch.dict(os.environ, env_vars, clear=True):
@@ -227,7 +227,7 @@ class TestFromEnvironment:
         """Test from_environment with invalid integer values."""
         env_vars = {
             "DCR_LOGS_INGESTION_ENDPOINT": "https://env.endpoint.com",
-            "DCR_RULE_ID": "env-dcr-123",
+            "DCR_IMMUTABLE_ID": "env-dcr-123",
             "MAX_CONCURRENT_QUERIES": "invalid_number",
         }
 
@@ -442,7 +442,7 @@ class TestEdgeCases:
 
     def test_from_environment_empty_strings(self):
         """Test from_environment with empty string environment variables."""
-        env_vars = {"DCR_LOGS_INGESTION_ENDPOINT": "", "DCR_RULE_ID": "", "LOOKBACK_PERIOD": "P30D"}
+        env_vars = {"DCR_LOGS_INGESTION_ENDPOINT": "", "DCR_IMMUTABLE_ID": "", "LOOKBACK_PERIOD": "P30D"}
 
         with patch.dict(os.environ, env_vars, clear=True):
             options = SentinelAggregatorClientOptions.from_environment()

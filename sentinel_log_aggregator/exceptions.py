@@ -68,14 +68,14 @@ class DataIngestionError(SentinelAggregatorError):
         message: str,
         *,
         stream_name: Optional[str] = None,
-        dcr_rule_id: Optional[str] = None,
+        dcr_immutable_id: Optional[str] = None,
         record_count: Optional[int] = None,
         error_code: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(message, error_code=error_code, **kwargs)
         self.stream_name = stream_name
-        self.dcr_rule_id = dcr_rule_id
+        self.dcr_immutable_id = dcr_immutable_id
         self.record_count = record_count
 
 

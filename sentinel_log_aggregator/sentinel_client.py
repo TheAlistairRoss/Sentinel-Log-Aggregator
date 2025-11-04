@@ -270,7 +270,7 @@ class SentinelAggregatorClient:
             connectivity_status=connectivity_status,
             authentication_status=auth_status,
             dcr_endpoint=self._dcr_endpoint,
-            dcr_rule_id=self._options.dcr_immutable_id or "not_configured",
+            dcr_immutable_id=self._options.dcr_immutable_id or "not_configured",
             workspace_count=0,  # Updated by caller based on workspace config
             available_queries=len(AVAILABLE_QUERIES),
             last_check_time=datetime.now(timezone.utc),
@@ -542,7 +542,7 @@ class SentinelAggregatorClient:
                 record_count=0,
                 upload_time=0.0,
                 stream_name=stream_name,
-                dcr_rule_id=self._options.dcr_immutable_id,
+                dcr_immutable_id=self._options.dcr_immutable_id,
                 correlation_id=correlation_id,
             )
 
@@ -569,7 +569,7 @@ class SentinelAggregatorClient:
                 record_count=len(data),
                 upload_time=upload_time,
                 stream_name=stream_name,
-                dcr_rule_id=self._options.dcr_immutable_id,
+                dcr_immutable_id=self._options.dcr_immutable_id,
                 correlation_id=correlation_id,
                 request_id=getattr(response, "request_id", None),
             )
@@ -588,7 +588,7 @@ class SentinelAggregatorClient:
                 record_count=len(data),
                 upload_time=upload_time,
                 stream_name=stream_name,
-                dcr_rule_id=self._options.dcr_immutable_id,
+                dcr_immutable_id=self._options.dcr_immutable_id,
                 correlation_id=correlation_id,
                 error_message=error_msg,
                 error_code=getattr(e, "error_code", type(e).__name__),

@@ -117,8 +117,8 @@ class UploadResult:
     :type upload_time: float
     :param stream_name: Destination stream name
     :type stream_name: str
-    :param dcr_rule_id: Data Collection Rule ID
-    :type dcr_rule_id: str
+    :param dcr_immutable_id: Data Collection Rule immutable ID
+    :type dcr_immutable_id: str
     :param correlation_id: Operation correlation ID
     :type correlation_id: Optional[str]
     :param request_id: Azure request ID
@@ -135,7 +135,7 @@ class UploadResult:
     record_count: int
     upload_time: float
     stream_name: str
-    dcr_rule_id: str
+    dcr_immutable_id: str
     correlation_id: Optional[str] = None
     request_id: Optional[str] = None
     error_message: Optional[str] = None
@@ -267,8 +267,8 @@ class ServiceProperties:
     :type authentication_status: str
     :param dcr_endpoint: DCR endpoint URL
     :type dcr_endpoint: str
-    :param dcr_rule_id: DCR rule ID
-    :type dcr_rule_id: str
+    :param dcr_immutable_id: DCR immutable ID
+    :type dcr_immutable_id: str
     :param workspace_count: Number of configured workspaces
     :type workspace_count: int
     :param available_queries: Number of available queries
@@ -281,7 +281,7 @@ class ServiceProperties:
     connectivity_status: str
     authentication_status: str
     dcr_endpoint: str
-    dcr_rule_id: str
+    dcr_immutable_id: str
     workspace_count: int
     available_queries: int
     last_check_time: Optional[datetime] = None

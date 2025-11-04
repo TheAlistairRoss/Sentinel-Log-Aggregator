@@ -1269,7 +1269,7 @@ class TestClientOptionsValidation:
         assert model.dcr_immutable_id == "dcr-12345678123456781234567812345678"
         assert model.max_concurrent_queries == 5
 
-    def test_invalid_dcr_rule_id(self):
+    def test_invalid_dcr_immutable_id(self):
         """Test invalid DCR rule ID format."""
         options_data = {
             "dcr_logs_ingestion_endpoint": "https://test.ingest.monitor.azure.com",
