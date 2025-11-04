@@ -219,7 +219,7 @@ class TestArgumentParser:
                 "DEBUG",
                 "--dcr-endpoint",
                 "https://test.ingest.monitor.azure.com",
-                "--dcr-rule-id",
+                "--dcr-immutable-id",
                 "dcr-test",
                 "health",
                 "--workspace-config",

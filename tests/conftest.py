@@ -1210,16 +1210,18 @@ class TestQueryDefinitionValidation:
             QueryDefinitionModel(**query_data)
 
     def test_dangerous_query_operations(self):
-        """Test detection of dangerous query operations."""
+        """Test that dangerous query operations are now allowed since validation was removed."""
         query_data = {
             "name": "dangerous_query",
             "destination_stream": "Custom-Test_DangerousQuery_CL",
+            "stream_name": "Custom-Dangerous_Query_CL",
             "report_name": "report_test",
             "query": "SecurityIncident | take 10; .drop table SomeTable",  # Contains dangerous operation
         }
 
-        with pytest.raises(ValidationError):
-            QueryDefinitionModel(**query_data)
+        # This should now pass since we removed dangerous operation validation
+        model = QueryDefinitionModel(**query_data)
+        assert model.name == "dangerous_query"
 
     def test_query_parameter_validation(self):
         """Test query parameter validation."""
@@ -1322,7 +1324,7 @@ class TestSecurityValidation:
         assert validate_kql_query(valid_query) == True
 
     def test_validate_kql_query_dangerous_operations(self):
-        """Test KQL query with dangerous operations."""
+        """Test KQL query with dangerous operations - should now pass since validation was removed."""
         dangerous_queries = [
             "SecurityIncident | take 10; .drop table SomeTable",
             "SecurityIncident | take 10; .delete table SomeTable",
@@ -1331,8 +1333,8 @@ class TestSecurityValidation:
         ]
 
         for query in dangerous_queries:
-            with pytest.raises(SecurityError):
-                validate_kql_query(query)
+            # These should now pass since we removed dangerous operation validation
+            assert validate_kql_query(query) == True
 
     def test_validate_kql_query_empty(self):
         """Test empty KQL query validation."""

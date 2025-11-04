@@ -188,7 +188,7 @@ class TestSecurityUtilsErrorConditions:
     """Test error conditions and exception paths"""
 
     def test_validate_kql_query_all_dangerous_operations(self):
-        """Test all dangerous operations in KQL validation"""
+        """Test all dangerous operations in KQL validation - should now pass since validation was removed"""
         # Test actual dangerous operations from the code
         dangerous_operations = [
             ".drop table test",
@@ -212,8 +212,8 @@ class TestSecurityUtilsErrorConditions:
 
         for operation in dangerous_operations:
             query = f"SecurityEvent | where condition | {operation}"
-            with pytest.raises(SecurityError, match="potentially dangerous operation"):
-                validate_kql_query(query)
+            # These should now pass since we removed dangerous operation validation
+            assert validate_kql_query(query) == True
 
     def test_validate_kql_query_empty_query_line_84(self):
         """Test line 84: Empty query validation"""

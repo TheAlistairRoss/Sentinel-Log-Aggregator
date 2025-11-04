@@ -76,6 +76,8 @@ def validate_kql_query(query: str) -> bool:
     """
     Validate KQL query for potential security issues.
 
+    Note: Dangerous operations validation has been removed to allow legitimate administrative queries.
+
     Args:
         query: KQL query string to validate
 
@@ -83,46 +85,16 @@ def validate_kql_query(query: str) -> bool:
         True if query passes security validation
 
     Raises:
-        SecurityError: If query contains potentially dangerous operations
+        SecurityError: If query contains basic security issues
     """
     if not query or not query.strip():
         raise SecurityError("Query cannot be empty")
 
-    # List of dangerous KQL operations that should not be allowed
-    dangerous_operations = [
-        # Data modification operations
-        r"\.drop\s+table",
-        r"\.drop\s+database",
-        r"\.delete\s+table",
-        r"\.alter\s+table",
-        r"\.create\s+table",
-        r"\.set\s+",
-        r"\.append\s+",
-        r"\.ingest\s+",
-        # System function calls
-        r"external_table\s*\(",
-        r"sql_request\s*\(",
-        r"evaluate\s+python\s*\(",
-        r"evaluate\s+r\s*\(",
-        # Potential injection patterns
-        r"exec\s*\(",
-        r"sp_executesql",
-        r"xp_cmdshell",
-        # File system access
-        r"\.show\s+files",
-        r"\.export\s+",
-        r"\.import\s+",
-    ]
-
-    query_lower = query.lower()
-
-    for pattern in dangerous_operations:
-        if re.search(pattern, query_lower, re.IGNORECASE):
-            raise SecurityError(f"Query contains potentially dangerous operation: {pattern}")
-
     # Check for excessive complexity that might indicate DoS attempts
     if len(query) > 100000:  # 100KB limit
         raise SecurityError("Query exceeds maximum allowed length")
+
+    query_lower = query.lower()
 
     # Check for excessive nesting
     join_count = len(re.findall(r"\bjoin\b", query_lower))
