@@ -376,17 +376,17 @@ class WorkspaceManager:
             ValueError: If more than one workspace is marked as aggregation workspace
         """
         aggregation_workspaces = [ws for ws in self.workspaces if ws.aggregation_workspace]
-        
+
         if len(aggregation_workspaces) == 0:
             return None
-        
+
         if len(aggregation_workspaces) > 1:
             workspace_names = [ws.workspace_name for ws in aggregation_workspaces]
             raise ValueError(
                 f"Multiple aggregation workspaces found: {', '.join(workspace_names)}. "
                 f"Only one workspace can have 'aggregation_workspace: true'."
             )
-        
+
         return aggregation_workspaces[0]
 
     def reports_summary(self) -> Dict[str, int]:
@@ -615,7 +615,7 @@ class WorkspaceManager:
         with open(config_file, "r", encoding="utf-8") as f:
             logger.debug("🔧 Loading YAML workspace configuration")
             config_data = yaml.safe_load(f)
-            
+
             # Log the loaded YAML content for debugging
             logger.debug(f"📄 Loaded YAML content: {sanitize_log_output(str(config_data))}")
 

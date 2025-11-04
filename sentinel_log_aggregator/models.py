@@ -61,7 +61,7 @@ class WorkspaceConfig:
             - row_level_security_tag: Security tag for data isolation
             - environment: Environment designation (dev, test, prod)
             - custom parameters: Any additional workspace-specific values
-        aggregation_workspace: Boolean flag indicating if this workspace is used for health data and 
+        aggregation_workspace: Boolean flag indicating if this workspace is used for health data and
                               aggregated logs. Exactly one workspace must have this set to True.
                               This workspace should match the DCR configuration target.
     """

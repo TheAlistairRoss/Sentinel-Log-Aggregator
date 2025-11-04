@@ -94,7 +94,7 @@ class SentinelAggregatorClientOptions(Configuration):
 
                 duration = parse_iso8601_duration(self.lookback_period)
                 self.days_ago = int(duration.days)
-            except:
+            except Exception:
                 self.days_ago = 30  # default fallback
 
         if batch_hours is not None:
@@ -108,7 +108,7 @@ class SentinelAggregatorClientOptions(Configuration):
 
                 duration = parse_iso8601_duration(self.batch_time_size)
                 self.batch_hours = int(duration.total_seconds() / 3600)
-            except:
+            except Exception:
                 self.batch_hours = 24  # default fallback
         self.start_time = start_time
         self.end_time = end_time

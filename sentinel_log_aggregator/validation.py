@@ -34,8 +34,8 @@ class WorkspaceConfigModel(BaseModel):
         default_factory=list, description="List of queries this workspace should execute"
     )
     aggregation_workspace: bool = Field(
-        default=False, 
-        description="Whether this workspace is used for health data and aggregated logs. Exactly one workspace must be True."
+        default=False,
+        description="Whether this workspace is used for health data and aggregated logs. Exactly one workspace must be True.",
     )
 
     @field_validator("resource_id")
@@ -270,14 +270,14 @@ class WorkspaceCollectionModel(BaseModel):
 
         # Validate aggregation workspace configuration
         aggregation_workspaces = [ws for ws in v if ws.aggregation_workspace]
-        
+
         if len(aggregation_workspaces) == 0:
             raise ValueError(
                 "Exactly one workspace must have 'aggregation_workspace: true'. "
                 "This workspace should match the one configured in your DCR. "
                 "Please set 'aggregation_workspace: true' for the workspace that receives health and aggregation data."
             )
-        
+
         if len(aggregation_workspaces) > 1:
             workspace_names = [ws.resource_id.split("/")[-1] for ws in aggregation_workspaces]
             raise ValueError(
