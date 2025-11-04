@@ -466,7 +466,10 @@ class TestLastSuccessfulRunsProcessing:
 
         workspaces = [
             WorkspaceConfig(
-                customer_id="ws1", resource_id="/path/to/ws1", queries_list=[{"name": "test_query"}], aggregation_workspace=True
+                customer_id="ws1",
+                resource_id="/path/to/ws1",
+                queries_list=[{"name": "test_query"}],
+                aggregation_workspace=True,
             ),
             WorkspaceConfig(
                 customer_id="ws2", resource_id="/path/to/ws2", queries_list=[{"name": "test_query"}]
@@ -514,10 +517,10 @@ class TestLastSuccessfulRunsProcessing:
 
         workspaces = [
             WorkspaceConfig(
-                customer_id="ws1", 
-                resource_id="/path/to/ws1", 
+                customer_id="ws1",
+                resource_id="/path/to/ws1",
                 queries_list=[{"name": "test_query"}],
-                aggregation_workspace=True
+                aggregation_workspace=True,
             )
         ]
 

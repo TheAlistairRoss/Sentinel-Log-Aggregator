@@ -67,49 +67,49 @@ def sample_config():
 def mock_azure_credentials():
     """Fixture to mock Azure credentials for tests that need Azure authentication."""
     from unittest.mock import AsyncMock, MagicMock, patch
-    
+
     # Create a mock credential object
     mock_credential = AsyncMock()
     mock_token = MagicMock()
     mock_token.token = "fake-token"
     mock_token.expires_on = 9999999999  # Far future timestamp
     mock_credential.get_token.return_value = mock_token
-    
+
     # Create a mock query client
     mock_query_client = AsyncMock()
-    
+
     # Mock the response structure for Azure Monitor queries
     mock_response = MagicMock()
     mock_table = MagicMock()
     mock_table.columns = [
         MagicMock(name="QueryName"),
-        MagicMock(name="WorkspaceId"), 
+        MagicMock(name="WorkspaceId"),
         MagicMock(name="StartTime"),
         MagicMock(name="EndTime"),
         MagicMock(name="RecordCount"),
-        MagicMock(name="LastRunTime")
+        MagicMock(name="LastRunTime"),
     ]
     mock_table.rows = []  # Empty by default, tests can override
     mock_response.tables = [mock_table]
     mock_query_client.query_workspace.return_value = mock_response
-    
+
     # Create patches for Azure imports and classes
     patches = [
         patch("azure.identity.aio.DefaultAzureCredential", return_value=mock_credential),
         patch("azure.monitor.query.aio.LogsQueryClient", return_value=mock_query_client),
     ]
-    
+
     # Start all patches
     for p in patches:
         p.start()
-    
+
     yield {
         "credential": mock_credential,
         "query_client": mock_query_client,
         "response": mock_response,
-        "table": mock_table
+        "table": mock_table,
     }
-    
+
     # Stop all patches
     for p in patches:
         p.stop()
