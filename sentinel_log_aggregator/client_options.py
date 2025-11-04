@@ -27,12 +27,8 @@ class SentinelAggregatorClientOptions(Configuration):
     :type dcr_rule_id: str
     :param lookback_period: ISO 8601 duration for how far back to query (default: "P30D")
     :type lookback_period: str
-    :param days_ago: Backwards compatibility - number of days to look back (converted to ISO 8601)
-    :type days_ago: Optional[int]
     :param batch_time_size: ISO 8601 duration for batch size (default: "PT24H")
     :type batch_time_size: str
-    :param batch_hours: Backwards compatibility - batch size in hours (converted to ISO 8601)
-    :type batch_hours: Optional[int]
     :param start_time: Explicit start time (ISO 8601 datetime)
     :type start_time: Optional[str]
     :param end_time: Explicit end time (ISO 8601 datetime)
@@ -61,9 +57,7 @@ class SentinelAggregatorClientOptions(Configuration):
         dcr_logs_ingestion_endpoint: Optional[str] = None,
         dcr_rule_id: Optional[str] = None,
         lookback_period: Optional[str] = None,
-        days_ago: Optional[int] = None,
         batch_time_size: Optional[str] = None,
-        batch_hours: Optional[int] = None,
         start_time: Optional[str] = None,
         end_time: Optional[str] = None,
         use_last_successful: bool = False,
@@ -82,34 +76,9 @@ class SentinelAggregatorClientOptions(Configuration):
         self.dcr_logs_ingestion_endpoint = dcr_logs_ingestion_endpoint
         self.dcr_rule_id = dcr_rule_id
 
-        # Time configuration - handle backwards compatibility
-        if days_ago is not None:
-            self.lookback_period = f"P{days_ago}D"
-            self.days_ago = days_ago
-        else:
-            self.lookback_period = lookback_period or "P30D"
-            # Extract days_ago from lookback_period for backwards compatibility
-            try:
-                from .time_utils import parse_iso8601_duration
-
-                duration = parse_iso8601_duration(self.lookback_period)
-                self.days_ago = int(duration.days)
-            except Exception:
-                self.days_ago = 30  # default fallback
-
-        if batch_hours is not None:
-            self.batch_time_size = f"PT{batch_hours}H"
-            self.batch_hours = batch_hours
-        else:
-            self.batch_time_size = batch_time_size or "PT24H"
-            # Extract batch_hours from batch_time_size for backwards compatibility
-            try:
-                from .time_utils import parse_iso8601_duration
-
-                duration = parse_iso8601_duration(self.batch_time_size)
-                self.batch_hours = int(duration.total_seconds() / 3600)
-            except Exception:
-                self.batch_hours = 24  # default fallback
+        # Time configuration
+        self.lookback_period = lookback_period or "P30D"
+        self.batch_time_size = batch_time_size or "PT24H"
         self.start_time = start_time
         self.end_time = end_time
         self.use_last_successful = use_last_successful
@@ -176,17 +145,6 @@ class SentinelAggregatorClientOptions(Configuration):
                 except TimeParsingError as e:
                     errors.append(f"Invalid end_time: {e}")
 
-            # Backwards compatibility validation
-            if hasattr(self, "days_ago") and self.days_ago is not None and self.days_ago <= 0:
-                errors.append("days_ago must be positive")
-
-            if (
-                hasattr(self, "batch_hours")
-                and self.batch_hours is not None
-                and self.batch_hours <= 0
-            ):
-                errors.append("batch_hours must be positive")
-
             # Query configuration validation
             if self.max_concurrent_queries <= 0:
                 errors.append("max_concurrent_queries must be positive")
@@ -220,9 +178,7 @@ class SentinelAggregatorClientOptions(Configuration):
             dcr_logs_ingestion_endpoint=os.getenv("DCR_LOGS_INGESTION_ENDPOINT"),
             dcr_rule_id=os.getenv("DCR_RULE_ID"),
             lookback_period=os.getenv("LOOKBACK_PERIOD"),
-            days_ago=int(os.getenv("DAYS_AGO")) if os.getenv("DAYS_AGO") else None,
             batch_time_size=os.getenv("BATCH_TIME_SIZE"),
-            batch_hours=int(os.getenv("BATCH_HOURS")) if os.getenv("BATCH_HOURS") else None,
             start_time=os.getenv("START_TIME"),
             end_time=os.getenv("END_TIME"),
             use_last_successful=os.getenv("USE_LAST_SUCCESSFUL", "false").lower() == "true",
@@ -259,9 +215,7 @@ class SentinelAggregatorClientOptions(Configuration):
             dcr_logs_ingestion_endpoint=config_data.get("dcr_logs_ingestion_endpoint"),
             dcr_rule_id=config_data.get("dcr_rule_id"),
             lookback_period=config_data.get("lookback_period"),
-            days_ago=config_data.get("days_ago"),
             batch_time_size=config_data.get("batch_time_size"),
-            batch_hours=config_data.get("batch_hours"),
             start_time=config_data.get("start_time"),
             end_time=config_data.get("end_time"),
             use_last_successful=config_data.get("use_last_successful", False),

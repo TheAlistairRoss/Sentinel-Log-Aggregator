@@ -26,8 +26,8 @@ class TestSentinelAggregatorClientOptions:
 
         assert options.dcr_logs_ingestion_endpoint is None
         assert options.dcr_rule_id is None
-        assert options.days_ago == 30
-        assert options.batch_hours == 24
+        assert options.lookback_period == "P30D"
+        assert options.batch_time_size == "PT24H"
         assert options.max_concurrent_queries == 5
         assert options.query_timeout_seconds == 300
         assert options.max_retries == 3
@@ -42,8 +42,8 @@ class TestSentinelAggregatorClientOptions:
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.endpoint.com",
             dcr_rule_id="dcr-123456",
-            days_ago=7,
-            batch_hours=12,
+            lookback_period="P7D",
+            batch_time_size="PT12H",
             max_concurrent_queries=10,
             query_timeout_seconds=600,
             max_retries=5,
@@ -54,8 +54,8 @@ class TestSentinelAggregatorClientOptions:
 
         assert options.dcr_logs_ingestion_endpoint == "https://test.endpoint.com"
         assert options.dcr_rule_id == "dcr-123456"
-        assert options.days_ago == 7
-        assert options.batch_hours == 12
+        assert options.lookback_period == "P7D"
+        assert options.batch_time_size == "PT12H"
         assert options.max_concurrent_queries == 10
         assert options.query_timeout_seconds == 600
         assert options.max_retries == 5
@@ -111,30 +111,6 @@ class TestValidation:
         errors = options.validate()
         assert len(errors) > 0
         assert any("dcr_rule_id is required" in error for error in errors)
-
-    def test_validate_fallback_invalid_days_ago(self):
-        """Test validation failure with invalid days_ago."""
-        options = SentinelAggregatorClientOptions(
-            dcr_logs_ingestion_endpoint="https://test.endpoint.com",
-            dcr_rule_id="dcr-123",
-            days_ago=-1,
-        )
-
-        errors = options.validate()
-        assert len(errors) > 0
-        assert any("days_ago must be positive" in error for error in errors)
-
-    def test_validate_fallback_invalid_batch_hours(self):
-        """Test validation failure with invalid batch_hours."""
-        options = SentinelAggregatorClientOptions(
-            dcr_logs_ingestion_endpoint="https://test.endpoint.com",
-            dcr_rule_id="dcr-123",
-            batch_hours=0,
-        )
-
-        errors = options.validate()
-        assert len(errors) > 0
-        assert any("batch_hours must be positive" in error for error in errors)
 
     def test_validate_fallback_invalid_max_concurrent_queries(self):
         """Test validation failure with invalid max_concurrent_queries."""
@@ -193,8 +169,8 @@ class TestFromEnvironment:
         env_vars = {
             "DCR_LOGS_INGESTION_ENDPOINT": "https://env.endpoint.com",
             "DCR_RULE_ID": "env-dcr-123",
-            "DAYS_AGO": "14",
-            "BATCH_HOURS": "6",
+            "LOOKBACK_PERIOD": "P14D",
+            "BATCH_TIME_SIZE": "PT6H",
             "MAX_CONCURRENT_QUERIES": "8",
             "QUERY_TIMEOUT_SECONDS": "600",
             "MAX_RETRIES": "4",
@@ -206,8 +182,8 @@ class TestFromEnvironment:
 
         assert options.dcr_logs_ingestion_endpoint == "https://env.endpoint.com"
         assert options.dcr_rule_id == "env-dcr-123"
-        assert options.days_ago == 14
-        assert options.batch_hours == 6
+        assert options.lookback_period == "P14D"
+        assert options.batch_time_size == "PT6H"
         assert options.max_concurrent_queries == 8
         assert options.query_timeout_seconds == 600
         assert options.max_retries == 4
@@ -225,8 +201,8 @@ class TestFromEnvironment:
 
         assert options.dcr_logs_ingestion_endpoint == "https://env.endpoint.com"
         assert options.dcr_rule_id == "env-dcr-123"
-        assert options.days_ago == 30  # default
-        assert options.batch_hours == 24  # default
+        assert options.lookback_period == "P30D"  # default
+        assert options.batch_time_size == "PT24H"  # default
         assert options.max_concurrent_queries == 5  # default
         assert options.query_timeout_seconds == 300  # default
         assert options.max_retries == 3  # default
@@ -252,7 +228,7 @@ class TestFromEnvironment:
         env_vars = {
             "DCR_LOGS_INGESTION_ENDPOINT": "https://env.endpoint.com",
             "DCR_RULE_ID": "env-dcr-123",
-            "DAYS_AGO": "invalid_number",
+            "MAX_CONCURRENT_QUERIES": "invalid_number",
         }
 
         with patch.dict(os.environ, env_vars, clear=True):
@@ -268,8 +244,8 @@ class TestFromYamlFile:
         config_data = {
             "dcr_logs_ingestion_endpoint": "https://yaml.endpoint.com",
             "dcr_rule_id": "yaml-dcr-123",
-            "days_ago": 21,
-            "batch_hours": 8,
+            "lookback_period": "P21D",
+            "batch_time_size": "PT8H",
             "max_concurrent_queries": 12,
             "query_timeout_seconds": 450,
             "max_retries": 6,
@@ -285,8 +261,8 @@ class TestFromYamlFile:
 
             assert options.dcr_logs_ingestion_endpoint == "https://yaml.endpoint.com"
             assert options.dcr_rule_id == "yaml-dcr-123"
-            assert options.days_ago == 21
-            assert options.batch_hours == 8
+            assert options.lookback_period == "P21D"
+            assert options.batch_time_size == "PT8H"
             assert options.max_concurrent_queries == 12
             assert options.query_timeout_seconds == 450
             assert options.max_retries == 6
@@ -299,7 +275,7 @@ class TestFromYamlFile:
         config_data = {
             "dcr_logs_ingestion_endpoint": "https://yaml.endpoint.com",
             "dcr_rule_id": "yaml-dcr-123",
-            "days_ago": 7,
+            "lookback_period": "P7D",
         }
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
@@ -311,8 +287,8 @@ class TestFromYamlFile:
 
             assert options.dcr_logs_ingestion_endpoint == "https://yaml.endpoint.com"
             assert options.dcr_rule_id == "yaml-dcr-123"
-            assert options.days_ago == 7
-            assert options.batch_hours == 24  # default
+            assert options.lookback_period == "P7D"
+            assert options.batch_time_size == "PT24H"  # default
             assert options.max_concurrent_queries == 5  # default
         finally:
             os.unlink(temp_path)
@@ -328,8 +304,8 @@ class TestFromYamlFile:
 
             assert options.dcr_logs_ingestion_endpoint is None
             assert options.dcr_rule_id is None
-            assert options.days_ago == 30  # default
-            assert options.batch_hours == 24  # default
+            assert options.lookback_period == "P30D"  # default
+            assert options.batch_time_size == "PT24H"  # default
         finally:
             os.unlink(temp_path)
 
@@ -345,7 +321,8 @@ class TestFromYamlFile:
             # Should use all defaults when config is None
             assert options.dcr_logs_ingestion_endpoint is None
             assert options.dcr_rule_id is None
-            assert options.days_ago == 30
+            assert options.lookback_period == "P30D"
+            assert options.batch_time_size == "PT24H"
         finally:
             os.unlink(temp_path)
 
@@ -403,7 +380,7 @@ class TestIntegrationScenarios:
         config_data = {
             "dcr_logs_ingestion_endpoint": "https://yaml.endpoint.com",
             "dcr_rule_id": "yaml-dcr-123",
-            "days_ago": 14,
+            "lookback_period": "P14D",
         }
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
@@ -413,13 +390,13 @@ class TestIntegrationScenarios:
         try:
             # Load from YAML first
             yaml_options = SentinelAggregatorClientOptions.from_yaml_file(temp_path)
-            assert yaml_options.days_ago == 14
+            assert yaml_options.lookback_period == "P14D"
 
             # Then override with environment
-            env_vars = {"DAYS_AGO": "7"}
+            env_vars = {"LOOKBACK_PERIOD": "P7D"}
             with patch.dict(os.environ, env_vars, clear=False):
                 env_options = SentinelAggregatorClientOptions.from_environment()
-                assert env_options.days_ago == 7
+                assert env_options.lookback_period == "P7D"
         finally:
             os.unlink(temp_path)
 
@@ -428,8 +405,8 @@ class TestIntegrationScenarios:
         config_data = {
             "dcr_logs_ingestion_endpoint": "https://test.endpoint.com",
             "dcr_rule_id": "test-dcr-123",
-            "days_ago": 7,
-            "batch_hours": 12,
+            "lookback_period": "P7D",
+            "batch_time_size": "PT12H",
             "max_concurrent_queries": 10,
             "query_timeout_seconds": 600,
         }
@@ -452,8 +429,8 @@ class TestIntegrationScenarios:
             # Verify all values are set correctly
             assert options.dcr_logs_ingestion_endpoint == "https://test.endpoint.com"
             assert options.dcr_rule_id == "test-dcr-123"
-            assert options.days_ago == 7
-            assert options.batch_hours == 12
+            assert options.lookback_period == "P7D"
+            assert options.batch_time_size == "PT12H"
             assert options.max_concurrent_queries == 10
             assert options.query_timeout_seconds == 600
         finally:
@@ -465,28 +442,28 @@ class TestEdgeCases:
 
     def test_from_environment_empty_strings(self):
         """Test from_environment with empty string environment variables."""
-        env_vars = {"DCR_LOGS_INGESTION_ENDPOINT": "", "DCR_RULE_ID": "", "DAYS_AGO": "30"}
+        env_vars = {"DCR_LOGS_INGESTION_ENDPOINT": "", "DCR_RULE_ID": "", "LOOKBACK_PERIOD": "P30D"}
 
         with patch.dict(os.environ, env_vars, clear=True):
             options = SentinelAggregatorClientOptions.from_environment()
 
         assert options.dcr_logs_ingestion_endpoint == ""
         assert options.dcr_rule_id == ""
-        assert options.days_ago == 30
+        assert options.lookback_period == "P30D"
 
     def test_initialization_edge_case_values(self):
         """Test initialization with edge case values."""
         options = SentinelAggregatorClientOptions(
-            days_ago=1,  # minimum positive value
-            batch_hours=1,  # minimum positive value
+            lookback_period="P1D",  # minimum positive value
+            batch_time_size="PT1H",  # minimum positive value
             max_concurrent_queries=1,  # minimum positive value
             query_timeout_seconds=1,  # minimum positive value
             max_retries=0,  # minimum non-negative value
             retry_delay_seconds=1,  # minimum positive value
         )
 
-        assert options.days_ago == 1
-        assert options.batch_hours == 1
+        assert options.lookback_period == "P1D"
+        assert options.batch_time_size == "PT1H"
         assert options.max_concurrent_queries == 1
         assert options.query_timeout_seconds == 1
         assert options.max_retries == 0
