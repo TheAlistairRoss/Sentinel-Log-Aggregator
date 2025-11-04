@@ -112,9 +112,11 @@ def create_client_options_from_args(args) -> SentinelAggregatorClientOptions:
         use_last_successful=use_last_successful,
         health_to_sentinel=health_to_sentinel,
         max_concurrent_queries=max_concurrent,
-        query_timeout_seconds=int(os.getenv("QUERY_TIMEOUT_SECONDS", "300")),
-        max_retries=int(os.getenv("MAX_RETRIES", "3")),
-        retry_delay_seconds=int(os.getenv("RETRY_DELAY_SECONDS", "5")),
+        query_timeout_seconds=getattr(args, "query_timeout_seconds", None)
+        or int(os.getenv("QUERY_TIMEOUT_SECONDS", "300")),
+        max_retries=getattr(args, "max_retries", None) or int(os.getenv("MAX_RETRIES", "3")),
+        retry_delay_seconds=getattr(args, "retry_delay_seconds", None)
+        or int(os.getenv("RETRY_DELAY_SECONDS", "5")),
     )
 
 
@@ -548,6 +550,18 @@ Examples:
 
     run_parser.add_argument(
         "--max-concurrent-queries", type=int, help="Maximum concurrent queries (default: 5)"
+    )
+
+    run_parser.add_argument(
+        "--query-timeout-seconds", type=int, help="Query timeout in seconds (default: 300)"
+    )
+
+    run_parser.add_argument(
+        "--max-retries", type=int, help="Maximum retry attempts for failed operations (default: 3)"
+    )
+
+    run_parser.add_argument(
+        "--retry-delay-seconds", type=int, help="Delay between retries in seconds (default: 5)"
     )
 
     # Health logging options for run command
@@ -1071,17 +1085,45 @@ async def main():
 
     try:
         # Create client options from arguments and environment
-        if args.config_file:
-            logger.debug(f"📋 Loading configuration from file: {args.config_file}")
-            client_options = SentinelAggregatorClientOptions.from_yaml_file(args.config_file)
+        client_options = None
+        if args.command != "validate":
+            # Only require DCR configuration for non-validation commands
+            if args.config_file:
+                logger.debug(f"📋 Loading configuration from file: {args.config_file}")
+                client_options = SentinelAggregatorClientOptions.from_yaml_file(args.config_file)
+            else:
+                logger.debug("📋 Creating configuration from arguments and environment variables")
+                client_options = create_client_options_from_args(args)
         else:
-            logger.debug("📋 Creating configuration from arguments and environment variables")
-            client_options = create_client_options_from_args(args)
+            # For validation, try to create client options but don't fail if DCR config is missing
+            try:
+                if args.config_file:
+                    logger.debug(f"📋 Loading configuration from file: {args.config_file}")
+                    client_options = SentinelAggregatorClientOptions.from_yaml_file(
+                        args.config_file
+                    )
+                else:
+                    logger.debug(
+                        "📋 Creating configuration from arguments and environment variables"
+                    )
+                    client_options = create_client_options_from_args(args)
+            except ValueError as e:
+                if "DCR" in str(e):
+                    logger.debug(
+                        f"📋 DCR configuration not provided for validation - will validate workspace config only"
+                    )
+                    client_options = None
+                else:
+                    raise
 
         # Load workspace configuration if required
         workspaces = []
+        workspace_manager = None
         if hasattr(args, "workspace_config") and args.workspace_config:
-            workspaces = load_workspace_config(args.workspace_config)
+            workspace_manager = WorkspaceManager.from_file(args.workspace_config)
+            # Only try to get workspaces if validation was successful
+            if workspace_manager and not workspace_manager.has_validation_errors():
+                workspaces = workspace_manager.workspaces
 
         # Execute the appropriate command
         success = True
@@ -1104,28 +1146,46 @@ async def main():
         elif args.command == "validate":
             logger.info("🔍 Validating configuration...")
 
-            # Validate client options
-            config_errors = client_options.validate()
-            if config_errors:
-                logger.error("❌ Client options validation failed:")
-                for error in config_errors:
-                    logger.error(f"  • {error}")
-                success = False
+            # Validate client options if available
+            if client_options:
+                config_errors = client_options.validate()
+                if config_errors:
+                    logger.error("❌ Client options validation failed:")
+                    for error in config_errors:
+                        logger.error(f"  • {error}")
+                    success = False
+                else:
+                    logger.info("✅ Client options validation successful")
             else:
-                logger.info("✅ Client options validation successful")
+                logger.info("⚙️  Client configuration not provided - skipping client validation")
 
             # Validate workspace configuration
-            if workspaces:
-                logger.info(f"✅ Workspace configuration loaded: {len(workspaces)} workspaces")
-                for i, workspace in enumerate(workspaces, 1):
-                    masked_id = (
-                        workspace.customer_id[:8] + "***"
-                        if len(workspace.customer_id) > 8
-                        else "***"
-                    )
-                    logger.info(f"  • Workspace {i}: {workspace.workspace_name} (ID: {masked_id})")
+            if workspace_manager:
+                # Check for validation errors first
+                if workspace_manager.has_validation_errors():
+                    logger.error("❌ Workspace configuration validation failed:")
+                    for error in workspace_manager.get_validation_errors():
+                        logger.error(f"  • {error}")
+                    success = False
+                else:
+                    logger.info(f"✅ Workspace configuration validation successful")
+
+                # Show workspace summary regardless of validation status
+                if workspaces:
+                    logger.info(f"📄 Loaded {len(workspaces)} workspaces:")
+                    for i, workspace in enumerate(workspaces, 1):
+                        masked_id = (
+                            workspace.customer_id[:8] + "***"
+                            if len(workspace.customer_id) > 8
+                            else "***"
+                        )
+                        logger.info(
+                            f"  • Workspace {i}: {workspace.workspace_name} (ID: {masked_id})"
+                        )
+                else:
+                    logger.warning("⚠️ No workspaces found in configuration")
             else:
-                logger.warning("⚠️ No workspaces configured")
+                logger.warning("⚠️ No workspace configuration provided")
 
         return 0 if success else 1
 

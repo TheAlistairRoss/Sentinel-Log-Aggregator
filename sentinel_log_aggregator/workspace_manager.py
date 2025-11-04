@@ -203,10 +203,19 @@ class WorkspaceManager:
         """
         self.workspaces = workspace_configs or []
         self.logger = SecureLogger(logging.getLogger(__name__))
+        self._validation_errors: List[str] = []  # Track validation errors
 
     def count(self) -> int:
         """Get the number of workspaces."""
         return len(self.workspaces)
+
+    def has_validation_errors(self) -> bool:
+        """Check if there were validation errors during loading."""
+        return len(self._validation_errors) > 0
+
+    def get_validation_errors(self) -> List[str]:
+        """Get list of validation errors that occurred during loading."""
+        return self._validation_errors.copy()
 
     def add_workspace(self, workspace: WorkspaceConfig) -> "WorkspaceManager":
         """
@@ -617,7 +626,12 @@ class WorkspaceManager:
             config_data = yaml.safe_load(f)
 
             # Log the loaded YAML content for debugging
-            logger.debug(f"📄 Loaded YAML content: {sanitize_log_output(str(config_data))}")
+            import yaml as yaml_module
+
+            formatted_yaml = yaml_module.dump(
+                config_data, default_flow_style=False, sort_keys=False, indent=2
+            )
+            logger.debug(f"📄 Loaded YAML content:\n{sanitize_log_output(formatted_yaml)}")
 
             # Handle new YAML structure with 'workspaces' key
             if isinstance(config_data, dict) and "workspaces" in config_data:
@@ -647,15 +661,21 @@ class WorkspaceManager:
                 f"✅ Configuration validation successful: {len(workspace_data)} workspaces"
             )
 
+            # Create and return workspace manager with successful validation
+            return cls.from_dict_list(workspace_data)
+
         except Exception as e:
-            logger.warning(f"⚠️ Pydantic validation failed, using basic validation: {e}")
-            # Fallback to basic validation
+            logger.error(f"❌ Pydantic validation failed: {e}")
+            # Fallback to basic validation but track the failure
             if not isinstance(workspace_data, list):
                 raise ValueError(
                     f"Workspace configuration must be a list of workspace objects, got: {type(workspace_data)}"
                 )
 
-        return cls.from_dict_list(workspace_data)
+            # Create workspace manager with validation failure flag
+            manager = cls.from_dict_list(workspace_data)
+            manager._validation_errors = [str(e)]  # Track validation errors
+            return manager
 
     def save_to_file(self, config_file: Path) -> None:
         """

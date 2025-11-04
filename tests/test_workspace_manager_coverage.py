@@ -523,12 +523,14 @@ class TestWorkspaceManagerFileOperationsCoverage:
 
                 manager = WorkspaceManager.from_file(yaml_file)
 
-                # Should log warning about validation fallback
-                mock_logger.warning.assert_called_once()
-                assert "Pydantic validation failed" in str(mock_logger.warning.call_args)
+                # Should log error about validation failure
+                mock_logger.error.assert_called_once()
+                assert "Pydantic validation failed" in str(mock_logger.error.call_args)
 
-                # Should still create manager
+                # Should still create manager but with validation errors tracked
                 assert manager.count() == 1
+                assert manager.has_validation_errors()
+                assert len(manager.get_validation_errors()) > 0
 
     def test_from_file_invalid_workspace_data_type(self, tmp_path):
         """Test loading file with invalid workspace data type."""

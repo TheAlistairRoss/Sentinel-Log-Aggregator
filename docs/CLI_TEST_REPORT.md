@@ -107,16 +107,16 @@ options:
 
 **Output**:
 ```
-usage: sentinel-aggregator run [-h] --workspace-config WORKSPACE_CONFIG [--days-back DAYS_BACK] [--batch-hours BATCH_HOURS] [--config-file CONFIG_FILE]
+usage: sentinel-aggregator run [-h] --workspace-config WORKSPACE_CONFIG [--lookback-period LOOKBACK_PERIOD] [--batch-time-size BATCH_TIME_SIZE] [--config-file CONFIG_FILE]
 
 options:
   -h, --help            show this help message and exit
   --workspace-config WORKSPACE_CONFIG
-                        Path to workspace configuration JSON file
-  --days-back DAYS_BACK
-                        Number of days to go back (overrides config)
-  --batch-hours BATCH_HOURS
-                        Hours per batch (overrides config)
+                        Path to workspace configuration YAML file
+  --lookback-period LOOKBACK_PERIOD
+                        ISO 8601 duration for how far back to query (e.g., P7D, PT48H)
+  --batch-time-size BATCH_TIME_SIZE
+                        ISO 8601 duration for batch size (e.g., PT24H, PT12H)
   --config-file CONFIG_FILE
                         Path to YAML configuration file (optional)
 ```
@@ -179,8 +179,8 @@ DCR_LOGS_INGESTION_ENDPOINT=https://your-dcr-endpoint.monitor.azure.com
 DCR_RULE_ID=dcr-your-actual-dcr-rule-id
 
 # Query execution settings
-DAYS_AGO=30
-BATCH_HOURS=24
+LOOKBACK_PERIOD=P30D
+BATCH_TIME_SIZE=PT24H
 MAX_CONCURRENT_QUERIES=5
 QUERY_TIMEOUT_SECONDS=300
 

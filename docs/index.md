@@ -91,7 +91,7 @@ graph TB
 
 - Python 3.11 or later
 - Azure subscription with Microsoft Sentinel workspaces
-- Appropriate Azure permissions (Log Analytics Reader, Monitoring Metrics Publisher)
+- Appropriate Azure permissions (Microsoft Sentinel Reader, Monitoring Metrics Publisher)
 
 ### Installation
 

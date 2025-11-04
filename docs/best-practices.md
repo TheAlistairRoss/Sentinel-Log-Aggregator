@@ -58,7 +58,7 @@ Configure these RBAC permissions for the service identity:
 # Minimum required permissions
 permissions:
   - scope: "/subscriptions/{subscription-id}/resourceGroups/{rg}/providers/Microsoft.OperationalInsights/workspaces/{workspace}"
-    role: "Log Analytics Reader"
+    role: "Microsoft Sentinel Reader"
     
   - scope: "/subscriptions/{subscription-id}/resourceGroups/{rg}/providers/Microsoft.Insights/dataCollectionEndpoints/{dce}"
     role: "Monitoring Metrics Publisher"
@@ -122,7 +122,7 @@ def sanitize_params(params):
 ```yaml
 # Recommended batch configuration
 batch_configuration:
-  batch_hours: 24  # 24-hour batches for large workspaces
+  batch_time_size: "PT24H"  # 24-hour batches for large workspaces
   max_concurrent_queries: 5  # Adjust based on Azure quota limits
   query_timeout_minutes: 30  # Allow sufficient time for large queries
   retry_max_attempts: 3
@@ -245,9 +245,9 @@ class AdaptiveConcurrencyManager:
 # dev-config.yaml
 environment: development
 log_level: DEBUG
-batch_hours: 1
+batch_time_size: "PT1H"
 max_concurrent_queries: 2
-days_back: 1
+lookback_period: "P1D"
 upload_enabled: false  # Disable uploads in dev
 dry_run: true
 ```
@@ -258,9 +258,9 @@ dry_run: true
 # prod-config.yaml
 environment: production
 log_level: INFO
-batch_hours: 24
+batch_time_size: "PT24H"
 max_concurrent_queries: 5
-days_back: 7
+lookback_period: "P7D"
 upload_enabled: true
 dry_run: false
 retry_max_attempts: 5
@@ -279,7 +279,7 @@ class ProductionConfig:
     
     environment: str
     log_level: str
-    batch_hours: int
+    batch_time_size: str
     max_concurrent_queries: int
     
     def validate(self) -> List[str]:
@@ -292,8 +292,8 @@ class ProductionConfig:
         if self.log_level == "DEBUG":
             errors.append("DEBUG log level not recommended for production")
         
-        if self.batch_hours < 12:
-            errors.append("Batch hours should be >= 12 for production efficiency")
+        if self.batch_time_size in ["PT1H", "PT2H", "PT4H", "PT6H"]:
+            errors.append("Batch time size should be >= PT12H for production efficiency")
         
         if self.max_concurrent_queries > 10:
             errors.append("Max concurrent queries should not exceed 10 to avoid throttling")

@@ -90,7 +90,7 @@ Execute a basic KQL query against a single workspace.
 @'
 DCR_LOGS_INGESTION_ENDPOINT=https://your-dcr-endpoint.monitor.azure.com
 DCR_RULE_ID=dcr-your-rule-id
-DAYS_AGO=7
+LOOKBACK_PERIOD=P7D
 LOG_LEVEL=INFO
 '@ | Out-File -FilePath .env -Encoding UTF8
 ```
@@ -449,8 +449,8 @@ async def configuration_management():
         print("✓ Client configuration is valid")
         print(f"  DCR endpoint: {options.dcr_logs_ingestion_endpoint}")
         print(f"  DCR rule ID: {options.dcr_rule_id}")
-        print(f"  Days ago: {options.days_ago}")
-        print(f"  Batch hours: {options.batch_hours}")
+        print(f"  Lookback period: {options.lookback_period}")
+        print(f"  Batch time size: {options.batch_time_size}")
         print(f"  Max concurrent queries: {options.max_concurrent_queries}")
     
     except Exception as e:
@@ -807,8 +807,8 @@ asyncio.run(resilient_operations())
    @'
    DCR_LOGS_INGESTION_ENDPOINT=https://your-dcr-endpoint.monitor.azure.com
    DCR_RULE_ID=dcr-your-rule-id
-   DAYS_AGO=7
-   BATCH_HOURS=24
+   LOOKBACK_PERIOD=P7D
+   BATCH_TIME_SIZE=PT24H
    MAX_CONCURRENT_QUERIES=5
    LOG_LEVEL=INFO
    '@ | Out-File -FilePath .env -Encoding UTF8

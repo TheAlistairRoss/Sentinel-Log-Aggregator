@@ -37,13 +37,13 @@ class BatchOperationManager:
         self.is_cancelled = False
         self.current_poller = None
     
-    async def execute_comprehensive_batch(self, days_back=30, batch_hours=24):
+    async def execute_comprehensive_batch(self, lookback_period="P30D", batch_time_size="PT24H"):
         """Execute comprehensive batch operation with full progress tracking."""
         
         print(f"Starting comprehensive batch operation...")
         print(f"  Workspaces: {self.workspace_manager.count()}")
-        print(f"  Time range: {days_back} days back")
-        print(f"  Batch size: {batch_hours} hours")
+        print(f"  Lookback period: {lookback_period}")
+        print(f"  Batch time size: {batch_time_size}"))
         
         # Prepare query list
         queries = [
@@ -75,8 +75,8 @@ class BatchOperationManager:
             self.current_poller = await self.client.begin_batch_operation(
                 workspaces=unique_workspaces,
                 queries=queries,
-                time_range_days=days_back,
-                batch_hours=batch_hours
+                lookback_period=lookback_period,
+                batch_time_size=batch_time_size
             )
             
             print(f"Batch operation started: {self.current_poller.get_status()}")
@@ -268,8 +268,8 @@ async def advanced_batch_operations():
         try:
             # Execute comprehensive batch operation
             result = await batch_manager.execute_comprehensive_batch(
-                days_back=7,
-                batch_hours=12
+                lookback_period="P7D",
+                batch_time_size="PT12H"
             )
             
             if result:
@@ -1004,8 +1004,8 @@ class EnterpriseWorkflowOrchestrator:
                 query_engine.execute_batch_queries_with_streaming_upload(
                     workspaces=workspace_manager.workspaces,
                     query_names=workflow.queries,
-                    days_back=7,
-                    batch_hours=24
+                    lookback_period="P7D",
+                    batch_time_size="PT24H"
                 ),
                 timeout=workflow.timeout_minutes * 60
             )

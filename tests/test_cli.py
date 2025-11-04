@@ -306,14 +306,14 @@ class TestMainFunction:
     @patch("sentinel_log_aggregator.cli.load_environment_variables")
     @patch("sentinel_log_aggregator.cli.setup_logging")
     @patch("sentinel_log_aggregator.cli.create_client_options_from_args")
-    @patch("sentinel_log_aggregator.cli.load_workspace_config")
+    @patch("sentinel_log_aggregator.cli.WorkspaceManager.from_file")
     @patch("sentinel_log_aggregator.cli.check_service_health")
     @patch("sys.argv", ["sentinel-aggregator", "health", "--workspace-config", "test.yaml"])
     @pytest.mark.asyncio
     async def test_main_health_command_success(
         self,
         mock_health,
-        mock_load_ws,
+        mock_workspace_manager_from_file,
         mock_create_options,
         mock_setup_logging,
         mock_load_env,
@@ -321,7 +321,12 @@ class TestMainFunction:
         mock_client_options,
     ):
         """Test successful health command execution."""
-        mock_load_ws.return_value = mock_workspaces
+        # Mock workspace manager
+        mock_workspace_manager = MagicMock()
+        mock_workspace_manager.has_validation_errors.return_value = False
+        mock_workspace_manager.workspaces = mock_workspaces
+        mock_workspace_manager_from_file.return_value = mock_workspace_manager
+
         mock_create_options.return_value = mock_client_options
         mock_health.return_value = True
 
@@ -335,7 +340,7 @@ class TestMainFunction:
     @patch("sentinel_log_aggregator.cli.load_environment_variables")
     @patch("sentinel_log_aggregator.cli.setup_logging")
     @patch("sentinel_log_aggregator.cli.create_client_options_from_args")
-    @patch("sentinel_log_aggregator.cli.load_workspace_config")
+    @patch("sentinel_log_aggregator.cli.WorkspaceManager.from_file")
     @patch("sentinel_log_aggregator.cli.run_aggregation")
     @patch(
         "sys.argv",
@@ -352,7 +357,7 @@ class TestMainFunction:
     async def test_main_run_command_success(
         self,
         mock_run,
-        mock_load_ws,
+        mock_workspace_manager_from_file,
         mock_create_options,
         mock_setup_logging,
         mock_load_env,
@@ -360,7 +365,12 @@ class TestMainFunction:
         mock_client_options,
     ):
         """Test successful run command execution."""
-        mock_load_ws.return_value = mock_workspaces
+        # Mock workspace manager
+        mock_workspace_manager = MagicMock()
+        mock_workspace_manager.has_validation_errors.return_value = False
+        mock_workspace_manager.workspaces = mock_workspaces
+        mock_workspace_manager_from_file.return_value = mock_workspace_manager
+
         mock_create_options.return_value = mock_client_options
         mock_run.return_value = True
 
@@ -372,12 +382,12 @@ class TestMainFunction:
     @patch("sentinel_log_aggregator.cli.load_environment_variables")
     @patch("sentinel_log_aggregator.cli.setup_logging")
     @patch("sentinel_log_aggregator.cli.create_client_options_from_args")
-    @patch("sentinel_log_aggregator.cli.load_workspace_config")
+    @patch("sentinel_log_aggregator.cli.WorkspaceManager.from_file")
     @patch("sys.argv", ["sentinel-aggregator", "validate", "--workspace-config", "test.yaml"])
     @pytest.mark.asyncio
     async def test_main_validate_command_success(
         self,
-        mock_load_ws,
+        mock_workspace_manager_from_file,
         mock_create_options,
         mock_setup_logging,
         mock_load_env,
@@ -385,7 +395,12 @@ class TestMainFunction:
         mock_client_options,
     ):
         """Test successful validate command execution."""
-        mock_load_ws.return_value = mock_workspaces
+        # Mock workspace manager
+        mock_workspace_manager = MagicMock()
+        mock_workspace_manager.has_validation_errors.return_value = False
+        mock_workspace_manager.workspaces = mock_workspaces
+        mock_workspace_manager_from_file.return_value = mock_workspace_manager
+
         mock_client_options_instance = MagicMock()
         mock_client_options_instance.validate.return_value = []  # No validation errors
         mock_create_options.return_value = mock_client_options_instance
@@ -540,6 +555,9 @@ class TestEnvironmentVariableDefaults:
         args.end_time = None
         args.use_last_successful = None
         args.max_concurrent_queries = None
+        args.query_timeout_seconds = None
+        args.max_retries = None
+        args.retry_delay_seconds = None
 
         env_vars = {"QUERY_TIMEOUT_SECONDS": "600", "MAX_RETRIES": "5", "RETRY_DELAY_SECONDS": "10"}
 
@@ -568,7 +586,7 @@ class TestConfigFileLoading:
     @patch("sentinel_log_aggregator.cli.load_environment_variables")
     @patch("sentinel_log_aggregator.cli.setup_logging")
     @patch("sentinel_log_aggregator.cli.SentinelAggregatorClientOptions.from_yaml_file")
-    @patch("sentinel_log_aggregator.cli.load_workspace_config")
+    @patch("sentinel_log_aggregator.cli.WorkspaceManager.from_file")
     @patch(
         "sys.argv",
         [
@@ -582,11 +600,22 @@ class TestConfigFileLoading:
     )
     @pytest.mark.asyncio
     async def test_main_with_config_file(
-        self, mock_load_ws, mock_from_yaml, mock_setup_logging, mock_load_env, mock_client_options
+        self,
+        mock_workspace_manager_from_file,
+        mock_from_yaml,
+        mock_setup_logging,
+        mock_load_env,
+        mock_client_options,
     ):
         """Test main function with config file loading."""
         mock_from_yaml.return_value = mock_client_options
-        mock_load_ws.return_value = []
+        mock_client_options.validate.return_value = []  # No validation errors
+
+        # Mock workspace manager
+        mock_workspace_manager = MagicMock()
+        mock_workspace_manager.has_validation_errors.return_value = False
+        mock_workspace_manager.workspaces = []
+        mock_workspace_manager_from_file.return_value = mock_workspace_manager
 
         result = await main()
 
@@ -970,8 +999,14 @@ class TestMainCommandHandling:
                     "sentinel_log_aggregator.cli.create_client_options_from_args"
                 ) as mock_create_opts:
                     with patch(
-                        "sentinel_log_aggregator.cli.load_workspace_config", return_value=[]
-                    ):
+                        "sentinel_log_aggregator.cli.WorkspaceManager.from_file"
+                    ) as mock_workspace_manager_from_file:
+                        # Mock workspace manager
+                        mock_workspace_manager = MagicMock()
+                        mock_workspace_manager.has_validation_errors.return_value = False
+                        mock_workspace_manager.workspaces = []
+                        mock_workspace_manager_from_file.return_value = mock_workspace_manager
+
                         mock_opts = MagicMock()
                         mock_opts.lookback_period = "P7D"
                         mock_opts.batch_time_size = "PT24H"
@@ -1007,7 +1042,9 @@ class TestMainCommandHandling:
             with patch(
                 "sentinel_log_aggregator.cli.create_client_options_from_args"
             ) as mock_create_opts:
-                with patch("sentinel_log_aggregator.cli.load_workspace_config") as mock_load_ws:
+                with patch(
+                    "sentinel_log_aggregator.cli.WorkspaceManager.from_file"
+                ) as mock_workspace_manager_from_file:
                     # Mock valid client options
                     mock_opts = MagicMock()
                     mock_opts.validate.return_value = []  # No validation errors
@@ -1019,7 +1056,12 @@ class TestMainCommandHandling:
                             workspace_name="test-ws",
                         )
                     ]
-                    mock_load_ws.return_value = mock_workspaces
+
+                    # Mock workspace manager
+                    mock_workspace_manager = MagicMock()
+                    mock_workspace_manager.has_validation_errors.return_value = False
+                    mock_workspace_manager.workspaces = mock_workspaces
+                    mock_workspace_manager_from_file.return_value = mock_workspace_manager
 
                     result = await main()
 
