@@ -30,7 +30,7 @@ def sample_config():
 
     return SentinelAggregatorConfig(
         dcr_logs_ingestion_endpoint="https://test-endpoint.monitor.azure.com",
-        dcr_rule_id="dcr-test-rule-id",
+        dcr_immutable_id="dcr-test-rule-id",
         days_ago=7,
         batch_hours=24,
         max_concurrent_queries=3,
@@ -151,7 +151,7 @@ class TestQueryExecution:
 
         assert execution.query_status == QueryStatus.PENDING.value
         assert execution.upload_status == UploadStatus.PENDING.value
-        assert execution.workspace_alias == "test-wor..."
+        assert execution.workspace_alias == "test-workspace-id"
 
     def test_time_range_formatting(self):
         """Test time range string formatting."""
@@ -323,7 +323,7 @@ class TestSentinelQueryEngine:
         """Create test client options."""
         return SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
-            dcr_rule_id="dcr-12345678123456781234567812345678",
+            dcr_immutable_id="dcr-12345678123456781234567812345678",
             days_ago=7,
             batch_hours=24,
             max_concurrent_queries=3,
@@ -626,7 +626,7 @@ class TestQueryEnginePerformance:
         """Create test client options."""
         return SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
-            dcr_rule_id="dcr-12345678123456781234567812345678",
+            dcr_immutable_id="dcr-12345678123456781234567812345678",
             days_ago=7,
             batch_hours=24,
             max_concurrent_queries=3,
@@ -763,7 +763,7 @@ class TestSentinelAggregatorClient:
         """Create test client options."""
         return SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
-            dcr_rule_id="dcr-12345678123456781234567812345678",
+            dcr_immutable_id="dcr-12345678123456781234567812345678",
             max_concurrent_queries=3,
             query_timeout_seconds=60,
         )
@@ -992,7 +992,7 @@ class TestSentinelAggregatorClient:
         """Test client creation from connection string."""
         connection_string = (
             "endpoint=https://test.ingest.monitor.azure.com;"
-            "dcr_rule_id=dcr-12345678123456781234567812345678"
+            "dcr_immutable_id=dcr-12345678123456781234567812345678"
         )
 
         with patch("sentinel_log_aggregator.sentinel_client.DefaultAzureCredential") as mock_cred:
@@ -1001,13 +1001,13 @@ class TestSentinelAggregatorClient:
             client = SentinelAggregatorClient.from_connection_string(connection_string)
 
             assert client._dcr_endpoint == "https://test.ingest.monitor.azure.com"
-            assert client._options.dcr_rule_id == "dcr-12345678123456781234567812345678"
+            assert client._options.dcr_immutable_id == "dcr-12345678123456781234567812345678"
 
             await client.close()
 
     def test_from_connection_string_missing_endpoint(self):
         """Test connection string without endpoint."""
-        connection_string = "dcr_rule_id=dcr-12345678123456781234567812345678"
+        connection_string = "dcr_immutable_id=dcr-12345678123456781234567812345678"
 
         with pytest.raises(ValueError, match="Connection string must contain 'endpoint' parameter"):
             SentinelAggregatorClient.from_connection_string(connection_string)
@@ -1175,7 +1175,7 @@ class TestQueryDefinitionValidation:
             "name": "test_query",
             "destination_stream": "Custom-Test_TestQuery_CL",
             "description": "Test query description",
-            "stream_name": "stream_test",
+            "stream_name": "Custom-Test_CL",
             "query": "SecurityIncident | where TimeGenerated > ago(1d) | take 10",
         }
 
@@ -1188,7 +1188,7 @@ class TestQueryDefinitionValidation:
         query_data = {
             "name": "InvalidName!",  # Contains invalid character
             "destination_stream": "Custom-Test_TestQuery_CL",
-            "stream_name": "stream_test",
+            "stream_name": "Custom-Test_CL",
             "query": "SecurityIncident | take 10",
         }
 
@@ -1200,7 +1200,7 @@ class TestQueryDefinitionValidation:
         query_data = {
             "name": "test_query",
             "destination_stream": "InvalidStream",  # Doesn't match pattern
-            "stream_name": "stream_test",
+            "stream_name": "Custom-Test_CL",
             "query": "SecurityIncident | take 10",
         }
 
@@ -1212,7 +1212,7 @@ class TestQueryDefinitionValidation:
         query_data = {
             "name": "dangerous_query",
             "destination_stream": "Custom-Test_DangerousQuery_CL",
-            "stream_name": "stream_test",
+            "stream_name": "Custom-Test_CL",
             "query": "SecurityIncident | take 10; .drop table SomeTable",  # Contains dangerous operation
         }
 
@@ -1224,7 +1224,7 @@ class TestQueryDefinitionValidation:
         query_data = {
             "name": "parameterized_query",
             "destination_stream": "Custom-Test_ParameterizedQuery_CL",
-            "stream_name": "stream_test",
+            "stream_name": "Custom-Test_CL",
             "query": "SecurityIncident | where TimeGenerated > ago({days}d)",
             "parameters": {
                 "days": {
@@ -1245,7 +1245,7 @@ class TestQueryDefinitionValidation:
         query_data = {
             "name": "invalid_param_query",
             "destination_stream": "Custom-Test_InvalidParam_CL",
-            "stream_name": "stream_test",
+            "stream_name": "Custom-Test_CL",
             "query": "SecurityIncident | take 10",
             "parameters": {
                 "count": {"type": "int", "default": "not_an_int"}  # Wrong type for default
@@ -1263,21 +1263,21 @@ class TestClientOptionsValidation:
         """Test valid client options."""
         options_data = {
             "dcr_logs_ingestion_endpoint": "https://test.ingest.monitor.azure.com",
-            "dcr_rule_id": "dcr-12345678123456781234567812345678",
+            "dcr_immutable_id": "dcr-12345678123456781234567812345678",
             "max_concurrent_queries": 5,
             "query_timeout_seconds": 300,
             "batch_hours": 24,
         }
 
         model = ClientOptionsModel(**options_data)
-        assert model.dcr_rule_id == "dcr-12345678123456781234567812345678"
+        assert model.dcr_immutable_id == "dcr-12345678123456781234567812345678"
         assert model.max_concurrent_queries == 5
 
     def test_invalid_dcr_rule_id(self):
         """Test invalid DCR rule ID format."""
         options_data = {
             "dcr_logs_ingestion_endpoint": "https://test.ingest.monitor.azure.com",
-            "dcr_rule_id": "invalid-dcr-id",  # Wrong format
+            "dcr_immutable_id": "invalid-dcr-id",  # Wrong format
             "max_concurrent_queries": 5,
         }
 
@@ -1288,7 +1288,7 @@ class TestClientOptionsValidation:
         """Test out of range configuration values."""
         options_data = {
             "dcr_logs_ingestion_endpoint": "https://test.ingest.monitor.azure.com",
-            "dcr_rule_id": "dcr-12345678123456781234567812345678",
+            "dcr_immutable_id": "dcr-12345678123456781234567812345678",
             "max_concurrent_queries": 0,  # Below minimum
             "query_timeout_seconds": 10,  # Below minimum
             "batch_hours": 200,  # Above maximum
@@ -1301,7 +1301,7 @@ class TestClientOptionsValidation:
         """Test that extra fields are not allowed."""
         options_data = {
             "dcr_logs_ingestion_endpoint": "https://test.ingest.monitor.azure.com",
-            "dcr_rule_id": "dcr-12345678123456781234567812345678",
+            "dcr_immutable_id": "dcr-12345678123456781234567812345678",
             "extra_field": "not_allowed",  # Should be rejected
         }
 

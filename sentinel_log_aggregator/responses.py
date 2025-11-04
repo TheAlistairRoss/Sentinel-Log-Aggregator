@@ -100,8 +100,8 @@ class QueryResult:
 
     @property
     def workspace_alias(self) -> str:
-        """Masked workspace ID for logging."""
-        return f"{self.workspace_id[:8]}..." if self.workspace_id else "unknown"
+        """Workspace ID for logging."""
+        return self.workspace_id if self.workspace_id else "unknown"
 
 
 @dataclass

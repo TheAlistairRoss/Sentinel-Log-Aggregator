@@ -25,7 +25,7 @@ class TestSentinelAggregatorClientOptions:
         options = SentinelAggregatorClientOptions()
 
         assert options.dcr_logs_ingestion_endpoint is None
-        assert options.dcr_rule_id is None
+        assert options.dcr_immutable_id is None
         assert options.lookback_period == "P30D"
         assert options.batch_time_size == "PT24H"
         assert options.max_concurrent_queries == 5
@@ -41,7 +41,7 @@ class TestSentinelAggregatorClientOptions:
 
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.endpoint.com",
-            dcr_rule_id="dcr-123456",
+            dcr_immutable_id="dcr-123456",
             lookback_period="P7D",
             batch_time_size="PT12H",
             max_concurrent_queries=10,
@@ -53,7 +53,7 @@ class TestSentinelAggregatorClientOptions:
         )
 
         assert options.dcr_logs_ingestion_endpoint == "https://test.endpoint.com"
-        assert options.dcr_rule_id == "dcr-123456"
+        assert options.dcr_immutable_id == "dcr-123456"
         assert options.lookback_period == "P7D"
         assert options.batch_time_size == "PT12H"
         assert options.max_concurrent_queries == 10
@@ -79,7 +79,7 @@ class TestValidation:
     def test_validate_success_with_new_validation(self):
         """Test successful validation with all required fields."""
         options = SentinelAggregatorClientOptions(
-            dcr_logs_ingestion_endpoint="https://test.endpoint.com", dcr_rule_id="dcr-123456"
+            dcr_logs_ingestion_endpoint="https://test.endpoint.com", dcr_immutable_id="dcr-123456"
         )
 
         # Should return empty list for successful validation
@@ -88,7 +88,7 @@ class TestValidation:
 
     def test_validate_failure_with_missing_endpoint(self):
         """Test validation failure with missing DCR endpoint."""
-        options = SentinelAggregatorClientOptions(dcr_rule_id="dcr-123456")
+        options = SentinelAggregatorClientOptions(dcr_immutable_id="dcr-123456")
 
         errors = options.validate()
         assert len(errors) > 0
@@ -96,27 +96,27 @@ class TestValidation:
 
     def test_validate_fallback_missing_endpoint(self):
         """Test validation failure with missing endpoint."""
-        options = SentinelAggregatorClientOptions(dcr_rule_id="dcr-123")
+        options = SentinelAggregatorClientOptions(dcr_immutable_id="dcr-123")
 
         errors = options.validate()
         assert len(errors) > 0
         assert any("dcr_logs_ingestion_endpoint is required" in error for error in errors)
 
     def test_validate_fallback_missing_rule_id(self):
-        """Test validation failure with missing DCR rule ID."""
+        """Test validation failure with missing DCR immutable ID."""
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.endpoint.com"
         )
 
         errors = options.validate()
         assert len(errors) > 0
-        assert any("dcr_rule_id is required" in error for error in errors)
+        assert any("dcr_immutable_id is required" in error for error in errors)
 
     def test_validate_fallback_invalid_max_concurrent_queries(self):
         """Test validation failure with invalid max_concurrent_queries."""
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.endpoint.com",
-            dcr_rule_id="dcr-123",
+            dcr_immutable_id="dcr-123",
             max_concurrent_queries=-1,
         )
 
@@ -128,7 +128,7 @@ class TestValidation:
         """Test validation failure with invalid query_timeout_seconds."""
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.endpoint.com",
-            dcr_rule_id="dcr-123",
+            dcr_immutable_id="dcr-123",
             query_timeout_seconds=0,
         )
 
@@ -140,7 +140,7 @@ class TestValidation:
         """Test validation failure with invalid max_retries."""
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.endpoint.com",
-            dcr_rule_id="dcr-123",
+            dcr_immutable_id="dcr-123",
             max_retries=-1,
         )
 
@@ -152,7 +152,7 @@ class TestValidation:
         """Test validation failure with invalid retry_delay_seconds."""
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.endpoint.com",
-            dcr_rule_id="dcr-123",
+            dcr_immutable_id="dcr-123",
             retry_delay_seconds=0,
         )
 
@@ -181,7 +181,7 @@ class TestFromEnvironment:
             options = SentinelAggregatorClientOptions.from_environment()
 
         assert options.dcr_logs_ingestion_endpoint == "https://env.endpoint.com"
-        assert options.dcr_rule_id == "env-dcr-123"
+        assert options.dcr_immutable_id == "env-dcr-123"
         assert options.lookback_period == "P14D"
         assert options.batch_time_size == "PT6H"
         assert options.max_concurrent_queries == 8
@@ -200,7 +200,7 @@ class TestFromEnvironment:
             options = SentinelAggregatorClientOptions.from_environment()
 
         assert options.dcr_logs_ingestion_endpoint == "https://env.endpoint.com"
-        assert options.dcr_rule_id == "env-dcr-123"
+        assert options.dcr_immutable_id == "env-dcr-123"
         assert options.lookback_period == "P30D"  # default
         assert options.batch_time_size == "PT24H"  # default
         assert options.max_concurrent_queries == 5  # default
@@ -243,7 +243,7 @@ class TestFromYamlFile:
         """Test creating options from complete YAML configuration."""
         config_data = {
             "dcr_logs_ingestion_endpoint": "https://yaml.endpoint.com",
-            "dcr_rule_id": "yaml-dcr-123",
+            "dcr_immutable_id": "yaml-dcr-123",
             "lookback_period": "P21D",
             "batch_time_size": "PT8H",
             "max_concurrent_queries": 12,
@@ -260,7 +260,7 @@ class TestFromYamlFile:
             options = SentinelAggregatorClientOptions.from_yaml_file(temp_path)
 
             assert options.dcr_logs_ingestion_endpoint == "https://yaml.endpoint.com"
-            assert options.dcr_rule_id == "yaml-dcr-123"
+            assert options.dcr_immutable_id == "yaml-dcr-123"
             assert options.lookback_period == "P21D"
             assert options.batch_time_size == "PT8H"
             assert options.max_concurrent_queries == 12
@@ -274,7 +274,7 @@ class TestFromYamlFile:
         """Test creating options from partial YAML config (uses defaults for missing)."""
         config_data = {
             "dcr_logs_ingestion_endpoint": "https://yaml.endpoint.com",
-            "dcr_rule_id": "yaml-dcr-123",
+            "dcr_immutable_id": "yaml-dcr-123",
             "lookback_period": "P7D",
         }
 
@@ -286,7 +286,7 @@ class TestFromYamlFile:
             options = SentinelAggregatorClientOptions.from_yaml_file(temp_path)
 
             assert options.dcr_logs_ingestion_endpoint == "https://yaml.endpoint.com"
-            assert options.dcr_rule_id == "yaml-dcr-123"
+            assert options.dcr_immutable_id == "yaml-dcr-123"
             assert options.lookback_period == "P7D"
             assert options.batch_time_size == "PT24H"  # default
             assert options.max_concurrent_queries == 5  # default
@@ -303,7 +303,7 @@ class TestFromYamlFile:
             options = SentinelAggregatorClientOptions.from_yaml_file(temp_path)
 
             assert options.dcr_logs_ingestion_endpoint is None
-            assert options.dcr_rule_id is None
+            assert options.dcr_immutable_id is None
             assert options.lookback_period == "P30D"  # default
             assert options.batch_time_size == "PT24H"  # default
         finally:
@@ -320,7 +320,7 @@ class TestFromYamlFile:
 
             # Should use all defaults when config is None
             assert options.dcr_logs_ingestion_endpoint is None
-            assert options.dcr_rule_id is None
+            assert options.dcr_immutable_id is None
             assert options.lookback_period == "P30D"
             assert options.batch_time_size == "PT24H"
         finally:
@@ -330,7 +330,7 @@ class TestFromYamlFile:
         """Test from_yaml_file passes through additional kwargs."""
         config_data = {
             "dcr_logs_ingestion_endpoint": "https://yaml.endpoint.com",
-            "dcr_rule_id": "yaml-dcr-123",
+            "dcr_immutable_id": "yaml-dcr-123",
         }
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
@@ -379,7 +379,7 @@ class TestIntegrationScenarios:
         # Create YAML config
         config_data = {
             "dcr_logs_ingestion_endpoint": "https://yaml.endpoint.com",
-            "dcr_rule_id": "yaml-dcr-123",
+            "dcr_immutable_id": "yaml-dcr-123",
             "lookback_period": "P14D",
         }
 
@@ -404,7 +404,7 @@ class TestIntegrationScenarios:
         """Test complete configuration workflow with validation."""
         config_data = {
             "dcr_logs_ingestion_endpoint": "https://test.endpoint.com",
-            "dcr_rule_id": "test-dcr-123",
+            "dcr_immutable_id": "test-dcr-123",
             "lookback_period": "P7D",
             "batch_time_size": "PT12H",
             "max_concurrent_queries": 10,
@@ -428,7 +428,7 @@ class TestIntegrationScenarios:
 
             # Verify all values are set correctly
             assert options.dcr_logs_ingestion_endpoint == "https://test.endpoint.com"
-            assert options.dcr_rule_id == "test-dcr-123"
+            assert options.dcr_immutable_id == "test-dcr-123"
             assert options.lookback_period == "P7D"
             assert options.batch_time_size == "PT12H"
             assert options.max_concurrent_queries == 10
@@ -448,7 +448,7 @@ class TestEdgeCases:
             options = SentinelAggregatorClientOptions.from_environment()
 
         assert options.dcr_logs_ingestion_endpoint == ""
-        assert options.dcr_rule_id == ""
+        assert options.dcr_immutable_id == ""
         assert options.lookback_period == "P30D"
 
     def test_initialization_edge_case_values(self):
@@ -472,7 +472,7 @@ class TestEdgeCases:
     def test_validation_with_all_attributes(self):
         """Test that validation works with additional attributes."""
         options = SentinelAggregatorClientOptions(
-            dcr_logs_ingestion_endpoint="https://test.endpoint.com", dcr_rule_id="test-dcr-123"
+            dcr_logs_ingestion_endpoint="https://test.endpoint.com", dcr_immutable_id="test-dcr-123"
         )
 
         # Set additional attributes (these don't affect validation)
@@ -489,7 +489,7 @@ class TestEdgeCases:
         """Test from_yaml_file works with pathlib.Path objects."""
         config_data = {
             "dcr_logs_ingestion_endpoint": "https://pathlib.endpoint.com",
-            "dcr_rule_id": "pathlib-dcr-123",
+            "dcr_immutable_id": "pathlib-dcr-123",
         }
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
@@ -500,6 +500,6 @@ class TestEdgeCases:
             options = SentinelAggregatorClientOptions.from_yaml_file(str(temp_path))
 
             assert options.dcr_logs_ingestion_endpoint == "https://pathlib.endpoint.com"
-            assert options.dcr_rule_id == "pathlib-dcr-123"
+            assert options.dcr_immutable_id == "pathlib-dcr-123"
         finally:
             temp_path.unlink()

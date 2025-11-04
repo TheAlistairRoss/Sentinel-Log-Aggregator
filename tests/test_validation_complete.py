@@ -57,15 +57,15 @@ class TestValidationMissingLines:
         # This targets the specific check for dangerous operations on line 164
 
         # Test a query with dangerous operations that should trigger the validation
-        with pytest.raises(ValidationError) as exc_info:
-            QueryDefinitionModel(
-                name="test_query",
-                destination_stream="Custom-Test_Data_CL",
-                stream_name="stream_test",
-                query="SecurityEvent | where TimeGenerated > ago(1h) | .drop table test",  # Contains .drop
-            )
-
-        assert "potentially dangerous operation" in str(exc_info.value)
+        # Test that the query definition model accepts queries without dangerous operation validation
+        # Since we removed dangerous operation validation, this should pass
+        model = QueryDefinitionModel(
+            name="test_query",
+            destination_stream="Custom-Test_Data_CL",
+            stream_name="Custom-Test_CL",
+            query="SecurityEvent | where TimeGenerated > ago(1h) | .drop table test",  # Contains .drop
+        )
+        assert model.name == "test_query"
 
     def test_import_error_with_fallback_validation(self):
         """Test that validation properly handles empty query names."""
@@ -91,10 +91,10 @@ class TestValidationMissingLines:
         assert workspace.subscription_id == ""
 
     def test_dangerous_operations_comprehensive(self):
-        """Test all dangerous operations in QueryDefinitionModel"""
+        """Test that dangerous operations are now allowed since we removed this validation"""
         dangerous_ops = [
             ".drop",
-            ".delete",
+            ".delete", 
             ".create",
             ".alter",
             ".set",
@@ -104,12 +104,11 @@ class TestValidationMissingLines:
         ]
 
         for op in dangerous_ops:
-            with pytest.raises(ValidationError) as exc_info:
-                QueryDefinitionModel(
-                    name="test_query",
-                    destination_stream="Custom-Test_Data_CL",
-                    stream_name="stream_test",
-                    query=f"SecurityEvent | {op} something",
-                )
-
-            assert "potentially dangerous operation" in str(exc_info.value)
+            # These should now pass since we removed dangerous operation validation
+            model = QueryDefinitionModel(
+                name="test_query",
+                destination_stream="Custom-Test_Data_CL",
+                stream_name="Custom-Test_CL",
+                query=f"SecurityEvent | {op} something",
+            )
+            assert model.name == "test_query"

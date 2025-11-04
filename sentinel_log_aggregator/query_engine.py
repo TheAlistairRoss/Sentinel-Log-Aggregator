@@ -418,7 +418,18 @@ class SentinelQueryEngine:
         for workspace in workspace_configs:
             workspace_id = workspace.customer_id
             queries_list = workspace.queries_list
-            workspace_alias = workspace.parameters.get("row_level_security_tag", workspace_id)
+            
+            # Extract workspace name from resource ID with validation
+            try:
+                resource_parts = workspace.resource_id.split("/")
+                if len(resource_parts) >= 9 and resource_parts[8]:
+                    workspace_alias = resource_parts[8]
+                else:
+                    self.logger.warning(f"Malformed resource ID: {workspace.resource_id}, using workspace ID as alias")
+                    workspace_alias = workspace_id
+            except (IndexError, AttributeError):
+                self.logger.warning(f"Failed to extract workspace name from resource ID: {workspace.resource_id}, using workspace ID as alias")
+                workspace_alias = workspace_id
 
             # Log workspace processing start
             if self.health_logger:
@@ -511,7 +522,7 @@ class SentinelQueryEngine:
 
                         # Create tasks for each time batch
                         for batch_start, batch_end in time_batches:
-                            execution_id = f"{batch_id}_{workspace_id[:8]}_{actual_query_name}_{batch_start.strftime('%Y%m%d_%H')}"
+                            execution_id = f"{batch_id}_{workspace_id}_{actual_query_name}_{batch_start.strftime('%Y%m%d_%H')}"
 
                             task = self.execute_single_query_with_upload(
                                 workspace_id=workspace_id,
@@ -531,7 +542,7 @@ class SentinelQueryEngine:
                         # Create failed execution record
                         failed_execution = QueryExecution(
                             job_correlation_id=self.job_correlation_id,
-                            execution_id=f"{batch_id}_{workspace_id[:8]}_{actual_query_name}_failed",
+                            execution_id=f"{batch_id}_{workspace_id}_{actual_query_name}_failed",
                             workspace_id=workspace_id,
                             query_name=actual_query_name,
                             destination_stream=query_instance.destination_stream,

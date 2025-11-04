@@ -90,7 +90,7 @@ class TestSentinelLoggerAdapter:
 
         adapter.set_workspace_context(workspace_id, workspace_name)
 
-        assert adapter.extra["workspace_id"] == "12345678..."
+        assert adapter.extra["workspace_id"] == "12345678-1234-1234-1234-123456789012"
         assert adapter.extra["workspace_name"] == workspace_name
 
     def test_set_workspace_context_short_id(self):

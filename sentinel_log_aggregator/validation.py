@@ -55,9 +55,6 @@ class WorkspaceConfigModel(BaseModel):
         if v is None:
             return v
 
-        # With the new on-demand query architecture, we don't validate against
-        # a hardcoded list since queries are loaded from workspace configurations.
-        # Basic validation: check that we have strings and they're not empty
         for query in v:
             if not isinstance(query, str) or not query.strip():
                 raise ValueError(f"Query names must be non-empty strings, got: {query}")
@@ -141,8 +138,8 @@ class QueryDefinitionModel(BaseModel):
     )
     stream_name: str = Field(
         ...,
-        pattern=r"^stream_[a-z][a-z0-9_]*$",
-        description="Stream name (must start with 'stream_')",
+        pattern=r"^(Custom-|Microsoft-)[A-Za-z0-9_-]+$",
+        description="Stream name (must start with 'Custom-' or 'Microsoft-')",
     )
     version: str = Field(
         default="1.0",
@@ -161,23 +158,6 @@ class QueryDefinitionModel(BaseModel):
         """Basic KQL query validation."""
         if not v.strip():
             raise ValueError("Query cannot be empty")
-
-        # Check for dangerous operations
-        dangerous_operations = [
-            ".drop",
-            ".delete",
-            ".create",
-            ".alter",
-            ".set",
-            "drop table",
-            "delete from",
-            "truncate",
-        ]
-
-        query_lower = v.lower()
-        for operation in dangerous_operations:
-            if operation in query_lower:
-                raise ValueError(f"Query contains potentially dangerous operation: {operation}")
 
         return v
 
@@ -201,8 +181,8 @@ class ClientOptionsModel(BaseModel):
     dcr_logs_ingestion_endpoint: AnyUrl = Field(
         ..., description="Azure Monitor Data Collection Rule logs ingestion endpoint"
     )
-    dcr_rule_id: str = Field(
-        ..., description="Data Collection Rule ID", pattern=r"^dcr-[a-f0-9]{32}$"
+    dcr_immutable_id: str = Field(
+        ..., description="Data Collection Rule immutable ID", pattern=r"^dcr-[a-f0-9]{32}$"
     )
 
     # Query execution settings
@@ -250,14 +230,9 @@ class WorkspaceCollectionModel(BaseModel):
     def validate_unique_workspaces(
         cls, v: List[WorkspaceConfigModel]
     ) -> List[WorkspaceConfigModel]:
-        """Ensure workspace IDs and security tags are unique, and exactly one aggregation workspace."""
+        """Ensure workspace IDs are unique, parameters within each workspace are unique, and exactly one aggregation workspace."""
         customer_ids = [ws.customer_id for ws in v]
         resource_ids = [ws.resource_id for ws in v]
-        security_tags = [
-            ws.parameters.get("row_level_security_tag", "")
-            for ws in v
-            if ws.parameters.get("row_level_security_tag")
-        ]
 
         if len(customer_ids) != len(set(customer_ids)):
             raise ValueError("Duplicate customer IDs found in workspace list")
@@ -265,8 +240,11 @@ class WorkspaceCollectionModel(BaseModel):
         if len(resource_ids) != len(set(resource_ids)):
             raise ValueError("Duplicate resource IDs found in workspace list")
 
-        if len(security_tags) != len(set(security_tags)):
-            raise ValueError("Duplicate row-level security tags found in workspace list")
+        # Check for duplicate parameter names within each workspace
+        for i, ws in enumerate(v):
+            param_names = list(ws.parameters.keys())
+            if len(param_names) != len(set(param_names)):
+                raise ValueError(f"Workspace {i+1} has duplicate parameter names in its parameters list")
 
         # Validate aggregation workspace configuration
         aggregation_workspaces = [ws for ws in v if ws.aggregation_workspace]

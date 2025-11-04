@@ -23,8 +23,8 @@ class SentinelAggregatorClientOptions(Configuration):
 
     :param dcr_logs_ingestion_endpoint: Azure Monitor DCR logs ingestion endpoint
     :type dcr_logs_ingestion_endpoint: str
-    :param dcr_rule_id: Data Collection Rule ID for log ingestion
-    :type dcr_rule_id: str
+    :param dcr_immutable_id: Data Collection Rule immutable ID for log ingestion
+    :type dcr_immutable_id: str
     :param lookback_period: ISO 8601 duration for how far back to query (default: "P30D")
     :type lookback_period: str
     :param batch_time_size: ISO 8601 duration for batch size (default: "PT24H")
@@ -55,7 +55,7 @@ class SentinelAggregatorClientOptions(Configuration):
         self,
         *,
         dcr_logs_ingestion_endpoint: Optional[str] = None,
-        dcr_rule_id: Optional[str] = None,
+        dcr_immutable_id: Optional[str] = None,
         lookback_period: Optional[str] = None,
         batch_time_size: Optional[str] = None,
         start_time: Optional[str] = None,
@@ -74,7 +74,7 @@ class SentinelAggregatorClientOptions(Configuration):
 
         # Core configuration
         self.dcr_logs_ingestion_endpoint = dcr_logs_ingestion_endpoint
-        self.dcr_rule_id = dcr_rule_id
+        self.dcr_immutable_id = dcr_immutable_id
 
         # Time configuration
         self.lookback_period = lookback_period or "P30D"
@@ -114,8 +114,8 @@ class SentinelAggregatorClientOptions(Configuration):
             if not self.dcr_logs_ingestion_endpoint:
                 errors.append("dcr_logs_ingestion_endpoint is required")
 
-            if not self.dcr_rule_id:
-                errors.append("dcr_rule_id is required")
+            if not self.dcr_immutable_id:
+                errors.append("dcr_immutable_id is required")
 
             # Time configuration validation
             try:
@@ -176,7 +176,7 @@ class SentinelAggregatorClientOptions(Configuration):
 
         return cls(
             dcr_logs_ingestion_endpoint=os.getenv("DCR_LOGS_INGESTION_ENDPOINT"),
-            dcr_rule_id=os.getenv("DCR_RULE_ID"),
+            dcr_immutable_id=os.getenv("DCR_IMMUTABLE_ID"),
             lookback_period=os.getenv("LOOKBACK_PERIOD"),
             batch_time_size=os.getenv("BATCH_TIME_SIZE"),
             start_time=os.getenv("START_TIME"),
@@ -213,7 +213,7 @@ class SentinelAggregatorClientOptions(Configuration):
 
         return cls(
             dcr_logs_ingestion_endpoint=config_data.get("dcr_logs_ingestion_endpoint"),
-            dcr_rule_id=config_data.get("dcr_rule_id"),
+            dcr_immutable_id=config_data.get("dcr_immutable_id"),
             lookback_period=config_data.get("lookback_period"),
             batch_time_size=config_data.get("batch_time_size"),
             start_time=config_data.get("start_time"),

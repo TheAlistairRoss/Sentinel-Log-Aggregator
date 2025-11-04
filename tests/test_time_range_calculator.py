@@ -31,7 +31,7 @@ class TestTimeConfigurationValidation:
         # Lookback period only
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             lookback_period="P7D",
             batch_time_size="PT12H",
         )
@@ -41,7 +41,7 @@ class TestTimeConfigurationValidation:
         # Explicit times only
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             start_time="2025-11-01T00:00:00Z",
             end_time="2025-11-03T00:00:00Z",
             batch_time_size="PT12H",
@@ -52,7 +52,7 @@ class TestTimeConfigurationValidation:
         # Last successful only
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             use_last_successful=True,
             batch_time_size="PT12H",
         )
@@ -64,7 +64,7 @@ class TestTimeConfigurationValidation:
         # Lookback + explicit times
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             lookback_period="P7D",
             start_time="2025-11-01T00:00:00Z",
             batch_time_size="PT12H",
@@ -78,7 +78,7 @@ class TestTimeConfigurationValidation:
         # All three methods
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             lookback_period="P7D",
             start_time="2025-11-01T00:00:00Z",
             use_last_successful=True,
@@ -93,7 +93,7 @@ class TestTimeConfigurationValidation:
         # Invalid start time
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             start_time="invalid-datetime",
             batch_time_size="PT12H",
         )
@@ -103,7 +103,7 @@ class TestTimeConfigurationValidation:
         # Invalid end time
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             end_time="invalid-datetime",
             batch_time_size="PT12H",
         )
@@ -115,7 +115,7 @@ class TestTimeConfigurationValidation:
         # End before start
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             start_time="2025-11-03T00:00:00Z",
             end_time="2025-11-01T00:00:00Z",
             batch_time_size="PT12H",
@@ -128,7 +128,7 @@ class TestTimeConfigurationValidation:
         # Invalid lookback period
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             lookback_period="invalid-duration",
             batch_time_size="PT12H",
         )
@@ -138,7 +138,7 @@ class TestTimeConfigurationValidation:
         # Invalid batch time size
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             lookback_period="P7D",
             batch_time_size="invalid-duration",
         )
@@ -173,7 +173,7 @@ class TestTimeRangeCalculation:
 
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             lookback_period="P7D",
             batch_time_size="PT12H",
         )
@@ -199,7 +199,7 @@ class TestTimeRangeCalculation:
         """Test time range calculation using explicit start/end times."""
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             start_time="2025-11-01T00:00:00Z",
             end_time="2025-11-03T00:00:00Z",
             batch_time_size="PT6H",
@@ -234,7 +234,7 @@ class TestTimeRangeCalculation:
 
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             start_time="2025-11-01T00:00:00Z",
             batch_time_size="PT24H",
         )
@@ -261,7 +261,7 @@ class TestTimeRangeCalculation:
         """Test time range calculation using last successful runs."""
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             use_last_successful=True,
             batch_time_size="PT12H",
         )
@@ -311,7 +311,7 @@ class TestTimeRangeCalculation:
         """Test error when health logger is missing for last successful option."""
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             use_last_successful=True,
             batch_time_size="PT12H",
         )
@@ -335,7 +335,7 @@ class TestTimeRangeCalculation:
         # Create options with invalid start_time but no end_time
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             start_time="invalid-datetime-string",
             batch_time_size="PT12H",
         )
@@ -458,7 +458,7 @@ class TestLastSuccessfulRunsProcessing:
 
         client_options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             use_last_successful=True,
             batch_time_size="PT12H",
         )
@@ -506,7 +506,7 @@ class TestLastSuccessfulRunsProcessing:
 
         client_options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             use_last_successful=True,
             batch_time_size="PT12H",
         )
@@ -609,7 +609,7 @@ class TestErrorHandling:
         """Test that errors from time_utils are properly propagated."""
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             lookback_period="invalid",  # This should cause TimeParsingError
             batch_time_size="PT12H",
         )
@@ -652,7 +652,7 @@ class TestIntegrationScenarios:
 
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             lookback_period="P3D",
             batch_time_size="PT6H",
         )
@@ -692,7 +692,7 @@ class TestIntegrationScenarios:
         """Test complete explicit time range scenario."""
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             start_time="2025-10-01T00:00:00Z",
             end_time="2025-10-02T00:00:00Z",
             batch_time_size="PT8H",
@@ -735,7 +735,7 @@ class TestIntegrationScenarios:
         # Test that use_last_successful takes precedence over explicit times
         options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.com",
-            dcr_rule_id="test-rule",
+            dcr_immutable_id="test-rule",
             start_time="2025-10-01T00:00:00Z",  # This should be ignored
             use_last_successful=True,  # This takes precedence
             batch_time_size="PT12H",

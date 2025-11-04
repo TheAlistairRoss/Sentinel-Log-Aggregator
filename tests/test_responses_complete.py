@@ -78,7 +78,7 @@ class TestResponsesComplete:
             workspace_id="test-workspace-12345678901234567890",
             query="TestQuery",
         )
-        assert result_with_alias.workspace_alias == "test-wor..."
+        assert result_with_alias.workspace_alias == "test-workspace-12345678901234567890"
 
         result_empty_workspace = QueryResult(
             status=QueryStatus.SUCCESS,
@@ -98,8 +98,8 @@ class TestResponsesComplete:
             status=UploadStatus.SUCCESS,
             record_count=100,
             upload_time=2.0,
-            stream_name="stream_test",
-            dcr_rule_id="dcr-rule-123",
+            stream_name="Custom-Test_CL",
+            dcr_immutable_id="dcr-rule-123",
         )
         assert success_upload.succeeded == True
 
@@ -108,8 +108,8 @@ class TestResponsesComplete:
             status=UploadStatus.FAILED,
             record_count=0,
             upload_time=1.0,
-            stream_name="stream_test",
-            dcr_rule_id="dcr-rule-123",
+            stream_name="Custom-Test_CL",
+            dcr_immutable_id="dcr-rule-123",
             error_message="Upload failed",
         )
         assert failed_upload.failed == True
@@ -132,8 +132,8 @@ class TestResponsesComplete:
             status=UploadStatus.SUCCESS,
             record_count=50,
             upload_time=1.5,
-            stream_name="stream_test",
-            dcr_rule_id="dcr-rule-123",
+            stream_name="Custom-Test_CL",
+            dcr_immutable_id="dcr-rule-123",
         )
 
         # Test successful execution (should trigger lines 175-177)
@@ -244,7 +244,7 @@ class TestResponsesComplete:
             record_count=100,
             upload_time=1.0,
             stream_name="stream1",
-            dcr_rule_id="dcr-rule-123",
+            dcr_immutable_id="dcr-rule-123",
         )
 
         upload_result2 = UploadResult(
@@ -252,7 +252,7 @@ class TestResponsesComplete:
             record_count=50,
             upload_time=0.8,
             stream_name="stream2",
-            dcr_rule_id="dcr-rule-123",
+            dcr_immutable_id="dcr-rule-123",
         )
 
         upload_result3 = UploadResult(
@@ -260,7 +260,7 @@ class TestResponsesComplete:
             record_count=0,
             upload_time=0.5,
             stream_name="stream3",
-            dcr_rule_id="dcr-rule-123",
+            dcr_immutable_id="dcr-rule-123",
             error_message="Upload failed",
         )
 
@@ -357,7 +357,7 @@ class TestResponsesComplete:
             connectivity_status="connected",
             authentication_status="authenticated",
             dcr_endpoint="https://example.dce.endpoint",
-            dcr_rule_id="dcr-rule-123",
+            dcr_immutable_id="dcr-rule-123",
             workspace_count=5,
             available_queries=10,
             last_check_time=specific_time,
@@ -372,7 +372,7 @@ class TestResponsesComplete:
             connectivity_status="connected",
             authentication_status="authenticated",
             dcr_endpoint="https://example.dce.endpoint",
-            dcr_rule_id="dcr-rule-123",
+            dcr_immutable_id="dcr-rule-123",
             workspace_count=5,
             available_queries=10,
             last_check_time=None,  # This should trigger __post_init__ line 285
@@ -388,7 +388,7 @@ class TestResponsesComplete:
             connectivity_status="connected",
             authentication_status="authenticated",
             dcr_endpoint="https://example.dce.endpoint",
-            dcr_rule_id="dcr-rule-123",
+            dcr_immutable_id="dcr-rule-123",
             workspace_count=5,
             available_queries=10,
             # last_check_time defaults to None, should trigger line 285
@@ -409,7 +409,7 @@ class TestResponsesComplete:
             workspace_id="test-workspace-id",
             query="TestQuery",
         )
-        assert empty_query_result.workspace_alias == "test-wor..."
+        assert empty_query_result.workspace_alias == "test-workspace-id"
         assert empty_query_result.succeeded == True
 
         # Test WorkspaceQueryExecution with minimal data

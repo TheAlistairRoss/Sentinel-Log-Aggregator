@@ -297,7 +297,7 @@ class SentinelAggregatorHealthLogger:
 
         extended_properties = {
             "watermark_timestamp": watermark_timestamp.isoformat(),
-            "workspace_id_short": workspace_id[:8] + "...",
+            "workspace_id": workspace_id,
         }
 
         if previous_watermark:
@@ -398,7 +398,7 @@ class SentinelAggregatorHealthLogger:
         context_parts = []
 
         if workspace_id := health_record.get("WorkspaceId"):
-            context_parts.append(f"Workspace: {workspace_id[:8]}")
+            context_parts.append(f"Workspace: {workspace_id}")
 
         if query_name := health_record.get("QueryName"):
             context_parts.append(f"Query: {query_name}")

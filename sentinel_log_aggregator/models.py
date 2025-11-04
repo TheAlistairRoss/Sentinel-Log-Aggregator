@@ -252,8 +252,8 @@ class QueryExecution:
 
     @property
     def workspace_alias(self) -> str:
-        """Get short workspace identifier."""
-        return self.workspace_id[:8] + "..." if len(self.workspace_id) > 8 else self.workspace_id
+        """Get workspace identifier."""
+        return self.workspace_id
 
     @property
     def status(self) -> str:

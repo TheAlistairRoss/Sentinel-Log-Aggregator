@@ -53,7 +53,7 @@ class TestSentinelClientPropertyMocking:
         """Sample client options with valid DCR rule ID."""
         return SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
-            dcr_rule_id="dcr-" + "a" * 32,  # Valid DCR rule ID format
+            dcr_immutable_id="dcr-" + "a" * 32,  # Valid DCR rule ID format
             max_retries=3,
             retry_delay_seconds=2.0,
             enable_distributed_tracing=True,
@@ -275,7 +275,7 @@ class TestSentinelClientMethodCoverage:
         """Sample client options with valid DCR rule ID."""
         return SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
-            dcr_rule_id="dcr-" + "a" * 32,  # Valid DCR rule ID format
+            dcr_immutable_id="dcr-" + "a" * 32,  # Valid DCR rule ID format
             max_retries=3,
             retry_delay_seconds=2.0,
             enable_distributed_tracing=True,

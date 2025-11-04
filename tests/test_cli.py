@@ -79,7 +79,7 @@ class TestClientOptionsCreation:
         """Create mock arguments for testing."""
         args = MagicMock()
         args.dcr_endpoint = "https://test.ingest.monitor.azure.com"
-        args.dcr_rule_id = "dcr-test-rule-id"
+        args.dcr_immutable_id = "dcr-test-rule-id"
         args.lookback_period = "P7D"  # 7 days in ISO 8601 format
         args.batch_time_size = "PT12H"  # 12 hours in ISO 8601 format
         args.start_time = None
@@ -100,7 +100,7 @@ class TestClientOptionsCreation:
             options = create_client_options_from_args(mock_args)
 
             assert options.dcr_logs_ingestion_endpoint == "https://test.ingest.monitor.azure.com"
-            assert options.dcr_rule_id == "dcr-test-rule-id"
+            assert options.dcr_immutable_id == "dcr-test-rule-id"
             assert options.lookback_period == "P7D"
             assert options.batch_time_size == "PT12H"
             assert options.max_concurrent_queries == 3
@@ -118,7 +118,7 @@ class TestClientOptionsCreation:
 
     def test_create_client_options_missing_dcr_rule_id(self, mock_args):
         """Test error when DCR rule ID is missing."""
-        mock_args.dcr_rule_id = None
+        mock_args.dcr_immutable_id = None
 
         with patch.dict(os.environ, {}, clear=True):
             with pytest.raises(ValueError, match="DCR rule ID is required"):
@@ -127,7 +127,7 @@ class TestClientOptionsCreation:
     def test_create_client_options_env_fallback(self, mock_args):
         """Test fallback to environment variables when args are None."""
         mock_args.dcr_endpoint = None
-        mock_args.dcr_rule_id = None
+        mock_args.dcr_immutable_id = None
         mock_args.lookback_period = None
         mock_args.batch_time_size = None
         mock_args.start_time = None
@@ -147,7 +147,7 @@ class TestClientOptionsCreation:
             options = create_client_options_from_args(mock_args)
 
             assert options.dcr_logs_ingestion_endpoint == "https://env.ingest.monitor.azure.com"
-            assert options.dcr_rule_id == "dcr-env-rule-id"
+            assert options.dcr_immutable_id == "dcr-env-rule-id"
             assert options.lookback_period == "P14D"
             assert options.batch_time_size == "PT6H"
             assert options.max_concurrent_queries == 8
@@ -229,7 +229,7 @@ class TestArgumentParser:
 
         assert args.log_level == "DEBUG"
         assert args.dcr_endpoint == "https://test.ingest.monitor.azure.com"
-        assert args.dcr_rule_id == "dcr-test"
+        assert args.dcr_immutable_id == "dcr-test"
         assert args.command == "health"
 
     def test_parser_health_command(self):
@@ -289,7 +289,7 @@ class TestMainFunction:
         """Create mock client options."""
         return SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
-            dcr_rule_id="dcr-test-rule",
+            dcr_immutable_id="dcr-test-rule",
         )
 
     @pytest.fixture
@@ -548,7 +548,7 @@ class TestEnvironmentVariableDefaults:
         """Test client options creation with environment variable defaults."""
         args = MagicMock()
         args.dcr_endpoint = "https://test.ingest.monitor.azure.com"
-        args.dcr_rule_id = "dcr-test"
+        args.dcr_immutable_id = "dcr-test"
         args.lookback_period = None
         args.batch_time_size = None
         args.start_time = None
@@ -636,7 +636,7 @@ class TestCheckServiceHealth:
         # Create test client options
         client_options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
-            dcr_rule_id="dcr-12345678901234567890123456789012",  # Valid 32-char hex
+            dcr_immutable_id="dcr-12345678901234567890123456789012",  # Valid 32-char hex
             days_ago=7,
             batch_hours=24,
         )
@@ -691,7 +691,7 @@ class TestCheckServiceHealth:
         # Create test client options
         client_options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
-            dcr_rule_id="dcr-12345678901234567890123456789012",
+            dcr_immutable_id="dcr-12345678901234567890123456789012",
             days_ago=7,
             batch_hours=24,
         )
@@ -744,7 +744,7 @@ class TestCheckServiceHealth:
 
         client_options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
-            dcr_rule_id="dcr-12345678901234567890123456789012",
+            dcr_immutable_id="dcr-12345678901234567890123456789012",
         )
 
         with patch("sentinel_log_aggregator.cli.SentinelAggregatorClient") as mock_client_class:
@@ -767,7 +767,7 @@ class TestCheckServiceHealth:
 
         client_options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
-            dcr_rule_id="dcr-12345678901234567890123456789012",
+            dcr_immutable_id="dcr-12345678901234567890123456789012",
         )
 
         with patch("sentinel_log_aggregator.cli.DefaultAzureCredential") as mock_cred:
@@ -790,7 +790,7 @@ class TestRunAggregation:
 
         client_options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
-            dcr_rule_id="dcr-12345678901234567890123456789012",
+            dcr_immutable_id="dcr-12345678901234567890123456789012",
             lookback_period="P7D",
             batch_time_size="PT24H",
         )
@@ -850,7 +850,7 @@ class TestRunAggregation:
         # Create client options
         client_options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
-            dcr_rule_id="dcr-12345678901234567890123456789012",
+            dcr_immutable_id="dcr-12345678901234567890123456789012",
         )
 
         # Mock client_options.validate to return validation errors
@@ -870,7 +870,7 @@ class TestRunAggregation:
 
         client_options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
-            dcr_rule_id="dcr-12345678901234567890123456789012",
+            dcr_immutable_id="dcr-12345678901234567890123456789012",
             lookback_period="P30D",  # Original value
             batch_time_size="PT12H",  # Original value
         )
@@ -900,7 +900,7 @@ class TestRunAggregation:
 
         client_options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint="https://test.ingest.monitor.azure.com",
-            dcr_rule_id="dcr-12345678901234567890123456789012",
+            dcr_immutable_id="dcr-12345678901234567890123456789012",
         )
 
         # Mock client_options.validate to return no errors

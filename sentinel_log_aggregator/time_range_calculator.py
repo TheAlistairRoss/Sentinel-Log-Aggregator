@@ -173,6 +173,11 @@ async def _calculate_from_last_successful(
 
     logger.debug(f"Checking last successful runs for queries: {sorted(all_query_names)}")
 
+    # Get all last successful runs in a single query
+    last_successful_results = await _query_all_last_successful_runs(
+        health_logger, list(workspaces), lookback_days=30
+    )
+
     # Check last successful runs for each workspace + query combination
     missing_combinations = []
     earliest_last_end_time = None
@@ -183,31 +188,21 @@ async def _calculate_from_last_successful(
         for query_config in workspace.queries_list:
             query_name = query_config.get("name", query_config.get("query_name", "unknown"))
 
-            try:
-                # Query for last successful run of this query+workspace combination
-                last_successful = await _query_last_successful_for_query_workspace(
-                    health_logger, workspace_id, query_name
-                )
+            # Look up the result from our batched query
+            key = (query_name, workspace_id)
+            last_successful = last_successful_results.get(key)
 
-                if not last_successful:
-                    missing_combinations.append(f"{query_name} (workspace: {workspace_id[:8]})")
-                    continue
+            if not last_successful:
+                missing_combinations.append(f"{query_name} (workspace: {workspace_id})")
+                continue
 
-                # Track the earliest end time across all queries
-                last_end_time = last_successful.get("end_time")
-                if isinstance(last_end_time, str):
-                    last_end_time = parse_iso8601_datetime(last_end_time)
+            # Track the earliest end time across all queries
+            last_end_time = last_successful.get("end_time")
+            if isinstance(last_end_time, str):
+                last_end_time = parse_iso8601_datetime(last_end_time)
 
-                if earliest_last_end_time is None or last_end_time < earliest_last_end_time:
-                    earliest_last_end_time = last_end_time
-
-            except Exception as e:
-                logger.error(
-                    f"Failed to query last successful run for {query_name} in workspace {workspace_id[:8]}: {e}"
-                )
-                missing_combinations.append(
-                    f"{query_name} (workspace: {workspace_id[:8]}) - error: {e}"
-                )
+            if earliest_last_end_time is None or last_end_time < earliest_last_end_time:
+                earliest_last_end_time = last_end_time
 
     # Check if any combinations are missing
     if missing_combinations:
@@ -232,6 +227,121 @@ async def _calculate_from_last_successful(
     return start_time, end_time
 
 
+async def _query_all_last_successful_runs(
+    health_logger: SentinelAggregatorHealthLogger,
+    workspaces: List[WorkspaceConfig],
+    lookback_days: int = 30,
+) -> Dict[Tuple[str, str], Dict[str, Any]]:
+    """
+    Query last successful runs for all workspace+query combinations in one optimized query.
+
+    Args:
+        health_logger: Health logger with sentinel client
+        workspaces: List of workspace configurations
+        lookback_days: How many days back to search
+
+    Returns:
+        Dict mapping (query_name, workspace_id) tuples to last successful run data
+    """
+    from datetime import timedelta
+
+    end_time = datetime.now(timezone.utc)
+    start_time = end_time - timedelta(days=lookback_days)
+
+    # Get the aggregation workspace for querying
+    aggregation_workspace = None
+    for workspace in workspaces:
+        if workspace.aggregation_workspace:
+            aggregation_workspace = workspace
+            break
+    
+    if not aggregation_workspace:
+        logger.warning("No aggregation workspace found, using first workspace for health queries")
+        aggregation_workspace = workspaces[0]
+
+    # Build optimized KQL query for all successful runs
+    kql_query = f"""
+    SentinelAggregator-Health_CL
+    | where TimeGenerated between (datetime({start_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')}) .. datetime({end_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')}))
+    | where OperationName == "QueryExecution"
+    | where OperationStatus == "Completed"
+    | extend ExtendedProps = parse_json(ExtendedProperties)
+    | extend StartTime = todatetime(ExtendedProps.start_time)
+    | extend EndTime = todatetime(ExtendedProps.end_time)
+    | extend RecordCount = toint(ExtendedProps.record_count)
+    | where isnotnull(StartTime) and isnotnull(EndTime) and isnotnull(RecordCount)
+    | project QueryName, WorkspaceId, StartTime, EndTime, RecordCount, LastRunTime=TimeGenerated
+    """
+
+    try:
+        from azure.identity.aio import DefaultAzureCredential
+        from azure.monitor.query.aio import LogsQueryClient
+
+        credential = DefaultAzureCredential()
+        query_client = LogsQueryClient(credential=credential)
+
+        # Execute the query against the aggregation workspace
+        response = await query_client.query_workspace(
+            workspace_id=aggregation_workspace.customer_id, 
+            query=kql_query, 
+            timespan=(start_time, end_time)
+        )
+
+        # Process all results and map to (query_name, workspace_id) -> latest result
+        results_map = {}
+        
+        if response.tables and response.tables[0].rows:
+            table = response.tables[0]
+            column_names = [col.name for col in table.columns]
+            
+            # Process each row and keep the latest result per query+workspace combination
+            for row in table.rows:
+                row_dict = dict(zip(column_names, row))
+                
+                query_name = row_dict.get("QueryName")
+                workspace_id = row_dict.get("WorkspaceId")
+                last_run_time = row_dict.get("LastRunTime")
+                
+                if not query_name or not workspace_id:
+                    continue
+                
+                # Convert timestamp for comparison
+                if isinstance(last_run_time, str):
+                    last_run_time = parse_iso8601_datetime(last_run_time)
+                
+                key = (query_name, workspace_id)
+                
+                # Keep the record with the latest timestamp for each key
+                if key not in results_map:
+                    results_map[key] = row_dict.copy()
+                else:
+                    existing_time = results_map[key].get("LastRunTime")
+                    if isinstance(existing_time, str):
+                        existing_time = parse_iso8601_datetime(existing_time)
+                    
+                    if last_run_time and (not existing_time or last_run_time > existing_time):
+                        results_map[key] = row_dict.copy()
+            
+            # Convert datetime fields for all results
+            for result in results_map.values():
+                for field in ["StartTime", "EndTime", "LastRunTime"]:
+                    if field in result and result[field]:
+                        if isinstance(result[field], str):
+                            result[f"{field.lower()}"] = parse_iso8601_datetime(result[field])
+                        else:
+                            result[f"{field.lower()}"] = result[field]
+
+        await credential.close()
+        await query_client.close()
+
+        logger.debug(f"Found {len(results_map)} unique query+workspace combinations in health logs")
+        return results_map
+
+    except Exception as e:
+        logger.error(f"Failed to query all last successful runs: {e}")
+        return {}
+
+
 async def _query_last_successful_for_query_workspace(
     health_logger: SentinelAggregatorHealthLogger,
     workspace_id: str,
@@ -240,6 +350,9 @@ async def _query_last_successful_for_query_workspace(
 ) -> Optional[Dict[str, Any]]:
     """
     Query last successful run for a specific query+workspace combination.
+    
+    Note: This function is kept for backward compatibility but the optimized
+    _query_all_last_successful_runs should be used instead for better performance.
 
     Args:
         health_logger: Health logger with sentinel client
@@ -307,7 +420,7 @@ async def _query_last_successful_for_query_workspace(
 
     except Exception as e:
         logger.debug(
-            f"Failed to query last successful run for {query_name}/{workspace_id[:8]}: {e}"
+            f"Failed to query last successful run for {query_name}/{workspace_id}: {e}"
         )
         return None
 

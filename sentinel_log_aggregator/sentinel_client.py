@@ -147,7 +147,7 @@ class SentinelAggregatorClient:
         :return: Configured client instance
         :rtype: SentinelAggregatorClient
         """
-        # Parse connection string (format: "endpoint=https://...;dcr_rule_id=dcr-...")
+        # Parse connection string (format: "endpoint=https://...;dcr_immutable_id=dcr-...")
         conn_parts = {}
         for part in connection_string.split(";"):
             if "=" in part:
@@ -162,8 +162,8 @@ class SentinelAggregatorClient:
         if options is None:
             options = SentinelAggregatorClientOptions()
 
-        if "dcr_rule_id" in conn_parts:
-            options.dcr_rule_id = conn_parts["dcr_rule_id"]
+        if "dcr_immutable_id" in conn_parts:
+            options.dcr_immutable_id = conn_parts["dcr_immutable_id"]
 
         cred = credential or DefaultAzureCredential()
         return cls(endpoint, cred, options=options, **kwargs)
@@ -270,7 +270,7 @@ class SentinelAggregatorClient:
             connectivity_status=connectivity_status,
             authentication_status=auth_status,
             dcr_endpoint=self._dcr_endpoint,
-            dcr_rule_id=self._options.dcr_rule_id or "not_configured",
+            dcr_rule_id=self._options.dcr_immutable_id or "not_configured",
             workspace_count=0,  # Updated by caller based on workspace config
             available_queries=len(AVAILABLE_QUERIES),
             last_check_time=datetime.now(timezone.utc),
@@ -368,7 +368,7 @@ class SentinelAggregatorClient:
         except asyncio.TimeoutError as e:
             execution_time = (datetime.now(timezone.utc) - start_exec).total_seconds()
             self._logger.error(
-                f"Query timeout after {execution_time:.2f}s for workspace {workspace_id[:8]}... "
+                f"Query timeout after {execution_time:.2f}s for workspace {workspace_id} "
                 f"[correlation_id={correlation_id}]"
             )
 
@@ -391,7 +391,7 @@ class SentinelAggregatorClient:
             error_msg = str(e)
 
             self._logger.error(
-                f"Query failed for workspace {workspace_id[:8]}...: {error_msg} "
+                f"Query failed for workspace {workspace_id}: {error_msg} "
                 f"[correlation_id={correlation_id}]"
             )
 
@@ -542,7 +542,7 @@ class SentinelAggregatorClient:
                 record_count=0,
                 upload_time=0.0,
                 stream_name=stream_name,
-                dcr_rule_id=self._options.dcr_rule_id,
+                dcr_rule_id=self._options.dcr_immutable_id,
                 correlation_id=correlation_id,
             )
 
@@ -557,7 +557,7 @@ class SentinelAggregatorClient:
             serializable_data = self._prepare_data_for_upload(data)
 
             response = await self._logs_ingestion_client_instance.upload(
-                rule_id=self._options.dcr_rule_id, stream_name=stream_name, logs=serializable_data
+                rule_id=self._options.dcr_immutable_id, stream_name=stream_name, logs=serializable_data
             )
 
             upload_time = (datetime.now(timezone.utc) - start_upload).total_seconds()
@@ -567,7 +567,7 @@ class SentinelAggregatorClient:
                 record_count=len(data),
                 upload_time=upload_time,
                 stream_name=stream_name,
-                dcr_rule_id=self._options.dcr_rule_id,
+                dcr_rule_id=self._options.dcr_immutable_id,
                 correlation_id=correlation_id,
                 request_id=getattr(response, "request_id", None),
             )
@@ -586,7 +586,7 @@ class SentinelAggregatorClient:
                 record_count=len(data),
                 upload_time=upload_time,
                 stream_name=stream_name,
-                dcr_rule_id=self._options.dcr_rule_id,
+                dcr_rule_id=self._options.dcr_immutable_id,
                 correlation_id=correlation_id,
                 error_message=error_msg,
                 error_code=getattr(e, "error_code", type(e).__name__),

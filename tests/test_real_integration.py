@@ -84,7 +84,7 @@ class TestRealAzureIntegration:
             assert service_props.connectivity_status == "connected"
             assert service_props.authentication_status == "valid"
             assert service_props.dcr_endpoint == client_options.dcr_logs_ingestion_endpoint
-            assert service_props.dcr_rule_id == client_options.dcr_rule_id
+            assert service_props.dcr_immutable_id == client_options.dcr_immutable_id
 
     @pytest.mark.integration
     @pytest.mark.asyncio
@@ -127,7 +127,7 @@ class TestRealAzureIntegration:
         # Use minimal options for testing
         test_options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint=client_options.dcr_logs_ingestion_endpoint,
-            dcr_rule_id=client_options.dcr_rule_id,
+            dcr_immutable_id=client_options.dcr_immutable_id,
             days_ago=1,  # Only last 1 day
             batch_hours=24,  # Single batch
             max_concurrent_queries=1,
@@ -184,7 +184,7 @@ class TestRealAzureIntegration:
         # Use minimal options for testing
         test_options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint=client_options.dcr_logs_ingestion_endpoint,
-            dcr_rule_id=client_options.dcr_rule_id,
+            dcr_immutable_id=client_options.dcr_immutable_id,
             days_ago=1,  # Only last 1 day
             batch_hours=24,  # Single batch
             max_concurrent_queries=1,
@@ -237,7 +237,7 @@ class TestRealAzureIntegration:
         # Use minimal options for testing
         test_options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint=client_options.dcr_logs_ingestion_endpoint,
-            dcr_rule_id=client_options.dcr_rule_id,
+            dcr_immutable_id=client_options.dcr_immutable_id,
             days_ago=1,  # Only last 1 day
             batch_hours=24,  # Single batch
             max_concurrent_queries=1,
@@ -301,7 +301,7 @@ class TestRealAzureIntegration:
         # Use minimal options for testing
         test_options = SentinelAggregatorClientOptions(
             dcr_logs_ingestion_endpoint=client_options.dcr_logs_ingestion_endpoint,
-            dcr_rule_id=client_options.dcr_rule_id,
+            dcr_immutable_id=client_options.dcr_immutable_id,
             days_ago=1,  # Only last 1 day
             batch_hours=24,  # Single batch
             max_concurrent_queries=1,

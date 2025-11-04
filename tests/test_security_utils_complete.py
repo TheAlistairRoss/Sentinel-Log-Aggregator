@@ -139,7 +139,10 @@ class TestSecurityUtilsComplete:
 
         result = sanitize_log_output(complex_data)
         assert result["level1"]["level2"]["customer_id"] == "12345678-1234-1234-1234-123456789012"
-        assert result["level1"]["level2"]["nested_list"][0]["workspace_id"] == "sensitive_workspace_id_long"
+        assert (
+            result["level1"]["level2"]["nested_list"][0]["workspace_id"]
+            == "sensitive_workspace_id_long"
+        )
 
         # Test KQL query with exactly 50 unions (should pass)
         unions_50 = " UNION ".join([f"Table{i}" for i in range(50)])  # 49 UNIONs

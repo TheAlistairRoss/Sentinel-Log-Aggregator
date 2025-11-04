@@ -541,7 +541,7 @@ class TestModelsComplete:
         )
 
         # Test workspace_alias property (should be 8 chars + "...")
-        assert execution.workspace_alias == "workspac..."
+        assert execution.workspace_alias == "workspace-abcd1234"
 
         # Test minimal BatchExecutionSummary
         summary = BatchExecutionSummary(

@@ -63,7 +63,7 @@ def create_client_options_from_args(args) -> SentinelAggregatorClientOptions:
     """
     # Get DCR configuration (required)
     dcr_endpoint = args.dcr_endpoint or os.getenv("DCR_LOGS_INGESTION_ENDPOINT")
-    dcr_rule_id = args.dcr_rule_id or os.getenv("DCR_RULE_ID")
+    dcr_immutable_id = args.dcr_immutable_id or os.getenv("DCR_IMMUTABLE_ID")
 
     # Validate required DCR configuration
     if not dcr_endpoint:
@@ -72,10 +72,10 @@ def create_client_options_from_args(args) -> SentinelAggregatorClientOptions:
             "Provide via --dcr-endpoint argument or DCR_LOGS_INGESTION_ENDPOINT environment variable."
         )
 
-    if not dcr_rule_id:
+    if not dcr_immutable_id:
         raise ValueError(
-            "DCR rule ID is required. "
-            "Provide via --dcr-rule-id argument or DCR_RULE_ID environment variable."
+            "DCR immutable ID is required. "
+            "Provide via --dcr-immutable-id argument or DCR_IMMUTABLE_ID environment variable."
         )
 
     # Get time configuration (these may not be present for all subcommands)
@@ -104,7 +104,7 @@ def create_client_options_from_args(args) -> SentinelAggregatorClientOptions:
     # Create client options
     return SentinelAggregatorClientOptions(
         dcr_logs_ingestion_endpoint=dcr_endpoint,
-        dcr_rule_id=dcr_rule_id,
+        dcr_immutable_id=dcr_immutable_id,
         lookback_period=lookback_period,
         batch_time_size=batch_time_size,
         start_time=start_time,
@@ -179,7 +179,7 @@ async def check_service_health(
             logger.info(f"  • Connectivity Status: {service_props.connectivity_status}")
             logger.info(f"  • Authentication Status: {service_props.authentication_status}")
             logger.info(f"  • DCR Endpoint: {service_props.dcr_endpoint}")
-            logger.info(f"  • DCR Rule ID: {service_props.dcr_rule_id}")
+            logger.info(f"  • DCR Immutable ID: {service_props.dcr_immutable_id}")
             logger.info(f"  • Configured Workspaces: {service_props.workspace_count}")
             logger.info(f"  • Available Queries: {service_props.available_queries}")
             logger.info(f"  • Last Check: {service_props.last_check_time}")
@@ -250,7 +250,7 @@ def create_health_logger_from_args(
     health_dcr_endpoint = (
         getattr(args, "health_dcr_endpoint", None) or client_options.dcr_logs_ingestion_endpoint
     )
-    health_dcr_rule_id = getattr(args, "health_dcr_rule_id", None) or client_options.dcr_rule_id
+    health_dcr_immutable_id = getattr(args, "health_dcr_immutable_id", None) or client_options.dcr_immutable_id
 
     # Get health to sentinel flag
     health_to_sentinel = (
@@ -260,7 +260,7 @@ def create_health_logger_from_args(
     # Create health client options with health-specific DCR settings
     health_client_options = SentinelAggregatorClientOptions(
         dcr_logs_ingestion_endpoint=health_dcr_endpoint,
-        dcr_rule_id=health_dcr_rule_id,
+        dcr_immutable_id=health_dcr_immutable_id,
         # Copy other settings from main options
         lookback_period=client_options.lookback_period,
         batch_time_size=client_options.batch_time_size,
@@ -434,7 +434,7 @@ Examples:
   # Using command line arguments with time ranges
   sentinel-aggregator run --workspace-config workspaces.yaml \\
     --dcr-endpoint "https://myworkspace-abcd.centralus-1.ingest.monitor.azure.com" \\
-    --dcr-rule-id "dcr-12345678901234567890" \\
+    --dcr-immutable-id "dcr-12345678901234567890" \\
     --start-time "2025-10-01T00:00:00Z" --end-time "2025-11-01T00:00:00Z"
   
   # Using lookback period with custom batch size
@@ -456,7 +456,7 @@ Examples:
   # Health check with custom DCR configuration
   sentinel-aggregator health --workspace-config workspaces.yaml \\
     --dcr-endpoint "https://myworkspace-abcd.centralus-1.ingest.monitor.azure.com" \\
-    --dcr-rule-id "dcr-12345678901234567890"
+    --dcr-immutable-id "dcr-12345678901234567890"
   
   # Validate configuration with debug logging
   sentinel-aggregator --log-level DEBUG validate --workspace-config workspaces.yaml
@@ -483,7 +483,7 @@ Examples:
         "--dcr-endpoint", help="Azure Monitor Data Collection Rule logs ingestion endpoint"
     )
 
-    parser.add_argument("--dcr-rule-id", help="Azure Monitor Data Collection Rule ID")
+    parser.add_argument("--dcr-immutable-id", help="Azure Monitor Data Collection Rule immutable ID")
 
     parser.add_argument(
         "--config-file",
@@ -585,7 +585,7 @@ Examples:
     )
 
     run_parser.add_argument(
-        "--health-dcr-rule-id", help="DCR rule ID for health logging (if different from main DCR)"
+        "--health-dcr-immutable-id", help="DCR immutable ID for health logging (if different from main DCR)"
     )
 
     # Validate configuration command
@@ -621,7 +621,7 @@ Examples:
         "--health-dcr-endpoint", help="DCR endpoint for health logging (if different from main DCR)"
     )
     verify_health_parser.add_argument(
-        "--health-dcr-rule-id", help="DCR rule ID for health logging (if different from main DCR)"
+        "--health-dcr-immutable-id", help="DCR immutable ID for health logging (if different from main DCR)"
     )
 
     # Query status command
@@ -652,7 +652,7 @@ Examples:
         "--health-dcr-endpoint", help="DCR endpoint for health logging (if different from main DCR)"
     )
     query_status_parser.add_argument(
-        "--health-dcr-rule-id", help="DCR rule ID for health logging (if different from main DCR)"
+        "--health-dcr-immutable-id", help="DCR immutable ID for health logging (if different from main DCR)"
     )
 
     return parser

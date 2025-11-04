@@ -44,9 +44,7 @@ class SentinelLoggerAdapter(logging.LoggerAdapter):
         self, workspace_id: str, workspace_name: Optional[str] = None
     ) -> None:
         """Set workspace context for all subsequent log messages."""
-        self.extra["workspace_id"] = (
-            workspace_id[:8] + "..." if len(workspace_id) > 8 else workspace_id
-        )
+        self.extra["workspace_id"] = workspace_id
         if workspace_name:
             self.extra["workspace_name"] = workspace_name
 

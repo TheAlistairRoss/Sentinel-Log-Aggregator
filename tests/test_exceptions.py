@@ -163,7 +163,7 @@ class TestDataIngestionError:
 
         assert str(error) == "Ingestion failed"
         assert error.stream_name is None
-        assert error.dcr_rule_id is None
+        assert error.dcr_immutable_id is None
         assert error.record_count is None
         assert error.error_code is None
         assert isinstance(error, SentinelAggregatorError)
@@ -177,14 +177,14 @@ class TestDataIngestionError:
         error = DataIngestionError(
             "Failed to ingest data",
             stream_name=stream_name,
-            dcr_rule_id=dcr_rule_id,
+            dcr_immutable_id=dcr_rule_id,
             record_count=record_count,
             error_code="INGESTION_TIMEOUT",
         )
 
         assert str(error) == "Failed to ingest data"
         assert error.stream_name == stream_name
-        assert error.dcr_rule_id == dcr_rule_id
+        assert error.dcr_immutable_id == dcr_rule_id
         assert error.record_count == record_count
         assert error.error_code == "INGESTION_TIMEOUT"
 
@@ -478,14 +478,14 @@ class TestExceptionInstantiation:
         ingestion_error = DataIngestionError(
             "Complex ingestion error",
             stream_name="Custom-Complex_CL",
-            dcr_rule_id="dcr-complex-123",
+            dcr_immutable_id="dcr-complex-123",
             record_count=10000,
             error_code="COMPLEX_INGESTION",
             error_details={"batch_size": 10000},
         )
 
         assert ingestion_error.stream_name == "Custom-Complex_CL"
-        assert ingestion_error.dcr_rule_id == "dcr-complex-123"
+        assert ingestion_error.dcr_immutable_id == "dcr-complex-123"
         assert ingestion_error.record_count == 10000
         assert ingestion_error.error_code == "COMPLEX_INGESTION"
         assert ingestion_error.error_details["batch_size"] == 10000

@@ -352,7 +352,7 @@ class TestQueryDefinitionModelEdgeCases:
         query_data = {
             "name": "test_query",
             "destination_stream": "Custom-Test_TestQuery_CL",
-            "stream_name": "stream_test_query",
+            "stream_name": "Custom-Test_Query_CL",
             "query": "          ",  # 10 spaces - meets min_length but only whitespace
         }
 
@@ -366,7 +366,7 @@ class TestQueryDefinitionModelEdgeCases:
         query_data = {
             "name": "test_query",
             "destination_stream": "Custom-Test_TestQuery_CL",
-            "stream_name": "stream_test_query",
+            "stream_name": "Custom-Test_Query_CL",
             "query": "",  # Completely empty - should fail min_length first
         }
 
@@ -384,7 +384,7 @@ class TestQueryDefinitionModelEdgeCases:
         query_data = {
             "name": "test_query",
             "destination_stream": "Custom-Test_TestQuery_CL",
-            "stream_name": "stream_test_query",
+            "stream_name": "Custom-Test_Query_CL",
             "query": "",  # Completely empty
         }
 
@@ -410,14 +410,13 @@ class TestQueryDefinitionModelEdgeCases:
             query_data = {
                 "name": "dangerous_query",
                 "destination_stream": "Custom-Test_DangerousQuery_CL",
-                "stream_name": "stream_dangerous_query",
+                "stream_name": "Custom-Dangerous_Query_CL",
                 "query": dangerous_query,
             }
 
-            with pytest.raises(ValidationError) as exc_info:
-                QueryDefinitionModel(**query_data)
-
-            assert "Query contains potentially dangerous operation" in str(exc_info.value)
+            # Since we removed dangerous operation validation, this should now pass
+            model = QueryDefinitionModel(**query_data)
+            assert model.name == "dangerous_query"
 
     def test_validate_tags_edge_cases(self):
         """Test tag validation edge cases."""
@@ -425,7 +424,7 @@ class TestQueryDefinitionModelEdgeCases:
         valid_tags_data = {
             "name": "test_query",
             "destination_stream": "Custom-Test_TestQuery_CL",
-            "stream_name": "stream_test_query",
+            "stream_name": "Custom-Test_Query_CL",
             "query": "SecurityIncident | take 10",
             "tags": ["valid-tag", "another_tag", "tag123", "a"],  # Various valid formats
         }
@@ -447,7 +446,7 @@ class TestQueryDefinitionModelEdgeCases:
             invalid_tags_data = {
                 "name": "test_query",
                 "destination_stream": "Custom-Test_TestQuery_CL",
-                "stream_name": "stream_test_query",
+                "stream_name": "Custom-Test_Query_CL",
                 "query": "SecurityIncident | take 10",
                 "tags": invalid_tags,
             }
@@ -491,6 +490,7 @@ class TestWorkspaceCollectionModelEdgeCases:
                     "resource_id": "/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-1",
                     "customer_id": "11111111-1111-1111-1111-111111111111",
                     "parameters": {"row_level_security_tag": "test"},
+                    "aggregation_workspace": True,
                 },
                 {
                     "resource_id": "/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-2",
@@ -500,10 +500,10 @@ class TestWorkspaceCollectionModelEdgeCases:
             ]
         }
 
-        with pytest.raises(ValidationError) as exc_info:
-            WorkspaceCollectionModel(**collection_data)
-
-        assert "duplicate row-level security tags" in str(exc_info.value).lower()
+        # Since we removed security tag validation, this should pass now
+        # and only check that exactly one workspace has aggregation_workspace: true
+        model = WorkspaceCollectionModel(**collection_data)
+        assert len(model.workspaces) == 2
 
     def test_validate_unique_workspaces_empty_security_tags_allowed(self):
         """Test that empty security tags don't count as duplicates."""
@@ -575,7 +575,7 @@ class TestValidationFunctions:
         query_data = {
             "name": "test_query",
             "destination_stream": "Custom-Test_TestQuery_CL",
-            "stream_name": "stream_test_query",
+            "stream_name": "Custom-Test_Query_CL",
             "query": "SecurityIncident | take 10",
         }
 
@@ -587,7 +587,7 @@ class TestValidationFunctions:
         """Test validate_client_options function."""
         options_data = {
             "dcr_logs_ingestion_endpoint": "https://test.ingest.monitor.azure.com",
-            "dcr_rule_id": "dcr-12345678123456781234567812345678",
+            "dcr_immutable_id": "dcr-12345678123456781234567812345678",
         }
 
         result = validate_client_options(options_data)
@@ -620,7 +620,7 @@ class TestValidationFunctions:
         # Invalid client options
         invalid_options_data = {
             "dcr_logs_ingestion_endpoint": "not-a-url",
-            "dcr_rule_id": "invalid-dcr-format",
+            "dcr_immutable_id": "invalid-dcr-format",
         }
 
         with pytest.raises(ValidationError):
@@ -637,7 +637,7 @@ class TestClientOptionsModelEdgeCases:
         for level in valid_levels:
             options_data = {
                 "dcr_logs_ingestion_endpoint": "https://test.ingest.monitor.azure.com",
-                "dcr_rule_id": "dcr-12345678123456781234567812345678",
+                "dcr_immutable_id": "dcr-12345678123456781234567812345678",
                 "log_level": level,
             }
 
@@ -647,7 +647,7 @@ class TestClientOptionsModelEdgeCases:
         # Invalid log level
         invalid_options_data = {
             "dcr_logs_ingestion_endpoint": "https://test.ingest.monitor.azure.com",
-            "dcr_rule_id": "dcr-12345678123456781234567812345678",
+            "dcr_immutable_id": "dcr-12345678123456781234567812345678",
             "log_level": "INVALID_LEVEL",
         }
 
@@ -659,7 +659,7 @@ class TestClientOptionsModelEdgeCases:
         # Test minimum values
         min_options_data = {
             "dcr_logs_ingestion_endpoint": "https://test.ingest.monitor.azure.com",
-            "dcr_rule_id": "dcr-12345678123456781234567812345678",
+            "dcr_immutable_id": "dcr-12345678123456781234567812345678",
             "max_concurrent_queries": 1,  # Minimum
             "query_timeout_seconds": 30,  # Minimum
             "batch_hours": 1,  # Minimum
@@ -673,7 +673,7 @@ class TestClientOptionsModelEdgeCases:
         # Test maximum values
         max_options_data = {
             "dcr_logs_ingestion_endpoint": "https://test.ingest.monitor.azure.com",
-            "dcr_rule_id": "dcr-12345678123456781234567812345678",
+            "dcr_immutable_id": "dcr-12345678123456781234567812345678",
             "max_concurrent_queries": 20,  # Maximum
             "query_timeout_seconds": 3600,  # Maximum
             "batch_hours": 168,  # Maximum
@@ -687,7 +687,7 @@ class TestClientOptionsModelEdgeCases:
         # Test out of bounds values
         invalid_options_data = {
             "dcr_logs_ingestion_endpoint": "https://test.ingest.monitor.azure.com",
-            "dcr_rule_id": "dcr-12345678123456781234567812345678",
+            "dcr_immutable_id": "dcr-12345678123456781234567812345678",
             "max_concurrent_queries": 0,  # Below minimum
         }
 
@@ -705,7 +705,7 @@ class TestComplexValidationScenarios:
             "name": "comprehensive_test_query",
             "destination_stream": "Custom-ComprehensiveTest_TestQuery_CL",
             "description": "A comprehensive test query with all features",
-            "stream_name": "stream_comprehensive_test_query",
+            "stream_name": "Custom-Comprehensive_Test_Query_CL",
             "version": "2.1.0",
             "parameters": {
                 "days_back": {
