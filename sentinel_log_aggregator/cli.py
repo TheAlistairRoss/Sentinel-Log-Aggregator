@@ -967,9 +967,10 @@ async def _load_and_validate_queries(workspace_manager) -> Dict[str, Any]:
     Raises:
         Exception: If critical query loading errors occur
     """
-    from .models import KQLQueryDefinition
-    from pathlib import Path
     import os
+    from pathlib import Path
+
+    from .models import KQLQueryDefinition
 
     loaded_queries = {}
     logger = logging.getLogger(__name__)
