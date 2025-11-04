@@ -18,21 +18,21 @@ def clean_environment():
     # List of Azure environment variables that tests should not depend on
     azure_env_vars = [
         "AZURE_CLIENT_ID",
-        "AZURE_CLIENT_SECRET", 
+        "AZURE_CLIENT_SECRET",
         "AZURE_TENANT_ID",
         "AZURE_SUBSCRIPTION_ID",
         "DCR_LOGS_INGESTION_ENDPOINT",
         "DCR_IMMUTABLE_ID",
     ]
-    
+
     # Store original values
     original_values = {}
     for var in azure_env_vars:
         original_values[var] = os.environ.get(var)
-    
+
     # Don't clear if they exist (for manual testing), but ensure tests don't assume they exist
     yield
-    
+
     # Tests should use proper mocking instead of relying on these environment variables
 
 

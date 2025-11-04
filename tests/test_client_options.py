@@ -442,7 +442,11 @@ class TestEdgeCases:
 
     def test_from_environment_empty_strings(self):
         """Test from_environment with empty string environment variables."""
-        env_vars = {"DCR_LOGS_INGESTION_ENDPOINT": "", "DCR_IMMUTABLE_ID": "", "LOOKBACK_PERIOD": "P30D"}
+        env_vars = {
+            "DCR_LOGS_INGESTION_ENDPOINT": "",
+            "DCR_IMMUTABLE_ID": "",
+            "LOOKBACK_PERIOD": "P30D",
+        }
 
         with patch.dict(os.environ, env_vars, clear=True):
             options = SentinelAggregatorClientOptions.from_environment()

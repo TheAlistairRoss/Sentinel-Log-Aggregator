@@ -182,9 +182,9 @@ class ClientOptionsModel(BaseModel):
         ..., description="Azure Monitor Data Collection Rule logs ingestion endpoint"
     )
     dcr_immutable_id: str = Field(
-        ..., 
-        description="Data Collection Rule immutable ID", 
-        pattern=r"^dcr-[a-f0-9]{32}$|^dcr-test.*$|^dcr-[0-9]+.*$"
+        ...,
+        description="Data Collection Rule immutable ID",
+        pattern=r"^dcr-[a-f0-9]{32}$|^dcr-test.*$|^dcr-[0-9]+.*$",
     )
 
     # Query execution settings
