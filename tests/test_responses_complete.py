@@ -360,7 +360,6 @@ class TestResponsesComplete:
             dcr_rule_id="dcr-rule-123",
             workspace_count=5,
             available_queries=10,
-            available_reports=3,
             last_check_time=specific_time,
         )
 
@@ -376,7 +375,6 @@ class TestResponsesComplete:
             dcr_rule_id="dcr-rule-123",
             workspace_count=5,
             available_queries=10,
-            available_reports=3,
             last_check_time=None,  # This should trigger __post_init__ line 285
         )
 
@@ -393,7 +391,6 @@ class TestResponsesComplete:
             dcr_rule_id="dcr-rule-123",
             workspace_count=5,
             available_queries=10,
-            available_reports=3,
             # last_check_time defaults to None, should trigger line 285
         )
 

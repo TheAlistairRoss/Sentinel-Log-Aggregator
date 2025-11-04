@@ -273,8 +273,6 @@ class ServiceProperties:
     :type workspace_count: int
     :param available_queries: Number of available queries
     :type available_queries: int
-    :param available_reports: Number of available reports
-    :type available_reports: int
     :param last_check_time: Last health check time
     :type last_check_time: datetime
     """
@@ -286,7 +284,6 @@ class ServiceProperties:
     dcr_rule_id: str
     workspace_count: int
     available_queries: int
-    available_reports: int
     last_check_time: Optional[datetime] = None
 
     def __post_init__(self) -> None:

@@ -1121,6 +1121,7 @@ class TestWorkspaceConfigValidation:
                     "resource_id": "/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-1",
                     "customer_id": "11111111-1111-1111-1111-111111111111",
                     "parameters": {"row_level_security_tag": "test1"},
+                    "aggregation_workspace": True,
                 },
                 {
                     "resource_id": "/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-2",

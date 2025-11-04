@@ -149,10 +149,26 @@ async def check_service_health(
             await client.validate_credentials()
             logger.info("✅ Credential validation successful")
 
-            # Get service properties
+            # Get service properties with query loading
             logger.info("📊 Retrieving service properties...")
-            service_props = await client.get_service_properties()
-            service_props.workspace_count = len(workspaces)
+            
+            # Load and validate queries for accurate count
+            from .workspace_manager import WorkspaceManager
+            workspace_manager = WorkspaceManager(workspaces)
+            
+            try:
+                loaded_queries = await _load_and_validate_queries(workspace_manager)
+                service_props = await client.get_service_properties()
+                service_props.workspace_count = len(workspaces)
+                service_props.available_queries = len(loaded_queries)
+                
+                logger.info(f"📝 Loaded and validated {len(loaded_queries)} queries from workspace configurations")
+                
+            except Exception as e:
+                logger.warning(f"⚠️ Query loading failed: {e}")
+                service_props = await client.get_service_properties()
+                service_props.workspace_count = len(workspaces)
+                # Keep original available_queries count from AVAILABLE_QUERIES
 
             # Display service health information
             logger.info("🏥 Service Health Report:")
@@ -163,12 +179,19 @@ async def check_service_health(
             logger.info(f"  • DCR Rule ID: {service_props.dcr_rule_id}")
             logger.info(f"  • Configured Workspaces: {service_props.workspace_count}")
             logger.info(f"  • Available Queries: {service_props.available_queries}")
-            logger.info(f"  • Available Reports: {service_props.available_reports}")
             logger.info(f"  • Last Check: {service_props.last_check_time}")
 
-            # Test a simple query on the first workspace (if any)
-            if workspaces:
-                test_workspace = workspaces[0]
+            # Add DCR configuration warning
+            aggregation_workspace = workspace_manager.get_aggregation_workspace()
+            if aggregation_workspace:
+                logger.info(f"  • Aggregation Workspace: {aggregation_workspace.workspace_name}")
+                logger.info(f"  ⚠️  Please verify that your DCR is configured to send data to workspace: {aggregation_workspace.customer_id}")
+            else:
+                logger.warning("⚠️ No aggregation workspace found! Please set 'aggregation_workspace: true' for one workspace.")
+
+            # Test a simple query on the aggregation workspace (if available)
+            test_workspace = aggregation_workspace or (workspaces[0] if workspaces else None)
+            if test_workspace:
                 logger.info(
                     f"🧪 Testing query connectivity to workspace {test_workspace.workspace_name}..."
                 )
@@ -924,6 +947,101 @@ def _display_successful_runs_table(runs: List[Dict[str, Any]]) -> None:
 
     logger.info(separator_line)
     logger.info("")
+
+
+async def _load_and_validate_queries(workspace_manager) -> Dict[str, Any]:
+    """
+    Load and validate all queries from workspace configurations without executing them.
+    
+    Args:
+        workspace_manager: WorkspaceManager instance with configured workspaces
+        
+    Returns:
+        Dictionary of successfully loaded queries keyed by query name or file path
+        
+    Raises:
+        Exception: If critical query loading errors occur
+    """
+    from .models import KQLQueryDefinition
+    from pathlib import Path
+    import os
+    
+    loaded_queries = {}
+    logger = logging.getLogger(__name__)
+    
+    # Get all unique query references from all workspaces
+    all_query_refs = set()
+    for workspace in workspace_manager.workspaces:
+        all_query_refs.update(workspace.queries_list)
+    
+    logger.debug(f"Found {len(all_query_refs)} unique query references across all workspaces")
+    
+    for query_ref in all_query_refs:
+        try:
+            # Check if it's a file path (contains / or .yaml/.yml extension)
+            if "/" in query_ref or query_ref.endswith(('.yaml', '.yml')):
+                # It's a file path - try to load from file
+                query_file_path = Path(query_ref)
+                
+                # If it's relative, assume it's relative to current working directory
+                if not query_file_path.is_absolute():
+                    query_file_path = Path.cwd() / query_file_path
+                
+                if query_file_path.exists():
+                    # Load the query definition from YAML file
+                    query_def = KQLQueryDefinition.from_yaml(str(query_file_path))
+                    loaded_queries[query_ref] = {
+                        'type': 'file',
+                        'path': str(query_file_path),
+                        'name': query_def.name,
+                        'destination_stream': query_def.destination_stream,
+                        'description': query_def.description,
+                        'parameters': list(query_def.parameters.keys())
+                    }
+                    logger.debug(f"✅ Loaded query from file: {query_ref}")
+                else:
+                    logger.warning(f"⚠️ Query file not found: {query_file_path}")
+                    loaded_queries[query_ref] = {
+                        'type': 'file',
+                        'path': str(query_file_path),
+                        'error': 'File not found'
+                    }
+            else:
+                # It's a query name - check if it exists in AVAILABLE_QUERIES
+                from .models import AVAILABLE_QUERIES
+                if query_ref in AVAILABLE_QUERIES:
+                    query_def = AVAILABLE_QUERIES[query_ref]
+                    loaded_queries[query_ref] = {
+                        'type': 'builtin',
+                        'name': query_def.name,
+                        'destination_stream': query_def.destination_stream,
+                        'description': query_def.description,
+                        'parameters': list(query_def.parameters.keys())
+                    }
+                    logger.debug(f"✅ Found built-in query: {query_ref}")
+                else:
+                    logger.warning(f"⚠️ Built-in query not found: {query_ref}")
+                    loaded_queries[query_ref] = {
+                        'type': 'builtin',
+                        'name': query_ref,
+                        'error': 'Query not found in AVAILABLE_QUERIES'
+                    }
+                    
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to load query '{query_ref}': {e}")
+            loaded_queries[query_ref] = {
+                'type': 'unknown',
+                'error': str(e)
+            }
+    
+    # Count successful loads
+    successful_loads = sum(1 for q in loaded_queries.values() if 'error' not in q)
+    total_queries = len(loaded_queries)
+    
+    if successful_loads < total_queries:
+        logger.warning(f"⚠️ Loaded {successful_loads}/{total_queries} queries successfully")
+    
+    return loaded_queries
 
 
 async def main():

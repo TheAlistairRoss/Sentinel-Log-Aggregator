@@ -33,6 +33,10 @@ class WorkspaceConfigModel(BaseModel):
     queries_list: List[str] = Field(
         default_factory=list, description="List of queries this workspace should execute"
     )
+    aggregation_workspace: bool = Field(
+        default=False, 
+        description="Whether this workspace is used for health data and aggregated logs. Exactly one workspace must be True."
+    )
 
     @field_validator("resource_id")
     @classmethod
@@ -246,7 +250,7 @@ class WorkspaceCollectionModel(BaseModel):
     def validate_unique_workspaces(
         cls, v: List[WorkspaceConfigModel]
     ) -> List[WorkspaceConfigModel]:
-        """Ensure workspace IDs and security tags are unique."""
+        """Ensure workspace IDs and security tags are unique, and exactly one aggregation workspace."""
         customer_ids = [ws.customer_id for ws in v]
         resource_ids = [ws.resource_id for ws in v]
         security_tags = [
@@ -263,6 +267,24 @@ class WorkspaceCollectionModel(BaseModel):
 
         if len(security_tags) != len(set(security_tags)):
             raise ValueError("Duplicate row-level security tags found in workspace list")
+
+        # Validate aggregation workspace configuration
+        aggregation_workspaces = [ws for ws in v if ws.aggregation_workspace]
+        
+        if len(aggregation_workspaces) == 0:
+            raise ValueError(
+                "Exactly one workspace must have 'aggregation_workspace: true'. "
+                "This workspace should match the one configured in your DCR. "
+                "Please set 'aggregation_workspace: true' for the workspace that receives health and aggregation data."
+            )
+        
+        if len(aggregation_workspaces) > 1:
+            workspace_names = [ws.resource_id.split("/")[-1] for ws in aggregation_workspaces]
+            raise ValueError(
+                f"Only one workspace can have 'aggregation_workspace: true'. "
+                f"Found {len(aggregation_workspaces)} workspaces marked as aggregation: {', '.join(workspace_names)}. "
+                f"Please ensure exactly one workspace is designated for health and aggregation data."
+            )
 
         return v
 

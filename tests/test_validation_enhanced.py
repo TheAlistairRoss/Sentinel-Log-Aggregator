@@ -513,6 +513,7 @@ class TestWorkspaceCollectionModelEdgeCases:
                     "resource_id": "/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-1",
                     "customer_id": "11111111-1111-1111-1111-111111111111",
                     "parameters": {"row_level_security_tag": ""},  # Empty tag
+                    "aggregation_workspace": True,
                 },
                 {
                     "resource_id": "/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-2",
@@ -560,6 +561,7 @@ class TestValidationFunctions:
                     "resource_id": "/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace",
                     "customer_id": "11111111-1111-1111-1111-111111111111",
                     "parameters": {"row_level_security_tag": "test"},
+                    "aggregation_workspace": True,
                 }
             ]
         }
@@ -758,6 +760,7 @@ class TestComplexValidationScenarios:
                     "customer_id": "11111111-1111-1111-1111-111111111111",
                     "parameters": {"row_level_security_tag": "test"},
                     "queries_list": ["query_incident_summary"],
+                    "aggregation_workspace": True,
                 }
             ],
             "metadata": {
@@ -841,6 +844,7 @@ class TestSpecificUncoveredLines:
                     "resource_id": "/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-1",
                     "customer_id": "11111111-1111-1111-1111-111111111111",
                     "parameters": {"row_level_security_tag": ""},  # Empty - should be filtered out
+                    "aggregation_workspace": True,
                 },
                 {
                     "resource_id": "/subscriptions/12345678-1234-1234-1234-123456789abc/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/test-workspace-2",

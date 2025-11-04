@@ -273,7 +273,6 @@ class SentinelAggregatorClient:
             dcr_rule_id=self._options.dcr_rule_id or "not_configured",
             workspace_count=0,  # Updated by caller based on workspace config
             available_queries=len(AVAILABLE_QUERIES),
-            available_reports=len(AVAILABLE_QUERIES),  # Same as queries for now
             last_check_time=datetime.now(timezone.utc),
         )
 

@@ -61,12 +61,16 @@ class WorkspaceConfig:
             - row_level_security_tag: Security tag for data isolation
             - environment: Environment designation (dev, test, prod)
             - custom parameters: Any additional workspace-specific values
+        aggregation_workspace: Boolean flag indicating if this workspace is used for health data and 
+                              aggregated logs. Exactly one workspace must have this set to True.
+                              This workspace should match the DCR configuration target.
     """
 
     resource_id: str
     customer_id: str
     queries_list: List[str] = field(default_factory=list)
     parameters: Dict[str, Any] = field(default_factory=dict)
+    aggregation_workspace: bool = False
 
     @property
     def workspace_name(self) -> str:

@@ -365,6 +365,30 @@ class WorkspaceManager:
         workspace = self.get_workspace_by_resource_id(resource_id)
         return workspace.parameters.get("row_level_security_tag", "") if workspace else ""
 
+    def get_aggregation_workspace(self) -> Optional[WorkspaceConfig]:
+        """
+        Get the workspace designated for health data and aggregated logs.
+
+        Returns:
+            The workspace with aggregation_workspace=True, or None if not found
+
+        Raises:
+            ValueError: If more than one workspace is marked as aggregation workspace
+        """
+        aggregation_workspaces = [ws for ws in self.workspaces if ws.aggregation_workspace]
+        
+        if len(aggregation_workspaces) == 0:
+            return None
+        
+        if len(aggregation_workspaces) > 1:
+            workspace_names = [ws.workspace_name for ws in aggregation_workspaces]
+            raise ValueError(
+                f"Multiple aggregation workspaces found: {', '.join(workspace_names)}. "
+                f"Only one workspace can have 'aggregation_workspace: true'."
+            )
+        
+        return aggregation_workspaces[0]
+
     def reports_summary(self) -> Dict[str, int]:
         """
         Get summary of all reports and their workspace counts.
@@ -591,6 +615,9 @@ class WorkspaceManager:
         with open(config_file, "r", encoding="utf-8") as f:
             logger.debug("🔧 Loading YAML workspace configuration")
             config_data = yaml.safe_load(f)
+            
+            # Log the loaded YAML content for debugging
+            logger.debug(f"📄 Loaded YAML content: {sanitize_log_output(str(config_data))}")
 
             # Handle new YAML structure with 'workspaces' key
             if isinstance(config_data, dict) and "workspaces" in config_data:
