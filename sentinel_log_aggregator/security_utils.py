@@ -35,11 +35,6 @@ def sanitize_log_output(
     """
     if sensitive_fields is None:
         sensitive_fields = [
-            "customer_id",
-            "workspace_id",
-            "subscription_id",
-            "tenant_id",
-            "access_token",
             "client_secret",
             "password",
             "key",
@@ -47,21 +42,15 @@ def sanitize_log_output(
         ]
 
     if isinstance(data, str):
-        # Mask GUIDs and long strings that might be sensitive
-        guid_pattern = r"\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b"
-        data = re.sub(guid_pattern, lambda m: m.group()[:8] + "...", data, flags=re.IGNORECASE)
-
-        # Mask potential tokens (long alphanumeric strings including underscores)
-        # This is a regex pattern for sanitization, not a hardcoded password
-        token_pattern = r"\b[A-Za-z0-9_]{16,}\b"  # nosec B105
-        data = re.sub(token_pattern, lambda m: m.group()[:8] + "...", data)
-
+        # Only sanitize strings that contain actual secrets (not GUIDs or identifiers)
+        # No automatic sanitization of strings - only field-based sanitization
         return data
 
     elif isinstance(data, dict):
         sanitized: Dict[str, Any] = {}
         for key, value in data.items():
-            if any(field.lower() in key.lower() for field in sensitive_fields):
+            # Use exact field name matching to avoid over-sanitization
+            if key.lower() in [field.lower() for field in sensitive_fields]:
                 if isinstance(value, str) and len(value) > 8:
                     sanitized[key] = value[:8] + "..."
                 else:

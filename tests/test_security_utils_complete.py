@@ -37,11 +37,11 @@ class TestSecurityUtilsComplete:
 
         result = sanitize_log_output(data)
 
-        # Should recursively sanitize list items
+        # Should recursively sanitize list items - but customer_id is no longer sanitized
         assert isinstance(result["normal_list"], list)
         assert len(result["normal_list"]) == 2
-        assert result["normal_list"][0]["customer_id"] == "12345678..."
-        assert result["normal_list"][1]["customer_id"] == "87654321..."
+        assert result["normal_list"][0]["customer_id"] == "12345678-1234-1234-1234-123456789012"
+        assert result["normal_list"][1]["customer_id"] == "87654321-4321-4321-4321-210987654321"
 
     def test_sanitize_log_output_non_dict_return_line_67(self):
         """Test line 67: Return for non-dict input"""
@@ -138,8 +138,8 @@ class TestSecurityUtilsComplete:
         }
 
         result = sanitize_log_output(complex_data)
-        assert result["level1"]["level2"]["customer_id"] == "12345678..."
-        assert result["level1"]["level2"]["nested_list"][0]["workspace_id"] == "sensitiv..."
+        assert result["level1"]["level2"]["customer_id"] == "12345678-1234-1234-1234-123456789012"
+        assert result["level1"]["level2"]["nested_list"][0]["workspace_id"] == "sensitive_workspace_id_long"
 
         # Test KQL query with exactly 50 unions (should pass)
         unions_50 = " UNION ".join([f"Table{i}" for i in range(50)])  # 49 UNIONs

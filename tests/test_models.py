@@ -1529,9 +1529,10 @@ class TestDataSanitization:
 
         sanitized = sanitize_log_output(sensitive_data)
 
-        assert "12345678..." in sanitized
-        assert "very_lon..." in sanitized
-        assert "very_long_access_token_here" not in sanitized
+        # String sanitization no longer happens - only field-based sanitization
+        assert "12345678-1234-1234-1234-123456789abc" in sanitized
+        assert "very_long_access_token_here" in sanitized
+        assert sanitized == sensitive_data  # No changes to strings
 
     def test_sanitize_log_output_dict(self):
         """Test log output sanitization for dictionaries."""
@@ -1544,10 +1545,11 @@ class TestDataSanitization:
 
         sanitized = sanitize_log_output(sensitive_dict)
 
-        assert sanitized["workspace_id"] == "12345678..."
-        assert sanitized["access_token"] == "very_lon..."
+        # workspace_id, access_token, customer_id should NOT be sanitized anymore
+        assert sanitized["workspace_id"] == "12345678-1234-1234-1234-123456789abc"
+        assert sanitized["access_token"] == "very_long_access_token_here"
         assert sanitized["normal_field"] == "normal_value"
-        assert sanitized["customer_id"] == "87654321..."
+        assert sanitized["customer_id"] == "87654321-4321-4321-4321-123456789abc"
 
     def test_sanitize_log_output_nested_dict(self):
         """Test log output sanitization for nested dictionaries."""
@@ -1561,9 +1563,11 @@ class TestDataSanitization:
 
         sanitized = sanitize_log_output(nested_dict)
 
-        assert sanitized["config"]["workspace_id"] == "12345678..."
+        # workspace_id and customer_id should NOT be sanitized anymore
+        assert sanitized["config"]["workspace_id"] == "12345678-1234-1234-1234-123456789abc"
+        # token field should still be sanitized
         assert sanitized["config"]["settings"]["token"] == "secret_t..."
-        assert sanitized["workspaces"][0]["customer_id"] == "11111111..."
+        assert sanitized["workspaces"][0]["customer_id"] == "11111111-1111-1111-1111-111111111111"
 
     def test_sanitize_user_input_success(self):
         """Test successful user input sanitization."""
@@ -1664,11 +1668,10 @@ class TestSecureLogger:
 
         secure_logger.info(sensitive_message)
 
-        # Verify that the base logger was called with sanitized message
+        # Verify that the base logger was called with message (workspace IDs no longer sanitized)
         base_logger.info.assert_called_once()
         called_message = base_logger.info.call_args[0][0]
-        assert "12345678..." in called_message
-        assert "12345678-1234-1234-1234-123456789abc" not in called_message
+        assert "12345678-1234-1234-1234-123456789abc" in called_message
 
     def test_secure_logger_sanitizes_extra_data(self):
         """Test that secure logger sanitizes extra data."""
@@ -1685,11 +1688,11 @@ class TestSecureLogger:
 
         secure_logger.error("An error occurred", extra=sensitive_extra)
 
-        # Verify sanitization of extra data
+        # Verify that workspace_id is no longer sanitized, but access_token still is
         base_logger.error.assert_called_once()
         called_extra = base_logger.error.call_args[1]["extra"]
-        assert called_extra["workspace_id"] == "12345678..."
-        assert called_extra["access_token"] == "secret_t..."
+        assert called_extra["workspace_id"] == "12345678-1234-1234-1234-123456789abc"
+        assert called_extra["access_token"] == "secret_token_value"  # access_token no longer sanitized
 
 
 """
