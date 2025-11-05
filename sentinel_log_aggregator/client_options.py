@@ -45,6 +45,14 @@ class SentinelAggregatorClientOptions(Configuration):
     :type max_retries: int
     :param retry_delay_seconds: Initial retry delay in seconds (default: 5)
     :type retry_delay_seconds: int
+    :param queries: Specific queries to run (comma-separated string)
+    :type queries: Optional[str]
+    :param workspaces: Specific workspaces to process (comma-separated string)
+    :type workspaces: Optional[str]
+    :param dry_run: Validate and show what would be executed (default: False)
+    :type dry_run: bool
+    :param parallel: Enable parallel execution (default: True)
+    :type parallel: bool
     :param enable_distributed_tracing: Enable distributed tracing (default: True)
     :type enable_distributed_tracing: bool
     :param custom_policies: Custom pipeline policies to add
@@ -66,6 +74,10 @@ class SentinelAggregatorClientOptions(Configuration):
         query_timeout_seconds: int = 300,
         max_retries: int = 3,
         retry_delay_seconds: int = 5,
+        queries: Optional[str] = None,
+        workspaces: Optional[str] = None,
+        dry_run: bool = False,
+        parallel: bool = True,
         enable_distributed_tracing: bool = True,
         custom_policies: Optional[List[HTTPPolicy]] = None,
         **kwargs: Any,
@@ -89,6 +101,12 @@ class SentinelAggregatorClientOptions(Configuration):
         # Query configuration
         self.max_concurrent_queries = max_concurrent_queries
         self.query_timeout_seconds = query_timeout_seconds
+
+        # Execution control configuration
+        self.queries = queries
+        self.workspaces = workspaces
+        self.dry_run = dry_run
+        self.parallel = parallel
 
         # Retry configuration
         self.max_retries = max_retries
@@ -187,6 +205,10 @@ class SentinelAggregatorClientOptions(Configuration):
             query_timeout_seconds=int(os.getenv("QUERY_TIMEOUT_SECONDS", "300")),
             max_retries=int(os.getenv("MAX_RETRIES", "3")),
             retry_delay_seconds=int(os.getenv("RETRY_DELAY_SECONDS", "5")),
+            queries=os.getenv("QUERIES"),
+            workspaces=os.getenv("WORKSPACES"),
+            dry_run=os.getenv("DRY_RUN", "false").lower() == "true",
+            parallel=os.getenv("PARALLEL", "true").lower() == "true",
             **kwargs,
         )
 
@@ -224,5 +246,9 @@ class SentinelAggregatorClientOptions(Configuration):
             query_timeout_seconds=config_data.get("query_timeout_seconds", 300),
             max_retries=config_data.get("max_retries", 3),
             retry_delay_seconds=config_data.get("retry_delay_seconds", 5),
+            queries=config_data.get("queries"),
+            workspaces=config_data.get("workspaces"),
+            dry_run=config_data.get("dry_run", False),
+            parallel=config_data.get("parallel", True),
             **kwargs,
         )

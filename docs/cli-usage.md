@@ -130,24 +130,24 @@ sentinel-aggregator run [options]
 
 #### Options
 
-| Option | Description | Required | Default |
-|--------|-------------|----------|---------|
-| `--workspace-config` | Path to workspace configuration file | Yes | |
-| **Time Range Options (mutually exclusive)** | | | |
-| `--lookback-period` | ISO 8601 duration to look back | No | P30D |
-| `--start-time` | ISO 8601 start datetime | No | |
-| `--end-time` | ISO 8601 end datetime | No | |
-| `--use-last-successful` | Continue from last successful run | No | false |
-| **Batch Processing** | | | |
-| `--batch-time-size` | ISO 8601 duration for batch size | No | PT24H |
-| **Execution Control** | | | |
-| `--queries` | Specific queries to run (comma-separated) | No | All |
-| `--workspaces` | Specific workspaces to process (comma-separated) | No | All |
-| `--dry-run` | Validate and show what would be executed | No | `false` |
-| `--parallel` | Enable parallel execution | No | `true` |
-| `--max-workers` | Maximum parallel workers | No | 5 |
-| **Health Logging** | | | |
-| `--health-logging-enabled` | Enable health tracking | No | false |
+| Option | Description | Required | Default | Environment Variable |
+|--------|-------------|----------|---------|---------------------|
+| `--workspace-config` | Path to workspace configuration file | Yes | | N/A |
+| **Time Range Options (mutually exclusive)** | | | | |
+| `--lookback-period` | ISO 8601 duration to look back | No | P30D | `LOOKBACK_PERIOD` |
+| `--start-time` | ISO 8601 start datetime | No | | `START_TIME` |
+| `--end-time` | ISO 8601 end datetime | No | | `END_TIME` |
+| `--use-last-successful` | Continue from last successful run | No | false | `USE_LAST_SUCCESSFUL` |
+| **Batch Processing** | | | | |
+| `--batch-time-size` | ISO 8601 duration for batch size | No | PT24H | `BATCH_TIME_SIZE` |
+| **Execution Control** | | | | |
+| `--queries` | Specific queries to run (comma-separated) | No | All | `QUERIES` |
+| `--workspaces` | Specific workspaces to process (comma-separated) | No | All | `WORKSPACES` |
+| `--dry-run` | Validate and show what would be executed | No | `false` | `DRY_RUN` |
+| `--parallel` / `--no-parallel` | Enable parallel execution | No | `true` | `PARALLEL` |
+| `--max-workers` | Maximum parallel workers | No | 5 | `MAX_CONCURRENT_QUERIES` |
+| **Health Logging** | | | | |
+| `--health-logging-enabled` | Enable health tracking | No | false | `HEALTH_TO_SENTINEL` |
 
 #### Examples
 
@@ -182,7 +182,18 @@ sentinel-aggregator run --workspace-config workspaces.yaml --dry-run
 sentinel-aggregator run --workspace-config workspaces.yaml --max-workers 10
 
 # Sequential execution (no parallelism)
-sentinel-aggregator run --workspace-config workspaces.yaml --parallel false
+sentinel-aggregator run --workspace-config workspaces.yaml --no-parallel
+
+# Using environment variables with CLI overrides
+export LOOKBACK_PERIOD="P30D"
+export QUERIES="incident_summary,alert_summary"
+sentinel-aggregator run --workspace-config workspaces.yaml --lookback-period "P7D"
+# Result: Uses P7D (CLI override) and incident_summary,alert_summary (from env var)
+
+# Using .env file with minimal CLI
+echo "LOOKBACK_PERIOD=P7D" > .env
+echo "BATCH_TIME_SIZE=PT12H" >> .env
+sentinel-aggregator run --workspace-config workspaces.yaml
 ```
 
 #### Output
@@ -481,15 +492,41 @@ sentinel-aggregator --config-file cli-config.yaml run --workspace-config workspa
 
 ### Environment variables for CLI
 
+All CLI parameters can be configured using environment variables following this priority order:
+
+1. **Command line arguments** (highest priority)
+2. **Environment variables** 
+3. **`.env` file variables**
+4. **Default values** (lowest priority)
+
 ```bash
-# CLI-specific environment variables
-SENTINEL_CLI_CONFIG_FILE=cli-config.yaml
-SENTINEL_CLI_OUTPUT_FORMAT=json
-SENTINEL_CLI_NO_COLOR=false
-SENTINEL_CLI_AUTO_CONFIRM=false
+# Environment variables for common parameters
+DCR_LOGS_INGESTION_ENDPOINT=https://your-dcr-endpoint.monitor.azure.com
+DCR_IMMUTABLE_ID=dcr-your-rule-id
+LOOKBACK_PERIOD=P7D
+BATCH_TIME_SIZE=PT12H
+QUERIES=incident_summary,alert_summary
+WORKSPACES=prod-workspace-1,prod-workspace-2
+DRY_RUN=false
+PARALLEL=true
+MAX_CONCURRENT_QUERIES=5
+HEALTH_TO_SENTINEL=false
+LOG_LEVEL=INFO
+
+# Query execution settings
+QUERY_TIMEOUT_SECONDS=300
+MAX_RETRIES=3
+RETRY_DELAY_SECONDS=5
+
+# Time range alternatives (mutually exclusive)
+START_TIME=2025-01-01T00:00:00Z
+END_TIME=2025-01-31T23:59:59Z
+USE_LAST_SUCCESSFUL=false
 ```
 
-## Automation and scripting
+See the [Environment Variables Reference](environment-variables.md) for complete documentation.
+
+## Configuration files
 
 ### Bash scripting
 

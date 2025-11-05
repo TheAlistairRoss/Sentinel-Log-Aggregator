@@ -96,6 +96,16 @@ def create_client_options_from_args(args) -> SentinelAggregatorClientOptions:
         or os.getenv("HEALTH_TO_SENTINEL", "false").lower() == "true"
     )
 
+    # Get execution control configuration
+    queries = getattr(args, "queries", None) or os.getenv("QUERIES")
+    workspaces = getattr(args, "workspaces", None) or os.getenv("WORKSPACES")
+    dry_run = getattr(args, "dry_run", False) or os.getenv("DRY_RUN", "false").lower() == "true"
+
+    # Handle parallel execution - check both CLI args and environment
+    parallel_from_args = getattr(args, "parallel", None)
+    parallel_from_env = os.getenv("PARALLEL", "true").lower() == "true"
+    parallel = parallel_from_args if parallel_from_args is not None else parallel_from_env
+
     # Get other optional configuration
     max_concurrent = getattr(args, "max_concurrent_queries", None) or int(
         os.getenv("MAX_CONCURRENT_QUERIES", "5")
@@ -111,6 +121,10 @@ def create_client_options_from_args(args) -> SentinelAggregatorClientOptions:
         end_time=end_time,
         use_last_successful=use_last_successful,
         health_to_sentinel=health_to_sentinel,
+        queries=queries,
+        workspaces=workspaces,
+        dry_run=dry_run,
+        parallel=parallel,
         max_concurrent_queries=max_concurrent,
         query_timeout_seconds=getattr(args, "query_timeout_seconds", None)
         or int(os.getenv("QUERY_TIMEOUT_SECONDS", "300")),
@@ -566,6 +580,28 @@ Examples:
 
     run_parser.add_argument(
         "--retry-delay-seconds", type=int, help="Delay between retries in seconds (default: 5)"
+    )
+
+    # Execution control options for run command
+    run_parser.add_argument("--queries", help="Specific queries to run (comma-separated)")
+
+    run_parser.add_argument("--workspaces", help="Specific workspaces to process (comma-separated)")
+
+    run_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Validate and show what would be executed (default: false)",
+    )
+
+    parallel_group = run_parser.add_mutually_exclusive_group()
+    parallel_group.add_argument(
+        "--parallel",
+        action="store_true",
+        dest="parallel",
+        help="Enable parallel execution (default: true)",
+    )
+    parallel_group.add_argument(
+        "--no-parallel", action="store_false", dest="parallel", help="Disable parallel execution"
     )
 
     # Health logging options for run command
