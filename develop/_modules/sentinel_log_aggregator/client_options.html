@@ -240,7 +240,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../cli-usage.html#environment-variables-for-cli">Environment variables for CLI</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../cli-usage.html#automation-and-scripting">Automation and scripting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cli-usage.html#id15">Configuration files</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../cli-usage.html#bash-scripting">Bash scripting</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../cli-usage.html#powershell-scripting">PowerShell scripting</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../cli-usage.html#ci-cd-integration">CI/CD integration</a><ul>
@@ -1336,6 +1336,14 @@
 <span class="sd">    :type max_retries: int</span>
 <span class="sd">    :param retry_delay_seconds: Initial retry delay in seconds (default: 5)</span>
 <span class="sd">    :type retry_delay_seconds: int</span>
+<span class="sd">    :param queries: Specific queries to run (comma-separated string)</span>
+<span class="sd">    :type queries: Optional[str]</span>
+<span class="sd">    :param workspaces: Specific workspaces to process (comma-separated string)</span>
+<span class="sd">    :type workspaces: Optional[str]</span>
+<span class="sd">    :param dry_run: Validate and show what would be executed (default: False)</span>
+<span class="sd">    :type dry_run: bool</span>
+<span class="sd">    :param parallel: Enable parallel execution (default: True)</span>
+<span class="sd">    :type parallel: bool</span>
 <span class="sd">    :param enable_distributed_tracing: Enable distributed tracing (default: True)</span>
 <span class="sd">    :type enable_distributed_tracing: bool</span>
 <span class="sd">    :param custom_policies: Custom pipeline policies to add</span>
@@ -1359,6 +1367,10 @@
         <span class="n">query_timeout_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span>
         <span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
         <span class="n">retry_delay_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="n">queries</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">workspaces</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dry_run</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">parallel</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">enable_distributed_tracing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">custom_policies</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">HTTPPolicy</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
@@ -1382,6 +1394,12 @@
         <span class="c1"># Query configuration</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_concurrent_queries</span> <span class="o">=</span> <span class="n">max_concurrent_queries</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">query_timeout_seconds</span> <span class="o">=</span> <span class="n">query_timeout_seconds</span>
+
+        <span class="c1"># Execution control configuration</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queries</span> <span class="o">=</span> <span class="n">queries</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workspaces</span> <span class="o">=</span> <span class="n">workspaces</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dry_run</span> <span class="o">=</span> <span class="n">dry_run</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel</span> <span class="o">=</span> <span class="n">parallel</span>
 
         <span class="c1"># Retry configuration</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">=</span> <span class="n">max_retries</span>
@@ -1486,6 +1504,10 @@
             <span class="n">query_timeout_seconds</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;QUERY_TIMEOUT_SECONDS&quot;</span><span class="p">,</span> <span class="s2">&quot;300&quot;</span><span class="p">)),</span>
             <span class="n">max_retries</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;MAX_RETRIES&quot;</span><span class="p">,</span> <span class="s2">&quot;3&quot;</span><span class="p">)),</span>
             <span class="n">retry_delay_seconds</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;RETRY_DELAY_SECONDS&quot;</span><span class="p">,</span> <span class="s2">&quot;5&quot;</span><span class="p">)),</span>
+            <span class="n">queries</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;QUERIES&quot;</span><span class="p">),</span>
+            <span class="n">workspaces</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;WORKSPACES&quot;</span><span class="p">),</span>
+            <span class="n">dry_run</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DRY_RUN&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
+            <span class="n">parallel</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;PARALLEL&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -1526,6 +1548,10 @@
             <span class="n">query_timeout_seconds</span><span class="o">=</span><span class="n">config_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;query_timeout_seconds&quot;</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span>
             <span class="n">max_retries</span><span class="o">=</span><span class="n">config_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_retries&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
             <span class="n">retry_delay_seconds</span><span class="o">=</span><span class="n">config_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;retry_delay_seconds&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+            <span class="n">queries</span><span class="o">=</span><span class="n">config_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;queries&quot;</span><span class="p">),</span>
+            <span class="n">workspaces</span><span class="o">=</span><span class="n">config_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;workspaces&quot;</span><span class="p">),</span>
+            <span class="n">dry_run</span><span class="o">=</span><span class="n">config_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dry_run&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="n">parallel</span><span class="o">=</span><span class="n">config_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parallel&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>

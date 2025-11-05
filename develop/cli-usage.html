@@ -243,7 +243,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#environment-variables-for-cli">Environment variables for CLI</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#automation-and-scripting">Automation and scripting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id15">Configuration files</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#bash-scripting">Bash scripting</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#powershell-scripting">PowerShell scripting</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ci-cd-integration">CI/CD integration</a><ul>
@@ -1454,6 +1454,7 @@ sentinel-aggregator<span class="w"> </span>--log-level<span class="w"> </span>DE
 <th class="head"><p>Description</p></th>
 <th class="head"><p>Required</p></th>
 <th class="head"><p>Default</p></th>
+<th class="head"><p>Environment Variable</p></th>
 </tr>
 </thead>
 <tbody>
@@ -1461,8 +1462,10 @@ sentinel-aggregator<span class="w"> </span>--log-level<span class="w"> </span>DE
 <td><p>Path to workspace configuration file</p></td>
 <td><p>Yes</p></td>
 <td><p></p></td>
+<td><p>N/A</p></td>
 </tr>
 <tr class="row-odd"><td><p><strong>Time Range Options (mutually exclusive)</strong></p></td>
+<td><p></p></td>
 <td><p></p></td>
 <td><p></p></td>
 <td><p></p></td>
@@ -1471,23 +1474,28 @@ sentinel-aggregator<span class="w"> </span>--log-level<span class="w"> </span>DE
 <td><p>ISO 8601 duration to look back</p></td>
 <td><p>No</p></td>
 <td><p>P30D</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LOOKBACK_PERIOD</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--start-time</span></code></p></td>
 <td><p>ISO 8601 start datetime</p></td>
 <td><p>No</p></td>
 <td><p></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">START_TIME</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--end-time</span></code></p></td>
 <td><p>ISO 8601 end datetime</p></td>
 <td><p>No</p></td>
 <td><p></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">END_TIME</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--use-last-successful</span></code></p></td>
 <td><p>Continue from last successful run</p></td>
 <td><p>No</p></td>
 <td><p>false</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">USE_LAST_SUCCESSFUL</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><strong>Batch Processing</strong></p></td>
+<td><p></p></td>
 <td><p></p></td>
 <td><p></p></td>
 <td><p></p></td>
@@ -1496,8 +1504,10 @@ sentinel-aggregator<span class="w"> </span>--log-level<span class="w"> </span>DE
 <td><p>ISO 8601 duration for batch size</p></td>
 <td><p>No</p></td>
 <td><p>PT24H</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BATCH_TIME_SIZE</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><strong>Execution Control</strong></p></td>
+<td><p></p></td>
 <td><p></p></td>
 <td><p></p></td>
 <td><p></p></td>
@@ -1506,28 +1516,34 @@ sentinel-aggregator<span class="w"> </span>--log-level<span class="w"> </span>DE
 <td><p>Specific queries to run (comma-separated)</p></td>
 <td><p>No</p></td>
 <td><p>All</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">QUERIES</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--workspaces</span></code></p></td>
 <td><p>Specific workspaces to process (comma-separated)</p></td>
 <td><p>No</p></td>
 <td><p>All</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">WORKSPACES</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--dry-run</span></code></p></td>
 <td><p>Validate and show what would be executed</p></td>
 <td><p>No</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">DRY_RUN</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--parallel</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--parallel</span></code> / <code class="docutils literal notranslate"><span class="pre">--no-parallel</span></code></p></td>
 <td><p>Enable parallel execution</p></td>
 <td><p>No</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PARALLEL</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--max-workers</span></code></p></td>
 <td><p>Maximum parallel workers</p></td>
 <td><p>No</p></td>
 <td><p>5</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MAX_CONCURRENT_QUERIES</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p><strong>Health Logging</strong></p></td>
+<td><p></p></td>
 <td><p></p></td>
 <td><p></p></td>
 <td><p></p></td>
@@ -1536,6 +1552,7 @@ sentinel-aggregator<span class="w"> </span>--log-level<span class="w"> </span>DE
 <td><p>Enable health tracking</p></td>
 <td><p>No</p></td>
 <td><p>false</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HEALTH_TO_SENTINEL</span></code></p></td>
 </tr>
 </tbody>
 </table>
@@ -1572,7 +1589,18 @@ sentinel-aggregator<span class="w"> </span>run<span class="w"> </span>--workspac
 sentinel-aggregator<span class="w"> </span>run<span class="w"> </span>--workspace-config<span class="w"> </span>workspaces.yaml<span class="w"> </span>--max-workers<span class="w"> </span><span class="m">10</span>
 
 <span class="c1"># Sequential execution (no parallelism)</span>
-sentinel-aggregator<span class="w"> </span>run<span class="w"> </span>--workspace-config<span class="w"> </span>workspaces.yaml<span class="w"> </span>--parallel<span class="w"> </span><span class="nb">false</span>
+sentinel-aggregator<span class="w"> </span>run<span class="w"> </span>--workspace-config<span class="w"> </span>workspaces.yaml<span class="w"> </span>--no-parallel
+
+<span class="c1"># Using environment variables with CLI overrides</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LOOKBACK_PERIOD</span><span class="o">=</span><span class="s2">&quot;P30D&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">QUERIES</span><span class="o">=</span><span class="s2">&quot;incident_summary,alert_summary&quot;</span>
+sentinel-aggregator<span class="w"> </span>run<span class="w"> </span>--workspace-config<span class="w"> </span>workspaces.yaml<span class="w"> </span>--lookback-period<span class="w"> </span><span class="s2">&quot;P7D&quot;</span>
+<span class="c1"># Result: Uses P7D (CLI override) and incident_summary,alert_summary (from env var)</span>
+
+<span class="c1"># Using .env file with minimal CLI</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;LOOKBACK_PERIOD=P7D&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>.env
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;BATCH_TIME_SIZE=PT12H&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.env
+sentinel-aggregator<span class="w"> </span>run<span class="w"> </span>--workspace-config<span class="w"> </span>workspaces.yaml
 </pre></div>
 </div>
 </section>
@@ -1960,17 +1988,42 @@ sentinel-aggregator<span class="w"> </span>query-status<span class="w"> </span>-
 </section>
 <section id="environment-variables-for-cli">
 <h3>Environment variables for CLI<a class="headerlink" href="#environment-variables-for-cli" title="Link to this heading"></a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># CLI-specific environment variables</span>
-<span class="nv">SENTINEL_CLI_CONFIG_FILE</span><span class="o">=</span>cli-config.yaml
-<span class="nv">SENTINEL_CLI_OUTPUT_FORMAT</span><span class="o">=</span>json
-<span class="nv">SENTINEL_CLI_NO_COLOR</span><span class="o">=</span><span class="nb">false</span>
-<span class="nv">SENTINEL_CLI_AUTO_CONFIRM</span><span class="o">=</span><span class="nb">false</span>
+<p>All CLI parameters can be configured using environment variables following this priority order:</p>
+<ol class="arabic simple">
+<li><p><strong>Command line arguments</strong> (highest priority)</p></li>
+<li><p><strong>Environment variables</strong></p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">.env</span></code> file variables</strong></p></li>
+<li><p><strong>Default values</strong> (lowest priority)</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Environment variables for common parameters</span>
+<span class="nv">DCR_LOGS_INGESTION_ENDPOINT</span><span class="o">=</span>https://your-dcr-endpoint.monitor.azure.com
+<span class="nv">DCR_IMMUTABLE_ID</span><span class="o">=</span>dcr-your-rule-id
+<span class="nv">LOOKBACK_PERIOD</span><span class="o">=</span>P7D
+<span class="nv">BATCH_TIME_SIZE</span><span class="o">=</span>PT12H
+<span class="nv">QUERIES</span><span class="o">=</span>incident_summary,alert_summary
+<span class="nv">WORKSPACES</span><span class="o">=</span>prod-workspace-1,prod-workspace-2
+<span class="nv">DRY_RUN</span><span class="o">=</span><span class="nb">false</span>
+<span class="nv">PARALLEL</span><span class="o">=</span><span class="nb">true</span>
+<span class="nv">MAX_CONCURRENT_QUERIES</span><span class="o">=</span><span class="m">5</span>
+<span class="nv">HEALTH_TO_SENTINEL</span><span class="o">=</span><span class="nb">false</span>
+<span class="nv">LOG_LEVEL</span><span class="o">=</span>INFO
+
+<span class="c1"># Query execution settings</span>
+<span class="nv">QUERY_TIMEOUT_SECONDS</span><span class="o">=</span><span class="m">300</span>
+<span class="nv">MAX_RETRIES</span><span class="o">=</span><span class="m">3</span>
+<span class="nv">RETRY_DELAY_SECONDS</span><span class="o">=</span><span class="m">5</span>
+
+<span class="c1"># Time range alternatives (mutually exclusive)</span>
+<span class="nv">START_TIME</span><span class="o">=</span><span class="m">2025</span>-01-01T00:00:00Z
+<span class="nv">END_TIME</span><span class="o">=</span><span class="m">2025</span>-01-31T23:59:59Z
+<span class="nv">USE_LAST_SUCCESSFUL</span><span class="o">=</span><span class="nb">false</span>
 </pre></div>
 </div>
+<p>See the <a class="reference internal" href="environment-variables.html"><span class="std std-doc">Environment Variables Reference</span></a> for complete documentation.</p>
 </section>
 </section>
-<section id="automation-and-scripting">
-<h2>Automation and scripting<a class="headerlink" href="#automation-and-scripting" title="Link to this heading"></a></h2>
+<section id="id15">
+<h2>Configuration files<a class="headerlink" href="#id15" title="Link to this heading"></a></h2>
 <section id="bash-scripting">
 <h3>Bash scripting<a class="headerlink" href="#bash-scripting" title="Link to this heading"></a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>

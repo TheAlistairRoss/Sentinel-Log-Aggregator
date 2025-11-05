@@ -3,9 +3,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; Microsoft Sentinel Log Aggregator v0.1.0</title>
+  <title>Environment Variables Reference &mdash; Microsoft Sentinel Log Aggregator v0.1.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -16,7 +17,7 @@
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="#" />
+    <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
 </head>
 
@@ -1276,9 +1277,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Index</li>
+      <li class="breadcrumb-item active">Environment Variables Reference</li>
       <li class="wy-breadcrumbs-aside">
-              <a href="https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/blob/main/docs/genindex" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/blob/main/docs/environment-variables.md" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -1286,1146 +1287,359 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
+  <section id="environment-variables-reference">
+<h1>Environment Variables Reference<a class="headerlink" href="#environment-variables-reference" title="Link to this heading"></a></h1>
+<p>This document describes all available environment variables for the Microsoft Sentinel Log Aggregator CLI, following the priority order you requested:</p>
+<section id="priority-order">
+<h2>Priority Order<a class="headerlink" href="#priority-order" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Command Line Arguments</strong> - Highest priority</p></li>
+<li><p><strong>Environment Variables</strong> - Second priority</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">.env</span></code> File Variables</strong> - Third priority</p></li>
+<li><p><strong>Default Values</strong> - Lowest priority</p></li>
+</ol>
+</section>
+<section id="complete-parameter-reference">
+<h2>Complete Parameter Reference<a class="headerlink" href="#complete-parameter-reference" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>CLI Parameter</p></th>
+<th class="head"><p>Environment Variable</p></th>
+<th class="head"><p>.env File</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--workspace-config</span></code></p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>Required</p></td>
+<td><p>Path to workspace configuration file (file paths not suitable for env vars)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Time Range Options (mutually exclusive)</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--lookback-period</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LOOKBACK_PERIOD</span></code></p></td>
+<td><p>✅</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">P30D</span></code></p></td>
+<td><p>ISO 8601 duration to look back</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--start-time</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">START_TIME</span></code></p></td>
+<td><p>✅</p></td>
+<td><p>None</p></td>
+<td><p>ISO 8601 start datetime</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--end-time</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">END_TIME</span></code></p></td>
+<td><p>✅</p></td>
+<td><p>None</p></td>
+<td><p>ISO 8601 end datetime</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--use-last-successful</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">USE_LAST_SUCCESSFUL</span></code></p></td>
+<td><p>✅</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Continue from last successful run</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Batch Processing</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--batch-time-size</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BATCH_TIME_SIZE</span></code></p></td>
+<td><p>✅</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PT24H</span></code></p></td>
+<td><p>ISO 8601 duration for batch size</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Execution Control</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--queries</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">QUERIES</span></code></p></td>
+<td><p>✅</p></td>
+<td><p>All</p></td>
+<td><p>Specific queries to run (comma-separated)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--workspaces</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">WORKSPACES</span></code></p></td>
+<td><p>✅</p></td>
+<td><p>All</p></td>
+<td><p>Specific workspaces to process (comma-separated)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--dry-run</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">DRY_RUN</span></code></p></td>
+<td><p>✅</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Validate and show what would be executed</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--parallel</span></code>/<code class="docutils literal notranslate"><span class="pre">--no-parallel</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PARALLEL</span></code></p></td>
+<td><p>✅</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+<td><p>Enable parallel execution</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--max-concurrent-queries</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MAX_CONCURRENT_QUERIES</span></code></p></td>
+<td><p>✅</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">5</span></code></p></td>
+<td><p>Maximum parallel workers</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Health Logging</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--health-to-sentinel</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">HEALTH_TO_SENTINEL</span></code></p></td>
+<td><p>✅</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Enable health tracking to Sentinel table</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Query Configuration</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--query-timeout-seconds</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">QUERY_TIMEOUT_SECONDS</span></code></p></td>
+<td><p>✅</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">300</span></code></p></td>
+<td><p>Query timeout in seconds</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--max-retries</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MAX_RETRIES</span></code></p></td>
+<td><p>✅</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">3</span></code></p></td>
+<td><p>Maximum retry attempts</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--retry-delay-seconds</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RETRY_DELAY_SECONDS</span></code></p></td>
+<td><p>✅</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">5</span></code></p></td>
+<td><p>Delay between retries in seconds</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Required Azure Configuration</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--dcr-endpoint</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">DCR_LOGS_INGESTION_ENDPOINT</span></code></p></td>
+<td><p>✅</p></td>
+<td><p>Required</p></td>
+<td><p>Azure Monitor DCR logs ingestion endpoint</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--dcr-immutable-id</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">DCR_IMMUTABLE_ID</span></code></p></td>
+<td><p>✅</p></td>
+<td><p>Required</p></td>
+<td><p>Data Collection Rule immutable ID</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Global Options</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--log-level</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LOG_LEVEL</span></code></p></td>
+<td><p>✅</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">INFO</span></code></p></td>
+<td><p>Logging level (DEBUG, INFO, WARNING, ERROR)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="example-env-file">
+<h2>Example <code class="docutils literal notranslate"><span class="pre">.env</span></code> File<a class="headerlink" href="#example-env-file" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Azure Data Collection Rule Configuration</span>
+<span class="c1"># Required: Set these to your actual Azure DCR endpoint and rule ID</span>
+<span class="nv">DCR_LOGS_INGESTION_ENDPOINT</span><span class="o">=</span>https://your-dcr-endpoint.monitor.azure.com
+<span class="nv">DCR_IMMUTABLE_ID</span><span class="o">=</span>dcr-your-rule-id
 
-<h1 id="index">Index</h1>
+<span class="c1"># Time Range Configuration (mutually exclusive with start/end times)</span>
+<span class="c1"># Use lookback period OR explicit start/end times, not both</span>
+<span class="nv">LOOKBACK_PERIOD</span><span class="o">=</span>P30D
+<span class="nv">START_TIME</span><span class="o">=</span>
+<span class="nv">END_TIME</span><span class="o">=</span>
+<span class="nv">USE_LAST_SUCCESSFUL</span><span class="o">=</span><span class="nb">false</span>
 
-<div class="genindex-jumpbox">
- <a href="#_"><strong>_</strong></a>
- | <a href="#A"><strong>A</strong></a>
- | <a href="#B"><strong>B</strong></a>
- | <a href="#C"><strong>C</strong></a>
- | <a href="#D"><strong>D</strong></a>
- | <a href="#E"><strong>E</strong></a>
- | <a href="#F"><strong>F</strong></a>
- | <a href="#G"><strong>G</strong></a>
- | <a href="#H"><strong>H</strong></a>
- | <a href="#I"><strong>I</strong></a>
- | <a href="#J"><strong>J</strong></a>
- | <a href="#K"><strong>K</strong></a>
- | <a href="#L"><strong>L</strong></a>
- | <a href="#M"><strong>M</strong></a>
- | <a href="#N"><strong>N</strong></a>
- | <a href="#P"><strong>P</strong></a>
- | <a href="#Q"><strong>Q</strong></a>
- | <a href="#R"><strong>R</strong></a>
- | <a href="#S"><strong>S</strong></a>
- | <a href="#T"><strong>T</strong></a>
- | <a href="#U"><strong>U</strong></a>
- | <a href="#V"><strong>V</strong></a>
- | <a href="#W"><strong>W</strong></a>
- 
+<span class="c1"># Batch Processing Configuration</span>
+<span class="nv">BATCH_TIME_SIZE</span><span class="o">=</span>PT24H
+
+<span class="c1"># Execution Control Configuration</span>
+<span class="nv">QUERIES</span><span class="o">=</span>
+<span class="nv">WORKSPACES</span><span class="o">=</span>
+<span class="nv">DRY_RUN</span><span class="o">=</span><span class="nb">false</span>
+<span class="nv">PARALLEL</span><span class="o">=</span><span class="nb">true</span>
+<span class="nv">MAX_CONCURRENT_QUERIES</span><span class="o">=</span><span class="m">5</span>
+
+<span class="c1"># Query Execution Configuration</span>
+<span class="nv">QUERY_TIMEOUT_SECONDS</span><span class="o">=</span><span class="m">300</span>
+<span class="nv">MAX_RETRIES</span><span class="o">=</span><span class="m">3</span>
+<span class="nv">RETRY_DELAY_SECONDS</span><span class="o">=</span><span class="m">5</span>
+
+<span class="c1"># Health Logging Configuration</span>
+<span class="nv">HEALTH_TO_SENTINEL</span><span class="o">=</span><span class="nb">false</span>
+
+<span class="c1"># Logging Configuration</span>
+<span class="nv">LOG_LEVEL</span><span class="o">=</span>INFO
+</pre></div>
 </div>
-<h2 id="_">_</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.__aenter__">__aenter__() (sentinel_log_aggregator.SentinelAggregatorClient method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.__aexit__">__aexit__() (sentinel_log_aggregator.SentinelAggregatorClient method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.__init__">__init__() (sentinel_log_aggregator.BatchExecutionResult method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.BatchOperationError.__init__">(sentinel_log_aggregator.BatchOperationError method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.client_options.SentinelAggregatorClientOptions.__init__">(sentinel_log_aggregator.client_options.SentinelAggregatorClientOptions method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.ConfigurationError.__init__">(sentinel_log_aggregator.ConfigurationError method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.CredentialValidationError.__init__">(sentinel_log_aggregator.CredentialValidationError method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.DataIngestionError.__init__">(sentinel_log_aggregator.DataIngestionError method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.exceptions.BatchOperationError.__init__">(sentinel_log_aggregator.exceptions.BatchOperationError method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.exceptions.ConfigurationError.__init__">(sentinel_log_aggregator.exceptions.ConfigurationError method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.exceptions.CredentialValidationError.__init__">(sentinel_log_aggregator.exceptions.CredentialValidationError method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.exceptions.DataIngestionError.__init__">(sentinel_log_aggregator.exceptions.DataIngestionError method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.exceptions.QueryExecutionError.__init__">(sentinel_log_aggregator.exceptions.QueryExecutionError method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.exceptions.SentinelAggregatorError.__init__">(sentinel_log_aggregator.exceptions.SentinelAggregatorError method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.exceptions.WorkspaceAccessError.__init__">(sentinel_log_aggregator.exceptions.WorkspaceAccessError method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.exceptions.WorkspaceConfigurationError.__init__">(sentinel_log_aggregator.exceptions.WorkspaceConfigurationError method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.KQLQueryDefinition.__init__">(sentinel_log_aggregator.KQLQueryDefinition method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.__init__">(sentinel_log_aggregator.models.BatchExecutionSummary method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.KQLQueryDefinition.__init__">(sentinel_log_aggregator.models.KQLQueryDefinition method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.__init__">(sentinel_log_aggregator.models.QueryExecution method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryParameter.__init__">(sentinel_log_aggregator.models.QueryParameter method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig.__init__">(sentinel_log_aggregator.models.WorkspaceConfig method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.query_engine.SentinelQueryEngine.__init__">(sentinel_log_aggregator.query_engine.SentinelQueryEngine method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.__init__">(sentinel_log_aggregator.QueryExecution method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecutionError.__init__">(sentinel_log_aggregator.QueryExecutionError method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryResult.__init__">(sentinel_log_aggregator.QueryResult method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.__init__">(sentinel_log_aggregator.SentinelAggregatorClient method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClientOptions.__init__">(sentinel_log_aggregator.SentinelAggregatorClientOptions method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorError.__init__">(sentinel_log_aggregator.SentinelAggregatorError method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.__init__">(sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine.__init__">(sentinel_log_aggregator.SentinelQueryEngine method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.ServiceProperties.__init__">(sentinel_log_aggregator.ServiceProperties method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.UploadResult.__init__">(sentinel_log_aggregator.UploadResult method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.__init__">(sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.__init__">(sentinel_log_aggregator.workspace_manager.WorkspaceSet method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceAccessError.__init__">(sentinel_log_aggregator.WorkspaceAccessError method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig.__init__">(sentinel_log_aggregator.WorkspaceConfig method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceConfigurationError.__init__">(sentinel_log_aggregator.WorkspaceConfigurationError method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.__init__">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceQueryExecution.__init__">(sentinel_log_aggregator.WorkspaceQueryExecution method)</a>
-</li>
-      </ul></li>
-  </ul></td>
-</tr></table>
-
-<h2 id="A">A</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.KQLQueryDefinition.add_parameter">add_parameter() (sentinel_log_aggregator.KQLQueryDefinition method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.KQLQueryDefinition.add_parameter">(sentinel_log_aggregator.models.KQLQueryDefinition method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspace">add_workspace() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.add_workspace">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspaces">add_workspaces() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.add_workspaces">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#id9">aggregation_workspace (sentinel_log_aggregator.models.WorkspaceConfig attribute)</a>, <a href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig.aggregation_workspace">[1]</a>
-
-      <ul>
-        <li><a href="api-reference.html#id0">(sentinel_log_aggregator.WorkspaceConfig attribute)</a>, <a href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig.aggregation_workspace">[1]</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.aliases">aliases() (sentinel_log_aggregator.workspace_manager.WorkspaceSet method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.all">all() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.all">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.ServiceProperties.authentication_status">authentication_status (sentinel_log_aggregator.ServiceProperties attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.ServiceProperties.available_queries">available_queries (sentinel_log_aggregator.ServiceProperties attribute)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="B">B</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.batch_id">batch_id (sentinel_log_aggregator.models.BatchExecutionSummary attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult">BatchExecutionResult (class in sentinel_log_aggregator)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary">BatchExecutionSummary (class in sentinel_log_aggregator.models)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchOperationError">BatchOperationError</a>, <a href="api-reference.html#sentinel_log_aggregator.exceptions.BatchOperationError">[1]</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchStatus">BatchStatus (class in sentinel_log_aggregator)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.begin_batch_operation">begin_batch_operation() (sentinel_log_aggregator.SentinelAggregatorClient method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.KQLQueryDefinition.build_query">build_query() (sentinel_log_aggregator.KQLQueryDefinition method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.KQLQueryDefinition.build_query">(sentinel_log_aggregator.models.KQLQueryDefinition method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.query_engine.SentinelQueryEngine.build_query_from_name">build_query_from_name() (sentinel_log_aggregator.query_engine.SentinelQueryEngine method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine.build_query_from_name">(sentinel_log_aggregator.SentinelQueryEngine method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.query_engine.SentinelQueryEngine.build_query_with_parameters">build_query_with_parameters() (sentinel_log_aggregator.query_engine.SentinelQueryEngine method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine.build_query_with_parameters">(sentinel_log_aggregator.SentinelQueryEngine method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.UploadResult.bytes_uploaded">bytes_uploaded (sentinel_log_aggregator.UploadResult attribute)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="C">C</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.query_engine.SentinelQueryEngine.calculate_time_batches">calculate_time_batches() (sentinel_log_aggregator.query_engine.SentinelQueryEngine method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine.calculate_time_batches">(sentinel_log_aggregator.SentinelQueryEngine method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchStatus.CANCELLED">CANCELLED (sentinel_log_aggregator.BatchStatus attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryStatus.CANCELLED">(sentinel_log_aggregator.models.QueryStatus attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryStatus.CANCELLED">(sentinel_log_aggregator.QueryStatus attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.close">close() (sentinel_log_aggregator.SentinelAggregatorClient method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryStatus.COMPLETED">COMPLETED (sentinel_log_aggregator.models.QueryStatus attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryStatus.COMPLETED">(sentinel_log_aggregator.QueryStatus attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.ConfigurationError">ConfigurationError</a>, <a href="api-reference.html#sentinel_log_aggregator.exceptions.ConfigurationError">[1]</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.ServiceProperties.connectivity_status">connectivity_status (sentinel_log_aggregator.ServiceProperties attribute)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.QueryResult.correlation_id">correlation_id (sentinel_log_aggregator.QueryResult attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.UploadResult.correlation_id">(sentinel_log_aggregator.UploadResult attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceQueryExecution.correlation_id">(sentinel_log_aggregator.WorkspaceQueryExecution attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.count">count() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.count">(sentinel_log_aggregator.workspace_manager.WorkspaceSet method)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.count">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.create_disabled">create_disabled() (sentinel_log_aggregator.SentinelAggregatorHealthLogger class method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.create_job_id">create_job_id() (sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.CredentialValidationError">CredentialValidationError</a>, <a href="api-reference.html#sentinel_log_aggregator.exceptions.CredentialValidationError">[1]</a>
-</li>
-      <li><a href="api-reference.html#id6">customer_id (sentinel_log_aggregator.models.WorkspaceConfig attribute)</a>, <a href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig.customer_id">[1]</a>
-
-      <ul>
-        <li><a href="api-reference.html#id2">(sentinel_log_aggregator.WorkspaceConfig attribute)</a>, <a href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig.customer_id">[1]</a>
-</li>
-      </ul></li>
-  </ul></td>
-</tr></table>
-
-<h2 id="D">D</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.QueryResult.data">data (sentinel_log_aggregator.QueryResult attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.DataIngestionError">DataIngestionError</a>, <a href="api-reference.html#sentinel_log_aggregator.exceptions.DataIngestionError">[1]</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.ServiceProperties.dcr_endpoint">dcr_endpoint (sentinel_log_aggregator.ServiceProperties attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.ServiceProperties.dcr_immutable_id">dcr_immutable_id (sentinel_log_aggregator.ServiceProperties attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.UploadResult.dcr_immutable_id">(sentinel_log_aggregator.UploadResult attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryParameter.default">default (sentinel_log_aggregator.models.QueryParameter attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryParameter.description">description (sentinel_log_aggregator.models.QueryParameter attribute)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.destination_stream">destination_stream (sentinel_log_aggregator.models.QueryExecution attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.destination_stream">(sentinel_log_aggregator.QueryExecution attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.details">details() (sentinel_log_aggregator.workspace_manager.WorkspaceSet method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.display">display() (sentinel_log_aggregator.workspace_manager.WorkspaceSet method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.display_summary">display_summary() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.display_summary">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.duration">duration (sentinel_log_aggregator.BatchExecutionResult property)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="E">E</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.end_time">end_time (sentinel_log_aggregator.BatchExecutionResult attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.end_time">(sentinel_log_aggregator.models.QueryExecution attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.end_time">(sentinel_log_aggregator.QueryExecution attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryResult.end_time">(sentinel_log_aggregator.QueryResult attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.QueryResult.error_code">error_code (sentinel_log_aggregator.QueryResult attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.UploadResult.error_code">(sentinel_log_aggregator.UploadResult attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.error_message">error_message (sentinel_log_aggregator.models.QueryExecution property)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.error_message">(sentinel_log_aggregator.QueryExecution property)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryResult.error_message">(sentinel_log_aggregator.QueryResult attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.UploadResult.error_message">(sentinel_log_aggregator.UploadResult attribute)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.query_engine.SentinelQueryEngine.execute_batch_queries_with_streaming_upload">execute_batch_queries_with_streaming_upload() (sentinel_log_aggregator.query_engine.SentinelQueryEngine method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine.execute_batch_queries_with_streaming_upload">(sentinel_log_aggregator.SentinelQueryEngine method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.query_engine.SentinelQueryEngine.execute_single_query_with_upload">execute_single_query_with_upload() (sentinel_log_aggregator.query_engine.SentinelQueryEngine method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine.execute_single_query_with_upload">(sentinel_log_aggregator.SentinelQueryEngine method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.execution_id">execution_id (sentinel_log_aggregator.models.QueryExecution attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.execution_id">(sentinel_log_aggregator.QueryExecution attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.QueryResult.execution_time">execution_time (sentinel_log_aggregator.QueryResult attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.execution_timestamp">execution_timestamp (sentinel_log_aggregator.models.QueryExecution attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.execution_timestamp">(sentinel_log_aggregator.QueryExecution attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.executions">executions (sentinel_log_aggregator.models.BatchExecutionSummary attribute)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="F">F</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.failed">failed (sentinel_log_aggregator.BatchExecutionResult property)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchStatus.FAILED">FAILED (sentinel_log_aggregator.BatchStatus attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryStatus.FAILED">(sentinel_log_aggregator.models.QueryStatus attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.UploadStatus.FAILED">(sentinel_log_aggregator.models.UploadStatus attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.QueryResult.failed">failed (sentinel_log_aggregator.QueryResult property)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.QueryStatus.FAILED">FAILED (sentinel_log_aggregator.QueryStatus attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.UploadResult.failed">failed (sentinel_log_aggregator.UploadResult property)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.UploadStatus.FAILED">FAILED (sentinel_log_aggregator.UploadStatus attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.failed_queries">failed_queries (sentinel_log_aggregator.models.BatchExecutionSummary attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.failed_uploads">failed_uploads (sentinel_log_aggregator.models.BatchExecutionSummary attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.failed_workspaces">failed_workspaces (sentinel_log_aggregator.BatchExecutionResult attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.filter_by_alias">filter_by_alias() (sentinel_log_aggregator.workspace_manager.WorkspaceSet method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.filter_by_parameter">filter_by_parameter() (sentinel_log_aggregator.workspace_manager.WorkspaceSet method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.filter_by_resource_group">filter_by_resource_group() (sentinel_log_aggregator.workspace_manager.WorkspaceSet method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.filter_by_subscription">filter_by_subscription() (sentinel_log_aggregator.workspace_manager.WorkspaceSet method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.for_query">for_query() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.for_query">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.for_subscription">for_subscription() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.for_subscription">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.from_connection_string">from_connection_string() (sentinel_log_aggregator.SentinelAggregatorClient class method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.from_dict_list">from_dict_list() (sentinel_log_aggregator.workspace_manager.WorkspaceManager class method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.from_dict_list">(sentinel_log_aggregator.WorkspaceManager class method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.client_options.SentinelAggregatorClientOptions.from_environment">from_environment() (sentinel_log_aggregator.client_options.SentinelAggregatorClientOptions class method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClientOptions.from_environment">(sentinel_log_aggregator.SentinelAggregatorClientOptions class method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.from_file">from_file() (sentinel_log_aggregator.workspace_manager.WorkspaceManager class method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.from_file">(sentinel_log_aggregator.WorkspaceManager class method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.KQLQueryDefinition.from_yaml">from_yaml() (sentinel_log_aggregator.KQLQueryDefinition class method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.KQLQueryDefinition.from_yaml">(sentinel_log_aggregator.models.KQLQueryDefinition class method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.client_options.SentinelAggregatorClientOptions.from_yaml_file">from_yaml_file() (sentinel_log_aggregator.client_options.SentinelAggregatorClientOptions class method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClientOptions.from_yaml_file">(sentinel_log_aggregator.SentinelAggregatorClientOptions class method)</a>
-</li>
-      </ul></li>
-  </ul></td>
-</tr></table>
-
-<h2 id="G">G</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.generate_detailed_summary">generate_detailed_summary() (sentinel_log_aggregator.models.BatchExecutionSummary method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_aggregation_workspace">get_aggregation_workspace() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_aggregation_workspace">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_alias_by_customer_id">get_alias_by_customer_id() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_alias_by_customer_id">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_alias_by_resource_id">get_alias_by_resource_id() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_alias_by_resource_id">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.query_engine.SentinelQueryEngine.get_execution_summary">get_execution_summary() (sentinel_log_aggregator.query_engine.SentinelQueryEngine method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine.get_execution_summary">(sentinel_log_aggregator.SentinelQueryEngine method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.KQLQueryDefinition.get_query">get_query() (sentinel_log_aggregator.KQLQueryDefinition method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.KQLQueryDefinition.get_query">(sentinel_log_aggregator.models.KQLQueryDefinition method)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.get_service_properties">get_service_properties() (sentinel_log_aggregator.SentinelAggregatorClient method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_subscription_summary">get_subscription_summary() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_subscription_summary">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_validation_errors">get_validation_errors() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_validation_errors">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_workspace_by_alias">get_workspace_by_alias() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_alias">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_workspace_by_customer_id">get_workspace_by_customer_id() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_customer_id">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.get_workspace_by_resource_id">get_workspace_by_resource_id() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.get_workspace_by_resource_id">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-  </ul></td>
-</tr></table>
-
-<h2 id="H">H</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.has_query">has_query() (sentinel_log_aggregator.workspace_manager.WorkspaceSet method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.has_validation_errors">has_validation_errors() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.has_validation_errors">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-  </ul></td>
-</tr></table>
-
-<h2 id="I">I</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.ids">ids() (sentinel_log_aggregator.workspace_manager.WorkspaceSet method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="J">J</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.job_correlation_id">job_correlation_id (sentinel_log_aggregator.BatchExecutionResult attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.job_correlation_id">(sentinel_log_aggregator.models.BatchExecutionSummary attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.job_correlation_id">(sentinel_log_aggregator.models.QueryExecution attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.job_correlation_id">(sentinel_log_aggregator.QueryExecution attribute)</a>
-</li>
-      </ul></li>
-  </ul></td>
-</tr></table>
-
-<h2 id="K">K</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.KQLQueryDefinition">KQLQueryDefinition (class in sentinel_log_aggregator)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.KQLQueryDefinition">(class in sentinel_log_aggregator.models)</a>
-</li>
-      </ul></li>
-  </ul></td>
-</tr></table>
-
-<h2 id="L">L</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.ServiceProperties.last_check_time">last_check_time (sentinel_log_aggregator.ServiceProperties attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.list_query_results">list_query_results() (sentinel_log_aggregator.SentinelAggregatorClient method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.load_workspace_config">load_workspace_config() (in module sentinel_log_aggregator)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.load_workspace_config">(in module sentinel_log_aggregator.workspace_manager)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_error">log_error() (sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_job_end">log_job_end() (sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_job_start">log_job_start() (sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_query_execution">log_query_execution() (sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_watermark_update">log_watermark_update() (sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_workspace_processing_end">log_workspace_processing_end() (sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_workspace_processing_start">log_workspace_processing_start() (sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="M">M</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li>
-    module
-
-      <ul>
-        <li><a href="api-reference.html#module-sentinel_log_aggregator">sentinel_log_aggregator</a>
-</li>
-        <li><a href="api-reference.html#module-sentinel_log_aggregator.client_options">sentinel_log_aggregator.client_options</a>
-</li>
-        <li><a href="api-reference.html#module-sentinel_log_aggregator.exceptions">sentinel_log_aggregator.exceptions</a>
-</li>
-        <li><a href="api-reference.html#module-sentinel_log_aggregator.models">sentinel_log_aggregator.models</a>
-</li>
-        <li><a href="api-reference.html#module-sentinel_log_aggregator.query_engine">sentinel_log_aggregator.query_engine</a>
-</li>
-        <li><a href="api-reference.html#module-sentinel_log_aggregator.workspace_manager">sentinel_log_aggregator.workspace_manager</a>
-</li>
-      </ul></li>
-  </ul></td>
-</tr></table>
-
-<h2 id="N">N</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.names">names() (sentinel_log_aggregator.workspace_manager.WorkspaceSet method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.notebook_run_timestamp">notebook_run_timestamp (sentinel_log_aggregator.models.BatchExecutionSummary attribute)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="P">P</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryParameter.param_type">param_type (sentinel_log_aggregator.models.QueryParameter attribute)</a>
-</li>
-      <li><a href="api-reference.html#id8">parameters (sentinel_log_aggregator.models.WorkspaceConfig attribute)</a>, <a href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig.parameters">[1]</a>
-
-      <ul>
-        <li><a href="api-reference.html#id4">(sentinel_log_aggregator.WorkspaceConfig attribute)</a>, <a href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig.parameters">[1]</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.partial_success">partial_success (sentinel_log_aggregator.BatchExecutionResult property)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchStatus.PARTIAL_SUCCESS">PARTIAL_SUCCESS (sentinel_log_aggregator.BatchStatus attribute)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchStatus.PENDING">PENDING (sentinel_log_aggregator.BatchStatus attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryStatus.PENDING">(sentinel_log_aggregator.models.QueryStatus attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.UploadStatus.PENDING">(sentinel_log_aggregator.models.UploadStatus attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryStatus.PENDING">(sentinel_log_aggregator.QueryStatus attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.UploadStatus.PENDING">(sentinel_log_aggregator.UploadStatus attribute)</a>
-</li>
-      </ul></li>
-  </ul></td>
-</tr></table>
-
-<h2 id="Q">Q</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#id7">queries_list (sentinel_log_aggregator.models.WorkspaceConfig attribute)</a>, <a href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig.queries_list">[1]</a>
-
-      <ul>
-        <li><a href="api-reference.html#id3">(sentinel_log_aggregator.WorkspaceConfig attribute)</a>, <a href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig.queries_list">[1]</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.QueryResult.query">query (sentinel_log_aggregator.QueryResult attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.query_duration_seconds">query_duration_seconds (sentinel_log_aggregator.models.QueryExecution attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.query_duration_seconds">(sentinel_log_aggregator.QueryExecution attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.query_error_message">query_error_message (sentinel_log_aggregator.models.QueryExecution attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.query_error_message">(sentinel_log_aggregator.QueryExecution attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.query_name">query_name (sentinel_log_aggregator.BatchExecutionResult attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.query_name">(sentinel_log_aggregator.models.QueryExecution attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.query_name">(sentinel_log_aggregator.QueryExecution attribute)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceQueryExecution.query_result">query_result (sentinel_log_aggregator.WorkspaceQueryExecution attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.query_status">query_status (sentinel_log_aggregator.models.QueryExecution attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.query_status">(sentinel_log_aggregator.QueryExecution attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.query_workspace">query_workspace() (sentinel_log_aggregator.SentinelAggregatorClient method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution">QueryExecution (class in sentinel_log_aggregator)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution">(class in sentinel_log_aggregator.models)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecutionError">QueryExecutionError</a>, <a href="api-reference.html#sentinel_log_aggregator.exceptions.QueryExecutionError">[1]</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryParameter">QueryParameter (class in sentinel_log_aggregator.models)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.QueryResult">QueryResult (class in sentinel_log_aggregator)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.QueryStatus">QueryStatus (class in sentinel_log_aggregator)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryStatus">(class in sentinel_log_aggregator.models)</a>
-</li>
-      </ul></li>
-  </ul></td>
-</tr></table>
-
-<h2 id="R">R</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.record_count">record_count (sentinel_log_aggregator.models.QueryExecution attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.record_count">(sentinel_log_aggregator.QueryExecution attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryResult.record_count">(sentinel_log_aggregator.QueryResult attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.UploadResult.record_count">(sentinel_log_aggregator.UploadResult attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.report_name">report_name (sentinel_log_aggregator.BatchExecutionResult attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.reports_summary">reports_summary() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.reports_summary">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.QueryResult.request_id">request_id (sentinel_log_aggregator.QueryResult attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.UploadResult.request_id">(sentinel_log_aggregator.UploadResult attribute)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryParameter.required">required (sentinel_log_aggregator.models.QueryParameter attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig.resource_group">resource_group (sentinel_log_aggregator.models.WorkspaceConfig property)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig.resource_group">(sentinel_log_aggregator.WorkspaceConfig property)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.resource_groups">resource_groups() (sentinel_log_aggregator.workspace_manager.WorkspaceSet method)</a>
-</li>
-      <li><a href="api-reference.html#id5">resource_id (sentinel_log_aggregator.models.WorkspaceConfig attribute)</a>, <a href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig.resource_id">[1]</a>
-
-      <ul>
-        <li><a href="api-reference.html#id1">(sentinel_log_aggregator.WorkspaceConfig attribute)</a>, <a href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig.resource_id">[1]</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.resource_ids">resource_ids() (sentinel_log_aggregator.workspace_manager.WorkspaceSet method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchStatus.RUNNING">RUNNING (sentinel_log_aggregator.BatchStatus attribute)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="S">S</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.save_to_file">save_to_file() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.save_to_file">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-      <li>
-    sentinel_log_aggregator
-
-      <ul>
-        <li><a href="api-reference.html#module-sentinel_log_aggregator">module</a>
-</li>
-      </ul></li>
-      <li>
-    sentinel_log_aggregator.client_options
-
-      <ul>
-        <li><a href="api-reference.html#module-sentinel_log_aggregator.client_options">module</a>
-</li>
-      </ul></li>
-      <li>
-    sentinel_log_aggregator.exceptions
-
-      <ul>
-        <li><a href="api-reference.html#module-sentinel_log_aggregator.exceptions">module</a>
-</li>
-      </ul></li>
-      <li>
-    sentinel_log_aggregator.models
-
-      <ul>
-        <li><a href="api-reference.html#module-sentinel_log_aggregator.models">module</a>
-</li>
-      </ul></li>
-      <li>
-    sentinel_log_aggregator.query_engine
-
-      <ul>
-        <li><a href="api-reference.html#module-sentinel_log_aggregator.query_engine">module</a>
-</li>
-      </ul></li>
-      <li>
-    sentinel_log_aggregator.workspace_manager
-
-      <ul>
-        <li><a href="api-reference.html#module-sentinel_log_aggregator.workspace_manager">module</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient">SentinelAggregatorClient (class in sentinel_log_aggregator)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClientOptions">SentinelAggregatorClientOptions (class in sentinel_log_aggregator)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.client_options.SentinelAggregatorClientOptions">(class in sentinel_log_aggregator.client_options)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorError">SentinelAggregatorError</a>, <a href="api-reference.html#sentinel_log_aggregator.exceptions.SentinelAggregatorError">[1]</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger">SentinelAggregatorHealthLogger (class in sentinel_log_aggregator)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine">SentinelQueryEngine (class in sentinel_log_aggregator)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.query_engine.SentinelQueryEngine">(class in sentinel_log_aggregator.query_engine)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.ServiceProperties.service_version">service_version (sentinel_log_aggregator.ServiceProperties attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.ServiceProperties">ServiceProperties (class in sentinel_log_aggregator)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.KQLQueryDefinition.set_stream">set_stream() (sentinel_log_aggregator.KQLQueryDefinition method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.KQLQueryDefinition.set_stream">(sentinel_log_aggregator.models.KQLQueryDefinition method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.UploadStatus.SKIPPED">SKIPPED (sentinel_log_aggregator.models.UploadStatus attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.UploadStatus.SKIPPED">(sentinel_log_aggregator.UploadStatus attribute)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.start_time">start_time (sentinel_log_aggregator.BatchExecutionResult attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.start_time">(sentinel_log_aggregator.models.QueryExecution attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.start_time">(sentinel_log_aggregator.QueryExecution attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryResult.start_time">(sentinel_log_aggregator.QueryResult attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.status">status (sentinel_log_aggregator.BatchExecutionResult attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.status">(sentinel_log_aggregator.models.QueryExecution property)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.status">(sentinel_log_aggregator.QueryExecution property)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryResult.status">(sentinel_log_aggregator.QueryResult attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.UploadResult.status">(sentinel_log_aggregator.UploadResult attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.UploadResult.stream_name">stream_name (sentinel_log_aggregator.UploadResult attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig.subscription_id">subscription_id (sentinel_log_aggregator.models.WorkspaceConfig property)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig.subscription_id">(sentinel_log_aggregator.WorkspaceConfig property)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.subscription_ids">subscription_ids() (sentinel_log_aggregator.workspace_manager.WorkspaceSet method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.succeeded">succeeded (sentinel_log_aggregator.BatchExecutionResult property)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryResult.succeeded">(sentinel_log_aggregator.QueryResult property)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.UploadResult.succeeded">(sentinel_log_aggregator.UploadResult property)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceQueryExecution.succeeded">(sentinel_log_aggregator.WorkspaceQueryExecution property)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchStatus.SUCCESS">SUCCESS (sentinel_log_aggregator.BatchStatus attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryStatus.SUCCESS">(sentinel_log_aggregator.models.QueryStatus attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.UploadStatus.SUCCESS">(sentinel_log_aggregator.models.UploadStatus attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryStatus.SUCCESS">(sentinel_log_aggregator.QueryStatus attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.UploadStatus.SUCCESS">(sentinel_log_aggregator.UploadStatus attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.success_rate">success_rate (sentinel_log_aggregator.BatchExecutionResult property)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.success_rate">(sentinel_log_aggregator.models.BatchExecutionSummary property)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.successful_queries">successful_queries (sentinel_log_aggregator.models.BatchExecutionSummary attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.successful_uploads">successful_uploads (sentinel_log_aggregator.models.BatchExecutionSummary attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.successful_workspaces">successful_workspaces (sentinel_log_aggregator.BatchExecutionResult attribute)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="T">T</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.time_range_end">time_range_end (sentinel_log_aggregator.models.BatchExecutionSummary attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.time_range_start">time_range_start (sentinel_log_aggregator.models.BatchExecutionSummary attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.time_range_str">time_range_str (sentinel_log_aggregator.models.QueryExecution property)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.time_range_str">(sentinel_log_aggregator.QueryExecution property)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryStatus.TIMEOUT">TIMEOUT (sentinel_log_aggregator.models.QueryStatus attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryStatus.TIMEOUT">(sentinel_log_aggregator.QueryStatus attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet.to_configs">to_configs() (sentinel_log_aggregator.workspace_manager.WorkspaceSet method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.KQLQueryDefinition.to_dict">to_dict() (sentinel_log_aggregator.KQLQueryDefinition method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.KQLQueryDefinition.to_dict">(sentinel_log_aggregator.models.KQLQueryDefinition method)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.to_dict_list">to_dict_list() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.to_dict_list">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.total_duration_seconds">total_duration_seconds (sentinel_log_aggregator.models.BatchExecutionSummary attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.total_execution_time">total_execution_time (sentinel_log_aggregator.BatchExecutionResult attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.total_queries">total_queries (sentinel_log_aggregator.models.BatchExecutionSummary attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.total_records">total_records (sentinel_log_aggregator.BatchExecutionResult attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.total_records">(sentinel_log_aggregator.models.BatchExecutionSummary attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.total_uploaded_records">total_uploaded_records (sentinel_log_aggregator.models.BatchExecutionSummary attribute)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="U">U</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.unique_reports">unique_reports() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.unique_reports">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.unique_subscriptions">unique_subscriptions() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.unique_subscriptions">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.upload_duration_seconds">upload_duration_seconds (sentinel_log_aggregator.models.QueryExecution attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.upload_duration_seconds">(sentinel_log_aggregator.QueryExecution attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.upload_error_message">upload_error_message (sentinel_log_aggregator.models.QueryExecution attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.upload_error_message">(sentinel_log_aggregator.QueryExecution attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.upload_logs">upload_logs() (sentinel_log_aggregator.SentinelAggregatorClient method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceQueryExecution.upload_result">upload_result (sentinel_log_aggregator.WorkspaceQueryExecution attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.upload_status">upload_status (sentinel_log_aggregator.models.QueryExecution attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.upload_status">(sentinel_log_aggregator.QueryExecution attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.BatchExecutionSummary.upload_success_rate">upload_success_rate (sentinel_log_aggregator.models.BatchExecutionSummary property)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.UploadResult.upload_time">upload_time (sentinel_log_aggregator.UploadResult attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.uploaded_count">uploaded_count (sentinel_log_aggregator.models.QueryExecution attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.uploaded_count">(sentinel_log_aggregator.QueryExecution attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.UploadResult">UploadResult (class in sentinel_log_aggregator)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.UploadStatus">UploadStatus (class in sentinel_log_aggregator)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.UploadStatus">(class in sentinel_log_aggregator.models)</a>
-</li>
-      </ul></li>
-  </ul></td>
-</tr></table>
-
-<h2 id="V">V</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.client_options.SentinelAggregatorClientOptions.validate">validate() (sentinel_log_aggregator.client_options.SentinelAggregatorClientOptions method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClientOptions.validate">(sentinel_log_aggregator.SentinelAggregatorClientOptions method)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.validate_configuration">validate_configuration() (sentinel_log_aggregator.workspace_manager.WorkspaceManager method)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.validate_configuration">(sentinel_log_aggregator.WorkspaceManager method)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorClient.validate_credentials">validate_credentials() (sentinel_log_aggregator.SentinelAggregatorClient method)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.verify_health_table_setup">verify_health_table_setup() (sentinel_log_aggregator.SentinelAggregatorHealthLogger method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="W">W</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.workspace_alias">workspace_alias (sentinel_log_aggregator.models.QueryExecution property)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.workspace_alias">(sentinel_log_aggregator.QueryExecution property)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryResult.workspace_alias">(sentinel_log_aggregator.QueryResult property)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceQueryExecution.workspace_alias">(sentinel_log_aggregator.WorkspaceQueryExecution attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.ServiceProperties.workspace_count">workspace_count (sentinel_log_aggregator.ServiceProperties attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.QueryExecution.workspace_id">workspace_id (sentinel_log_aggregator.models.QueryExecution attribute)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryExecution.workspace_id">(sentinel_log_aggregator.QueryExecution attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.QueryResult.workspace_id">(sentinel_log_aggregator.QueryResult attribute)</a>
-</li>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceQueryExecution.workspace_id">(sentinel_log_aggregator.WorkspaceQueryExecution attribute)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig.workspace_name">workspace_name (sentinel_log_aggregator.models.WorkspaceConfig property)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig.workspace_name">(sentinel_log_aggregator.WorkspaceConfig property)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api-reference.html#sentinel_log_aggregator.BatchExecutionResult.workspace_results">workspace_results (sentinel_log_aggregator.BatchExecutionResult attribute)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceAccessError">WorkspaceAccessError</a>, <a href="api-reference.html#sentinel_log_aggregator.exceptions.WorkspaceAccessError">[1]</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceConfig">WorkspaceConfig (class in sentinel_log_aggregator)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.models.WorkspaceConfig">(class in sentinel_log_aggregator.models)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceConfigurationError">WorkspaceConfigurationError</a>, <a href="api-reference.html#sentinel_log_aggregator.exceptions.WorkspaceConfigurationError">[1]</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceManager">WorkspaceManager (class in sentinel_log_aggregator)</a>
-
-      <ul>
-        <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager">(class in sentinel_log_aggregator.workspace_manager)</a>
-</li>
-      </ul></li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.WorkspaceQueryExecution">WorkspaceQueryExecution (class in sentinel_log_aggregator)</a>
-</li>
-      <li><a href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceSet">WorkspaceSet (class in sentinel_log_aggregator.workspace_manager)</a>
-</li>
-  </ul></td>
-</tr></table>
-
+</section>
+<section id="usage-examples">
+<h2>Usage Examples<a class="headerlink" href="#usage-examples" title="Link to this heading"></a></h2>
+<section id="using-command-line-arguments-only">
+<h3>Using Command Line Arguments Only<a class="headerlink" href="#using-command-line-arguments-only" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sentinel-aggregator<span class="w"> </span>run<span class="w"> </span>--workspace-config<span class="w"> </span>workspaces.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--dcr-endpoint<span class="w"> </span><span class="s2">&quot;https://myworkspace-abcd.centralus-1.ingest.monitor.azure.com&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--dcr-immutable-id<span class="w"> </span><span class="s2">&quot;dcr-12345678901234567890&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--lookback-period<span class="w"> </span><span class="s2">&quot;P7D&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--batch-time-size<span class="w"> </span><span class="s2">&quot;PT12H&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--queries<span class="w"> </span><span class="s2">&quot;incident_summary,alert_summary&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--parallel<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-concurrent-queries<span class="w"> </span><span class="m">10</span>
+</pre></div>
+</div>
+</section>
+<section id="using-environment-variables">
+<h3>Using Environment Variables<a class="headerlink" href="#using-environment-variables" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set environment variables</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DCR_LOGS_INGESTION_ENDPOINT</span><span class="o">=</span><span class="s2">&quot;https://myworkspace-abcd.centralus-1.ingest.monitor.azure.com&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DCR_IMMUTABLE_ID</span><span class="o">=</span><span class="s2">&quot;dcr-12345678901234567890&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LOOKBACK_PERIOD</span><span class="o">=</span><span class="s2">&quot;P7D&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">BATCH_TIME_SIZE</span><span class="o">=</span><span class="s2">&quot;PT12H&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">QUERIES</span><span class="o">=</span><span class="s2">&quot;incident_summary,alert_summary&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PARALLEL</span><span class="o">=</span><span class="s2">&quot;true&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">MAX_CONCURRENT_QUERIES</span><span class="o">=</span><span class="s2">&quot;10&quot;</span>
+
+<span class="c1"># Run with minimal command line</span>
+sentinel-aggregator<span class="w"> </span>run<span class="w"> </span>--workspace-config<span class="w"> </span>workspaces.yaml
+</pre></div>
+</div>
+</section>
+<section id="using-env-file">
+<h3>Using .env File<a class="headerlink" href="#using-env-file" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create .env file with your configuration</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>.env<span class="w"> </span><span class="s">&lt;&lt; EOF</span>
+<span class="s">DCR_LOGS_INGESTION_ENDPOINT=https://myworkspace-abcd.centralus-1.ingest.monitor.azure.com</span>
+<span class="s">DCR_IMMUTABLE_ID=dcr-12345678901234567890</span>
+<span class="s">LOOKBACK_PERIOD=P7D</span>
+<span class="s">BATCH_TIME_SIZE=PT12H</span>
+<span class="s">QUERIES=incident_summary,alert_summary</span>
+<span class="s">PARALLEL=true</span>
+<span class="s">MAX_CONCURRENT_QUERIES=10</span>
+<span class="s">EOF</span>
+
+<span class="c1"># Run with minimal command line</span>
+sentinel-aggregator<span class="w"> </span>run<span class="w"> </span>--workspace-config<span class="w"> </span>workspaces.yaml
+</pre></div>
+</div>
+</section>
+<section id="mixed-priority-example">
+<h3>Mixed Priority Example<a class="headerlink" href="#mixed-priority-example" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># .env file has:</span>
+<span class="c1"># LOOKBACK_PERIOD=P30D</span>
+<span class="c1"># MAX_CONCURRENT_QUERIES=5</span>
+
+<span class="c1"># Environment variable overrides .env:</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LOOKBACK_PERIOD</span><span class="o">=</span><span class="s2">&quot;P7D&quot;</span>
+
+<span class="c1"># Command line overrides both:</span>
+sentinel-aggregator<span class="w"> </span>run<span class="w"> </span>--workspace-config<span class="w"> </span>workspaces.yaml<span class="w"> </span>--max-concurrent-queries<span class="w"> </span><span class="m">10</span>
+
+<span class="c1"># Result: LOOKBACK_PERIOD=P7D (from env var), MAX_CONCURRENT_QUERIES=10 (from CLI)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="boolean-values">
+<h2>Boolean Values<a class="headerlink" href="#boolean-values" title="Link to this heading"></a></h2>
+<p>For boolean environment variables, the following values are supported:</p>
+<ul class="simple">
+<li><p><strong>True</strong>: <code class="docutils literal notranslate"><span class="pre">true</span></code>, <code class="docutils literal notranslate"><span class="pre">True</span></code>, <code class="docutils literal notranslate"><span class="pre">TRUE</span></code>, <code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">yes</span></code>, <code class="docutils literal notranslate"><span class="pre">Yes</span></code>, <code class="docutils literal notranslate"><span class="pre">YES</span></code></p></li>
+<li><p><strong>False</strong>: <code class="docutils literal notranslate"><span class="pre">false</span></code>, <code class="docutils literal notranslate"><span class="pre">False</span></code>, <code class="docutils literal notranslate"><span class="pre">FALSE</span></code>, <code class="docutils literal notranslate"><span class="pre">0</span></code>, <code class="docutils literal notranslate"><span class="pre">no</span></code>, <code class="docutils literal notranslate"><span class="pre">No</span></code>, <code class="docutils literal notranslate"><span class="pre">NO</span></code></p></li>
+</ul>
+</section>
+<section id="special-cases">
+<h2>Special Cases<a class="headerlink" href="#special-cases" title="Link to this heading"></a></h2>
+<section id="time-range-mutual-exclusivity">
+<h3>Time Range Mutual Exclusivity<a class="headerlink" href="#time-range-mutual-exclusivity" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">LOOKBACK_PERIOD</span></code> and <code class="docutils literal notranslate"><span class="pre">START_TIME</span></code>/<code class="docutils literal notranslate"><span class="pre">END_TIME</span></code> are mutually exclusive</p></li>
+<li><p>If both are provided, command line arguments take precedence</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">USE_LAST_SUCCESSFUL=true</span></code>, it overrides other time configurations</p></li>
+</ul>
+</section>
+<section id="parallel-execution">
+<h3>Parallel Execution<a class="headerlink" href="#parallel-execution" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">--parallel</span></code> to enable (default)</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">--no-parallel</span></code> to disable</p></li>
+<li><p>Environment variable: <code class="docutils literal notranslate"><span class="pre">PARALLEL=true</span></code> or <code class="docutils literal notranslate"><span class="pre">PARALLEL=false</span></code></p></li>
+</ul>
+</section>
+<section id="query-and-workspace-filtering">
+<h3>Query and Workspace Filtering<a class="headerlink" href="#query-and-workspace-filtering" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Leave <code class="docutils literal notranslate"><span class="pre">QUERIES</span></code> empty to run all available queries</p></li>
+<li><p>Leave <code class="docutils literal notranslate"><span class="pre">WORKSPACES</span></code> empty to process all configured workspaces</p></li>
+<li><p>Use comma-separated values for multiple items: <code class="docutils literal notranslate"><span class="pre">query1,query2,query3</span></code></p></li>
+</ul>
+</section>
+</section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading"></a></h2>
+<p>All parameters are validated according to their types and constraints:</p>
+<ul class="simple">
+<li><p><strong>ISO 8601 durations</strong>: Must be valid durations (e.g., <code class="docutils literal notranslate"><span class="pre">P30D</span></code>, <code class="docutils literal notranslate"><span class="pre">PT24H</span></code>)</p></li>
+<li><p><strong>ISO 8601 datetimes</strong>: Must be valid timestamps (e.g., <code class="docutils literal notranslate"><span class="pre">2025-01-01T00:00:00Z</span></code>)</p></li>
+<li><p><strong>URLs</strong>: Must be valid HTTPS URLs for DCR endpoints</p></li>
+<li><p><strong>DCR IDs</strong>: Must match pattern <code class="docutils literal notranslate"><span class="pre">dcr-[a-f0-9]{32}</span></code> or test patterns</p></li>
+<li><p><strong>Integers</strong>: Must be positive integers within specified ranges</p></li>
+</ul>
+</section>
+<section id="legacy-compatibility">
+<h2>Legacy Compatibility<a class="headerlink" href="#legacy-compatibility" title="Link to this heading"></a></h2>
+<p>The following legacy environment variables are still supported but deprecated:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DCR_RULE_ID</span></code> → use <code class="docutils literal notranslate"><span class="pre">DCR_IMMUTABLE_ID</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DAYS_BACK</span></code> → use <code class="docutils literal notranslate"><span class="pre">LOOKBACK_PERIOD</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BATCH_HOURS</span></code> → use <code class="docutils literal notranslate"><span class="pre">BATCH_TIME_SIZE</span></code></p></li>
+</ul>
+</section>
+<section id="azure-authentication">
+<h2>Azure Authentication<a class="headerlink" href="#azure-authentication" title="Link to this heading"></a></h2>
+<p>Azure authentication is handled automatically by <code class="docutils literal notranslate"><span class="pre">DefaultAzureCredential</span></code> and does not require environment variables. However, you can provide these if needed:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">AZURE_CLIENT_ID</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AZURE_CLIENT_SECRET</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AZURE_TENANT_ID</span></code></p></li>
+</ul>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="cli-usage.html"><span class="std std-doc">CLI Usage Documentation</span></a></p></li>
+<li><p><a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration Guide</span></a></p></li>
+<li><p><a class="reference internal" href="troubleshooting.html"><span class="std std-doc">Troubleshooting</span></a></p></li>
+</ul>
+</section>
+</section>
 
 
            </div>
