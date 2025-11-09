@@ -67,6 +67,7 @@ azure.conf
 .env.development
 .env.test
 .env.production
+real-test/
 secrets/
 *.key
 *.pem

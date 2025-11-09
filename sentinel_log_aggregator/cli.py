@@ -397,7 +397,7 @@ async def run_aggregation(
                     job_id=job_id,
                     job_type="cli_batch_execution",
                     success=(summary.failed_queries == 0),
-                    total_records_processed=summary.total_records_uploaded,
+                    total_records_processed=summary.total_uploaded_records,
                     total_duration_seconds=summary.total_duration_seconds,
                 )
 
