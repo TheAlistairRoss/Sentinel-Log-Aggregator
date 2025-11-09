@@ -76,17 +76,55 @@ class QueryResult:
     """
 
     status: QueryStatus
-    data: List[Dict[str, Any]]
-    record_count: int
-    execution_time: float
-    workspace_id: str
-    query: str
+    data: List[Dict[str, Any]] = None
+    record_count: int = 0
+    execution_time: float = 0.0
+    workspace_id: str = ""
+    query: str = ""
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
     correlation_id: Optional[str] = None
     request_id: Optional[str] = None
     error_message: Optional[str] = None
     error_code: Optional[str] = None
+
+    def __init__(
+        self,
+        status: QueryStatus,
+        data: Optional[List[Dict[str, Any]]] = None,
+        record_count: int = 0,
+        execution_time: Optional[float] = None,
+        workspace_id: str = "",
+        query: str = "",
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None,
+        correlation_id: Optional[str] = None,
+        request_id: Optional[str] = None,
+        error_message: Optional[str] = None,
+        error_code: Optional[str] = None,
+        # Backward compatibility aliases
+        records: Optional[List[Dict[str, Any]]] = None,
+        execution_time_seconds: Optional[float] = None,
+    ):
+        """Initialize QueryResult with support for legacy parameter names."""
+        self.status = status
+        # Use 'records' if provided, otherwise 'data'
+        self.data = records if records is not None else (data if data is not None else [])
+        self.record_count = record_count
+        # Use 'execution_time_seconds' if provided, otherwise 'execution_time'
+        self.execution_time = (
+            execution_time_seconds
+            if execution_time_seconds is not None
+            else (execution_time if execution_time is not None else 0.0)
+        )
+        self.workspace_id = workspace_id
+        self.query = query
+        self.start_time = start_time
+        self.end_time = end_time
+        self.correlation_id = correlation_id
+        self.request_id = request_id
+        self.error_message = error_message
+        self.error_code = error_code
 
     @property
     def succeeded(self) -> bool:
@@ -102,6 +140,16 @@ class QueryResult:
     def workspace_alias(self) -> str:
         """Workspace ID for logging."""
         return self.workspace_id if self.workspace_id else "unknown"
+
+    @property
+    def records(self) -> List[Dict[str, Any]]:
+        """Alias for data property for backward compatibility."""
+        return self.data
+
+    @property
+    def execution_time_seconds(self) -> float:
+        """Alias for execution_time for backward compatibility."""
+        return self.execution_time
 
 
 @dataclass

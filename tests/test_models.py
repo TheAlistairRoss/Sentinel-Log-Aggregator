@@ -388,6 +388,8 @@ class TestSentinelQueryEngine:
                 record_count=2,
                 succeeded=True,
                 error_message=None,
+                workspace_id="test-workspace-id",
+                workspace_alias="test",
             )
         )
 

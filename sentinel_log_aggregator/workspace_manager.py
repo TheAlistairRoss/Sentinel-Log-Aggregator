@@ -261,6 +261,45 @@ class WorkspaceManager:
         matching = [ws for ws in self.workspaces if query_name in ws.queries_list]
         return WorkspaceSet(matching)
 
+    def with_query(self, query_name: str) -> "WorkspaceManager":
+        """
+        Filter workspaces that have a specific query configured.
+        Returns a new WorkspaceManager instance for method chaining.
+
+        Args:
+            query_name: Name of the query to filter by
+
+        Returns:
+            New WorkspaceManager with filtered workspaces
+        """
+        matching = [ws for ws in self.workspaces if query_name in ws.queries_list]
+        return WorkspaceManager(matching)
+
+    def with_workspace_ids(self, customer_ids: List[str]) -> "WorkspaceManager":
+        """
+        Filter workspaces by customer IDs.
+        Returns a new WorkspaceManager instance for method chaining.
+
+        Args:
+            customer_ids: List of workspace customer IDs to include
+
+        Returns:
+            New WorkspaceManager with filtered workspaces
+        """
+        matching = [ws for ws in self.workspaces if ws.customer_id in customer_ids]
+        return WorkspaceManager(matching)
+
+    def aggregation_only(self) -> "WorkspaceManager":
+        """
+        Filter to only include aggregation workspaces.
+        Returns a new WorkspaceManager instance for method chaining.
+
+        Returns:
+            New WorkspaceManager with only aggregation workspaces
+        """
+        matching = [ws for ws in self.workspaces if ws.aggregation_workspace]
+        return WorkspaceManager(matching)
+
     def for_subscription(self, subscription_id: str) -> WorkspaceSet:
         """
         Get workspaces in a specific subscription.
