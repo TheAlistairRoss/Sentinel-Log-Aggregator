@@ -200,10 +200,7 @@ class TestWorkspaceManager:
     def test_chaining_filters(self, sample_workspaces):
         """Test chaining multiple filters together."""
         manager = WorkspaceManager(sample_workspaces)
-        filtered = (
-            manager.aggregation_only()
-            .with_query("query_workspace_usage")
-        )
+        filtered = manager.aggregation_only().with_query("query_workspace_usage")
 
         assert len(filtered.workspaces) == 1
         assert filtered.workspaces[0].customer_id == "ws3-customer-id"

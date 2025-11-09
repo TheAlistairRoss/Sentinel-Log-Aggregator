@@ -203,7 +203,9 @@ class SentinelQueryEngine:
             query_start_time = time.time()
 
             self.logger.query_start(query_name, workspace_alias, time_range_str)
-            self.logger.debug(f"🔄 Sending query to Azure Monitor for workspace {workspace_alias}...")
+            self.logger.debug(
+                f"🔄 Sending query to Azure Monitor for workspace {workspace_alias}..."
+            )
 
             # Log query execution start to health logger
             if self.health_logger:
@@ -298,7 +300,9 @@ class SentinelQueryEngine:
                     self.logger.info(
                         f"No data to upload - Job: {self.job_correlation_id} | Query: {query_name} | Workspace: {workspace_alias}"
                     )
-                    self.logger.debug(f"⏭️  Skipping upload for query '{query_name}' - no data returned")
+                    self.logger.debug(
+                        f"⏭️  Skipping upload for query '{query_name}' - no data returned"
+                    )
             else:
                 # Query failed
                 execution.query_status = QueryStatus.FAILED.value
@@ -414,7 +418,9 @@ class SentinelQueryEngine:
 
         self.logger.info(f"🚀 Starting batch execution with job ID: {job_id}")
         self.logger.debug(f"📋 Batch ID: {batch_id}")
-        self.logger.debug(f"🔧 Client options: dry_run={getattr(self.client_options, 'dry_run', False)}")
+        self.logger.debug(
+            f"🔧 Client options: dry_run={getattr(self.client_options, 'dry_run', False)}"
+        )
 
         # Early validation of workspace configurations
         self.logger.debug(f"🔍 Validating {len(workspace_configs)} workspace configurations...")
@@ -441,9 +447,7 @@ class SentinelQueryEngine:
                 health_logger=self.health_logger,
             )
 
-            self.logger.debug(
-                f"✅ Time range calculated: {start_time} to {end_time}"
-            )
+            self.logger.debug(f"✅ Time range calculated: {start_time} to {end_time}")
             self.logger.debug(f"📏 Batch size: {batch_size}")
 
             # Calculate time batches
@@ -526,7 +530,9 @@ class SentinelQueryEngine:
                 else:
                     query_names_for_logging.append(str(q))
 
-            self.logger.debug(f"📝 Query names for workspace {workspace_alias}: {query_names_for_logging}")
+            self.logger.debug(
+                f"📝 Query names for workspace {workspace_alias}: {query_names_for_logging}"
+            )
 
             # Log workspace processing start
             if self.health_logger:
@@ -622,9 +628,7 @@ class SentinelQueryEngine:
                             f"Query file not found: '{query_file}'. Ensure the path is correct and relative to the current working directory.",
                         )
                         self.logger.debug(f"Current working directory: {Path.cwd()}")
-                        self.logger.debug(
-                            f"Absolute path attempted: {query_file.absolute()}"
-                        )
+                        self.logger.debug(f"Absolute path attempted: {query_file.absolute()}")
                         continue
                 else:
                     # Not a file path and not in AVAILABLE_QUERIES
@@ -675,7 +679,9 @@ class SentinelQueryEngine:
                             if batch_idx < 3 or batch_idx >= len(time_batches) - 3:
                                 # Log first 3 and last 3 batches in debug mode
                                 try:
-                                    batch_range_str = f"{batch_start.isoformat()} to {batch_end.isoformat()}"
+                                    batch_range_str = (
+                                        f"{batch_start.isoformat()} to {batch_end.isoformat()}"
+                                    )
                                 except (AttributeError, TypeError):
                                     batch_range_str = f"{batch_start} to {batch_end}"
 
@@ -748,7 +754,9 @@ class SentinelQueryEngine:
             )
 
             try:
-                self.logger.debug(f"🔄 Starting concurrent execution of {len(batch_tasks)} tasks...")
+                self.logger.debug(
+                    f"🔄 Starting concurrent execution of {len(batch_tasks)} tasks..."
+                )
                 results = await asyncio.gather(*batch_tasks, return_exceptions=True)
 
                 # Log any exceptions from the batch
@@ -767,7 +775,9 @@ class SentinelQueryEngine:
                         f"⚠️  {exception_count}/{len(results)} tasks in batch failed with exceptions"
                     )
 
-                self.logger.debug(f"✅ Batch {batch_num} completed: {len(results)} results processed")
+                self.logger.debug(
+                    f"✅ Batch {batch_num} completed: {len(results)} results processed"
+                )
 
                 # Check for critical syntax errors
                 recent_executions = self.execution_log[-len(batch_tasks) :]
@@ -924,7 +934,9 @@ class SentinelQueryEngine:
             self.logger.debug("⛔ Critical error flag was set during execution")
 
         self.logger.info(f"✅ Batch execution complete: {batch_id}")
-        self.logger.debug(f"📊 Final summary: {successful_queries}/{len(all_tasks)} queries successful")
+        self.logger.debug(
+            f"📊 Final summary: {successful_queries}/{len(all_tasks)} queries successful"
+        )
         return summary
 
     def get_execution_summary(self) -> Dict[str, Any]:
