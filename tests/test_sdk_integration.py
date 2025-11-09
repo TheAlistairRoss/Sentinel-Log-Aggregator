@@ -37,7 +37,6 @@ from sentinel_log_aggregator.exceptions import (
 from sentinel_log_aggregator.models import QueryExecution
 from sentinel_log_aggregator.query_registry import QueryRegistry
 
-
 # Test data directory
 TEST_DATA_DIR = Path(__file__).parent / "data"
 
