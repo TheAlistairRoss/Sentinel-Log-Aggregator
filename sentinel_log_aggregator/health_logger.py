@@ -541,6 +541,7 @@ class SentinelAggregatorHealthLogger:
                 "message": "Health logging is in console-only mode (not sent to Sentinel)",
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "warning": True,
+                "console_only": True,
             }
 
         # Generate test ID if not provided
@@ -580,6 +581,10 @@ class SentinelAggregatorHealthLogger:
             if upload_result.succeeded:
                 result["success"] = True
                 result["message"] = f"Test event sent successfully (Test ID: {test_id})"
+                result["log_record"] = test_record
+                result["stream_name"] = self.health_stream_name
+                result["dcr_endpoint"] = self.sentinel_client.dcr_endpoint if hasattr(self.sentinel_client, 'dcr_endpoint') else None
+                result["dcr_immutable_id"] = self.sentinel_client.dcr_immutable_id if hasattr(self.sentinel_client, 'dcr_immutable_id') else None
                 logger.info(f"✅ Health test event sent: {test_id}")
             else:
                 result["message"] = f"Failed to send test event: {upload_result.error_message}"

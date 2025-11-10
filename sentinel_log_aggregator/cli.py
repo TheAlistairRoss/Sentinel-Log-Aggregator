@@ -792,10 +792,34 @@ async def test_health_logging(
 
         if send_result.get("warning"):
             logger.warning(f"⚠️  {send_result['message']}")
+            if send_result.get("console_only"):
+                logger.info("💡 To send health logs to Sentinel, configure DCR settings:")
+                logger.info("   • Set --dcr-endpoint (e.g., https://your-dcr.ingest.monitor.azure.com)")
+                logger.info("   • Set --dcr-immutable-id (Data Collection Rule ID)")
+                logger.info("   • Or set environment variables: DCR_ENDPOINT and DCR_IMMUTABLE_ID")
             return True
 
         logger.info(f"✅ {send_result['message']}")
         test_id = send_result["test_id"]
+        
+        # Display detailed information about what was sent at INFO level
+        logger.info("")
+        logger.info("📋 Test Health Event Details:")
+        logger.info("=" * 70)
+        logger.info(f"  Test ID: {test_id}")
+        logger.info(f"  Stream Name: {send_result.get('stream_name', 'N/A')}")
+        if send_result.get("dcr_endpoint"):
+            logger.info(f"  DCR Endpoint: {send_result['dcr_endpoint']}")
+        if send_result.get("dcr_immutable_id"):
+            logger.info(f"  DCR Immutable ID: {send_result['dcr_immutable_id'][:40]}...")
+        
+        if send_result.get("log_record"):
+            logger.info("")
+            logger.info("  Log Record Sent:")
+            import json
+            logger.info(json.dumps(send_result["log_record"], indent=4))
+        logger.info("=" * 70)
+        logger.info("")
 
         # Verify if requested
         if args.verify:
@@ -831,7 +855,29 @@ async def test_health_logging(
 
             return verify_result["found"]
         else:
-            logger.info("💡 Use --verify flag to check if the test event was ingested successfully")
+            logger.info("")
+            logger.info("💡 Manual Verification Instructions:")
+            logger.info("=" * 70)
+            logger.info("To manually verify the test event was ingested:")
+            logger.info("")
+            logger.info("1. Navigate to your Log Analytics workspace in Azure Portal")
+            if workspaces:
+                logger.info(f"   Workspace: {workspaces[0].workspace_name if workspaces else 'N/A'}")
+                logger.info(f"   Workspace ID: {workspaces[0].customer_id if workspaces else 'N/A'}")
+            logger.info("")
+            logger.info("2. Go to Logs and run this KQL query:")
+            logger.info("")
+            logger.info(f"   {send_result.get('stream_name', 'Custom-SentinelAggregator-Health_CL')}")
+            logger.info(f"   | where JobId == '{test_id}'")
+            logger.info(f"   | where OperationName == 'HealthTest'")
+            logger.info(f"   | project TimeGenerated, OperationStatus, ExtendedProperties")
+            logger.info("")
+            logger.info("3. Expected result: One record with OperationStatus = 'TestEvent'")
+            logger.info("")
+            logger.info("💡 Or use --verify flag for automatic verification:")
+            logger.info(f"   sentinel-aggregator test-health --verify --max-wait 300")
+            logger.info("=" * 70)
+            logger.info("")
             return True
 
     except Exception as e:
