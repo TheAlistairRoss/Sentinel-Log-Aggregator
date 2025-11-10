@@ -266,7 +266,7 @@ if verify_result.get('ingestion_delay_seconds'):
 ### Health Logging in Console-Only Mode
 
 ```
-❌ Health logging is in console-only mode (not sent to Sentinel)
+⚠️ Health logging is in console-only mode (not sent to Sentinel). Ensure you check the workspace logs.
 ```
 
 **Solution**: Add the `--health-to-sentinel` flag to send health logs to Sentinel table.
