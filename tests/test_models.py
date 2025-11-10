@@ -400,9 +400,9 @@ class TestSentinelQueryEngine:
         # Mock successful upload response
         client.upload_logs = AsyncMock(
             return_value=MagicMock(
-                status=UploadStatus.SUCCESS, 
-                record_count=2, 
-                succeeded=True, 
+                status=UploadStatus.SUCCESS,
+                record_count=2,
+                succeeded=True,
                 error_message="",  # Empty string instead of None
                 upload_time=0.5,
             )
@@ -1604,7 +1604,7 @@ class TestDataSanitization:
 
     def test_sanitize_user_input_too_long(self):
         """Test user input that's too long."""
-        long_input = "a" * 2000  # Exceeds default max_length of 1000
+        long_input = "a" * 10001  # Exceeds default max_length of 10000
 
         with pytest.raises(SecurityError, match="exceeds maximum length"):
             sanitize_user_input(long_input)

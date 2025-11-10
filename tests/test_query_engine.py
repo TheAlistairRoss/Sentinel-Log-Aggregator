@@ -1510,7 +1510,7 @@ class TestDataSanitization:
 
     def test_sanitize_user_input_too_long(self):
         """Test user input that's too long."""
-        long_input = "a" * 2000  # Exceeds default max_length of 1000
+        long_input = "a" * 10001  # Exceeds default max_length of 10000
 
         with pytest.raises(SecurityError, match="exceeds maximum length"):
             sanitize_user_input(long_input)

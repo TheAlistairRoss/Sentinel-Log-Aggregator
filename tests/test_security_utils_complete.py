@@ -111,7 +111,7 @@ class TestSecurityUtilsComplete:
     def test_sanitize_user_input_max_length_line_283(self):
         """Test line 283: Maximum length validation in sanitize_user_input"""
         # Test input that exceeds maximum length (should hit line 283)
-        long_input = "x" * 1001  # Exceeds default max_length of 1000
+        long_input = "x" * 10001  # Exceeds default max_length of 10000
 
         with pytest.raises(SecurityError, match="exceeds maximum length"):
             sanitize_user_input(long_input)
