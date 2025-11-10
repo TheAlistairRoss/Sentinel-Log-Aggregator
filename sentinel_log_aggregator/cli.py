@@ -798,7 +798,9 @@ async def test_health_logging(
                     "   • Set --dcr-endpoint (e.g., https://your-dcr.ingest.monitor.azure.com)"
                 )
                 logger.info("   • Set --dcr-immutable-id (Data Collection Rule ID)")
-                logger.info("   • Or set environment variables: DCR_ENDPOINT and DCR_IMMUTABLE_ID")
+                logger.info(
+                    "   • Or set environment variables: DCR_LOGS_INGESTION_ENDPOINT and DCR_IMMUTABLE_ID"
+                )
             return True
 
         logger.info(f"✅ {send_result['message']}")
