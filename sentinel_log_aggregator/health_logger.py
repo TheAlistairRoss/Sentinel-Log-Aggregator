@@ -583,8 +583,16 @@ class SentinelAggregatorHealthLogger:
                 result["message"] = f"Test event sent successfully (Test ID: {test_id})"
                 result["log_record"] = test_record
                 result["stream_name"] = self.health_stream_name
-                result["dcr_endpoint"] = self.sentinel_client.dcr_endpoint if hasattr(self.sentinel_client, 'dcr_endpoint') else None
-                result["dcr_immutable_id"] = self.sentinel_client.dcr_immutable_id if hasattr(self.sentinel_client, 'dcr_immutable_id') else None
+                result["dcr_endpoint"] = (
+                    self.sentinel_client.dcr_endpoint
+                    if hasattr(self.sentinel_client, "dcr_endpoint")
+                    else None
+                )
+                result["dcr_immutable_id"] = (
+                    self.sentinel_client.dcr_immutable_id
+                    if hasattr(self.sentinel_client, "dcr_immutable_id")
+                    else None
+                )
                 logger.info(f"✅ Health test event sent: {test_id}")
             else:
                 result["message"] = f"Failed to send test event: {upload_result.error_message}"
@@ -651,8 +659,6 @@ class SentinelAggregatorHealthLogger:
             logger.info(f"🔍 Searching for test event: {test_id}")
 
             # Try multiple times with increasing delays
-            import asyncio
-
             wait_intervals = [5, 10, 15, 30, 60]  # seconds
             total_waited = 0
 

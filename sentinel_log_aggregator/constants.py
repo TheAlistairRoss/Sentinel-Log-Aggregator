@@ -12,7 +12,7 @@ Centralized configuration values and constants used throughout the application.
 HEALTH_TABLE_NAME = "SentinelAggregator_Health_CL"
 
 # DCR stream name for health log ingestion (must match DCR configuration)
-HEALTH_STREAM_NAME = "Custom-SentinelAggregator-Health_CL"
+HEALTH_STREAM_NAME = "Custom-SentinelAggregator_Health_CL"
 
 
 # ============================================================================
