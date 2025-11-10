@@ -106,7 +106,7 @@ class TestSentinelAggregatorHealthLogger:
 
         # Verify the data structure
         call_args = mock_sentinel_client.upload_logs.call_args
-        assert call_args[1]["stream_name"] == "Custom-SentinelAggregator-Health_CL"
+        assert call_args[1]["stream_name"] == "Custom-SentinelAggregator_Health_CL"
 
         data = call_args[1]["data"]
         assert len(data) == 1
@@ -435,7 +435,7 @@ class TestSentinelAggregatorHealthLogger:
             status=UploadStatus.SUCCESS,
             record_count=1,
             upload_time=0.1,
-            stream_name="Custom-SentinelAggregator-Health_CL",
+            stream_name="Custom-SentinelAggregator_Health_CL",
             dcr_immutable_id="dcr-test",
             error_message=None,
         )
@@ -464,7 +464,7 @@ class TestSentinelAggregatorHealthLogger:
             status=UploadStatus.SUCCESS,
             record_count=1,
             upload_time=0.1,
-            stream_name="Custom-SentinelAggregator-Health_CL",
+            stream_name="Custom-SentinelAggregator_Health_CL",
             dcr_immutable_id="dcr-test",
             error_message=None,
         )
@@ -514,7 +514,7 @@ class TestSentinelAggregatorHealthLogger:
             status=UploadStatus.FAILED,
             record_count=0,
             upload_time=0.1,
-            stream_name="Custom-SentinelAggregator-Health_CL",
+            stream_name="Custom-SentinelAggregator_Health_CL",
             dcr_immutable_id="dcr-test",
             error_message="Upload failed",
         )
@@ -537,7 +537,7 @@ class TestSentinelAggregatorHealthLogger:
             status=UploadStatus.SUCCESS,
             record_count=1,
             upload_time=0.1,
-            stream_name="Custom-SentinelAggregator-Health_CL",
+            stream_name="Custom-SentinelAggregator_Health_CL",
             dcr_immutable_id="dcr-test",
             error_message=None,
         )
