@@ -1723,21 +1723,14 @@
             <span class="k">if</span> <span class="n">extended_properties</span><span class="p">:</span>
                 <span class="n">health_record</span><span class="p">[</span><span class="s2">&quot;ExtendedProperties&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">extended_properties</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
 
-            <span class="c1"># Log to console (always)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_log_health_to_console</span><span class="p">(</span><span class="n">health_record</span><span class="p">,</span> <span class="n">extended_properties</span><span class="p">)</span>
-
-            <span class="c1"># Upload to Log Analytics only if health_to_sentinel is enabled</span>
+            <span class="c1"># Upload to Log Analytics if health_to_sentinel is enabled</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">health_to_sentinel</span><span class="p">:</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">sentinel_client</span><span class="o">.</span><span class="n">upload_logs</span><span class="p">(</span>
                     <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">health_record</span><span class="p">],</span> <span class="n">stream_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">health_stream_name</span>
                 <span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Health event sent to Sentinel: </span><span class="si">{</span><span class="n">operation_name</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">operation_status</span><span class="si">}</span><span class="s2"> (Job: </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">)&quot;</span>
-                <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Health event logged to console only: </span><span class="si">{</span><span class="n">operation_name</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">operation_status</span><span class="si">}</span><span class="s2"> (Job: </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">)&quot;</span>
-                <span class="p">)</span>
+
+            <span class="c1"># Log single consolidated JSON output</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_health_to_console</span><span class="p">(</span><span class="n">health_record</span><span class="p">,</span> <span class="n">extended_properties</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="c1"># Log health logging errors but don&#39;t fail the main operation</span>
@@ -1748,18 +1741,17 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">health_record</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">extended_properties</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Log health event to console as info message.</span>
+<span class="sd">        Log health event to console with both human-readable INFO and structured JSON DEBUG.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            health_record: Health record data</span>
 <span class="sd">            extended_properties: Extended properties for additional context</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Format a human-readable health message</span>
         <span class="n">operation_name</span> <span class="o">=</span> <span class="n">health_record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;OperationName&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">)</span>
         <span class="n">operation_status</span> <span class="o">=</span> <span class="n">health_record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;OperationStatus&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">)</span>
         <span class="n">job_id</span> <span class="o">=</span> <span class="n">health_record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;JobId&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)[:</span><span class="mi">8</span><span class="p">]</span>  <span class="c1"># Truncate for readability</span>
 
-        <span class="c1"># Build context information</span>
+        <span class="c1"># Build context information for INFO message</span>
         <span class="n">context_parts</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">if</span> <span class="n">workspace_id</span> <span class="o">:=</span> <span class="n">health_record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;WorkspaceId&quot;</span><span class="p">):</span>
@@ -1779,7 +1771,7 @@
 
         <span class="n">context_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot; (</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">context_parts</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">if</span> <span class="n">context_parts</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
 
-        <span class="c1"># Format the log message</span>
+        <span class="c1"># Log human-readable INFO message</span>
         <span class="n">health_message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;🏥 </span><span class="si">{</span><span class="n">operation_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">operation_status</span><span class="si">}</span><span class="s2"> [Job: </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">]</span><span class="si">{</span><span class="n">context_str</span><span class="si">}</span><span class="s2">&quot;</span>
 
         <span class="c1"># Use appropriate log level based on status</span>
@@ -1789,6 +1781,12 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">health_message</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">health_message</span><span class="p">)</span>
+
+        <span class="c1"># Log structured JSON at DEBUG level for detailed analysis</span>
+        <span class="c1"># Create a clean record for logging (remove Time as it&#39;s handled by log formatter)</span>
+        <span class="n">debug_record</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">health_record</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;Time&quot;</span><span class="p">}</span>
+        <span class="n">debug_record</span><span class="p">[</span><span class="s2">&quot;to_sentinel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">health_to_sentinel</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">debug_record</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">))</span>
 
 <div class="viewcode-block" id="SentinelAggregatorHealthLogger.verify_health_table_setup">
 <a class="viewcode-back" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.verify_health_table_setup">[docs]</a>

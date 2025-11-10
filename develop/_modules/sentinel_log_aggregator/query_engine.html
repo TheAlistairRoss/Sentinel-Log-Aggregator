@@ -1346,6 +1346,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">gc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
@@ -1505,6 +1506,7 @@
         <span class="n">end_time</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>
         <span class="n">execution_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">workspace_alias</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">workspace_resource_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QueryExecution</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Execute a single query and upload results immediately.</span>
@@ -1518,6 +1520,7 @@
 <span class="sd">            end_time: Query time range end</span>
 <span class="sd">            execution_id: Unique execution identifier</span>
 <span class="sd">            workspace_alias: Short workspace identifier for logging</span>
+<span class="sd">            workspace_resource_id: Full Azure resource ID for the workspace</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            QueryExecution tracking object</span>
@@ -1550,6 +1553,23 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⏰ Time range: </span><span class="si">{</span><span class="n">time_range_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📤 Destination stream: </span><span class="si">{</span><span class="n">destination_stream</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
+        <span class="c1"># Log comprehensive query execution details as single JSON line</span>
+        <span class="n">query_execution_details</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;operation&quot;</span><span class="p">:</span> <span class="s2">&quot;query_execution&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;workspace_resource_id&quot;</span><span class="p">:</span> <span class="n">workspace_resource_id</span><span class="p">,</span>
+            <span class="s2">&quot;workspace_id&quot;</span><span class="p">:</span> <span class="n">workspace_id</span><span class="p">,</span>
+            <span class="s2">&quot;workspace_alias&quot;</span><span class="p">:</span> <span class="n">workspace_alias</span><span class="p">,</span>
+            <span class="s2">&quot;query_name&quot;</span><span class="p">:</span> <span class="n">query_name</span><span class="p">,</span>
+            <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">start_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="s2">&quot;isoformat&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">end_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="s2">&quot;isoformat&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">end_time</span><span class="p">),</span>
+            <span class="s2">&quot;destination_stream&quot;</span><span class="p">:</span> <span class="n">destination_stream</span><span class="p">,</span>
+            <span class="s2">&quot;execution_id&quot;</span><span class="p">:</span> <span class="n">execution_id</span><span class="p">,</span>
+            <span class="s2">&quot;kql_query&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">query_execution_details</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">))</span>
+
         <span class="n">query_response</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">transformed_data</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -1558,18 +1578,15 @@
             <span class="n">query_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">query_start</span><span class="p">(</span><span class="n">query_name</span><span class="p">,</span> <span class="n">workspace_alias</span><span class="p">,</span> <span class="n">time_range_str</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;🔄 Sending query to Azure Monitor for workspace </span><span class="si">{</span><span class="n">workspace_alias</span><span class="si">}</span><span class="s2">...&quot;</span>
-            <span class="p">)</span>
 
             <span class="c1"># Log query execution start to health logger</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">health_logger</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📝 Logging query execution start to health logger...&quot;</span><span class="p">)</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">health_logger</span><span class="o">.</span><span class="n">log_query_execution</span><span class="p">(</span>
                     <span class="n">job_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">job_correlation_id</span><span class="p">,</span>
                     <span class="n">query_execution</span><span class="o">=</span><span class="n">execution</span><span class="p">,</span>
                     <span class="n">workspace_config</span><span class="o">=</span><span class="n">WorkspaceConfig</span><span class="p">(</span>
-                        <span class="n">resource_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;/subscriptions/unknown/resourceGroups/unknown/providers/Microsoft.OperationalInsights/workspaces/</span><span class="si">{</span><span class="n">workspace_alias</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="n">resource_id</span><span class="o">=</span><span class="n">workspace_resource_id</span>
+                        <span class="ow">or</span> <span class="sa">f</span><span class="s2">&quot;/subscriptions/unknown/resourceGroups/unknown/providers/Microsoft.OperationalInsights/workspaces/</span><span class="si">{</span><span class="n">workspace_alias</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                         <span class="n">customer_id</span><span class="o">=</span><span class="n">workspace_id</span><span class="p">,</span>
                         <span class="n">queries_list</span><span class="o">=</span><span class="p">[],</span>
                         <span class="n">parameters</span><span class="o">=</span><span class="p">{},</span>
@@ -1858,13 +1875,6 @@
             <span class="n">workspace_id</span> <span class="o">=</span> <span class="n">workspace</span><span class="o">.</span><span class="n">customer_id</span>
             <span class="n">queries_list</span> <span class="o">=</span> <span class="n">workspace</span><span class="o">.</span><span class="n">queries_list</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;🔍 Processing workspace: </span><span class="si">{</span><span class="n">workspace_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">*** with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">queries_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> queries&quot;</span>
-            <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;📋 Query configuration types: </span><span class="si">{</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">queries_list</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-
             <span class="c1"># Extract workspace name from resource ID with validation</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">resource_parts</span> <span class="o">=</span> <span class="n">workspace</span><span class="o">.</span><span class="n">resource_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
@@ -1883,6 +1893,13 @@
                     <span class="sa">f</span><span class="s2">&quot;Failed to extract workspace name from resource ID: </span><span class="si">{</span><span class="n">workspace</span><span class="o">.</span><span class="n">resource_id</span><span class="si">}</span><span class="s2">, using workspace ID as alias&quot;</span>
                 <span class="p">)</span>
                 <span class="n">workspace_alias</span> <span class="o">=</span> <span class="n">workspace_id</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;🔍 Processing workspace: </span><span class="si">{</span><span class="n">workspace_alias</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">queries_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> queries&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;📋 Query configuration types: </span><span class="si">{</span><span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">queries_list</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
 
             <span class="c1"># Extract query names for health logging - handle both string and dict formats</span>
             <span class="n">query_names_for_logging</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2068,6 +2085,7 @@
                                 <span class="n">end_time</span><span class="o">=</span><span class="n">batch_end</span><span class="p">,</span>
                                 <span class="n">execution_id</span><span class="o">=</span><span class="n">execution_id</span><span class="p">,</span>
                                 <span class="n">workspace_alias</span><span class="o">=</span><span class="n">workspace_alias</span><span class="p">,</span>
+                                <span class="n">workspace_resource_id</span><span class="o">=</span><span class="n">workspace</span><span class="o">.</span><span class="n">resource_id</span><span class="p">,</span>
                             <span class="p">)</span>
                             <span class="n">all_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 
