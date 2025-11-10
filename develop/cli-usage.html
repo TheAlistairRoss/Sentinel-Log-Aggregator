@@ -246,11 +246,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#id15">Configuration files</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#bash-scripting">Bash scripting</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#powershell-scripting">PowerShell scripting</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ci-cd-integration">CI/CD integration</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#azure-devops-pipeline">Azure DevOps Pipeline</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#github-actions">GitHub Actions</a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#error-handling">Error handling</a><ul>
@@ -400,14 +395,48 @@
 <li class="toctree-l2"><a class="reference internal" href="development.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="development.html#initial-setup">Initial Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="development.html#clone-and-setup-repository">1. Clone and Setup Repository</a></li>
-<li class="toctree-l3"><a class="reference internal" href="development.html#install-development-tools">2. Install Development Tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#install-development-dependencies">2. Install Development Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#install-pre-commit-hooks-critical">3. Install Pre-Commit Hooks (Critical!)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#alternative-quick-setup-script">4. Alternative: Quick Setup Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="development.html#configure-environment">3. Configure Environment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="development.html#validate-setup">4. Validate Setup</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#understanding-pre-commit-hooks">Understanding Pre-Commit Hooks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="development.html#what-runs-on-every-commit">What Runs on Every Commit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="development.html#code-quality-always-run">Code Quality (Always Run)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#security-always-run">Security (Always Run)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#file-checks-always-run">File Checks (Always Run)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#commit-message-commit-msg-hook">Commit Message (commit-msg hook)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#tests-pre-push-only">Tests (Pre-Push Only)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#pre-commit-commands">Pre-Commit Commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#typical-pre-commit-output">Typical Pre-Commit Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#common-pre-commit-issues">Common Pre-Commit Issues</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="development.html#issue-pre-commit-not-found">Issue: “pre-commit not found”</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#issue-hooks-failing-on-first-run">Issue: Hooks failing on first run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#issue-black-isort-formatting-failures">Issue: Black/isort formatting failures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#issue-security-scan-false-positives">Issue: Security scan false positives</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#issue-slow-pre-commit">Issue: Slow pre-commit</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="development.html#development-workflow">Development Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="development.html#development-helper-scripts">Development Helper Scripts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="development.html#scripts-setup-dev-ps1-windows-powershell">1. <code class="docutils literal notranslate"><span class="pre">scripts/setup-dev.ps1</span></code> (Windows PowerShell)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#scripts-dev-py-cross-platform-python">2. <code class="docutils literal notranslate"><span class="pre">scripts/dev.py</span></code> (Cross-Platform Python)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#available-commands-reference">Available Commands Reference</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="development.html#code-quality-standards">Code Quality Standards</a></li>
-<li class="toctree-l3"><a class="reference internal" href="development.html#pre-commit-hooks">Pre-commit Hooks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#pre-commit-hooks">Pre-commit Hooks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="development.html#when-pre-commit-runs">When Pre-Commit Runs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#what-happens-without-pre-commit">What Happens Without Pre-Commit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#pre-commit-vs-ci-cd">Pre-Commit vs CI/CD</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="development.html#testing-strategy">Testing Strategy</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="development.html#unit-tests">Unit Tests</a></li>
 <li class="toctree-l4"><a class="reference internal" href="development.html#integration-tests">Integration Tests</a></li>
@@ -2133,108 +2162,6 @@ run_aggregation<span class="o">()</span><span class="w"> </span><span class="o">
 <span class="p">}</span>
 </pre></div>
 </div>
-</section>
-<section id="ci-cd-integration">
-<h3>CI/CD integration<a class="headerlink" href="#ci-cd-integration" title="Link to this heading"></a></h3>
-<section id="azure-devops-pipeline">
-<h4>Azure DevOps Pipeline<a class="headerlink" href="#azure-devops-pipeline" title="Link to this heading"></a></h4>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># azure-pipelines.yml</span>
-<span class="nt">trigger</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main</span>
-
-<span class="nt">variables</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">pythonVersion</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.11&#39;</span>
-
-<span class="nt">stages</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">stage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Validate</span>
-<span class="w">  </span><span class="nt">jobs</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ValidateConfig</span>
-<span class="w">    </span><span class="nt">pool</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">vmImage</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ubuntu-latest&#39;</span>
-<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">task</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UsePythonVersion@0</span>
-<span class="w">      </span><span class="nt">inputs</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">versionSpec</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;$(pythonVersion)&#39;</span>
-<span class="w">    </span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">        </span><span class="no">pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git</span>
-<span class="w">      </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Install</span><span class="nv"> </span><span class="s">package&#39;</span>
-<span class="w">    </span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">        </span><span class="no">sentinel-aggregator validate --workspace-config workspaces.yaml</span>
-<span class="w">      </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Validate</span><span class="nv"> </span><span class="s">configuration&#39;</span>
-
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">stage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deploy</span>
-<span class="w">  </span><span class="nt">dependsOn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Validate</span>
-<span class="w">  </span><span class="nt">jobs</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RunAggregation</span>
-<span class="w">    </span><span class="nt">pool</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">vmImage</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ubuntu-latest&#39;</span>
-<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">        </span><span class="no">sentinel-aggregator health --workspace-config workspaces.yaml</span>
-<span class="w">        </span><span class="no">sentinel-aggregator run --workspace-config workspaces.yaml --lookback-period &quot;P1D&quot;</span>
-<span class="w">      </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Run</span><span class="nv"> </span><span class="s">aggregation&#39;</span>
-<span class="w">      </span><span class="nt">env</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">DCR_LOGS_INGESTION_ENDPOINT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$(DCR_ENDPOINT)</span>
-<span class="w">        </span><span class="nt">DCR_RULE_ID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$(DCR_RULE_ID)</span>
-<span class="w">        </span><span class="nt">AZURE_CLIENT_ID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$(AZURE_CLIENT_ID)</span>
-<span class="w">        </span><span class="nt">AZURE_CLIENT_SECRET</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$(AZURE_CLIENT_SECRET)</span>
-<span class="w">        </span><span class="nt">AZURE_TENANT_ID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$(AZURE_TENANT_ID)</span>
-</pre></div>
-</div>
-</section>
-<section id="github-actions">
-<h4>GitHub Actions<a class="headerlink" href="#github-actions" title="Link to this heading"></a></h4>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># .github/workflows/sentinel-aggregation.yml</span>
-<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Sentinel Log Aggregation</span>
-
-<span class="nt">on</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">schedule</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">cron</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;0</span><span class="nv"> </span><span class="s">2</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&#39;</span><span class="w">  </span><span class="c1"># Daily at 2 AM</span>
-<span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span>
-
-<span class="nt">jobs</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">aggregate</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
-<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
-<span class="w">    </span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Set up Python</span>
-<span class="w">      </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-python@v4</span>
-<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.11&#39;</span>
-<span class="w">    </span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install dependencies</span>
-<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">        </span><span class="no">pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git</span>
-<span class="w">    </span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Validate configuration</span>
-<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">        </span><span class="no">sentinel-aggregator validate --workspace-config workspaces.yaml</span>
-<span class="w">    </span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run health check</span>
-<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">        </span><span class="no">sentinel-aggregator health --workspace-config workspaces.yaml</span>
-<span class="w">      </span><span class="nt">env</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">DCR_LOGS_INGESTION_ENDPOINT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.DCR_ENDPOINT }}</span>
-<span class="w">        </span><span class="nt">DCR_RULE_ID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.DCR_RULE_ID }}</span>
-<span class="w">        </span><span class="nt">AZURE_CLIENT_ID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.AZURE_CLIENT_ID }}</span>
-<span class="w">        </span><span class="nt">AZURE_CLIENT_SECRET</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.AZURE_CLIENT_SECRET }}</span>
-<span class="w">        </span><span class="nt">AZURE_TENANT_ID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.AZURE_TENANT_ID }}</span>
-<span class="w">    </span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run aggregation</span>
-<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">        </span><span class="no">sentinel-aggregator run --workspace-config workspaces.yaml --days-back 1</span>
-<span class="w">      </span><span class="nt">env</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">DCR_LOGS_INGESTION_ENDPOINT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.DCR_ENDPOINT }}</span>
-<span class="w">        </span><span class="nt">DCR_RULE_ID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.DCR_RULE_ID }}</span>
-<span class="w">        </span><span class="nt">AZURE_CLIENT_ID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.AZURE_CLIENT_ID }}</span>
-<span class="w">        </span><span class="nt">AZURE_CLIENT_SECRET</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.AZURE_CLIENT_SECRET }}</span>
-<span class="w">        </span><span class="nt">AZURE_TENANT_ID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.AZURE_TENANT_ID }}</span>
-</pre></div>
-</div>
-</section>
 </section>
 </section>
 <section id="error-handling">

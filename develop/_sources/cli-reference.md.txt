@@ -10,6 +10,9 @@ Complete command-line interface reference for Sentinel Log Aggregator.
   - [run](#run-command)
   - [validate](#validate-command)
   - [health](#health-command)
+  - [test-health](#test-health-command)
+  - [verify-health](#verify-health-command)
+  - [query-status](#query-status-command)
 - [Environment Variables](#environment-variables)
 - [Exit Codes](#exit-codes)
 - [Examples](#examples)
@@ -447,7 +450,7 @@ The validate command checks:
 
 ### `health` Command
 
-Check health logging configuration for workspaces.
+Check health logging configuration and table accessibility for workspaces.
 
 #### Syntax
 
@@ -546,6 +549,429 @@ If health check fails:
        --role "Log Analytics Reader" \
        --scope /subscriptions/.../workspaces/YOUR-WORKSPACE
    ```
+
+---
+
+### `test-health` Command
+
+Send a test event to health logging table and optionally verify ingestion.
+
+#### Syntax
+
+```bash
+sentinel-aggregator test-health --workspace-config PATH [OPTIONS]
+```
+
+#### Required Arguments
+
+##### `--workspace-config PATH` / `-w PATH`
+
+Path to the workspace configuration YAML file.
+
+**Required**: Yes
+
+**Example**:
+```bash
+sentinel-aggregator test-health --workspace-config workspaces.yaml
+sentinel-aggregator test-health -w config/prod-workspaces.yaml
+```
+
+#### Optional Arguments
+
+##### `--test-id ID`
+
+Custom test identifier for tracking the test event.
+
+**Default**: Auto-generated UUID
+
+**Example**:
+```bash
+sentinel-aggregator test-health -w workspaces.yaml --test-id "manual-test-001"
+```
+
+##### `--verify`
+
+Verify that the test event was successfully ingested after sending.
+
+**Default**: `False` (send only, no verification)
+
+**Example**:
+```bash
+# Send and verify
+sentinel-aggregator test-health -w workspaces.yaml --verify
+
+# Send only (no verification)
+sentinel-aggregator test-health -w workspaces.yaml
+```
+
+##### `--max-wait SECONDS`
+
+Maximum seconds to wait for verification when `--verify` is used.
+
+**Type**: Integer
+
+**Default**: `300` (5 minutes)
+
+**Range**: 30-600 recommended
+
+**Example**:
+```bash
+# Wait up to 2 minutes for verification
+sentinel-aggregator test-health -w workspaces.yaml --verify --max-wait 120
+
+# Wait up to 10 minutes for verification
+sentinel-aggregator test-health -w workspaces.yaml --verify --max-wait 600
+```
+
+##### `--health-workspace-id ID`
+
+Workspace ID where health table is located (if different from first data workspace).
+
+**Format**: GUID
+
+**Example**:
+```bash
+sentinel-aggregator test-health -w workspaces.yaml \
+    --health-workspace-id aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
+```
+
+##### `--health-dcr-endpoint URL`
+
+DCR endpoint for health logging (if different from main DCR).
+
+**Format**: HTTPS URL
+
+**Example**:
+```bash
+sentinel-aggregator test-health -w workspaces.yaml \
+    --health-dcr-endpoint https://health-dce.eastus2.ingest.monitor.azure.com
+```
+
+##### `--health-dcr-immutable-id ID`
+
+DCR immutable ID for health logging (if different from main DCR).
+
+**Format**: dcr-* string
+
+**Example**:
+```bash
+sentinel-aggregator test-health -w workspaces.yaml \
+    --health-dcr-immutable-id dcr-health123
+```
+
+#### Exit Codes
+
+- `0`: Test event sent successfully (and verified if `--verify` used)
+- `1`: Test failed (send failed or verification failed)
+
+#### Output
+
+**Send only (no verification)**:
+```bash
+$ sentinel-aggregator test-health -w workspaces.yaml --test-id test-001
+🧪 Testing health logging...
+📤 Sending test health event...
+✅ Test event sent successfully
+   Test ID: test-001
+   Correlation ID: 12345678-1234-1234-1234-123456789012
+```
+
+**Send and verify (success)**:
+```bash
+$ sentinel-aggregator test-health -w workspaces.yaml --verify
+🧪 Testing health logging...
+📤 Sending test health event...
+✅ Test event sent successfully
+   Test ID: a1b2c3d4-5678-90ab-cdef-123456789abc
+🔍 Verifying test event ingestion...
+⏳ Waiting for event to appear in health table (max 300 seconds)...
+✅ Test event verified in health table
+   Found after: 45 seconds
+   Event timestamp: 2025-11-10T14:30:00Z
+```
+
+**Verification failure**:
+```bash
+$ sentinel-aggregator test-health -w workspaces.yaml --verify --max-wait 60
+🧪 Testing health logging...
+📤 Sending test health event...
+✅ Test event sent successfully
+   Test ID: test-002
+🔍 Verifying test event ingestion...
+⏳ Waiting for event to appear in health table (max 60 seconds)...
+❌ Test event NOT found in health table after 60 seconds
+💡 This may be due to:
+   • Ingestion delay (can take 5-10 minutes)
+   • DCR configuration issues
+   • Workspace query permissions
+Try running verification separately: sentinel-aggregator verify-health --test-id test-002
+```
+
+#### Examples
+
+```bash
+# Simple test (send only)
+sentinel-aggregator test-health -w workspaces.yaml
+
+# Test with custom ID
+sentinel-aggregator test-health -w workspaces.yaml --test-id "prod-health-check-001"
+
+# Send and verify (recommended)
+sentinel-aggregator test-health -w workspaces.yaml --verify
+
+# Send and verify with extended wait time
+sentinel-aggregator test-health -w workspaces.yaml --verify --max-wait 600
+
+# Test with separate health DCR
+sentinel-aggregator test-health -w workspaces.yaml \
+    --health-dcr-endpoint https://health-dce.eastus2.ingest.monitor.azure.com \
+    --health-dcr-immutable-id dcr-health123 \
+    --verify
+```
+
+#### Use Cases
+
+1. **Manual Health Check**: Verify health logging is working correctly
+2. **Post-Deployment Validation**: Confirm health logging after infrastructure changes
+3. **Troubleshooting**: Test health logging when aggregation issues occur
+4. **Monitoring Setup**: Validate health monitoring configuration
+5. **Automated Tests**: Include in CI/CD pipelines for infrastructure validation
+
+---
+
+### `verify-health` Command
+
+Verify that a previously sent test event has been ingested into the health table.
+
+#### Syntax
+
+```bash
+sentinel-aggregator verify-health --workspace-config PATH --test-id ID [OPTIONS]
+```
+
+#### Required Arguments
+
+##### `--workspace-config PATH` / `-w PATH`
+
+Path to the workspace configuration YAML file.
+
+**Required**: Yes
+
+##### `--test-id ID`
+
+Test identifier to search for in the health table.
+
+**Required**: Yes
+
+**Example**:
+```bash
+sentinel-aggregator verify-health -w workspaces.yaml --test-id "test-001"
+```
+
+#### Optional Arguments
+
+##### `--max-wait SECONDS`
+
+Maximum seconds to wait for the event to appear.
+
+**Type**: Integer
+
+**Default**: `300` (5 minutes)
+
+**Example**:
+```bash
+sentinel-aggregator verify-health -w workspaces.yaml \
+    --test-id test-001 \
+    --max-wait 600
+```
+
+##### `--health-workspace-id ID`
+
+Workspace ID where health table is located.
+
+**Format**: GUID
+
+##### `--health-dcr-endpoint URL`
+
+DCR endpoint for health logging (if different from main DCR).
+
+##### `--health-dcr-immutable-id ID`
+
+DCR immutable ID for health logging (if different from main DCR).
+
+#### Exit Codes
+
+- `0`: Test event found in health table
+- `1`: Test event not found or verification failed
+
+#### Output
+
+**Success**:
+```bash
+$ sentinel-aggregator verify-health -w workspaces.yaml --test-id test-001
+🔍 Verifying test event ingestion...
+⏳ Waiting for event to appear in health table (max 300 seconds)...
+✅ Test event found in health table
+   Event timestamp: 2025-11-10T14:35:00Z
+   Time since send: 67 seconds
+```
+
+**Not found**:
+```bash
+$ sentinel-aggregator verify-health -w workspaces.yaml --test-id test-001 --max-wait 60
+🔍 Verifying test event ingestion...
+⏳ Waiting for event to appear in health table (max 60 seconds)...
+❌ Test event NOT found after 60 seconds
+```
+
+#### Examples
+
+```bash
+# Verify specific test event
+sentinel-aggregator verify-health -w workspaces.yaml --test-id "test-001"
+
+# Verify with extended wait
+sentinel-aggregator verify-health -w workspaces.yaml \
+    --test-id "test-001" \
+    --max-wait 600
+
+# Verify in specific workspace
+sentinel-aggregator verify-health -w workspaces.yaml \
+    --test-id "test-001" \
+    --health-workspace-id aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
+```
+
+#### Use Cases
+
+1. **Delayed Verification**: Check test event after waiting for ingestion delay
+2. **Separate Verification**: Verify test sent in different session
+3. **Troubleshooting**: Confirm event ingestion as part of debugging
+4. **Automated Monitoring**: Schedule verification checks for health events
+
+---
+
+### `query-status` Command
+
+Check the execution status of queries based on health logging data.
+
+#### Syntax
+
+```bash
+sentinel-aggregator query-status --workspace-config PATH [OPTIONS]
+```
+
+#### Required Arguments
+
+##### `--workspace-config PATH` / `-w PATH`
+
+Path to the workspace configuration YAML file.
+
+**Required**: Yes
+
+**Example**:
+```bash
+sentinel-aggregator query-status --workspace-config workspaces.yaml
+```
+
+#### Optional Arguments
+
+##### `--query-name NAME`
+
+Filter status to specific query name.
+
+**Example**:
+```bash
+sentinel-aggregator query-status -w workspaces.yaml \
+    --query-name query_incident_summary
+```
+
+##### `--days-back N`
+
+Number of days of history to check.
+
+**Type**: Integer
+
+**Default**: `7`
+
+**Example**:
+```bash
+# Last 30 days
+sentinel-aggregator query-status -w workspaces.yaml --days-back 30
+
+# Last 24 hours
+sentinel-aggregator query-status -w workspaces.yaml --days-back 1
+```
+
+##### `--health-workspace-id ID`
+
+Workspace ID where health table is located.
+
+**Format**: GUID
+
+##### `--health-dcr-endpoint URL`
+
+DCR endpoint for health logging (if different from main DCR).
+
+##### `--health-dcr-immutable-id ID`
+
+DCR immutable ID for health logging (if different from main DCR).
+
+#### Exit Codes
+
+- `0`: Query status retrieved successfully
+- `1`: Failed to retrieve status
+
+#### Output
+
+```bash
+$ sentinel-aggregator query-status -w workspaces.yaml --days-back 7
+📊 Query Execution Status (Last 7 days)
+
+Query: query_incident_summary
+  Total Executions: 168
+  ✅ Successful: 165 (98.2%)
+  ❌ Failed: 3 (1.8%)
+  ⏱️  Avg Duration: 12.3s
+  📊 Avg Records: 450
+
+Query: query_alert_triage
+  Total Executions: 168
+  ✅ Successful: 168 (100.0%)
+  ❌ Failed: 0 (0.0%)
+  ⏱️  Avg Duration: 8.7s
+  📊 Avg Records: 120
+
+Recent Failures:
+  • query_incident_summary @ 2025-11-09T14:23:00Z
+    Error: Timeout after 300 seconds
+  • query_incident_summary @ 2025-11-08T02:15:00Z
+    Error: Workspace throttled (429)
+```
+
+#### Examples
+
+```bash
+# Check all query status (last 7 days)
+sentinel-aggregator query-status -w workspaces.yaml
+
+# Check specific query
+sentinel-aggregator query-status -w workspaces.yaml \
+    --query-name query_incident_summary
+
+# Check last 30 days
+sentinel-aggregator query-status -w workspaces.yaml --days-back 30
+
+# Check with detailed logging
+sentinel-aggregator --log-level DEBUG query-status -w workspaces.yaml
+```
+
+#### Use Cases
+
+1. **Monitoring**: Track query execution success rates
+2. **Performance Analysis**: Identify slow queries
+3. **Troubleshooting**: Find recent query failures
+4. **Capacity Planning**: Analyze query load and duration
+5. **SLA Tracking**: Monitor query reliability metrics
 
 ---
 
@@ -788,6 +1214,7 @@ WantedBy=multi-user.target
 
 - **[Quick Start - CLI](quickstart-cli.md)** - Get started in 5 minutes
 - **[CLI Advanced Usage](cli-advanced.md)** - Advanced CLI patterns
+- **[Health Test Usage](health-test-usage.md)** - Detailed health testing guide
 - **[Workspace Configuration](workspace-configuration.md)** - Configure workspaces
 - **[Authentication Guide](authentication.md)** - Set up authentication
 - **[Troubleshooting](troubleshooting.md)** - Common issues and solutions

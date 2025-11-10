@@ -244,11 +244,6 @@
 <li class="toctree-l2"><a class="reference internal" href="cli-usage.html#id15">Configuration files</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="cli-usage.html#bash-scripting">Bash scripting</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli-usage.html#powershell-scripting">PowerShell scripting</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#ci-cd-integration">CI/CD integration</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#azure-devops-pipeline">Azure DevOps Pipeline</a></li>
-<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#github-actions">GitHub Actions</a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cli-usage.html#error-handling">Error handling</a><ul>
@@ -398,14 +393,48 @@
 <li class="toctree-l2"><a class="reference internal" href="development.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="development.html#initial-setup">Initial Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="development.html#clone-and-setup-repository">1. Clone and Setup Repository</a></li>
-<li class="toctree-l3"><a class="reference internal" href="development.html#install-development-tools">2. Install Development Tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#install-development-dependencies">2. Install Development Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#install-pre-commit-hooks-critical">3. Install Pre-Commit Hooks (Critical!)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#alternative-quick-setup-script">4. Alternative: Quick Setup Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="development.html#configure-environment">3. Configure Environment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="development.html#validate-setup">4. Validate Setup</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="development.html#understanding-pre-commit-hooks">Understanding Pre-Commit Hooks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="development.html#what-runs-on-every-commit">What Runs on Every Commit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="development.html#code-quality-always-run">Code Quality (Always Run)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#security-always-run">Security (Always Run)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#file-checks-always-run">File Checks (Always Run)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#commit-message-commit-msg-hook">Commit Message (commit-msg hook)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#tests-pre-push-only">Tests (Pre-Push Only)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#pre-commit-commands">Pre-Commit Commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#typical-pre-commit-output">Typical Pre-Commit Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#common-pre-commit-issues">Common Pre-Commit Issues</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="development.html#issue-pre-commit-not-found">Issue: “pre-commit not found”</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#issue-hooks-failing-on-first-run">Issue: Hooks failing on first run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#issue-black-isort-formatting-failures">Issue: Black/isort formatting failures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#issue-security-scan-false-positives">Issue: Security scan false positives</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#issue-slow-pre-commit">Issue: Slow pre-commit</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="development.html#development-workflow">Development Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="development.html#development-helper-scripts">Development Helper Scripts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="development.html#scripts-setup-dev-ps1-windows-powershell">1. <code class="docutils literal notranslate"><span class="pre">scripts/setup-dev.ps1</span></code> (Windows PowerShell)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#scripts-dev-py-cross-platform-python">2. <code class="docutils literal notranslate"><span class="pre">scripts/dev.py</span></code> (Cross-Platform Python)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#available-commands-reference">Available Commands Reference</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="development.html#code-quality-standards">Code Quality Standards</a></li>
-<li class="toctree-l3"><a class="reference internal" href="development.html#pre-commit-hooks">Pre-commit Hooks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#pre-commit-hooks">Pre-commit Hooks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="development.html#when-pre-commit-runs">When Pre-Commit Runs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#what-happens-without-pre-commit">What Happens Without Pre-Commit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#pre-commit-vs-ci-cd">Pre-Commit vs CI/CD</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="development.html#testing-strategy">Testing Strategy</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="development.html#unit-tests">Unit Tests</a></li>
 <li class="toctree-l4"><a class="reference internal" href="development.html#integration-tests">Integration Tests</a></li>

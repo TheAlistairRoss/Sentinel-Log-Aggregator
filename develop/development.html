@@ -246,11 +246,6 @@
 <li class="toctree-l2"><a class="reference internal" href="cli-usage.html#id15">Configuration files</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="cli-usage.html#bash-scripting">Bash scripting</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli-usage.html#powershell-scripting">PowerShell scripting</a></li>
-<li class="toctree-l3"><a class="reference internal" href="cli-usage.html#ci-cd-integration">CI/CD integration</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#azure-devops-pipeline">Azure DevOps Pipeline</a></li>
-<li class="toctree-l4"><a class="reference internal" href="cli-usage.html#github-actions">GitHub Actions</a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cli-usage.html#error-handling">Error handling</a><ul>
@@ -400,14 +395,48 @@
 <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#initial-setup">Initial Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#clone-and-setup-repository">1. Clone and Setup Repository</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#install-development-tools">2. Install Development Tools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#install-development-dependencies">2. Install Development Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#install-pre-commit-hooks-critical">3. Install Pre-Commit Hooks (Critical!)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#alternative-quick-setup-script">4. Alternative: Quick Setup Script</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#configure-environment">3. Configure Environment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#validate-setup">4. Validate Setup</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#understanding-pre-commit-hooks">Understanding Pre-Commit Hooks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#what-runs-on-every-commit">What Runs on Every Commit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#code-quality-always-run">Code Quality (Always Run)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#security-always-run">Security (Always Run)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#file-checks-always-run">File Checks (Always Run)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#commit-message-commit-msg-hook">Commit Message (commit-msg hook)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tests-pre-push-only">Tests (Pre-Push Only)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pre-commit-commands">Pre-Commit Commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#typical-pre-commit-output">Typical Pre-Commit Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#common-pre-commit-issues">Common Pre-Commit Issues</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#issue-pre-commit-not-found">Issue: “pre-commit not found”</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#issue-hooks-failing-on-first-run">Issue: Hooks failing on first run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#issue-black-isort-formatting-failures">Issue: Black/isort formatting failures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#issue-security-scan-false-positives">Issue: Security scan false positives</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#issue-slow-pre-commit">Issue: Slow pre-commit</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#development-workflow">Development Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#development-helper-scripts">Development Helper Scripts</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#scripts-setup-dev-ps1-windows-powershell">1. <code class="docutils literal notranslate"><span class="pre">scripts/setup-dev.ps1</span></code> (Windows PowerShell)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scripts-dev-py-cross-platform-python">2. <code class="docutils literal notranslate"><span class="pre">scripts/dev.py</span></code> (Cross-Platform Python)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#available-commands-reference">Available Commands Reference</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#code-quality-standards">Code Quality Standards</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pre-commit-hooks">Pre-commit Hooks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pre-commit-hooks">Pre-commit Hooks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#when-pre-commit-runs">When Pre-Commit Runs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#what-happens-without-pre-commit">What Happens Without Pre-Commit</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pre-commit-vs-ci-cd">Pre-Commit vs CI/CD</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#testing-strategy">Testing Strategy</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#unit-tests">Unit Tests</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#integration-tests">Integration Tests</a></li>
@@ -1332,28 +1361,102 @@
 python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
 
 <span class="c1"># Activate virtual environment</span>
-<span class="c1"># Windows</span>
-.<span class="se">\.</span>venv<span class="se">\S</span>cripts<span class="se">\a</span>ctivate
+<span class="c1"># Windows PowerShell</span>
+.<span class="se">\.</span>venv<span class="se">\S</span>cripts<span class="se">\A</span>ctivate.ps1
+<span class="c1"># Windows CMD</span>
+.<span class="se">\.</span>venv<span class="se">\S</span>cripts<span class="se">\a</span>ctivate.bat
 <span class="c1"># Linux/macOS</span>
 <span class="nb">source</span><span class="w"> </span>.venv/bin/activate
 
-<span class="c1"># Install dependencies</span>
+<span class="c1"># Upgrade pip and install build tools</span>
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip<span class="w"> </span>setuptools<span class="w"> </span>wheel
+</pre></div>
+</div>
+</section>
+<section id="install-development-dependencies">
+<h3>2. Install Development Dependencies<a class="headerlink" href="#install-development-dependencies" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Option A: Install with all optional dependencies (recommended)</span>
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev,security,docs]&quot;</span>
+
+<span class="c1"># Option B: Use the development helper script</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>install-dev
+
+<span class="c1"># Option C: Install from requirements files (if available)</span>
 pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
 pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements-dev.txt
 </pre></div>
 </div>
+<p><strong>What gets installed:</strong></p>
+<ul class="simple">
+<li><p><strong>Core dependencies</strong>: Azure SDK libraries, aiohttp, PyYAML, etc.</p></li>
+<li><p><strong>Development tools</strong>: pytest, black, isort, flake8, mypy</p></li>
+<li><p><strong>Pre-commit framework</strong>: Automatic code quality checks</p></li>
+<li><p><strong>Security tools</strong>: bandit, safety, pip-audit, semgrep</p></li>
+<li><p><strong>Documentation tools</strong>: Sphinx, sphinx-rtd-theme</p></li>
+</ul>
 </section>
-<section id="install-development-tools">
-<h3>2. Install Development Tools<a class="headerlink" href="#install-development-tools" title="Link to this heading"></a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install pre-commit hooks</span>
+<section id="install-pre-commit-hooks-critical">
+<h3>3. Install Pre-Commit Hooks (Critical!)<a class="headerlink" href="#install-pre-commit-hooks-critical" title="Link to this heading"></a></h3>
+<p>Pre-commit hooks enforce code quality and security standards automatically:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install pre-commit hooks into .git/hooks/</span>
 pre-commit<span class="w"> </span>install
 
-<span class="c1"># Install commitizen for conventional commits</span>
-pip<span class="w"> </span>install<span class="w"> </span>commitizen
+<span class="c1"># Also install commit message hooks for conventional commits</span>
+pre-commit<span class="w"> </span>install<span class="w"> </span>--hook-type<span class="w"> </span>commit-msg
 
 <span class="c1"># Verify installation</span>
 pre-commit<span class="w"> </span>--version
-cz<span class="w"> </span>version
+
+<span class="c1"># Test hooks on all files (optional but recommended)</span>
+pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+</pre></div>
+</div>
+<p><strong>Why pre-commit is essential:</strong></p>
+<ul class="simple">
+<li><p>✅ Catches issues before they reach CI/CD</p></li>
+<li><p>✅ Enforces consistent code formatting (black, isort)</p></li>
+<li><p>✅ Runs security scans (bandit, detect-secrets, trufflehog)</p></li>
+<li><p>✅ Validates commit messages (conventional commits)</p></li>
+<li><p>✅ Prevents committing secrets or sensitive data</p></li>
+<li><p>✅ Runs tests on pre-push (optional)</p></li>
+</ul>
+<p><strong>Without pre-commit installed:</strong></p>
+<ul class="simple">
+<li><p>❌ Commits will fail with “pre-commit not found” error</p></li>
+<li><p>❌ Must use <code class="docutils literal notranslate"><span class="pre">--no-verify</span></code> flag (bypasses all checks)</p></li>
+<li><p>❌ Code quality issues caught late in CI/CD pipeline</p></li>
+</ul>
+</section>
+<section id="alternative-quick-setup-script">
+<h3>4. Alternative: Quick Setup Script<a class="headerlink" href="#alternative-quick-setup-script" title="Link to this heading"></a></h3>
+<p>For Windows users, an automated setup script is available:</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="c"># Run automated setup (PowerShell)</span>
+<span class="p">.\</span><span class="n">scripts</span><span class="p">\</span><span class="n">setup-dev</span><span class="p">.</span><span class="n">ps1</span>
+
+<span class="c"># Skip virtual environment creation (if already exists)</span>
+<span class="p">.\</span><span class="n">scripts</span><span class="p">\</span><span class="n">setup-dev</span><span class="p">.</span><span class="n">ps1</span> <span class="n">-SkipVenv</span>
+
+<span class="c"># Skip test execution</span>
+<span class="p">.\</span><span class="n">scripts</span><span class="p">\</span><span class="n">setup-dev</span><span class="p">.</span><span class="n">ps1</span> <span class="n">-SkipTests</span>
+</pre></div>
+</div>
+<p><strong>What the script does:</strong></p>
+<ul class="simple">
+<li><p>✅ Validates Python 3.11+ is installed</p></li>
+<li><p>✅ Creates virtual environment (<code class="docutils literal notranslate"><span class="pre">.venv</span></code>)</p></li>
+<li><p>✅ Upgrades pip, setuptools, and wheel</p></li>
+<li><p>✅ Installs all dependencies (dev, security, docs)</p></li>
+<li><p>✅ Installs and configures pre-commit hooks</p></li>
+<li><p>✅ Creates <code class="docutils literal notranslate"><span class="pre">.env</span></code> template file</p></li>
+<li><p>✅ Runs initial test suite validation</p></li>
+</ul>
+<p>Or use the platform-agnostic Python helper script for manual setup:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install everything and set up pre-commit</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>install-dev
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>pre-commit-install
+
+<span class="c1"># Run initial checks to verify setup</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>check
 </pre></div>
 </div>
 </section>
@@ -1362,7 +1465,7 @@ cz<span class="w"> </span>version
 <p>Create a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file in the project root:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Azure Configuration (for development/testing)</span>
 <span class="nv">DCR_LOGS_INGESTION_ENDPOINT</span><span class="o">=</span>https://your-dcr-endpoint.monitor.azure.com
-<span class="nv">DCR_RULE_ID</span><span class="o">=</span>dcr-your-rule-id
+<span class="nv">DCR_IMMUTABLE_ID</span><span class="o">=</span>dcr-your-immutable-id
 
 <span class="c1"># Development Settings</span>
 <span class="nv">LOG_LEVEL</span><span class="o">=</span>DEBUG
@@ -1377,23 +1480,322 @@ cz<span class="w"> </span>version
 </section>
 <section id="validate-setup">
 <h3>4. Validate Setup<a class="headerlink" href="#validate-setup" title="Link to this heading"></a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run code quality checks</span>
-black<span class="w"> </span>--check<span class="w"> </span>sentinel_log_aggregator/<span class="w"> </span>tests/
-isort<span class="w"> </span>--check-only<span class="w"> </span>sentinel_log_aggregator/<span class="w"> </span>tests/
-flake8<span class="w"> </span>sentinel_log_aggregator/<span class="w"> </span>tests/
-mypy<span class="w"> </span>sentinel_log_aggregator/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Quick validation</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>check
 
-<span class="c1"># Run security checks</span>
-bandit<span class="w"> </span>-r<span class="w"> </span>sentinel_log_aggregator/
+<span class="c1"># Or run checks individually:</span>
 
-<span class="c1"># Run tests</span>
-pytest<span class="w"> </span>tests/<span class="w"> </span>-v<span class="w"> </span>--cov<span class="o">=</span>sentinel_log_aggregator
+<span class="c1"># Code formatting check</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>format-check
+
+<span class="c1"># Linting</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>lint
+
+<span class="c1"># Tests with coverage</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span><span class="nb">test</span>
+
+<span class="c1"># Security scans</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>security
+
+<span class="c1"># Pre-commit hooks</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>pre-commit-run
 </pre></div>
 </div>
 </section>
 </section>
+<section id="understanding-pre-commit-hooks">
+<h2>Understanding Pre-Commit Hooks<a class="headerlink" href="#understanding-pre-commit-hooks" title="Link to this heading"></a></h2>
+<section id="what-runs-on-every-commit">
+<h3>What Runs on Every Commit<a class="headerlink" href="#what-runs-on-every-commit" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">.pre-commit-config.yaml</span></code> file defines <strong>20+ automated checks</strong>:</p>
+<section id="code-quality-always-run">
+<h4>Code Quality (Always Run)<a class="headerlink" href="#code-quality-always-run" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>black</strong> - Code formatting (100 char line length)</p></li>
+<li><p><strong>isort</strong> - Import sorting</p></li>
+<li><p><strong>flake8</strong> - Linting with docstring checks</p></li>
+<li><p><strong>mypy</strong> - Type checking</p></li>
+<li><p><strong>pydocstyle</strong> - Docstring style validation</p></li>
+</ul>
+</section>
+<section id="security-always-run">
+<h4>Security (Always Run)<a class="headerlink" href="#security-always-run" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>bandit</strong> - Python security issues</p></li>
+<li><p><strong>detect-secrets</strong> - Secret detection</p></li>
+<li><p><strong>trufflehog</strong> - Advanced secret scanning</p></li>
+<li><p><strong>safety</strong> - Package vulnerability scanning</p></li>
+<li><p><strong>semgrep</strong> - SAST (Static Application Security Testing)</p></li>
+</ul>
+</section>
+<section id="file-checks-always-run">
+<h4>File Checks (Always Run)<a class="headerlink" href="#file-checks-always-run" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>trailing-whitespace</strong> - Removes trailing whitespace</p></li>
+<li><p><strong>end-of-file-fixer</strong> - Ensures newline at EOF</p></li>
+<li><p><strong>check-yaml</strong> - Validates YAML syntax</p></li>
+<li><p><strong>check-json</strong> - Validates JSON syntax</p></li>
+<li><p><strong>check-merge-conflict</strong> - Detects merge conflicts</p></li>
+<li><p><strong>check-case-conflict</strong> - Detects case conflicts</p></li>
+<li><p><strong>debug-statements</strong> - Finds forgotten debug code</p></li>
+<li><p><strong>yamllint</strong> - YAML linting</p></li>
+<li><p><strong>hadolint</strong> - Dockerfile linting (if present)</p></li>
+</ul>
+</section>
+<section id="commit-message-commit-msg-hook">
+<h4>Commit Message (commit-msg hook)<a class="headerlink" href="#commit-message-commit-msg-hook" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>commitizen</strong> - Enforces <a class="reference external" href="https://www.conventionalcommits.org/">conventional commits</a></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">feat:</span></code> - New features</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fix:</span></code> - Bug fixes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">docs:</span></code> - Documentation changes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">refactor:</span></code> - Code refactoring</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test:</span></code> - Test additions/modifications</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chore:</span></code> - Maintenance tasks</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="tests-pre-push-only">
+<h4>Tests (Pre-Push Only)<a class="headerlink" href="#tests-pre-push-only" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>pytest</strong> - Full test suite (only runs on <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span></code>)</p></li>
+</ul>
+</section>
+</section>
+<section id="pre-commit-commands">
+<h3>Pre-Commit Commands<a class="headerlink" href="#pre-commit-commands" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install hooks (required once after clone)</span>
+pre-commit<span class="w"> </span>install
+pre-commit<span class="w"> </span>install<span class="w"> </span>--hook-type<span class="w"> </span>commit-msg
+
+<span class="c1"># Run hooks manually on staged files</span>
+pre-commit<span class="w"> </span>run
+
+<span class="c1"># Run hooks on all files (not just staged)</span>
+pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+
+<span class="c1"># Run specific hook</span>
+pre-commit<span class="w"> </span>run<span class="w"> </span>black
+pre-commit<span class="w"> </span>run<span class="w"> </span>bandit
+
+<span class="c1"># Update hooks to latest versions</span>
+pre-commit<span class="w"> </span>autoupdate
+
+<span class="c1"># Skip hooks for emergency commits (not recommended)</span>
+git<span class="w"> </span>commit<span class="w"> </span>--no-verify<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;emergency fix&quot;</span>
+
+<span class="c1"># Uninstall hooks (not recommended)</span>
+pre-commit<span class="w"> </span>uninstall
+</pre></div>
+</div>
+</section>
+<section id="typical-pre-commit-output">
+<h3>Typical Pre-Commit Output<a class="headerlink" href="#typical-pre-commit-output" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add new feature&quot;</span>
+
+<span class="o">[</span>INFO<span class="o">]</span><span class="w"> </span>Installing<span class="w"> </span>environment<span class="w"> </span><span class="k">for</span><span class="w"> </span>https://github.com/psf/black.
+<span class="o">[</span>INFO<span class="o">]</span><span class="w"> </span>Once<span class="w"> </span>installed<span class="w"> </span>this<span class="w"> </span>environment<span class="w"> </span>will<span class="w"> </span>be<span class="w"> </span>reused.
+<span class="o">[</span>INFO<span class="o">]</span><span class="w"> </span>This<span class="w"> </span>may<span class="w"> </span>take<span class="w"> </span>a<span class="w"> </span>few<span class="w"> </span>minutes...
+
+black....................................................................Passed
+isort....................................................................Passed
+flake8...................................................................Passed
+bandit...................................................................Passed
+detect-secrets...........................................................Passed
+trailing-whitespace......................................................Passed
+end-of-file-fixer........................................................Passed
+check-yaml...............................................................Passed
+check-json...............................................................Passed
+commitizen...............................................................Passed
+
+<span class="o">[</span>develop<span class="w"> </span>abc1234<span class="o">]</span><span class="w"> </span>feat:<span class="w"> </span>add<span class="w"> </span>new<span class="w"> </span>feature
+<span class="w"> </span><span class="m">3</span><span class="w"> </span>files<span class="w"> </span>changed,<span class="w"> </span><span class="m">42</span><span class="w"> </span>insertions<span class="o">(</span>+<span class="o">)</span>,<span class="w"> </span><span class="m">5</span><span class="w"> </span>deletions<span class="o">(</span>-<span class="o">)</span>
+</pre></div>
+</div>
+</section>
+<section id="common-pre-commit-issues">
+<h3>Common Pre-Commit Issues<a class="headerlink" href="#common-pre-commit-issues" title="Link to this heading"></a></h3>
+<section id="issue-pre-commit-not-found">
+<h4>Issue: “pre-commit not found”<a class="headerlink" href="#issue-pre-commit-not-found" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Solution: Install pre-commit</span>
+pip<span class="w"> </span>install<span class="w"> </span>pre-commit
+pre-commit<span class="w"> </span>install
+</pre></div>
+</div>
+</section>
+<section id="issue-hooks-failing-on-first-run">
+<h4>Issue: Hooks failing on first run<a class="headerlink" href="#issue-hooks-failing-on-first-run" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Pre-commit needs to download hook environments</span>
+<span class="c1"># This is normal and happens once per hook</span>
+<span class="c1"># Just wait for installation to complete</span>
+</pre></div>
+</div>
+</section>
+<section id="issue-black-isort-formatting-failures">
+<h4>Issue: Black/isort formatting failures<a class="headerlink" href="#issue-black-isort-formatting-failures" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Hooks auto-fix formatting issues</span>
+<span class="c1"># Just add the fixed files and commit again</span>
+git<span class="w"> </span>add<span class="w"> </span>.
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;your message&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="issue-security-scan-false-positives">
+<h4>Issue: Security scan false positives<a class="headerlink" href="#issue-security-scan-false-positives" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add to .secrets.baseline or .bandit config</span>
+<span class="c1"># Then update baseline:</span>
+detect-secrets<span class="w"> </span>scan<span class="w"> </span>&gt;<span class="w"> </span>.secrets.baseline
+</pre></div>
+</div>
+</section>
+<section id="issue-slow-pre-commit">
+<h4>Issue: Slow pre-commit<a class="headerlink" href="#issue-slow-pre-commit" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clean and reinstall hooks</span>
+pre-commit<span class="w"> </span>clean
+pre-commit<span class="w"> </span>gc
+pre-commit<span class="w"> </span>install
+</pre></div>
+</div>
+</section>
+</section>
+</section>
 <section id="development-workflow">
 <h2>Development Workflow<a class="headerlink" href="#development-workflow" title="Link to this heading"></a></h2>
+<section id="development-helper-scripts">
+<h3>Development Helper Scripts<a class="headerlink" href="#development-helper-scripts" title="Link to this heading"></a></h3>
+<p>The repository provides two helper scripts to streamline development tasks:</p>
+<section id="scripts-setup-dev-ps1-windows-powershell">
+<h4>1. <code class="docutils literal notranslate"><span class="pre">scripts/setup-dev.ps1</span></code> (Windows PowerShell)<a class="headerlink" href="#scripts-setup-dev-ps1-windows-powershell" title="Link to this heading"></a></h4>
+<p><strong>Purpose</strong>: Automated first-time setup for Windows developers</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="c"># Full automated setup</span>
+<span class="p">.\</span><span class="n">scripts</span><span class="p">\</span><span class="n">setup-dev</span><span class="p">.</span><span class="n">ps1</span>
+
+<span class="c"># Options</span>
+<span class="p">.\</span><span class="n">scripts</span><span class="p">\</span><span class="n">setup-dev</span><span class="p">.</span><span class="n">ps1</span> <span class="n">-SkipVenv</span>   <span class="c"># Use existing virtual environment</span>
+<span class="p">.\</span><span class="n">scripts</span><span class="p">\</span><span class="n">setup-dev</span><span class="p">.</span><span class="n">ps1</span> <span class="n">-SkipTests</span>  <span class="c"># Skip initial test run</span>
+</pre></div>
+</div>
+<p><strong>What it does:</strong></p>
+<ol class="arabic simple">
+<li><p>✅ Validates Python 3.11+ installed</p></li>
+<li><p>✅ Creates virtual environment (<code class="docutils literal notranslate"><span class="pre">.venv</span></code>)</p></li>
+<li><p>✅ Activates virtual environment</p></li>
+<li><p>✅ Upgrades pip, setuptools, wheel</p></li>
+<li><p>✅ Installs all dependencies: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">&quot;.[dev,security,docs]&quot;</span></code></p></li>
+<li><p>✅ Installs pre-commit hooks: <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">install</span></code></p></li>
+<li><p>✅ Creates <code class="docutils literal notranslate"><span class="pre">.env</span></code> template file</p></li>
+<li><p>✅ Runs initial tests to verify setup</p></li>
+</ol>
+</section>
+<section id="scripts-dev-py-cross-platform-python">
+<h4>2. <code class="docutils literal notranslate"><span class="pre">scripts/dev.py</span></code> (Cross-Platform Python)<a class="headerlink" href="#scripts-dev-py-cross-platform-python" title="Link to this heading"></a></h4>
+<p><strong>Purpose</strong>: Common development tasks and CI/CD alignment</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Installation</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>install-dev<span class="w">         </span><span class="c1"># Install all dependencies</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>pre-commit-install<span class="w">  </span><span class="c1"># Install pre-commit hooks</span>
+
+<span class="c1"># Code Quality (matches CI/CD pipeline)</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>format<span class="w">              </span><span class="c1"># Auto-format code (black + isort)</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>format-check<span class="w">        </span><span class="c1"># Check formatting only (CI/CD mode)</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>lint<span class="w">                </span><span class="c1"># Run flake8 + mypy</span>
+
+<span class="c1"># Testing</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span><span class="nb">test</span><span class="w">                </span><span class="c1"># Run tests with coverage</span>
+
+<span class="c1"># Security</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>security<span class="w">            </span><span class="c1"># Run bandit, safety, pip-audit</span>
+
+<span class="c1"># Build &amp; Docs</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>build<span class="w">               </span><span class="c1"># Build package</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>docs<span class="w">                </span><span class="c1"># Build Sphinx documentation</span>
+
+<span class="c1"># Pre-commit</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>pre-commit-run<span class="w">      </span><span class="c1"># Run pre-commit on all files</span>
+
+<span class="c1"># All-in-One</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>check<span class="w">               </span><span class="c1"># Run ALL checks (format-check + lint + test + security)</span>
+</pre></div>
+</div>
+</section>
+<section id="available-commands-reference">
+<h4>Available Commands Reference<a class="headerlink" href="#available-commands-reference" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Command</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Matches CI/CD</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">clean</span></code></p></td>
+<td><p>Remove build artifacts and cache files</p></td>
+<td><p>❌</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">install-dev</span></code></p></td>
+<td><p>Install development dependencies</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">format</span></code></p></td>
+<td><p>Auto-format with black + isort</p></td>
+<td><p>❌ (CI checks only)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">format-check</span></code></p></td>
+<td><p>Check formatting without changes</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lint</span></code></p></td>
+<td><p>Run flake8 + mypy</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test</span></code></p></td>
+<td><p>Run pytest with coverage</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">security</span></code></p></td>
+<td><p>Run security scans (bandit, safety, pip-audit)</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">build</span></code></p></td>
+<td><p>Build package distribution</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">docs</span></code></p></td>
+<td><p>Build Sphinx documentation</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pre-commit-install</span></code></p></td>
+<td><p>Install git pre-commit hooks</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pre-commit-run</span></code></p></td>
+<td><p>Run pre-commit on all files</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">check</span></code></p></td>
+<td><p>Run all checks (comprehensive validation)</p></td>
+<td><p>✅</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recommended Workflow:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before starting work</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>format<span class="w">               </span><span class="c1"># Format your code</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>lint<span class="w">                 </span><span class="c1"># Check for issues</span>
+
+<span class="c1"># Before committing</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>check<span class="w">                </span><span class="c1"># Run all checks</span>
+git<span class="w"> </span>add<span class="w"> </span>.
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: your change&quot;</span><span class="w">          </span><span class="c1"># Pre-commit hooks run automatically</span>
+
+<span class="c1"># Before pushing</span>
+python<span class="w"> </span>scripts/dev.py<span class="w"> </span>check<span class="w">                </span><span class="c1"># Final validation</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>your-branch
+</pre></div>
+</div>
+</section>
+</section>
 <section id="code-quality-standards">
 <h3>Code Quality Standards<a class="headerlink" href="#code-quality-standards" title="Link to this heading"></a></h3>
 <p>The project enforces strict code quality standards:</p>
@@ -1408,14 +1810,72 @@ pytest<span class="w"> </span>tests/<span class="w"> </span>-v<span class="w"> <
 </section>
 <section id="pre-commit-hooks">
 <h3>Pre-commit Hooks<a class="headerlink" href="#pre-commit-hooks" title="Link to this heading"></a></h3>
-<p>Pre-commit hooks automatically run on every commit:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Manual pre-commit run</span>
+<p>Pre-commit hooks automatically run on every commit. <strong>This is not optional</strong> - the repository is configured to require these checks.</p>
+<section id="when-pre-commit-runs">
+<h4>When Pre-Commit Runs<a class="headerlink" href="#when-pre-commit-runs" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Automatic: On every git commit</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;your message&quot;</span><span class="w">  </span><span class="c1"># Hooks run automatically</span>
+
+<span class="c1"># Manual: Test before committing</span>
 pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
 
-<span class="c1"># Skip pre-commit for emergency commits (not recommended)</span>
+<span class="c1"># Skip (emergency only, not recommended)</span>
 git<span class="w"> </span>commit<span class="w"> </span>--no-verify<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;emergency fix&quot;</span>
 </pre></div>
 </div>
+</section>
+<section id="what-happens-without-pre-commit">
+<h4>What Happens Without Pre-Commit<a class="headerlink" href="#what-happens-without-pre-commit" title="Link to this heading"></a></h4>
+<p>If you haven’t run <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">install</span></code>, you’ll see this error:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;my change&quot;</span>
+pre-commit<span class="w"> </span>not<span class="w"> </span>found.<span class="w"> </span>Did<span class="w"> </span>you<span class="w"> </span>forget<span class="w"> </span>to<span class="w"> </span>activate<span class="w"> </span>your<span class="w"> </span>virtualenv?
+</pre></div>
+</div>
+<p><strong>Solution</strong>: Always run <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">install</span></code> after cloning the repository.</p>
+</section>
+<section id="pre-commit-vs-ci-cd">
+<h4>Pre-Commit vs CI/CD<a class="headerlink" href="#pre-commit-vs-ci-cd" title="Link to this heading"></a></h4>
+<p>Pre-commit hooks and CI/CD pipelines run the <strong>same checks</strong>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Check</p></th>
+<th class="head"><p>Pre-Commit (Local)</p></th>
+<th class="head"><p>CI/CD (GitHub Actions)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>black</p></td>
+<td><p>✅ Auto-fix</p></td>
+<td><p>✅ Check only (fails if not formatted)</p></td>
+</tr>
+<tr class="row-odd"><td><p>isort</p></td>
+<td><p>✅ Auto-fix</p></td>
+<td><p>✅ Check only (fails if not sorted)</p></td>
+</tr>
+<tr class="row-even"><td><p>flake8</p></td>
+<td><p>✅ Check</p></td>
+<td><p>✅ Check</p></td>
+</tr>
+<tr class="row-odd"><td><p>mypy</p></td>
+<td><p>✅ Check</p></td>
+<td><p>✅ Check</p></td>
+</tr>
+<tr class="row-even"><td><p>bandit</p></td>
+<td><p>✅ Check</p></td>
+<td><p>✅ Check</p></td>
+</tr>
+<tr class="row-odd"><td><p>security scans</p></td>
+<td><p>✅ Check</p></td>
+<td><p>✅ Check</p></td>
+</tr>
+<tr class="row-even"><td><p>tests</p></td>
+<td><p>🔶 On push</p></td>
+<td><p>✅ Always</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key insight</strong>: Pre-commit catches issues <strong>before</strong> CI/CD, saving time and CI/CD minutes.</p>
+</section>
 </section>
 <section id="testing-strategy">
 <h3>Testing Strategy<a class="headerlink" href="#testing-strategy" title="Link to this heading"></a></h3>
