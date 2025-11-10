@@ -412,6 +412,16 @@
 <li class="toctree-l4"><a class="reference internal" href="development.html#performance-tests">Performance Tests</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="development.html#running-github-actions-locally-pre-push-validation">Running GitHub Actions Locally (Pre-Push Validation)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="development.html#install-act">1. Install Act</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#create-fresh-test-environment">2. Create Fresh Test Environment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#run-workflows-locally">3. Run Workflows Locally</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#configuration">4. Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#pre-push-checklist">5. Pre-Push Checklist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#cleanup">6. Cleanup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="development.html#common-act-issues">Common Act Issues</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="development.html#code-organization">Code Organization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="development.html#adding-new-features">Adding New Features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="development.html#debugging">Debugging</a><ul>
@@ -814,20 +824,22 @@
 <li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult"><code class="docutils literal notranslate"><span class="pre">QueryResult</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.__init__"><code class="docutils literal notranslate"><span class="pre">QueryResult.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.correlation_id"><code class="docutils literal notranslate"><span class="pre">QueryResult.correlation_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.data"><code class="docutils literal notranslate"><span class="pre">QueryResult.data</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.end_time"><code class="docutils literal notranslate"><span class="pre">QueryResult.end_time</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.error_code"><code class="docutils literal notranslate"><span class="pre">QueryResult.error_code</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.error_message"><code class="docutils literal notranslate"><span class="pre">QueryResult.error_message</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.execution_time"><code class="docutils literal notranslate"><span class="pre">QueryResult.execution_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.execution_time_seconds"><code class="docutils literal notranslate"><span class="pre">QueryResult.execution_time_seconds</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.failed"><code class="docutils literal notranslate"><span class="pre">QueryResult.failed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.query"><code class="docutils literal notranslate"><span class="pre">QueryResult.query</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.record_count"><code class="docutils literal notranslate"><span class="pre">QueryResult.record_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.records"><code class="docutils literal notranslate"><span class="pre">QueryResult.records</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.request_id"><code class="docutils literal notranslate"><span class="pre">QueryResult.request_id</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.start_time"><code class="docutils literal notranslate"><span class="pre">QueryResult.start_time</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.succeeded"><code class="docutils literal notranslate"><span class="pre">QueryResult.succeeded</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.workspace_alias"><code class="docutils literal notranslate"><span class="pre">QueryResult.workspace_alias</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.status"><code class="docutils literal notranslate"><span class="pre">QueryResult.status</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.data"><code class="docutils literal notranslate"><span class="pre">QueryResult.data</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.record_count"><code class="docutils literal notranslate"><span class="pre">QueryResult.record_count</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.execution_time"><code class="docutils literal notranslate"><span class="pre">QueryResult.execution_time</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.workspace_id"><code class="docutils literal notranslate"><span class="pre">QueryResult.workspace_id</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.query"><code class="docutils literal notranslate"><span class="pre">QueryResult.query</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.QueryResult.status"><code class="docutils literal notranslate"><span class="pre">QueryResult.status</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.UploadResult"><code class="docutils literal notranslate"><span class="pre">UploadResult</span></code></a><ul>
@@ -1000,6 +1012,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.add_workspace"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspace()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.add_workspaces"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspaces()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.aggregation_only"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.aggregation_only()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.all"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.all()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.count"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.count()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.display_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.display_summary()</span></code></a></li>
@@ -1022,6 +1035,8 @@
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.unique_reports"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.unique_reports()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.unique_subscriptions"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.unique_subscriptions()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.validate_configuration"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.validate_configuration()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.with_query"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.with_query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.WorkspaceManager.with_workspace_ids"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.with_workspace_ids()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.SentinelQueryEngine"><code class="docutils literal notranslate"><span class="pre">SentinelQueryEngine</span></code></a><ul>
@@ -1236,6 +1251,9 @@
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspace"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspace()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspaces"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspaces()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.for_query"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.for_query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.with_query"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.with_query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.with_workspace_ids"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.with_workspace_ids()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.aggregation_only"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.aggregation_only()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.for_subscription"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.for_subscription()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.unique_reports"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.unique_reports()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.unique_subscriptions"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.unique_subscriptions()</span></code></a></li>

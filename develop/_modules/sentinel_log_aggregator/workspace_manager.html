@@ -411,6 +411,16 @@
 <li class="toctree-l4"><a class="reference internal" href="../../development.html#performance-tests">Performance Tests</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="../../development.html#running-github-actions-locally-pre-push-validation">Running GitHub Actions Locally (Pre-Push Validation)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../development.html#install-act">1. Install Act</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../development.html#create-fresh-test-environment">2. Create Fresh Test Environment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../development.html#run-workflows-locally">3. Run Workflows Locally</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../development.html#configuration">4. Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../development.html#pre-push-checklist">5. Pre-Push Checklist</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../development.html#cleanup">6. Cleanup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../development.html#common-act-issues">Common Act Issues</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../development.html#code-organization">Code Organization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../development.html#adding-new-features">Adding New Features</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../development.html#debugging">Debugging</a><ul>
@@ -813,20 +823,22 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult"><code class="docutils literal notranslate"><span class="pre">QueryResult</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.__init__"><code class="docutils literal notranslate"><span class="pre">QueryResult.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.correlation_id"><code class="docutils literal notranslate"><span class="pre">QueryResult.correlation_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.data"><code class="docutils literal notranslate"><span class="pre">QueryResult.data</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.end_time"><code class="docutils literal notranslate"><span class="pre">QueryResult.end_time</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.error_code"><code class="docutils literal notranslate"><span class="pre">QueryResult.error_code</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.error_message"><code class="docutils literal notranslate"><span class="pre">QueryResult.error_message</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.execution_time"><code class="docutils literal notranslate"><span class="pre">QueryResult.execution_time</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.execution_time_seconds"><code class="docutils literal notranslate"><span class="pre">QueryResult.execution_time_seconds</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.failed"><code class="docutils literal notranslate"><span class="pre">QueryResult.failed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.query"><code class="docutils literal notranslate"><span class="pre">QueryResult.query</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.record_count"><code class="docutils literal notranslate"><span class="pre">QueryResult.record_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.records"><code class="docutils literal notranslate"><span class="pre">QueryResult.records</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.request_id"><code class="docutils literal notranslate"><span class="pre">QueryResult.request_id</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.start_time"><code class="docutils literal notranslate"><span class="pre">QueryResult.start_time</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.succeeded"><code class="docutils literal notranslate"><span class="pre">QueryResult.succeeded</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.workspace_alias"><code class="docutils literal notranslate"><span class="pre">QueryResult.workspace_alias</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.status"><code class="docutils literal notranslate"><span class="pre">QueryResult.status</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.data"><code class="docutils literal notranslate"><span class="pre">QueryResult.data</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.record_count"><code class="docutils literal notranslate"><span class="pre">QueryResult.record_count</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.execution_time"><code class="docutils literal notranslate"><span class="pre">QueryResult.execution_time</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.workspace_id"><code class="docutils literal notranslate"><span class="pre">QueryResult.workspace_id</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.query"><code class="docutils literal notranslate"><span class="pre">QueryResult.query</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.QueryResult.status"><code class="docutils literal notranslate"><span class="pre">QueryResult.status</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.UploadResult"><code class="docutils literal notranslate"><span class="pre">UploadResult</span></code></a><ul>
@@ -999,6 +1011,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.__init__"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.add_workspace"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspace()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.add_workspaces"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspaces()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.aggregation_only"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.aggregation_only()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.all"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.all()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.count"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.count()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.display_summary"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.display_summary()</span></code></a></li>
@@ -1021,6 +1034,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.unique_reports"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.unique_reports()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.unique_subscriptions"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.unique_subscriptions()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.validate_configuration"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.validate_configuration()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.with_query"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.with_query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.with_workspace_ids"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.with_workspace_ids()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelQueryEngine"><code class="docutils literal notranslate"><span class="pre">SentinelQueryEngine</span></code></a><ul>
@@ -1235,6 +1250,9 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspace"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspace()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.add_workspaces"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.add_workspaces()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.for_query"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.for_query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.with_query"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.with_query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.with_workspace_ids"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.with_workspace_ids()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.aggregation_only"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.aggregation_only()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.for_subscription"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.for_subscription()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.unique_reports"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.unique_reports()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.workspace_manager.WorkspaceManager.unique_subscriptions"><code class="docutils literal notranslate"><span class="pre">WorkspaceManager.unique_subscriptions()</span></code></a></li>
@@ -1622,6 +1640,54 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">matching</span> <span class="o">=</span> <span class="p">[</span><span class="n">ws</span> <span class="k">for</span> <span class="n">ws</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">workspaces</span> <span class="k">if</span> <span class="n">query_name</span> <span class="ow">in</span> <span class="n">ws</span><span class="o">.</span><span class="n">queries_list</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">WorkspaceSet</span><span class="p">(</span><span class="n">matching</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WorkspaceManager.with_query">
+<a class="viewcode-back" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.with_query">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;WorkspaceManager&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filter workspaces that have a specific query configured.</span>
+<span class="sd">        Returns a new WorkspaceManager instance for method chaining.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            query_name: Name of the query to filter by</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            New WorkspaceManager with filtered workspaces</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">matching</span> <span class="o">=</span> <span class="p">[</span><span class="n">ws</span> <span class="k">for</span> <span class="n">ws</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">workspaces</span> <span class="k">if</span> <span class="n">query_name</span> <span class="ow">in</span> <span class="n">ws</span><span class="o">.</span><span class="n">queries_list</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">WorkspaceManager</span><span class="p">(</span><span class="n">matching</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WorkspaceManager.with_workspace_ids">
+<a class="viewcode-back" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.with_workspace_ids">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_workspace_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">customer_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;WorkspaceManager&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filter workspaces by customer IDs.</span>
+<span class="sd">        Returns a new WorkspaceManager instance for method chaining.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            customer_ids: List of workspace customer IDs to include</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            New WorkspaceManager with filtered workspaces</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">matching</span> <span class="o">=</span> <span class="p">[</span><span class="n">ws</span> <span class="k">for</span> <span class="n">ws</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">workspaces</span> <span class="k">if</span> <span class="n">ws</span><span class="o">.</span><span class="n">customer_id</span> <span class="ow">in</span> <span class="n">customer_ids</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">WorkspaceManager</span><span class="p">(</span><span class="n">matching</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WorkspaceManager.aggregation_only">
+<a class="viewcode-back" href="../../api-reference.html#sentinel_log_aggregator.WorkspaceManager.aggregation_only">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregation_only</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;WorkspaceManager&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filter to only include aggregation workspaces.</span>
+<span class="sd">        Returns a new WorkspaceManager instance for method chaining.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            New WorkspaceManager with only aggregation workspaces</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">matching</span> <span class="o">=</span> <span class="p">[</span><span class="n">ws</span> <span class="k">for</span> <span class="n">ws</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">workspaces</span> <span class="k">if</span> <span class="n">ws</span><span class="o">.</span><span class="n">aggregation_workspace</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">WorkspaceManager</span><span class="p">(</span><span class="n">matching</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WorkspaceManager.for_subscription">
