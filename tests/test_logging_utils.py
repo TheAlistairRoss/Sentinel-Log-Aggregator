@@ -162,10 +162,10 @@ class TestPerformanceTimer:
         assert len(records) == 2
 
         start_record = records[0]
-        assert "🚀 Starting test_operation" in start_record.message
+        assert "Starting test_operation" in start_record.message
 
         end_record = records[1]
-        assert "✅ Completed test_operation" in end_record.message
+        assert "Completed test_operation" in end_record.message
         assert hasattr(end_record, "operation")
         assert hasattr(end_record, "duration_seconds")
         assert hasattr(end_record, "status")
@@ -186,10 +186,10 @@ class TestPerformanceTimer:
         assert len(records) == 2
 
         start_record = records[0]
-        assert "🚀 Starting failing_operation" in start_record.message
+        assert "Starting failing_operation" in start_record.message
 
         error_record = records[1]
-        assert "❌ Failed failing_operation" in error_record.message
+        assert "Failed failing_operation" in error_record.message
         assert hasattr(error_record, "operation")
         assert hasattr(error_record, "duration_seconds")
         assert hasattr(error_record, "status")
@@ -234,8 +234,8 @@ class TestLogPerformanceDecorator:
         # Check logs
         records = [r for r in caplog.records if "sync_test" in r.message]
         assert len(records) == 2
-        assert "🚀 Starting sync_test" in records[0].message
-        assert "✅ Completed sync_test" in records[1].message
+        assert "Starting sync_test" in records[0].message
+        assert "Completed sync_test" in records[1].message
 
     def test_sync_function_decorator_default_name(self, caplog):
         """Test decorator with default function name."""
@@ -274,8 +274,8 @@ class TestLogPerformanceDecorator:
         # Check logs
         records = [r for r in caplog.records if "async_test" in r.message]
         assert len(records) == 2
-        assert "🚀 Starting async_test" in records[0].message
-        assert "✅ Completed async_test" in records[1].message
+        assert "Starting async_test" in records[0].message
+        assert "Completed async_test" in records[1].message
 
     def test_sync_function_decorator_exception(self, caplog):
         """Test decorator with exception in sync function."""
@@ -293,7 +293,7 @@ class TestLogPerformanceDecorator:
         # Check error is logged
         records = [r for r in caplog.records if "sync_error_test" in r.message]
         assert len(records) == 2
-        assert "❌ Failed sync_error_test" in records[1].message
+        assert "Failed sync_error_test" in records[1].message
 
     def test_async_function_decorator_exception(self, caplog):
         """Test decorator with exception in async function."""
@@ -314,7 +314,7 @@ class TestLogPerformanceDecorator:
         # Check error is logged
         records = [r for r in caplog.records if "async_error_test" in r.message]
         assert len(records) == 2
-        assert "❌ Failed async_error_test" in records[1].message
+        assert "Failed async_error_test" in records[1].message
 
 
 class TestGetLogger:

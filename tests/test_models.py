@@ -2584,7 +2584,7 @@ class TestModelsMissingCoverage(unittest.TestCase):
         )
 
         # Test time_range_str property (line 196)
-        expected_time_range = "2025-01-01 11:00 to 2025-01-01 10:00"
+        expected_time_range = "2025-01-01 10:00 to 2025-01-01 11:00"
         self.assertEqual(execution.time_range_str, expected_time_range)
 
         # Test status property (line 206)

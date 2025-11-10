@@ -79,13 +79,13 @@ def performance_timer(
             pass
     """
     start_time = time.perf_counter()
-    logger.info(f"🚀 Starting {operation_name}")
+    logger.info(f"Starting {operation_name}")
 
     try:
         yield
         duration = time.perf_counter() - start_time
         logger.info(
-            f"✅ Completed {operation_name}",
+            f"Completed {operation_name}",
             extra={
                 "operation": operation_name,
                 "duration_seconds": round(duration, 3),
@@ -95,7 +95,7 @@ def performance_timer(
     except Exception as e:
         duration = time.perf_counter() - start_time
         logger.error(
-            f"❌ Failed {operation_name}: {str(e)}",
+            f"Failed {operation_name}: {str(e)}",
             extra={
                 "operation": operation_name,
                 "duration_seconds": round(duration, 3),
@@ -192,13 +192,27 @@ def configure_logging(
         level=getattr(logging, level.upper()), format=format_string, datefmt="%Y-%m-%d %H:%M:%S"
     )
 
-    # Configure Azure SDK logging
+    # Configure Azure SDK logging - enable debug output when DEBUG level is set
     azure_logger = logging.getLogger("azure")
-    azure_logger.setLevel(logging.WARNING)
+    if level.upper() == "DEBUG":
+        # Enable Azure SDK debug logging
+        azure_logger.setLevel(logging.DEBUG)
+
+        # Also enable debug for specific Azure SDK components
+        logging.getLogger("azure.core").setLevel(logging.DEBUG)
+        logging.getLogger("azure.monitor").setLevel(logging.DEBUG)
+        logging.getLogger("azure.identity").setLevel(logging.DEBUG)
+    else:
+        # Keep Azure SDK logging at WARNING for other levels
+        azure_logger.setLevel(logging.WARNING)
 
     # Configure urllib3 logging (used by requests/aiohttp)
+    # Only enable debug for urllib3 if DEBUG level is explicitly requested
     urllib3_logger = logging.getLogger("urllib3")
-    urllib3_logger.setLevel(logging.WARNING)
+    if level.upper() == "DEBUG":
+        urllib3_logger.setLevel(logging.INFO)  # INFO level to avoid excessive connection pool logs
+    else:
+        urllib3_logger.setLevel(logging.WARNING)
 
 
 class LogContext:

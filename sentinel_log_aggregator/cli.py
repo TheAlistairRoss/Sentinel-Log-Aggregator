@@ -164,7 +164,7 @@ async def check_service_health(
     """Check service health using the Azure SDK-compliant client."""
     logger = logging.getLogger(__name__)
 
-    logger.info("🔍 Performing service health check using Azure SDK-compliant client...")
+    logger.info("Performing service health check using Azure SDK-compliant client...")
 
     try:
         # Create Azure SDK-compliant client
@@ -176,12 +176,12 @@ async def check_service_health(
         ) as client:
 
             # Validate credentials
-            logger.info("🔐 Validating credentials...")
+            logger.info("Validating credentials...")
             await client.validate_credentials()
-            logger.info("✅ Credential validation successful")
+            logger.info("Credential validation successful")
 
             # Get service properties with query loading
-            logger.info("📊 Retrieving service properties...")
+            logger.info("Retrieving service properties...")
 
             # Load and validate queries for accurate count
             workspace_manager = WorkspaceManager(workspaces)
@@ -193,43 +193,43 @@ async def check_service_health(
                 service_props.available_queries = len(loaded_queries)
 
                 logger.info(
-                    f"📝 Loaded and validated {len(loaded_queries)} queries from workspace configurations"
+                    f"Loaded and validated {len(loaded_queries)} queries from workspace configurations"
                 )
 
             except Exception as e:
-                logger.warning(f"⚠️ Query loading failed: {e}")
+                logger.warning(f"Query loading failed: {e}")
                 service_props = await client.get_service_properties()
                 service_props.workspace_count = len(workspaces)
                 # Keep original available_queries count from AVAILABLE_QUERIES
 
             # Display service health information
-            logger.info("🏥 Service Health Report:")
-            logger.info(f"  • Service Version: {service_props.service_version}")
-            logger.info(f"  • Connectivity Status: {service_props.connectivity_status}")
-            logger.info(f"  • Authentication Status: {service_props.authentication_status}")
-            logger.info(f"  • DCR Endpoint: {service_props.dcr_endpoint}")
-            logger.info(f"  • DCR Immutable ID: {service_props.dcr_immutable_id}")
-            logger.info(f"  • Configured Workspaces: {service_props.workspace_count}")
-            logger.info(f"  • Available Queries: {service_props.available_queries}")
-            logger.info(f"  • Last Check: {service_props.last_check_time}")
+            logger.info("Service Health Report:")
+            logger.info(f"-Service Version: {service_props.service_version}")
+            logger.info(f"-Connectivity Status: {service_props.connectivity_status}")
+            logger.info(f"-Authentication Status: {service_props.authentication_status}")
+            logger.info(f"-DCR Endpoint: {service_props.dcr_endpoint}")
+            logger.info(f"-DCR Immutable ID: {service_props.dcr_immutable_id}")
+            logger.info(f"-Configured Workspaces: {service_props.workspace_count}")
+            logger.info(f"-Available Queries: {service_props.available_queries}")
+            logger.info(f"-Last Check: {service_props.last_check_time}")
 
             # Add DCR configuration warning
             aggregation_workspace = workspace_manager.get_aggregation_workspace()
             if aggregation_workspace:
-                logger.info(f"  • Aggregation Workspace: {aggregation_workspace.workspace_name}")
+                logger.info(f"-Aggregation Workspace: {aggregation_workspace.workspace_name}")
                 logger.info(
-                    f"  ⚠️  Please verify that your DCR is configured to send data to workspace: {aggregation_workspace.customer_id}"
+                    f"  Please verify that your DCR is configured to send data to workspace: {aggregation_workspace.customer_id}"
                 )
             else:
                 logger.warning(
-                    "⚠️ No aggregation workspace found! Please set 'aggregation_workspace: true' for one workspace."
+                    "No aggregation workspace found! Please set 'aggregation_workspace: true' for one workspace."
                 )
 
             # Test a simple query on the aggregation workspace (if available)
             test_workspace = aggregation_workspace or (workspaces[0] if workspaces else None)
             if test_workspace:
                 logger.info(
-                    f"🧪 Testing query connectivity to workspace {test_workspace.workspace_name}..."
+                    f"Testing query connectivity to workspace {test_workspace.workspace_name}..."
                 )
 
                 # Simple test query
@@ -241,10 +241,10 @@ async def check_service_health(
 
                 if query_result.succeeded:
                     logger.info(
-                        f"✅ Test query successful: {query_result.record_count} records in {query_result.execution_time:.2f}s"
+                        f"Test query successful: {query_result.record_count} records in {query_result.execution_time:.2f}s"
                     )
                 else:
-                    logger.warning(f"⚠️ Test query failed: {query_result.error_message}")
+                    logger.warning(f"Test query failed: {query_result.error_message}")
 
             return (
                 service_props.connectivity_status == "connected"
@@ -252,7 +252,7 @@ async def check_service_health(
             )
 
     except Exception as e:
-        logger.error(f"❌ Health check failed: {e}")
+        logger.error(f"Health check failed: {e}")
         return False
 
 
@@ -334,11 +334,11 @@ def create_health_logger_from_args(
         )
 
         health_mode = "Sentinel table" if health_to_sentinel else "console only"
-        logger.info(f"🏥 Health logging enabled - mode: {health_mode}")
+        logger.info(f"Health logging enabled - mode: {health_mode}")
         return health_logger
 
     except Exception as e:
-        logger.error(f"❌ Failed to create health logger: {e}")
+        logger.error(f"Failed to create health logger: {e}")
         logger.debug("Health logger creation error details", exc_info=True)
         return None
 
@@ -354,9 +354,9 @@ async def run_aggregation(
     # Validate configuration
     config_errors = client_options.validate()
     if config_errors:
-        logger.error("❌ Configuration validation failed:")
+        logger.error("Configuration validation failed:")
         for error in config_errors:
-            logger.error(f"  • {error}")
+            logger.error(f"-{error}")
         return False
 
     # Validate time configuration
@@ -364,20 +364,20 @@ async def run_aggregation(
 
     time_errors = validate_time_configuration(client_options)
     if time_errors:
-        logger.error("❌ Time configuration validation failed:")
+        logger.error("Time configuration validation failed:")
         for error in time_errors:
-            logger.error(f"  • {error}")
+            logger.error(f"-{error}")
         return False
 
-    logger.info(f"🚀 Starting log aggregation process...")
-    logger.info(f"  • Lookback period: {client_options.lookback_period}")
-    logger.info(f"  • Batch time size: {client_options.batch_time_size}")
-    logger.info(f"  • Max concurrent queries: {client_options.max_concurrent_queries}")
-    logger.info(f"  • Workspaces: {len(workspaces)}")
+    logger.info(f"Starting log aggregation process...")
+    logger.info(f"-Lookback period: {client_options.lookback_period}")
+    logger.info(f"-Batch time size: {client_options.batch_time_size}")
+    logger.info(f"-Max concurrent queries: {client_options.max_concurrent_queries}")
+    logger.info(f"-Workspaces: {len(workspaces)}")
     if health_logger:
-        logger.info(f"  • Health logging: ✅ Enabled")
+        logger.info(f"-Health logging: Enabled")
     else:
-        logger.info(f"  • Health logging: ❌ Disabled")
+        logger.info(f"-Health logging: Disabled")
 
     # Generate job ID for health logging
     job_id = health_logger.create_job_id() if health_logger else "cli-job"
@@ -431,24 +431,24 @@ async def run_aggregation(
             # Display brief summary - detailed analysis available in logs
             detailed_summary = summary.generate_detailed_summary()
 
-            logger.info("📊 Execution Summary:")
+            logger.info("Execution Summary:")
             logger.info("=" * 50)
 
             # Overview section
             overview = detailed_summary["overview"]
-            logger.info(f"📋 Results:")
-            logger.info(f"  • Time Range: {overview['total_time_range']}")
-            logger.info(f"  • Total Duration: {overview['total_duration_seconds']:.2f}s")
-            logger.info(f"  • Workspaces: {overview['total_workspaces']}")
-            logger.info(f"  • Unique Queries: {overview['total_unique_queries']}")
-            logger.info(f"  • Records Downloaded: {overview['total_records_downloaded']:,}")
-            logger.info(f"  • Records Uploaded: {overview['total_records_uploaded']:,}")
-            logger.info("💡 Note: Detailed workspace/query analytics available in logs above")
+            logger.info(f"Results:")
+            logger.info(f"-Time Range: {overview['total_time_range']}")
+            logger.info(f"-Total Duration: {overview['total_duration_seconds']:.2f}s")
+            logger.info(f"-Workspaces: {overview['total_workspaces']}")
+            logger.info(f"-Unique Queries: {overview['total_unique_queries']}")
+            logger.info(f"-Records Downloaded: {overview['total_records_downloaded']:,}")
+            logger.info(f"-Records Uploaded: {overview['total_records_uploaded']:,}")
+            logger.info("Note: Detailed workspace/query analytics available in logs above")
 
             return summary.failed_queries == 0
 
     except Exception as e:
-        logger.error(f"❌ Aggregation failed: {e}")
+        logger.error(f"Aggregation failed: {e}")
 
         # Log error to health logger if available
         if health_logger:
@@ -470,11 +470,11 @@ async def run_aggregation(
             # Close health logger's client session if it exists
             if health_logger and health_logger.sentinel_client:
                 await health_logger.sentinel_client.close()
-                logger.debug("✅ Health logger client session closed")
+                logger.debug("Health logger client session closed")
 
             # Close credential
             await credential.close()
-            logger.debug("✅ Credential closed")
+            logger.debug("Credential closed")
         except Exception as cleanup_error:
             logger.debug(f"Error during cleanup: {cleanup_error}")
 
@@ -796,7 +796,7 @@ async def test_health_logging(
     """
     logger = logging.getLogger(__name__)
 
-    logger.info("🧪 Testing health logging...")
+    logger.info("Testing health logging...")
 
     health_logger = None
     try:
@@ -807,32 +807,32 @@ async def test_health_logging(
         )
 
         if not health_logger:
-            logger.error("❌ Failed to create health logger")
-            logger.info("💡 Check DCR configuration (--dcr-endpoint and --dcr-immutable-id)")
+            logger.error("Failed to create health logger")
+            logger.info("Check DCR configuration (--dcr-endpoint and --dcr-immutable-id)")
             return False
 
         # Send test event
-        logger.info("📤 Sending test health event...")
+        logger.info("Sending test health event...")
         send_result = await health_logger.send_test_event(test_id=args.test_id)
 
         if not send_result["success"]:
-            logger.error(f"❌ {send_result['message']}")
+            logger.error(f"{send_result['message']}")
             return False
 
         if send_result.get("warning"):
-            logger.warning(f"⚠️  {send_result['message']}")
+            logger.warning(f"{send_result['message']}")
             if send_result.get("console_only"):
-                logger.info("💡 To send health logs to Sentinel, configure DCR settings:")
+                logger.info("To send health logs to Sentinel, configure DCR settings:")
                 logger.info(
-                    "   • Set --dcr-endpoint (e.g., https://your-dcr.ingest.monitor.azure.com)"
+                    " -Set --dcr-endpoint (e.g., https://your-dcr.ingest.monitor.azure.com)"
                 )
-                logger.info("   • Set --dcr-immutable-id (Data Collection Rule ID)")
+                logger.info(" -Set --dcr-immutable-id (Data Collection Rule ID)")
                 logger.info(
-                    "   • Or set environment variables: DCR_LOGS_INGESTION_ENDPOINT and DCR_IMMUTABLE_ID"
+                    " -Or set environment variables: DCR_LOGS_INGESTION_ENDPOINT and DCR_IMMUTABLE_ID"
                 )
             return True
 
-        logger.info(f"✅ {send_result['message']}")
+        logger.info(f"{send_result['message']}")
         test_id = send_result["test_id"]
 
         log_output = {
@@ -858,46 +858,44 @@ async def test_health_logging(
                 if aggregation_workspace:
                     verify_workspace_id = aggregation_workspace.customer_id
                     logger.info(
-                        f"🔍 Using aggregation workspace for verification: {aggregation_workspace.workspace_name}"
+                        f"Using aggregation workspace for verification: {aggregation_workspace.workspace_name}"
                     )
                 else:
                     logger.warning(
-                        "⚠️  No aggregation workspace found, health table may not be available"
+                        "No aggregation workspace found, health table may not be available"
                     )
                     return False
 
             if not verify_workspace_id:
-                logger.error("❌ No workspace available for verification")
+                logger.error("No workspace available for verification")
                 return False
 
-            logger.info(f"🔍 Verifying test event ingestion (max wait: {args.max_wait} seconds)...")
+            logger.info(f"Verifying test event ingestion (max wait: {args.max_wait} seconds)...")
             verify_result = await health_logger.verify_test_event(
                 test_id=test_id,
                 workspace_id=verify_workspace_id,
                 max_wait_seconds=args.max_wait,
             )
 
-            logger.info("📊 Verification Results:")
+            logger.info("Verification Results:")
             logger.info("=" * 50)
-            logger.info(f"  • Test ID: {verify_result['test_id']}")
-            logger.info(f"  • Found: {'✅' if verify_result['found'] else '❌'}")
-            logger.info(f"  • Message: {verify_result['message']}")
+            logger.info(f"-Test ID: {verify_result['test_id']}")
+            logger.info(f"-Found: {'' if verify_result['found'] else ''}")
+            logger.info(f"-Message: {verify_result['message']}")
             if verify_result.get("ingestion_delay_seconds") is not None:
-                logger.info(
-                    f"  • Ingestion Delay: {verify_result['ingestion_delay_seconds']} seconds"
-                )
+                logger.info(f"-Ingestion Delay: {verify_result['ingestion_delay_seconds']} seconds")
             logger.info("=" * 50)
 
             return verify_result["found"]
         else:
-            logger.info("💡 Manual Verification:")
+            logger.info("Manual Verification:")
             logger.info(
                 f"Run this query against your aggregation workspace: {HEALTH_TABLE_NAME} | where JobId == '{test_id}' | where OperationName == 'HealthTest'"
             )
             return True
 
     except Exception as e:
-        logger.error(f"❌ Health test failed: {e}", exc_info=True)
+        logger.error(f"Health test failed: {e}", exc_info=True)
         return False
     finally:
         # Clean up health logger resources
@@ -924,7 +922,7 @@ async def verify_health_logging_setup(
     """
     logger = logging.getLogger(__name__)
 
-    logger.info("🏥 Verifying health logging setup...")
+    logger.info("Verifying health logging setup...")
 
     health_logger = None
     try:
@@ -934,8 +932,8 @@ async def verify_health_logging_setup(
         )
 
         if not health_logger:
-            logger.error("❌ Failed to create health logger")
-            logger.info("💡 Check DCR configuration (--dcr-endpoint and --dcr-immutable-id)")
+            logger.error("Failed to create health logger")
+            logger.info("Check DCR configuration (--dcr-endpoint and --dcr-immutable-id)")
             return False
 
         # Determine which workspace to test against - use aggregation workspace
@@ -948,55 +946,51 @@ async def verify_health_logging_setup(
             if aggregation_workspace:
                 test_workspace_id = aggregation_workspace.customer_id
                 logger.info(
-                    f"🔍 Using aggregation workspace for testing: {aggregation_workspace.workspace_name}"
+                    f"Using aggregation workspace for testing: {aggregation_workspace.workspace_name}"
                 )
             else:
-                logger.warning(
-                    "⚠️  No aggregation workspace found, health table may not be available"
-                )
+                logger.warning("No aggregation workspace found, health table may not be available")
                 return False
 
         if not test_workspace_id:
-            logger.error("❌ No workspace available for health logging verification")
+            logger.error("No workspace available for health logging verification")
             return False
 
         # Verify health logging setup
         verification_result = await health_logger.verify_health_table_setup(test_workspace_id)
 
-        logger.info("📊 Health Logging Verification Results:")
+        logger.info("Health Logging Verification Results:")
         logger.info("=" * 50)
-        logger.info(f"  • Enabled: {'✅' if verification_result['enabled'] else '❌'}")
-        logger.info(f"  • Table Exists: {'✅' if verification_result['table_exists'] else '❌'}")
-        logger.info(
-            f"  • DCR Accessible: {'✅' if verification_result['dcr_accessible'] else '❌'}"
-        )
-        logger.info(f"  • Status: {verification_result['message']}")
+        logger.info(f"-Enabled: {'' if verification_result['enabled'] else ''}")
+        logger.info(f"-Table Exists: {'' if verification_result['table_exists'] else ''}")
+        logger.info(f"-DCR Accessible: {'' if verification_result['dcr_accessible'] else ''}")
+        logger.info(f"-Status: {verification_result['message']}")
 
         if (
             verification_result["enabled"]
             and verification_result["table_exists"]
             and verification_result["dcr_accessible"]
         ):
-            logger.info("🎉 Health logging is fully operational!")
+            logger.info("Health logging is fully operational!")
             return True
         elif verification_result["enabled"] and verification_result["table_exists"]:
-            logger.warning("⚠️  Health table exists but DCR access failed")
-            logger.info("💡 Check DCR configuration and permissions")
+            logger.warning("Health table exists but DCR access failed")
+            logger.info("Check DCR configuration and permissions")
             return False
         elif verification_result["enabled"]:
-            logger.error("❌ Health logging enabled but table not found")
-            logger.info("💡 Deploy the health logging infrastructure using:")
+            logger.error("Health logging enabled but table not found")
+            logger.info("Deploy the health logging infrastructure using:")
             logger.info("   az deployment group create \\")
             logger.info("     --resource-group <your-rg> \\")
             logger.info("     --template-file Templates/main.bicep \\")
             logger.info("     --parameters workspaceName=<your-workspace>")
             return False
         else:
-            logger.info("ℹ️  Health logging is disabled")
+            logger.info("Health logging is disabled")
             return True
 
     except Exception as e:
-        logger.error(f"❌ Health logging verification failed: {e}")
+        logger.error(f"Health logging verification failed: {e}")
         logger.debug("Verification error details", exc_info=True)
         return False
     finally:
@@ -1024,7 +1018,7 @@ async def query_last_successful_runs(
     """
     logger = logging.getLogger(__name__)
 
-    logger.info("📊 Querying last successful runs...")
+    logger.info("Querying last successful runs...")
 
     health_logger = None
     try:
@@ -1034,8 +1028,8 @@ async def query_last_successful_runs(
         )
 
         if not health_logger:
-            logger.error("❌ Failed to create health logger")
-            logger.info("💡 Check DCR configuration (--dcr-endpoint and --dcr-immutable-id)")
+            logger.error("Failed to create health logger")
+            logger.info("Check DCR configuration (--dcr-endpoint and --dcr-immutable-id)")
             return False
 
         # Determine workspace to query against - use aggregation workspace
@@ -1051,13 +1045,11 @@ async def query_last_successful_runs(
                     f"Using aggregation workspace for health queries: {aggregation_workspace.workspace_name}"
                 )
             else:
-                logger.warning(
-                    "⚠️  No aggregation workspace found, health table may not be available"
-                )
+                logger.warning("No aggregation workspace found, health table may not be available")
                 return False
 
         if not health_workspace_id:
-            logger.error("❌ No workspace available for health table queries")
+            logger.error("No workspace available for health table queries")
             return False
 
         # Parse query filter if provided
@@ -1076,7 +1068,7 @@ async def query_last_successful_runs(
         start_time, end_time = calculate_time_range_from_lookback(lookback_period)
 
         logger.info(
-            f"🔍 Searching for successful runs from {format_datetime_for_display(start_time)} to {format_datetime_for_display(end_time)}"
+            f"Searching for successful runs from {format_datetime_for_display(start_time)} to {format_datetime_for_display(end_time)}"
         )
 
         # Query health table for last successful runs
@@ -1085,17 +1077,17 @@ async def query_last_successful_runs(
         )
 
         if not successful_runs:
-            logger.warning("⚠️  No successful runs found in the specified time period")
+            logger.warning("No successful runs found in the specified time period")
             return True
 
         # Display results in table format
         _display_successful_runs_table(successful_runs)
 
-        logger.info(f"✅ Found {len(successful_runs)} successful run(s)")
+        logger.info(f"Found {len(successful_runs)} successful run(s)")
         return True
 
     except Exception as e:
-        logger.error(f"❌ Failed to query last successful runs: {e}")
+        logger.error(f"Failed to query last successful runs: {e}")
         logger.debug("Query error details", exc_info=True)
         return False
     finally:
@@ -1160,7 +1152,7 @@ async def _query_health_table_for_last_successful(
         from azure.monitor.query.aio import LogsQueryClient
 
         credential = DefaultAzureCredential()
-        query_client = LogsQueryClient(credential=credential)
+        query_client = LogsQueryClient(credential=credential, logging_enable=True)
 
         # Execute the query
         response = await query_client.query_workspace(
@@ -1219,7 +1211,7 @@ def _display_successful_runs_table(runs: List[Dict[str, Any]]) -> None:
     header_line = " | ".join(headers)
     separator_line = "-" * len(header_line)
 
-    logger.info("📊 Last Successful Runs:")
+    logger.info("Last Successful Runs:")
     logger.info(separator_line)
     logger.info(header_line)
     logger.info(separator_line)
@@ -1304,9 +1296,9 @@ async def _load_and_validate_queries(workspace_manager) -> Dict[str, Any]:
                         "description": query_def.description,
                         "parameters": list(query_def.parameters.keys()),
                     }
-                    logger.debug(f"✅ Loaded query from file: {query_ref}")
+                    logger.debug(f"Loaded query from file: {query_ref}")
                 else:
-                    logger.warning(f"⚠️ Query file not found: {query_file_path}")
+                    logger.warning(f"Query file not found: {query_file_path}")
                     loaded_queries[query_ref] = {
                         "type": "file",
                         "path": str(query_file_path),
@@ -1325,9 +1317,9 @@ async def _load_and_validate_queries(workspace_manager) -> Dict[str, Any]:
                         "description": query_def.description,
                         "parameters": list(query_def.parameters.keys()),
                     }
-                    logger.debug(f"✅ Found built-in query: {query_ref}")
+                    logger.debug(f"Found built-in query: {query_ref}")
                 else:
-                    logger.warning(f"⚠️ Built-in query not found: {query_ref}")
+                    logger.warning(f"Built-in query not found: {query_ref}")
                     loaded_queries[query_ref] = {
                         "type": "builtin",
                         "name": query_ref,
@@ -1335,7 +1327,7 @@ async def _load_and_validate_queries(workspace_manager) -> Dict[str, Any]:
                     }
 
         except Exception as e:
-            logger.warning(f"⚠️ Failed to load query '{query_ref}': {e}")
+            logger.warning(f"Failed to load query '{query_ref}': {e}")
             loaded_queries[query_ref] = {"type": "unknown", "error": str(e)}
 
     # Count successful loads
@@ -1343,7 +1335,7 @@ async def _load_and_validate_queries(workspace_manager) -> Dict[str, Any]:
     total_queries = len(loaded_queries)
 
     if successful_loads < total_queries:
-        logger.warning(f"⚠️ Loaded {successful_loads}/{total_queries} queries successfully")
+        logger.warning(f"Loaded {successful_loads}/{total_queries} queries successfully")
 
     return loaded_queries
 
@@ -1375,28 +1367,26 @@ async def main():
         if args.command != "validate":
             # Only require DCR configuration for non-validation commands
             if args.config_file:
-                logger.debug(f"📋 Loading configuration from file: {args.config_file}")
+                logger.debug(f"Loading configuration from file: {args.config_file}")
                 client_options = SentinelAggregatorClientOptions.from_yaml_file(args.config_file)
             else:
-                logger.debug("📋 Creating configuration from arguments and environment variables")
+                logger.debug("Creating configuration from arguments and environment variables")
                 client_options = create_client_options_from_args(args)
         else:
             # For validation, try to create client options but don't fail if DCR config is missing
             try:
                 if args.config_file:
-                    logger.debug(f"📋 Loading configuration from file: {args.config_file}")
+                    logger.debug(f"Loading configuration from file: {args.config_file}")
                     client_options = SentinelAggregatorClientOptions.from_yaml_file(
                         args.config_file
                     )
                 else:
-                    logger.debug(
-                        "📋 Creating configuration from arguments and environment variables"
-                    )
+                    logger.debug("Creating configuration from arguments and environment variables")
                     client_options = create_client_options_from_args(args)
             except ValueError as e:
                 if "DCR" in str(e):
                     logger.debug(
-                        f"📋 DCR configuration not provided for validation - will validate workspace config only"
+                        f"DCR configuration not provided for validation - will validate workspace config only"
                     )
                     client_options = None
                 else:
@@ -1433,51 +1423,51 @@ async def main():
             success = await query_last_successful_runs(args, client_options, workspaces)
 
         elif args.command == "validate":
-            logger.info("🔍 Validating configuration...")
+            logger.info("Validating configuration...")
 
             # Validate client options if available
             if client_options:
                 config_errors = client_options.validate()
                 if config_errors:
-                    logger.error("❌ Client options validation failed:")
+                    logger.error("Client options validation failed:")
                     for error in config_errors:
-                        logger.error(f"  • {error}")
+                        logger.error(f"-{error}")
                     success = False
                 else:
-                    logger.info("✅ Client options validation successful")
+                    logger.info("Client options validation successful")
             else:
-                logger.info("⚙️  Client configuration not provided - skipping client validation")
+                logger.info("Client configuration not provided - skipping client validation")
 
             # Validate workspace configuration
             if workspace_manager:
                 # Check for validation errors first
                 if workspace_manager.has_validation_errors():
-                    logger.error("❌ Workspace configuration validation failed:")
+                    logger.error("Workspace configuration validation failed:")
                     for error in workspace_manager.get_validation_errors():
-                        logger.error(f"  • {error}")
+                        logger.error(f"-{error}")
                     success = False
                 else:
-                    logger.info(f"✅ Workspace configuration validation successful")
+                    logger.info(f"Workspace configuration validation successful")
 
                 # Show workspace summary regardless of validation status
                 if workspaces:
-                    logger.info(f"📄 Loaded {len(workspaces)} workspaces:")
+                    logger.info(f"Loaded {len(workspaces)} workspaces:")
                     for i, workspace in enumerate(workspaces, 1):
                         logger.info(
-                            f"  • Workspace {i}: {workspace.workspace_name} (ID: {workspace.customer_id})"
+                            f"-Workspace {i}: {workspace.workspace_name} (ID: {workspace.customer_id})"
                         )
                 else:
-                    logger.warning("⚠️ No workspaces found in configuration")
+                    logger.warning("No workspaces found in configuration")
             else:
-                logger.warning("⚠️ No workspace configuration provided")
+                logger.warning("No workspace configuration provided")
 
         return 0 if success else 1
 
     except FileNotFoundError as e:
-        logger.error(f"❌ File not found: {e}")
+        logger.error(f"File not found: {e}")
         return 1
     except Exception as e:
-        logger.error(f"❌ Unexpected error: {e}")
+        logger.error(f"Unexpected error: {e}")
         logger.debug("Full traceback:", exc_info=True)
         return 1
 
@@ -1487,7 +1477,7 @@ def cli_main():
     try:
         return asyncio.run(main())
     except KeyboardInterrupt:
-        print("\n❌ Operation cancelled by user")
+        print("\nOperation cancelled by user")
         return 130  # Standard exit code for SIGINT
 
 

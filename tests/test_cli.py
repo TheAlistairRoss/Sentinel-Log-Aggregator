@@ -494,7 +494,7 @@ class TestCLIMainWrapper:
             result = cli_main()
 
             assert result == 130
-            mock_print.assert_called_with("\n❌ Operation cancelled by user")
+            mock_print.assert_called_with("\nOperation cancelled by user")
 
     @patch("sentinel_log_aggregator.cli.asyncio.run")
     def test_cli_main_error(self, mock_asyncio_run):

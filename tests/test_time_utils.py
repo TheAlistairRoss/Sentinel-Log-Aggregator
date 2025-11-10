@@ -399,9 +399,9 @@ class TestIntegrationScenarios:
         # Should have 4 batches (24 hours / 6 hours)
         assert len(batches) == 4
 
-        # Verify batch continuity
+        # Verify batch continuity (batches have 1ms gap to prevent overlapping boundaries)
         for i in range(len(batches) - 1):
-            assert batches[i][1] == batches[i + 1][0]
+            assert batches[i][1] + timedelta(milliseconds=1) == batches[i + 1][0]
 
     def test_format_for_logging_scenario(self):
         """Test formatting datetime for logging scenario."""

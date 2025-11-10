@@ -492,7 +492,7 @@ class TestWorkspaceManagerFileOperationsCoverage:
             manager = WorkspaceManager.from_file(yaml_file)
 
             # Should log metadata information
-            mock_logger.debug.assert_any_call("📊 Configuration metadata: version=2.0")
+            mock_logger.debug.assert_any_call("Configuration metadata: version=2.0")
 
     def test_from_file_validation_fallback(self, tmp_path):
         """Test loading file when Pydantic validation fails but basic validation passes."""

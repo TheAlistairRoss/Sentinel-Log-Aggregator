@@ -689,13 +689,13 @@ class TestIntegrationScenarios:
         # Should have 12 batches (3 days * 4 batches per day)
         assert len(batches) == 12
 
-        # Verify batch continuity
+        # Verify batch continuity (batches have 1ms gap to prevent overlapping boundaries)
         for i in range(len(batches) - 1):
-            assert batches[i][1] == batches[i + 1][0]
+            assert batches[i][1] + timedelta(milliseconds=1) == batches[i + 1][0]
 
         # Verify full range coverage
         assert batches[0][0] == start_time
-        assert batches[-1][1] == end_time
+        assert batches[-1][1] == end_time - timedelta(milliseconds=1)
 
     @pytest.mark.asyncio
     async def test_full_explicit_time_scenario(self):
@@ -734,9 +734,9 @@ class TestIntegrationScenarios:
         # Should have 3 batches (24 hours / 8 hours)
         assert len(batches) == 3
 
-        # Verify each batch is exactly 8 hours
+        # Verify each batch is approximately 8 hours (minus 1ms for boundary adjustment)
         for batch_start, batch_end in batches:
-            assert batch_end - batch_start == timedelta(hours=8)
+            assert batch_end - batch_start == timedelta(hours=8, milliseconds=-1)
 
     @pytest.mark.skip(reason="Complex Azure mocking scenario - core functionality tested elsewhere")
     @pytest.mark.asyncio

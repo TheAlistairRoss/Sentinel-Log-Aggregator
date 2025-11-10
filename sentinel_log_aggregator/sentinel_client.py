@@ -202,7 +202,9 @@ class SentinelAggregatorClient:
         """Get or create logs query client."""
         if self._logs_query_client is None:
             self._logs_query_client = LogsQueryClient(
-                credential=self._credential, timeout=self._options.query_timeout_seconds
+                credential=self._credential,
+                timeout=self._options.query_timeout_seconds,
+                logging_enable=True,
             )
         return self._logs_query_client
 

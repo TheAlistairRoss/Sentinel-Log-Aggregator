@@ -42,15 +42,11 @@ resource healthTable 'Microsoft.OperationalInsights/workspaces/tables@2025-02-01
           type: 'string'
         }
         {
+          name: 'OperationStatusReason'
+          type: 'string'
+        }
+        {
           name: 'JobId'
-          type: 'string'
-        }
-        {
-          name: 'WorkspaceId'
-          type: 'string'
-        }
-        {
-          name: 'QueryName'
           type: 'string'
         }
         {
@@ -85,17 +81,13 @@ resource dataCollectionRule 'Microsoft.Insights/dataCollectionRules@2023-03-11' 
           {
             name: 'OperationStatus'
             type: 'string'
+          }          
+          {
+            name: 'OperationStatusReason'
+            type: 'string'
           }
           {
             name: 'JobId'
-            type: 'string'
-          }
-          {
-            name: 'WorkspaceId'
-            type: 'string'
-          }
-          {
-            name: 'QueryName'
             type: 'string'
           }
           {

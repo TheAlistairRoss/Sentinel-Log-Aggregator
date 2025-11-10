@@ -172,7 +172,7 @@ class WorkspaceSet:
             logger = logging.getLogger(__name__)
 
         for ws_detail in self.details():
-            logger.info(f"  • {ws_detail['workspace_name']}")
+            logger.info(f"-{ws_detail['workspace_name']}")
             logger.info(f"    ID: {ws_detail['customer_id']}")
             logger.info(f"    Alias: {ws_detail['alias']}")
             logger.info(f"    Subscription: {ws_detail['subscription_id']}")
@@ -572,18 +572,18 @@ class WorkspaceManager:
         if errors:
             self.logger.error(f"Configuration errors found: {len(errors)}")
             for error in errors:
-                self.logger.error(f"  • {error}")
+                self.logger.error(f"-{error}")
             return
 
         # Reports summary
         self.logger.info(f"Reports configured: {len(reports)}")
         for report, count in reports.items():
-            self.logger.info(f"  • {report}: {count} workspace(s)")
+            self.logger.info(f"-{report}: {count} workspace(s)")
 
         # Subscription summary
         self.logger.info(f"Subscriptions: {len(subscription_summary)}")
         for sub_id, sub_data in subscription_summary.items():
-            self.logger.info(f"  • {sub_id}: {sub_data['workspace_count']} workspace(s)")
+            self.logger.info(f"-{sub_id}: {sub_data['workspace_count']} workspace(s)")
 
     @classmethod
     def from_dict_list(cls, workspace_dicts: List[Dict[str, Any]]) -> "WorkspaceManager":
@@ -661,7 +661,7 @@ class WorkspaceManager:
             )
 
         with open(config_file, "r", encoding="utf-8") as f:
-            logger.debug("🔧 Loading YAML workspace configuration")
+            logger.debug("Loading YAML workspace configuration")
             config_data = yaml.safe_load(f)
 
             # For debug troubleshooting, use raw logger to show full content without sanitization
@@ -673,7 +673,7 @@ class WorkspaceManager:
             formatted_yaml = yaml_module.dump(
                 config_data, default_flow_style=False, sort_keys=False, indent=2, width=None
             )
-            raw_logger.debug(f"📄 Loaded YAML content:\n{formatted_yaml}")
+            raw_logger.debug(f"Loaded YAML content:\n{formatted_yaml}")
 
             # Handle new YAML structure with 'workspaces' key
             if isinstance(config_data, dict) and "workspaces" in config_data:
@@ -682,7 +682,7 @@ class WorkspaceManager:
                 if "metadata" in config_data:
                     metadata = config_data["metadata"]
                     logger.debug(
-                        f"📊 Configuration metadata: version={metadata.get('version', 'unknown')}"
+                        f"Configuration metadata: version={metadata.get('version', 'unknown')}"
                     )
             else:
                 # Legacy format - direct list
@@ -699,15 +699,13 @@ class WorkspaceManager:
                 validated_config = validate_workspace_config(wrapped_config)
                 workspace_data = [ws.model_dump() for ws in validated_config.workspaces]
 
-            logger.debug(
-                f"✅ Configuration validation successful: {len(workspace_data)} workspaces"
-            )
+            logger.debug(f"Configuration validation successful: {len(workspace_data)} workspaces")
 
             # Create and return workspace manager with successful validation
             return cls.from_dict_list(workspace_data)
 
         except Exception as e:
-            logger.error(f"❌ Pydantic validation failed: {e}")
+            logger.error(f"Pydantic validation failed: {e}")
             # Fallback to basic validation but track the failure
             if not isinstance(workspace_data, list):
                 raise ValueError(
