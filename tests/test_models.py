@@ -376,6 +376,9 @@ class TestSentinelQueryEngine:
     def mock_azure_client(self):
         """Mock SentinelAggregatorClient."""
         client = AsyncMock()
+        # Add required string attributes
+        client.workspace_id = "test-workspace-id"
+        client.workspace_alias = "test-workspace"
 
         # Mock successful query response
         client.query_workspace = AsyncMock(
@@ -387,16 +390,21 @@ class TestSentinelQueryEngine:
                 ],
                 record_count=2,
                 succeeded=True,
-                error_message=None,
+                error_message="",  # Empty string instead of None
                 workspace_id="test-workspace-id",
                 workspace_alias="test",
+                execution_time=1.5,
             )
         )
 
         # Mock successful upload response
         client.upload_logs = AsyncMock(
             return_value=MagicMock(
-                status=UploadStatus.SUCCESS, record_count=2, succeeded=True, error_message=None
+                status=UploadStatus.SUCCESS, 
+                record_count=2, 
+                succeeded=True, 
+                error_message="",  # Empty string instead of None
+                upload_time=0.5,
             )
         )
 

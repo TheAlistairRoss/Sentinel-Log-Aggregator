@@ -381,7 +381,10 @@ class TestSentinelQueryEngine:
     def mock_azure_client(self):
         """Mock SentinelAggregatorClient."""
         client = AsyncMock()
-
+        # Add required string attributes that production code may format
+        client.workspace_id = "test-workspace-id"
+        client.workspace_alias = "test-workspace"
+        
         # Mock successful query response
         client.query_workspace = AsyncMock(
             return_value=MagicMock(
@@ -392,7 +395,7 @@ class TestSentinelQueryEngine:
                 ],
                 record_count=2,
                 succeeded=True,
-                error_message=None,
+                error_message="",  # Empty string instead of None
                 execution_time=1.5,
             )
         )
@@ -403,7 +406,7 @@ class TestSentinelQueryEngine:
                 status=UploadStatus.SUCCESS,
                 record_count=2,
                 succeeded=True,
-                error_message=None,
+                error_message="",  # Empty string instead of None
                 stream_name="Custom-Test_TestQuery_CL",
             )
         )

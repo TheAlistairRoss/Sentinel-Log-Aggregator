@@ -39,13 +39,13 @@ class SentinelLogFormatter:
         job_id: str, total_days: int, batch_hours: int, workspace_count: int
     ) -> str:
         """Format batch execution start message."""
-        return f"[BATCH_START] Job: {job_id} | Range: {total_days}d ({batch_hours}h batches) | Workspaces: {workspace_count}"
+        return f"[BATCH_START] Job: {str(job_id)} | Range: {total_days}d ({batch_hours}h batches) | Workspaces: {workspace_count}"
 
     @staticmethod
     def format_batch_end(job_id: str, summary: Dict[str, Any]) -> str:
         """Format batch execution summary message."""
         return (
-            f"[BATCH_END] Job: {job_id} | "
+            f"[BATCH_END] Job: {str(job_id)} | "
             f"Queries: {summary.get('successful_queries', 0)}/{summary.get('total_queries', 0)} | "
             f"Uploads: {summary.get('successful_uploads', 0)}/{summary.get('total_uploads', 0)} | "
             f"Records: {summary.get('total_records', 0):,} retrieved, {summary.get('total_uploaded', 0):,} uploaded | "
@@ -57,7 +57,7 @@ class SentinelLogFormatter:
         job_id: str, query_name: str, workspace_alias: str, time_range: str
     ) -> str:
         """Format query execution start message."""
-        return f"[QUERY_START] Job: {job_id} | Query: {query_name} | Workspace: {workspace_alias} | TimeRange: {time_range}"
+        return f"[QUERY_START] Job: {str(job_id)} | Query: {str(query_name)} | Workspace: {str(workspace_alias)} | TimeRange: {str(time_range)}"
 
     @staticmethod
     def format_query_end(
@@ -83,7 +83,7 @@ class SentinelLogFormatter:
             record_str = str(record_count)
 
         return (
-            f"[QUERY_END] Job: {job_id} | Query: {query_name} | Workspace: {workspace_alias} | "
+            f"[QUERY_END] Job: {str(job_id)} | Query: {str(query_name)} | Workspace: {str(workspace_alias)} | "
             f"Status: {status} | Records: {record_str} | Duration: {duration_str}"
         )
 
@@ -96,7 +96,7 @@ class SentinelLogFormatter:
             record_str = f"{record_count:,}"
         except (TypeError, ValueError):
             record_str = str(record_count)
-        return f"[UPLOAD_START] Job: {job_id} | Query: {query_name} | Workspace: {workspace_alias} | Records: {record_str}"
+        return f"[UPLOAD_START] Job: {str(job_id)} | Query: {str(query_name)} | Workspace: {str(workspace_alias)} | Records: {record_str}"
 
     @staticmethod
     def format_upload_end(
@@ -122,7 +122,7 @@ class SentinelLogFormatter:
             duration_str = str(duration)
 
         return (
-            f"[UPLOAD_END] Job: {job_id} | Query: {query_name} | Workspace: {workspace_alias} | "
+            f"[UPLOAD_END] Job: {str(job_id)} | Query: {str(query_name)} | Workspace: {str(workspace_alias)} | "
             f"Status: {status} | Uploaded: {uploaded_str} | Duration: {duration_str}"
         )
 
@@ -136,17 +136,18 @@ class SentinelLogFormatter:
         error_type: Optional[str] = None,
     ) -> str:
         """Format error message with full context."""
-        context_parts = [f"Job: {job_id}", f"Component: {component}"]
+        # Safely convert to strings to handle mock objects in tests
+        context_parts = [f"Job: {str(job_id)}", f"Component: {str(component)}"]
 
         if query_name:
-            context_parts.append(f"Query: {query_name}")
+            context_parts.append(f"Query: {str(query_name)}")
         if workspace_alias:
-            context_parts.append(f"Workspace: {workspace_alias}")
+            context_parts.append(f"Workspace: {str(workspace_alias)}")
         if error_type:
-            context_parts.append(f"ErrorType: {error_type}")
+            context_parts.append(f"ErrorType: {str(error_type)}")
 
         context = " | ".join(context_parts)
-        return f"{context} | Message: {error_message}"
+        return f"{context} | Message: {str(error_message)}"
 
     @staticmethod
     def format_progress(
@@ -154,10 +155,11 @@ class SentinelLogFormatter:
     ) -> str:
         """Format progress update message."""
         percentage = (completed / total * 100) if total > 0 else 0
-        base_msg = f"[PROGRESS] Job: {job_id} | Completed: {completed}/{total} ({percentage:.1f}%)"
+        # Safely convert to strings to handle mock objects in tests
+        base_msg = f"[PROGRESS] Job: {str(job_id)} | Completed: {completed}/{total} ({percentage:.1f}%)"
 
         if additional_info:
-            base_msg += f" | {additional_info}"
+            base_msg += f" | {str(additional_info)}"
 
         return base_msg
 

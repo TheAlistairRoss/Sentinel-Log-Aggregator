@@ -226,9 +226,15 @@ class SentinelQueryEngine:
                 workspace_id=workspace_id, query=query, start_time=start_time, end_time=end_time
             )
 
+            # Safely extract attributes for logging (handle potential mocks in tests)
+            try:
+                exec_time_str = f"{query_result.execution_time:.2f}s"
+            except (TypeError, ValueError, AttributeError):
+                exec_time_str = str(getattr(query_result, 'execution_time', 'N/A'))
+            
             self.logger.debug(
                 f"✅ Query execution completed: success={query_result.succeeded}, "
-                f"records={query_result.record_count}, duration={query_result.execution_time:.2f}s"
+                f"records={query_result.record_count}, duration={exec_time_str}"
             )
 
             if query_result.succeeded:
@@ -267,9 +273,15 @@ class SentinelQueryEngine:
                         data=transformed_data, stream_name=destination_stream
                     )
 
+                    # Safely extract attributes for logging (handle potential mocks in tests)
+                    try:
+                        upload_time_str = f"{upload_result.upload_time:.2f}s"
+                    except (TypeError, ValueError, AttributeError):
+                        upload_time_str = str(getattr(upload_result, 'upload_time', 'N/A'))
+                    
                     self.logger.debug(
                         f"✅ Upload completed: success={upload_result.succeeded}, "
-                        f"records={upload_result.record_count}, duration={upload_result.upload_time:.2f}s"
+                        f"records={upload_result.record_count}, duration={upload_time_str}"
                     )
 
                     if upload_result.succeeded:
