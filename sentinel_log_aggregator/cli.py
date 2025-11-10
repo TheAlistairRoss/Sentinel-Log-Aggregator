@@ -86,17 +86,23 @@ def create_client_options_from_args(args) -> SentinelAggregatorClientOptions:
         )
 
     # Get time configuration (these may not be present for all subcommands)
-    lookback_period = getattr(args, "lookback_period", None) or os.getenv(
-        "LOOKBACK_PERIOD", DEFAULT_LOOKBACK_PERIOD
-    )
-    batch_time_size = getattr(args, "batch_time_size", None) or os.getenv(
-        "BATCH_TIME_SIZE", DEFAULT_BATCH_TIME_SIZE
-    )
     start_time = getattr(args, "start_time", None) or os.getenv("START_TIME")
     end_time = getattr(args, "end_time", None) or os.getenv("END_TIME")
     use_last_successful = (
         getattr(args, "use_last_successful", False)
         or os.getenv("USE_LAST_SUCCESSFUL", "false").lower() == "true"
+    )
+
+    # Only set lookback_period if no explicit times are provided
+    if start_time or end_time or use_last_successful:
+        lookback_period = None
+    else:
+        lookback_period = getattr(args, "lookback_period", None) or os.getenv(
+            "LOOKBACK_PERIOD", DEFAULT_LOOKBACK_PERIOD
+        )
+
+    batch_time_size = getattr(args, "batch_time_size", None) or os.getenv(
+        "BATCH_TIME_SIZE", DEFAULT_BATCH_TIME_SIZE
     )
 
     # Get health logging configuration
