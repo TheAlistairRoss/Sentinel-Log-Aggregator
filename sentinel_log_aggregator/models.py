@@ -248,7 +248,7 @@ class QueryExecution:
     @property
     def time_range_str(self) -> str:
         """Get formatted time range string (oldest to newest)."""
-        return f"{self.end_time.strftime('%Y-%m-%d %H:%M')} to {self.start_time.strftime('%Y-%m-%d %H:%M')}"
+        return f"{self.start_time.strftime('%Y-%m-%d %H:%M')} to {self.end_time.strftime('%Y-%m-%d %H:%M')}"
 
     @property
     def workspace_alias(self) -> str:

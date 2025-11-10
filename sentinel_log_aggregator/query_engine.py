@@ -91,7 +91,11 @@ class SentinelQueryEngine:
 
         while current_time < end_time:
             batch_end = min(current_time + timedelta(hours=batch_hours), end_time)
-            batches.append((current_time, batch_end))
+            # Subtract 1 millisecond from batch_end to prevent overlapping boundaries
+            # Azure Monitor queries are inclusive on both start and end times
+            # This ensures records at exact boundary timestamps don't appear in multiple batches
+            adjusted_batch_end = batch_end - timedelta(milliseconds=1)
+            batches.append((current_time, adjusted_batch_end))
             current_time = batch_end
 
         # Return batches in reverse order (newest first)
@@ -187,11 +191,11 @@ class SentinelQueryEngine:
 
         try:
             time_range_str = (
-                f"{end_time.strftime('%Y-%m-%d %H:%M')} to {start_time.strftime('%Y-%m-%d %H:%M')}"
+                f"{start_time.strftime('%Y-%m-%d %H:%M')} to {end_time.strftime('%Y-%m-%d %H:%M')}"
             )
         except (AttributeError, TypeError):
             # Handle cases where start_time/end_time might be mocks or invalid
-            time_range_str = f"{str(end_time)} to {str(start_time)}"
+            time_range_str = f"{str(start_time)} to {str(end_time)}"
 
         self.logger.debug(
             f"🔍 Executing query '{query_name}' for workspace {workspace_alias} ({workspace_id})"

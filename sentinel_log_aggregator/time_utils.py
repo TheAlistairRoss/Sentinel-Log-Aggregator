@@ -236,7 +236,11 @@ def calculate_batches(
 
         # Only include batch if it meets minimum size requirement
         if batch_duration >= min_batch_size:
-            batches.append((current_time, batch_end))
+            # Subtract 1 millisecond from batch_end to prevent overlapping boundaries
+            # Azure Monitor queries are inclusive on both start and end times
+            # This ensures records at exact boundary timestamps don't appear in multiple batches
+            adjusted_batch_end = batch_end - timedelta(milliseconds=1)
+            batches.append((current_time, adjusted_batch_end))
 
         current_time = batch_end
 

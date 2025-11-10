@@ -168,7 +168,7 @@ class TestQueryExecution:
             end_time=end_time,
         )
 
-        assert execution.time_range_str == "2023-01-01 13:00 to 2023-01-01 12:00"
+        assert execution.time_range_str == "2023-01-01 12:00 to 2023-01-01 13:00"
 
 
 class TestBatchExecutionSummary:

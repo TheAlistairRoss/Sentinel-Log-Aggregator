@@ -555,11 +555,11 @@ class TestBatchCalculation:
         assert len(batches) == 2
         assert batches[0] == (
             datetime(2025, 11, 1, 0, 0, 0, tzinfo=timezone.utc),
-            datetime(2025, 11, 2, 0, 0, 0, tzinfo=timezone.utc),
+            datetime(2025, 11, 1, 23, 59, 59, 999000, tzinfo=timezone.utc),
         )
         assert batches[1] == (
             datetime(2025, 11, 2, 0, 0, 0, tzinfo=timezone.utc),
-            datetime(2025, 11, 3, 0, 0, 0, tzinfo=timezone.utc),
+            datetime(2025, 11, 2, 23, 59, 59, 999000, tzinfo=timezone.utc),
         )
 
     def test_calculate_execution_batches_partial(self):
@@ -573,11 +573,11 @@ class TestBatchCalculation:
         assert len(batches) == 2
         assert batches[0] == (
             datetime(2025, 11, 1, 0, 0, 0, tzinfo=timezone.utc),
-            datetime(2025, 11, 1, 12, 0, 0, tzinfo=timezone.utc),
+            datetime(2025, 11, 1, 11, 59, 59, 999000, tzinfo=timezone.utc),
         )
         assert batches[1] == (
             datetime(2025, 11, 1, 12, 0, 0, tzinfo=timezone.utc),
-            datetime(2025, 11, 1, 18, 0, 0, tzinfo=timezone.utc),
+            datetime(2025, 11, 1, 17, 59, 59, 999000, tzinfo=timezone.utc),
         )
 
     def test_calculate_execution_batches_single(self):
@@ -589,7 +589,10 @@ class TestBatchCalculation:
         batches = calculate_execution_batches(start_time, end_time, batch_size)
 
         assert len(batches) == 1
-        assert batches[0] == (start_time, end_time)
+        assert batches[0] == (
+            start_time,
+            datetime(2025, 11, 1, 5, 59, 59, 999000, tzinfo=timezone.utc),
+        )
 
     def test_calculate_execution_batches_empty(self):
         """Test batch calculation for very short time range."""

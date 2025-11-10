@@ -146,7 +146,7 @@ class TestModelsComplete:
         )
 
         # Test time_range_str property (line 196)
-        expected_range = "2025-01-01 13:30 to 2025-01-01 12:00"
+        expected_range = "2025-01-01 12:00 to 2025-01-01 13:30"
         assert execution.time_range_str == expected_range
 
         # Test status property (line 206)
