@@ -148,5 +148,13 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Act (GitHub Actions local runner) - secrets only
+.secrets
+.act/
+
+# Test virtual environments
+.venv-test/
+.venv-ci/
+
 # pytype static type analyzer
 .pytype/

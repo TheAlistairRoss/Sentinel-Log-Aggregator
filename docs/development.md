@@ -139,6 +139,134 @@ pytest tests/ -m slow -v
 pytest tests/ -m "not slow" -v
 ```
 
+### Running GitHub Actions Locally (Pre-Push Validation)
+
+**Before pushing to GitHub**, validate your changes locally using `act` to run GitHub Actions workflows in a Docker container. This catches issues before they fail in CI/CD.
+
+> **⚠️ Prerequisites**: Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/) to be installed and running.
+
+#### 1. Install Act
+
+```bash
+# Windows (PowerShell as Administrator)
+winget install nektos.act
+
+# Or using Chocolatey
+choco install act-cli
+
+# Or using Scoop
+scoop install act
+
+# Verify installation (may need to restart shell)
+act --version
+```
+
+#### 2. Create Fresh Test Environment
+
+Always test in a clean virtual environment to match CI/CD conditions:
+
+```bash
+# Create fresh test environment
+python -m venv .venv-test
+
+# Windows
+.\.venv-test\Scripts\Activate.ps1
+
+# Linux/macOS  
+source .venv-test/bin/activate
+
+# Install dependencies
+python -m pip install --upgrade pip setuptools wheel
+pip install -e ".[dev]"
+
+# Run full test suite
+pytest tests/ -v --cov=sentinel_log_aggregator --cov-report=html
+```
+
+#### 3. Run Workflows Locally
+
+```bash
+# List available workflows
+act -l
+
+# Run all workflows on push event
+act push
+
+# Run specific workflow
+act push -W .github/workflows/ci-cd.yml
+
+# Run security workflow
+act push -W .github/workflows/security.yml
+
+# Dry run (see what would execute)
+act push -n
+
+# Run specific job
+act -j test
+
+# Run with verbose output
+act push -v
+```
+
+#### 4. Configuration
+
+The project includes `.actrc` configuration (not committed to git):
+
+```ini
+# .actrc - Act configuration
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
+--container-architecture linux/amd64
+--bind
+--container-daemon-socket -
+```
+
+#### 5. Pre-Push Checklist
+
+Before pushing to GitHub, ensure:
+
+- [ ] Fresh venv created and dependencies installed
+- [ ] All tests pass: `pytest tests/ -v`
+- [ ] Coverage meets threshold (80%): `pytest --cov`
+- [ ] Code formatted: `black sentinel_log_aggregator/ tests/`
+- [ ] Imports sorted: `isort sentinel_log_aggregator/ tests/`
+- [ ] Linting clean: `flake8 sentinel_log_aggregator/`
+- [ ] Type checking: `mypy sentinel_log_aggregator/`
+- [ ] Security scan: `bandit -r sentinel_log_aggregator/`
+- [ ] Act workflows pass: `act push`
+
+#### 6. Cleanup
+
+```bash
+# After validation, clean up test environment
+deactivate
+Remove-Item -Recurse -Force .venv-test  # Windows
+rm -rf .venv-test  # Linux/macOS
+```
+
+#### Common Act Issues
+
+**Docker not running:**
+```bash
+# Start Docker Desktop or Docker daemon
+# Then retry act command
+```
+
+**Image pull failures:**
+```bash
+# Pull image manually
+docker pull catthehacker/ubuntu:act-latest
+
+# Or use smaller image
+act push -P ubuntu-latest=node:16-buster-slim
+```
+
+**Permission issues (Linux/macOS):**
+```bash
+# Add user to docker group
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
 ### Code Organization
 
 ```
