@@ -775,6 +775,7 @@ async def test_health_logging(
 
     logger.info("🧪 Testing health logging...")
 
+    health_logger = None
     try:
         # Create health logger with force_enable=True and force_to_sentinel=True
         # since test-health command is specifically for testing Sentinel ingestion
@@ -865,6 +866,13 @@ async def test_health_logging(
     except Exception as e:
         logger.error(f"❌ Health test failed: {e}", exc_info=True)
         return False
+    finally:
+        # Clean up health logger resources
+        if health_logger and health_logger.sentinel_client:
+            try:
+                await health_logger.sentinel_client.close()
+            except Exception as cleanup_error:
+                logger.debug(f"Error closing health logger client: {cleanup_error}")
 
 
 async def verify_health_logging_setup(
@@ -885,6 +893,7 @@ async def verify_health_logging_setup(
 
     logger.info("🏥 Verifying health logging setup...")
 
+    health_logger = None
     try:
         # Create health logger with force_enable=True since verification requires health logging
         health_logger = create_health_logger_from_args(
@@ -945,6 +954,13 @@ async def verify_health_logging_setup(
         logger.error(f"❌ Health logging verification failed: {e}")
         logger.debug("Verification error details", exc_info=True)
         return False
+    finally:
+        # Clean up health logger resources
+        if health_logger and health_logger.sentinel_client:
+            try:
+                await health_logger.sentinel_client.close()
+            except Exception as cleanup_error:
+                logger.debug(f"Error closing health logger client: {cleanup_error}")
 
 
 async def query_last_successful_runs(
@@ -965,6 +981,7 @@ async def query_last_successful_runs(
 
     logger.info("📊 Querying last successful runs...")
 
+    health_logger = None
     try:
         # Create health logger with force_enable=True since querying requires health logging
         health_logger = create_health_logger_from_args(
@@ -1026,6 +1043,13 @@ async def query_last_successful_runs(
         logger.error(f"❌ Failed to query last successful runs: {e}")
         logger.debug("Query error details", exc_info=True)
         return False
+    finally:
+        # Clean up health logger resources
+        if health_logger and health_logger.sentinel_client:
+            try:
+                await health_logger.sentinel_client.close()
+            except Exception as cleanup_error:
+                logger.debug(f"Error closing health logger client: {cleanup_error}")
 
 
 async def _query_health_table_for_last_successful(
