@@ -422,7 +422,7 @@ class SentinelAggregatorHealthLogger:
         # Create a clean record for logging (remove Time as it's handled by log formatter)
         debug_record = {k: v for k, v in health_record.items() if k != "Time"}
         debug_record["to_sentinel"] = self.health_to_sentinel
-        logger.debug(json.dumps(debug_record, default=str))
+        logger.debug(json.dumps(debug_record, default=str, indent=2))
 
     async def verify_health_table_setup(self, workspace_id: str) -> dict:
         """

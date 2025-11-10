@@ -99,7 +99,7 @@ class SentinelLogFormatter:
 
         import json
 
-        return json.dumps(query_end_data, default=str)
+        return json.dumps(query_end_data, default=str, indent=2)
 
     @staticmethod
     def format_upload_start(
