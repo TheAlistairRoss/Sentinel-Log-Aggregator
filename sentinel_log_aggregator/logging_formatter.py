@@ -74,18 +74,32 @@ class SentinelLogFormatter:
         # Handle potential MagicMock objects in format strings
         try:
             duration_str = f"{duration:.2f}s"
+            duration_val = duration
         except (TypeError, ValueError):
             duration_str = str(duration)
+            duration_val = None
 
         try:
             record_str = f"{record_count:,}"
+            record_val = record_count
         except (TypeError, ValueError):
             record_str = str(record_count)
+            record_val = record_count
 
-        return (
-            f"[QUERY_END] Job: {str(job_id)} | Query: {str(query_name)} | Workspace: {str(workspace_alias)} | "
-            f"Status: {status} | Records: {record_str} | Duration: {duration_str}"
-        )
+        query_end_data = {
+            "event": "QUERY_END",
+            "job_id": str(job_id),
+            "query_name": str(query_name),
+            "workspace_alias": str(workspace_alias),
+            "status": status,
+            "records": record_val,
+            "duration_seconds": duration_val,
+            "duration": duration_str,
+        }
+
+        import json
+
+        return json.dumps(query_end_data, default=str)
 
     @staticmethod
     def format_upload_start(

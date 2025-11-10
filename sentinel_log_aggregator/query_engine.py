@@ -194,12 +194,12 @@ class SentinelQueryEngine:
             time_range_str = f"{str(end_time)} to {str(start_time)}"
 
         self.logger.debug(
-            f"🔍 Executing query '{query_name}' for workspace {workspace_alias} ({workspace_id[:8]}***)"
+            f"🔍 Executing query '{query_name}' for workspace {workspace_alias} ({workspace_id})"
         )
         self.logger.debug(f"⏰ Time range: {time_range_str}")
         self.logger.debug(f"📤 Destination stream: {destination_stream}")
 
-        # Log comprehensive query execution details as single JSON line
+        # Log comprehensive query execution details as formatted JSON
         query_execution_details = {
             "operation": "query_execution",
             "workspace_resource_id": workspace_resource_id,
@@ -212,9 +212,13 @@ class SentinelQueryEngine:
             "end_time": end_time.isoformat() if hasattr(end_time, "isoformat") else str(end_time),
             "destination_stream": destination_stream,
             "execution_id": execution_id,
-            "kql_query": query,
         }
-        self.logger.debug(json.dumps(query_execution_details, default=str))
+        self.logger.debug(
+            f"📋 Query execution metadata:\n{json.dumps(query_execution_details, indent=2)}"
+        )
+
+        # Log the KQL query separately with proper formatting
+        self.logger.debug(f"📝 KQL Query:\n{query}")
 
         query_response = None
         transformed_data = None
@@ -247,12 +251,19 @@ class SentinelQueryEngine:
             # Safely extract attributes for logging (handle potential mocks in tests)
             try:
                 exec_time_str = f"{query_result.execution_time:.2f}s"
+                exec_time_val = query_result.execution_time
             except (TypeError, ValueError, AttributeError):
                 exec_time_str = str(getattr(query_result, "execution_time", "N/A"))
+                exec_time_val = None
 
+            query_completion = {
+                "success": query_result.succeeded,
+                "records": query_result.record_count,
+                "duration_seconds": exec_time_val,
+                "duration": exec_time_str,
+            }
             self.logger.debug(
-                f"✅ Query execution completed: success={query_result.succeeded}, "
-                f"records={query_result.record_count}, duration={exec_time_str}"
+                f"✅ Query execution completed:\n{json.dumps(query_completion, indent=2)}"
             )
 
             if query_result.succeeded:
@@ -573,8 +584,6 @@ class SentinelQueryEngine:
                 )
 
             for query_config in queries_list:
-                self.logger.debug(f"🔎 Processing query configuration: {query_config}")
-
                 # Handle both dict and string query configurations
                 if isinstance(query_config, dict):
                     query_name = query_config.get("name", query_config.get("query_name", "unknown"))
@@ -632,9 +641,13 @@ class SentinelQueryEngine:
                                 self.logger.debug(
                                     f"✅ Successfully loaded query '{loaded_query_name}' from file '{query_file}'"
                                 )
+                                query_details = {
+                                    "query_name": loaded_query_name,
+                                    "destination_stream": query_instance.destination_stream,
+                                    "parameters": list(query_instance.parameters.keys()),
+                                }
                                 self.logger.debug(
-                                    f"📊 Query details - Destination: {query_instance.destination_stream}, "
-                                    f"Parameters: {list(query_instance.parameters.keys())}"
+                                    f"📊 Query details:\n{json.dumps(query_details, indent=2)}"
                                 )
                             else:
                                 self.logger.error(
@@ -696,9 +709,7 @@ class SentinelQueryEngine:
                         self.logger.debug(f"📤 Target stream: {destination_stream}")
 
                         # Create tasks for each time batch
-                        self.logger.debug(
-                            f"📊 Creating {len(time_batches)} batch tasks for query '{actual_query_name}'"
-                        )
+                        batch_list = []
                         for batch_idx, (batch_start, batch_end) in enumerate(time_batches):
                             try:
                                 execution_id = f"{batch_id}_{workspace_id}_{actual_query_name}_{batch_start.strftime('%Y%m%d_%H')}"
@@ -709,15 +720,23 @@ class SentinelQueryEngine:
                             if batch_idx < 3 or batch_idx >= len(time_batches) - 3:
                                 # Log first 3 and last 3 batches in debug mode
                                 try:
-                                    batch_range_str = (
-                                        f"{batch_start.isoformat()} to {batch_end.isoformat()}"
-                                    )
-                                except (AttributeError, TypeError):
-                                    batch_range_str = f"{batch_start} to {batch_end}"
+                                    from datetime import timedelta
 
-                                self.logger.debug(
-                                    f"  ⏰ Batch {batch_idx + 1}/{len(time_batches)}: {batch_range_str}"
-                                )
+                                    time_period = batch_end - batch_start
+                                    batch_info = {
+                                        "Index": batch_idx + 1,
+                                        "StartTime": batch_start.isoformat(),
+                                        "EndTime": batch_end.isoformat(),
+                                        "TimePeriod": str(time_period),
+                                    }
+                                except (AttributeError, TypeError):
+                                    batch_info = {
+                                        "Index": batch_idx + 1,
+                                        "StartTime": str(batch_start),
+                                        "EndTime": str(batch_end),
+                                        "TimePeriod": "unknown",
+                                    }
+                                batch_list.append(batch_info)
 
                             task = self.execute_single_query_with_upload(
                                 workspace_id=workspace_id,
@@ -731,6 +750,12 @@ class SentinelQueryEngine:
                                 workspace_resource_id=workspace.resource_id,
                             )
                             all_tasks.append(task)
+
+                        # Log batch information as JSON array
+                        if batch_list:
+                            self.logger.debug(
+                                f"📊 Created {len(time_batches)} batch tasks for query '{actual_query_name}':\n{json.dumps(batch_list, indent=2)}"
+                            )
 
                     except Exception as e:
                         self.logger.error(

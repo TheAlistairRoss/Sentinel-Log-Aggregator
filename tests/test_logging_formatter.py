@@ -126,15 +126,17 @@ class TestSentinelLogFormatter:
             success=True,
         )
 
-        expected = (
-            "[QUERY_END] Job: test-job-789 | "
-            "Query: incident_summary | "
-            "Workspace: workspace-alpha | "
-            "Status: SUCCESS | "
-            "Records: 1,250 | "
-            "Duration: 15.75s"
-        )
-        assert result == expected
+        import json
+
+        result_data = json.loads(result)
+        assert result_data["event"] == "QUERY_END"
+        assert result_data["job_id"] == "test-job-789"
+        assert result_data["query_name"] == "incident_summary"
+        assert result_data["workspace_alias"] == "workspace-alpha"
+        assert result_data["status"] == "SUCCESS"
+        assert result_data["records"] == 1250
+        assert result_data["duration_seconds"] == 15.75
+        assert result_data["duration"] == "15.75s"
 
     def test_format_query_end_failure(self):
         """Test failed query end message formatting."""
@@ -147,15 +149,17 @@ class TestSentinelLogFormatter:
             success=False,
         )
 
-        expected = (
-            "[QUERY_END] Job: test-job-789 | "
-            "Query: incident_summary | "
-            "Workspace: workspace-alpha | "
-            "Status: FAILED | "
-            "Records: 0 | "
-            "Duration: 5.25s"
-        )
-        assert result == expected
+        import json
+
+        result_data = json.loads(result)
+        assert result_data["event"] == "QUERY_END"
+        assert result_data["job_id"] == "test-job-789"
+        assert result_data["query_name"] == "incident_summary"
+        assert result_data["workspace_alias"] == "workspace-alpha"
+        assert result_data["status"] == "FAILED"
+        assert result_data["records"] == 0
+        assert result_data["duration_seconds"] == 5.25
+        assert result_data["duration"] == "5.25s"
 
     def test_format_query_end_with_mock_objects(self):
         """Test query end formatting with MagicMock objects."""
@@ -600,7 +604,7 @@ class TestContextualLogger:
 
         mock_logger.debug.assert_called_once()
         call_args = mock_logger.debug.call_args[0][0]
-        assert "[QUERY_END]" in call_args
+        assert "QUERY_END" in call_args
         assert "SUCCESS" in call_args
         assert "500" in call_args
 
@@ -616,7 +620,7 @@ class TestContextualLogger:
 
         mock_logger.error.assert_called_once()
         call_args = mock_logger.error.call_args[0][0]
-        assert "[QUERY_END]" in call_args
+        assert "QUERY_END" in call_args
         assert "FAILED" in call_args
 
     def test_upload_start(self, contextual_logger, mock_logger):
@@ -850,7 +854,7 @@ class TestIntegrationScenarios:
 
         assert "[BATCH_START]" in log_output
         assert "[QUERY_START]" in log_output
-        assert "[QUERY_END]" in log_output
+        assert "QUERY_END" in log_output
         assert "[UPLOAD_START]" in log_output
         assert "[UPLOAD_END]" in log_output
         assert "[BATCH_END]" in log_output

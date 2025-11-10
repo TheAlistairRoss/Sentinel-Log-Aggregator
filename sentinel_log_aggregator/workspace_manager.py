@@ -673,9 +673,7 @@ class WorkspaceManager:
             formatted_yaml = yaml_module.dump(
                 config_data, default_flow_style=False, sort_keys=False, indent=2, width=None
             )
-            raw_logger.debug(
-                f"📄 Loaded YAML content (unsanitized for debugging):\n{formatted_yaml}"
-            )
+            raw_logger.debug(f"📄 Loaded YAML content:\n{formatted_yaml}")
 
             # Handle new YAML structure with 'workspaces' key
             if isinstance(config_data, dict) and "workspaces" in config_data:
