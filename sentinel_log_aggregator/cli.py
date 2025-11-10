@@ -10,6 +10,7 @@ import asyncio
 import logging
 import os
 import sys
+import json
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -812,8 +813,7 @@ async def test_health_logging(
         logger.info(f"✅ {send_result['message']}")
         test_id = send_result["test_id"]
 
-        # Display detailed information as a single structured JSON log
-        import json
+
 
         log_output = {
             "Test ID": test_id,
@@ -861,33 +861,10 @@ async def test_health_logging(
             return verify_result["found"]
         else:
             logger.info("")
-            logger.info("💡 Manual Verification Instructions:")
-            logger.info("=" * 70)
-            logger.info("To manually verify the test event was ingested:")
-            logger.info("")
-            logger.info("1. Navigate to your Log Analytics workspace in Azure Portal")
-            if workspaces:
-                logger.info(
-                    f"   Workspace: {workspaces[0].workspace_name if workspaces else 'N/A'}"
-                )
-                logger.info(
-                    f"   Workspace ID: {workspaces[0].customer_id if workspaces else 'N/A'}"
-                )
-            logger.info("")
-            logger.info("2. Go to Logs and run this KQL query:")
-            logger.info("")
+            logger.info("💡 Manual Verification:")
             logger.info(
-                f"   {send_result.get('stream_name', 'Custom-SentinelAggregator-Health_CL')}"
+                f"Run this query against your target workspace: {send_result.get('stream_name', 'Custom-SentinelAggregator_Health_CL')} | where JobId == '{test_id}' | where OperationName == 'HealthTest'"
             )
-            logger.info(f"   | where JobId == '{test_id}'")
-            logger.info(f"   | where OperationName == 'HealthTest'")
-            logger.info(f"   | project TimeGenerated, OperationStatus, ExtendedProperties")
-            logger.info("")
-            logger.info("3. Expected result: One record with OperationStatus = 'TestEvent'")
-            logger.info("")
-            logger.info("💡 Or use --verify flag for automatic verification:")
-            logger.info(f"   sentinel-aggregator test-health --verify --max-wait 300")
-            logger.info("=" * 70)
             logger.info("")
             return True
 
