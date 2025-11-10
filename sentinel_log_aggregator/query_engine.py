@@ -157,6 +157,7 @@ class SentinelQueryEngine:
         execution_id: str,
         workspace_alias: str = "",
         workspace_resource_id: str = "",
+        batch_id: Optional[str] = None,
     ) -> QueryExecution:
         """
         Execute a single query and upload results immediately.
@@ -171,6 +172,7 @@ class SentinelQueryEngine:
             execution_id: Unique execution identifier
             workspace_alias: Short workspace identifier for logging
             workspace_resource_id: Full Azure resource ID for the workspace
+            batch_id: Optional batch identifier for this query execution
 
         Returns:
             QueryExecution tracking object
@@ -198,10 +200,10 @@ class SentinelQueryEngine:
             time_range_str = f"{str(start_time)} to {str(end_time)}"
 
         self.logger.debug(
-            f"🔍 Executing query '{query_name}' for workspace {workspace_alias} ({workspace_id})"
+            f"Executing query '{query_name}' for workspace {workspace_alias} ({workspace_id})"
         )
-        self.logger.debug(f"⏰ Time range: {time_range_str}")
-        self.logger.debug(f"📤 Destination stream: {destination_stream}")
+        self.logger.debug(f"Time range: {time_range_str}")
+        self.logger.debug(f"Destination stream: {destination_stream}")
 
         # Log comprehensive query execution details as formatted JSON
         query_execution_details = {
@@ -218,11 +220,11 @@ class SentinelQueryEngine:
             "execution_id": execution_id,
         }
         self.logger.debug(
-            f"📋 Query execution metadata:\n{json.dumps(query_execution_details, indent=2)}"
+            f"Query execution metadata:\n{json.dumps(query_execution_details, indent=2)}"
         )
 
         # Log the KQL query separately with proper formatting
-        self.logger.debug(f"📝 KQL Query:\n{query}")
+        self.logger.debug(f"KQL Query:\n{query}")
 
         query_response = None
         transformed_data = None
@@ -245,6 +247,7 @@ class SentinelQueryEngine:
                         queries_list=[],
                         parameters={},
                     ),
+                    batch_id=batch_id,
                 )
 
             # Execute query using Azure SDK-compliant method
@@ -267,7 +270,7 @@ class SentinelQueryEngine:
                 "duration": exec_time_str,
             }
             self.logger.debug(
-                f"✅ Query execution completed:\n{json.dumps(query_completion, indent=2)}"
+                f"Query execution completed:\n{json.dumps(query_completion, indent=2)}"
             )
 
             if query_result.succeeded:
@@ -297,9 +300,9 @@ class SentinelQueryEngine:
                     )
 
                     self.logger.debug(
-                        f"✅ Data transformed: {len(transformed_data)} records ready for upload"
+                        f"Data transformed: {len(transformed_data)} records ready for upload"
                     )
-                    self.logger.debug(f"📤 Uploading to stream: {destination_stream}")
+                    self.logger.debug(f"Uploading to stream: {destination_stream}")
 
                     # Upload using Azure SDK-compliant method
                     upload_result = await self.azure_client.upload_logs(
@@ -313,7 +316,7 @@ class SentinelQueryEngine:
                         upload_time_str = str(getattr(upload_result, "upload_time", "N/A"))
 
                     self.logger.debug(
-                        f"✅ Upload completed: success={upload_result.succeeded}, "
+                        f"Upload completed: success={upload_result.succeeded}, "
                         f"records={upload_result.record_count}, duration={upload_time_str}"
                     )
 
@@ -346,7 +349,7 @@ class SentinelQueryEngine:
                         f"No data to upload - Job: {self.job_correlation_id} | Query: {query_name} | Workspace: {workspace_alias}"
                     )
                     self.logger.debug(
-                        f"⏭️  Skipping upload for query '{query_name}' - no data returned"
+                        f"Skipping upload for query '{query_name}' - no data returned"
                     )
             else:
                 # Query failed
@@ -358,7 +361,7 @@ class SentinelQueryEngine:
                     query_name, workspace_alias, 0, query_result.execution_time, success=False
                 )
                 self.logger.debug(
-                    f"❌ Query '{query_name}' failed: {query_result.error_message[:100]}..."
+                    f"Query '{query_name}' failed: {query_result.error_message[:100]}..."
                 )
 
         except Exception as e:
@@ -402,6 +405,7 @@ class SentinelQueryEngine:
                         queries_list=[],
                         parameters={},
                     ),
+                    batch_id=batch_id,
                 )
 
         self.execution_log.append(execution)
@@ -461,21 +465,21 @@ class SentinelQueryEngine:
         batch_start_time = time.time()
         job_id = job_id or self.job_correlation_id
 
-        self.logger.info(f"🚀 Starting batch execution with job ID: {job_id}")
-        self.logger.debug(f"📋 Batch ID: {batch_id}")
+        self.logger.info(f"Starting batch execution with job ID: {job_id}")
+        self.logger.debug(f"Batch ID: {batch_id}")
         self.logger.debug(
-            f"🔧 Client options: dry_run={getattr(self.client_options, 'dry_run', False)}"
+            f"Client options: dry_run={getattr(self.client_options, 'dry_run', False)}"
         )
 
         # Early validation of workspace configurations
-        self.logger.debug(f"🔍 Validating {len(workspace_configs)} workspace configurations...")
+        self.logger.debug(f"Validating {len(workspace_configs)} workspace configurations...")
         for idx, workspace in enumerate(workspace_configs):
             self.logger.debug(
                 f"  Workspace {idx + 1}: {workspace.customer_id[:8]}*** with {len(workspace.queries_list)} queries"
             )
             if not workspace.queries_list:
                 self.logger.warning(
-                    f"⚠️  Workspace {workspace.customer_id[:8]}*** has no queries configured!"
+                    f"Workspace {workspace.customer_id[:8]}*** has no queries configured!"
                 )
 
         # Calculate execution time ranges using new time range calculator
@@ -485,19 +489,19 @@ class SentinelQueryEngine:
         )
 
         try:
-            self.logger.debug("⏰ Calculating execution time ranges...")
+            self.logger.debug("Calculating execution time ranges...")
             start_time, end_time, batch_size = await calculate_execution_time_ranges(
                 client_options=self.client_options,
                 workspaces=workspace_configs,
                 health_logger=self.health_logger,
             )
 
-            self.logger.debug(f"✅ Time range calculated: {start_time} to {end_time}")
+            self.logger.debug(f"Time range calculated: {start_time} to {end_time}")
             self.logger.debug(f"📏 Batch size: {batch_size}")
 
             # Calculate time batches
             time_batches = calculate_execution_batches(start_time, end_time, batch_size)
-            self.logger.debug(f"📊 Generated {len(time_batches)} time batches")
+            self.logger.debug(f"Generated {len(time_batches)} time batches")
 
         except Exception as e:
             self.logger.error("TIME_RANGE_CALC", f"Failed to calculate execution time ranges: {e}")
@@ -539,7 +543,7 @@ class SentinelQueryEngine:
                 if len(resource_parts) >= 9 and resource_parts[8]:
                     workspace_alias = resource_parts[8]
                     self.logger.debug(
-                        f"✅ Extracted workspace alias: {workspace_alias} from resource ID"
+                        f"Extracted workspace alias: {workspace_alias} from resource ID"
                     )
                 else:
                     self.logger.warning(
@@ -553,10 +557,10 @@ class SentinelQueryEngine:
                 workspace_alias = workspace_id
 
             self.logger.debug(
-                f"🔍 Processing workspace: {workspace_alias} with {len(queries_list)} queries"
+                f"Processing workspace: {workspace_alias} with {len(queries_list)} queries"
             )
             self.logger.debug(
-                f"📋 Query configuration types: {[type(q).__name__ for q in queries_list]}"
+                f"Query configuration types: {[type(q).__name__ for q in queries_list]}"
             )
 
             # Extract query names for health logging - handle both string and dict formats
@@ -576,7 +580,7 @@ class SentinelQueryEngine:
                     query_names_for_logging.append(str(q))
 
             self.logger.debug(
-                f"📝 Query names for workspace {workspace_alias}: {query_names_for_logging}"
+                f"Query names for workspace {workspace_alias}: {query_names_for_logging}"
             )
 
             # Log workspace processing start
@@ -596,7 +600,7 @@ class SentinelQueryEngine:
                     )
                 else:
                     query_name = str(query_config)
-                    self.logger.debug(f"📄 Query config is string/path: {query_name}")
+                    self.logger.debug(f"Query config is string/path: {query_name}")
 
                 # Early validation
                 if not query_name or query_name == "unknown":
@@ -613,9 +617,7 @@ class SentinelQueryEngine:
                 if query_name in AVAILABLE_QUERIES:
                     # Query already loaded by name
                     query_instance = AVAILABLE_QUERIES[query_name]
-                    self.logger.debug(
-                        f"✅ Found query '{query_name}' in AVAILABLE_QUERIES registry"
-                    )
+                    self.logger.debug(f"Found query '{query_name}' in AVAILABLE_QUERIES registry")
                 elif query_name.endswith(".yaml") or query_name.endswith(".yml"):
                     # This looks like a file path, try to load it
                     from pathlib import Path
@@ -626,7 +628,7 @@ class SentinelQueryEngine:
                     self.logger.debug(f"📂 Attempting to load query from file: {query_file}")
 
                     if query_file.exists():
-                        self.logger.debug(f"✅ Query file exists: {query_file}")
+                        self.logger.debug(f"Query file exists: {query_file}")
                         try:
                             # Create a temporary registry to load this query
                             temp_registry = QueryRegistry()
@@ -643,7 +645,7 @@ class SentinelQueryEngine:
                                 AVAILABLE_QUERIES[loaded_query_name] = query_instance
 
                                 self.logger.debug(
-                                    f"✅ Successfully loaded query '{loaded_query_name}' from file '{query_file}'"
+                                    f"Successfully loaded query '{loaded_query_name}' from file '{query_file}'"
                                 )
                                 query_details = {
                                     "query_name": loaded_query_name,
@@ -651,7 +653,7 @@ class SentinelQueryEngine:
                                     "parameters": list(query_instance.parameters.keys()),
                                 }
                                 self.logger.debug(
-                                    f"📊 Query details:\n{json.dumps(query_details, indent=2)}"
+                                    f"Query details:\n{json.dumps(query_details, indent=2)}"
                                 )
                             else:
                                 self.logger.error(
@@ -697,7 +699,7 @@ class SentinelQueryEngine:
                         # Build query with workspace-specific parameters
                         query_parameters = workspace.parameters.copy()
                         self.logger.debug(
-                            f"📝 Building query '{actual_query_name}' with parameters: {list(query_parameters.keys())}"
+                            f"Building query '{actual_query_name}' with parameters: {list(query_parameters.keys())}"
                         )
 
                         parameterized_query = self.build_query_with_parameters(
@@ -708,9 +710,9 @@ class SentinelQueryEngine:
                         destination_stream = query_instance.destination_stream
 
                         self.logger.debug(
-                            f"✅ Built query '{actual_query_name}' for workspace {workspace_alias}"
+                            f"Built query '{actual_query_name}' for workspace {workspace_alias}"
                         )
-                        self.logger.debug(f"📤 Target stream: {destination_stream}")
+                        self.logger.debug(f"Target stream: {destination_stream}")
 
                         # Create tasks for each time batch
                         batch_list = []
@@ -752,13 +754,14 @@ class SentinelQueryEngine:
                                 execution_id=execution_id,
                                 workspace_alias=workspace_alias,
                                 workspace_resource_id=workspace.resource_id,
+                                batch_id=batch_id,
                             )
                             all_tasks.append(task)
 
                         # Log batch information as JSON array
                         if batch_list:
                             self.logger.debug(
-                                f"📊 Created {len(time_batches)} batch tasks for query '{actual_query_name}':\n{json.dumps(batch_list, indent=2)}"
+                                f"Created {len(time_batches)} batch tasks for query '{actual_query_name}':\n{json.dumps(batch_list, indent=2)}"
                             )
 
                     except Exception as e:
@@ -787,9 +790,9 @@ class SentinelQueryEngine:
                         )
                         self.execution_log.append(failed_execution)
 
-        self.logger.info(f"📊 Total operations scheduled: {len(all_tasks)}")
+        self.logger.info(f"Total operations scheduled: {len(all_tasks)}")
         self.logger.debug(
-            f"🔧 Execution configuration: max_concurrent={self.client_options.max_concurrent_queries}"
+            f"Execution configuration: max_concurrent={self.client_options.max_concurrent_queries}"
         )
 
         # Execute in batches with concurrent limit
@@ -807,10 +810,10 @@ class SentinelQueryEngine:
             total_batches = (len(all_tasks) // batch_size) + 1
 
             self.logger.info(
-                f"⚙️  Executing batch {batch_num}/{total_batches} ({len(batch_tasks)} tasks)"
+                f"Executing batch {batch_num}/{total_batches} ({len(batch_tasks)} tasks)"
             )
             self.logger.debug(
-                f"📊 Batch details: tasks {i + 1}-{min(i + batch_size, len(all_tasks))} of {len(all_tasks)}"
+                f"Batch details: tasks {i + 1}-{min(i + batch_size, len(all_tasks))} of {len(all_tasks)}"
             )
 
             try:
@@ -832,12 +835,10 @@ class SentinelQueryEngine:
 
                 if exception_count > 0:
                     self.logger.warning(
-                        f"⚠️  {exception_count}/{len(results)} tasks in batch failed with exceptions"
+                        f"{exception_count}/{len(results)} tasks in batch failed with exceptions"
                     )
 
-                self.logger.debug(
-                    f"✅ Batch {batch_num} completed: {len(results)} results processed"
-                )
+                self.logger.debug(f"Batch {batch_num} completed: {len(results)} results processed")
 
                 # Check for critical syntax errors
                 recent_executions = self.execution_log[-len(batch_tasks) :]
@@ -868,7 +869,7 @@ class SentinelQueryEngine:
                             query_name=error_exec.query_name,
                         )
                         self.logger.debug(
-                            f"📋 Syntax error query: {error_exec.query_name} on workspace {error_exec.workspace_id[:8]}***"
+                            f"Syntax error query: {error_exec.query_name} on workspace {error_exec.workspace_id[:8]}***"
                         )
                     critical_error_detected = True
                     break
@@ -893,7 +894,7 @@ class SentinelQueryEngine:
                 break
 
         # Calculate final summary
-        self.logger.debug("📊 Calculating execution summary...")
+        self.logger.debug("Calculating execution summary...")
         all_executions = self.execution_log
         successful_queries = len(
             [e for e in all_executions if e.query_status == QueryStatus.SUCCESS.value]
@@ -915,12 +916,12 @@ class SentinelQueryEngine:
             f"📈 Summary stats: {successful_queries} successful, {failed_queries} failed queries"
         )
         self.logger.debug(
-            f"📤 Upload stats: {successful_uploads} successful, {failed_uploads} failed uploads"
+            f"Upload stats: {successful_uploads} successful, {failed_uploads} failed uploads"
         )
         self.logger.debug(
-            f"📊 Record stats: {total_records} total records, {total_uploaded_records} uploaded"
+            f"Record stats: {total_records} total records, {total_uploaded_records} uploaded"
         )
-        self.logger.debug(f"⏱️  Total duration: {total_duration:.2f}s")
+        self.logger.debug(f"Total duration: {total_duration:.2f}s")
 
         summary = BatchExecutionSummary(
             job_correlation_id=self.job_correlation_id,
@@ -939,7 +940,7 @@ class SentinelQueryEngine:
             executions=all_executions,
         )
 
-        self.logger.debug("✅ Batch execution summary created")
+        self.logger.debug("Batch execution summary created")
 
         # Log execution summary using standardized formatter
         summary_data = {
@@ -953,7 +954,7 @@ class SentinelQueryEngine:
         }
         self.logger.batch_end(summary_data)
 
-        self.logger.debug("📝 Logging workspace processing completion to health logger...")
+        self.logger.debug("Logging workspace processing completion to health logger...")
         # Log workspace processing completion to health logger
         if self.health_logger:
             for workspace in workspace_configs:
@@ -967,7 +968,7 @@ class SentinelQueryEngine:
                 )
 
                 self.logger.debug(
-                    f"📊 Workspace {workspace.customer_id[:8]}***: {len(workspace_executions)} executions, "
+                    f"Workspace {workspace.customer_id[:8]}***: {len(workspace_executions)} executions, "
                     f"{workspace_records} records, success={workspace_success}"
                 )
 
@@ -979,11 +980,11 @@ class SentinelQueryEngine:
                     duration_seconds=total_duration,  # Approximation since we don't track individual workspace duration
                 )
                 self.logger.debug(
-                    f"✅ Health log completed for workspace {workspace.customer_id[:8]}***"
+                    f"Health log completed for workspace {workspace.customer_id[:8]}***"
                 )
 
         # Log detailed summary programmatically
-        self.logger.debug("📋 Generating and logging detailed summary...")
+        self.logger.debug("Generating and logging detailed summary...")
         detailed_summary = summary.generate_detailed_summary()
         self.logger.batch_summary(detailed_summary)
         self.logger.workspace_query_details(detailed_summary["workspace_query_details"])
@@ -993,9 +994,9 @@ class SentinelQueryEngine:
             self.logger.error("ACTION_REQUIRED", "Fix syntax errors in KQL queries before retrying")
             self.logger.debug("⛔ Critical error flag was set during execution")
 
-        self.logger.info(f"✅ Batch execution complete: {batch_id}")
+        self.logger.info(f"Batch execution complete: {batch_id}")
         self.logger.debug(
-            f"📊 Final summary: {successful_queries}/{len(all_tasks)} queries successful"
+            f"Final summary: {successful_queries}/{len(all_tasks)} queries successful"
         )
         return summary
 

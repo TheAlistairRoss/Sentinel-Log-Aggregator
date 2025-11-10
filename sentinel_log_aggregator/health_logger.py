@@ -118,18 +118,20 @@ class SentinelAggregatorHealthLogger:
             **kwargs,
         }
 
-        if error_message:
-            extended_properties["error_message"] = error_message
-
         await self._log_health_event(
             operation_name="JobEnd",
             operation_status="Completed" if success else "Failed",
             job_id=job_id,
+            operation_status_reason=error_message,
             extended_properties=extended_properties,
         )
 
     async def log_query_execution(
-        self, job_id: str, query_execution: QueryExecution, workspace_config: WorkspaceConfig
+        self,
+        job_id: str,
+        query_execution: QueryExecution,
+        workspace_config: WorkspaceConfig,
+        batch_id: Optional[str] = None,
     ) -> None:
         """
         Log individual query execution details.
@@ -138,6 +140,7 @@ class SentinelAggregatorHealthLogger:
             job_id: Job identifier this query belongs to
             query_execution: Query execution details
             workspace_config: Workspace where query was executed
+            batch_id: Optional batch identifier
         """
         if not self.enabled:
             return
@@ -151,25 +154,21 @@ class SentinelAggregatorHealthLogger:
             status = "InProgress"
 
         extended_properties = {
+            "workspace_id": workspace_config.customer_id,
             "query_name": query_execution.query_name,
-            "time_range": query_execution.time_range_str,
+            "start_time": query_execution.start_time.isoformat(),
+            "end_time": query_execution.end_time.isoformat(),
             "duration_seconds": query_execution.query_duration_seconds or 0.0,
             "record_count": query_execution.record_count or 0,
-            "workspace_name": workspace_config.workspace_name,
+            "workspace_resource_id": query_execution.workspace_id,
         }
-
-        if query_execution.query_error_message:
-            extended_properties["error_message"] = query_execution.query_error_message
-
-        if query_execution.job_correlation_id:
-            extended_properties["correlation_id"] = query_execution.job_correlation_id
 
         await self._log_health_event(
             operation_name="QueryExecution",
             operation_status=status,
-            workspace_id=workspace_config.customer_id,
-            query_name=query_execution.query_name,
             job_id=job_id,
+            operation_status_reason=query_execution.query_error_message,
+            batch_id=batch_id,
             extended_properties=extended_properties,
         )
 
@@ -188,6 +187,7 @@ class SentinelAggregatorHealthLogger:
             return
 
         extended_properties = {
+            "workspace_id": workspace_config.customer_id,
             "workspace_name": workspace_config.workspace_name,
             "query_names": query_names,
             "query_count": len(query_names),
@@ -196,7 +196,6 @@ class SentinelAggregatorHealthLogger:
         await self._log_health_event(
             operation_name="WorkspaceProcessingStart",
             operation_status="Started",
-            workspace_id=workspace_config.customer_id,
             job_id=job_id,
             extended_properties=extended_properties,
         )
@@ -224,21 +223,31 @@ class SentinelAggregatorHealthLogger:
         if not self.enabled:
             return
 
-        extended_properties = {
-            "workspace_name": workspace_config.workspace_name,
-            "records_processed": records_processed,
-            "duration_seconds": duration_seconds,
-        }
+        operation_status = "Completed" if success else "Failed"
 
-        if error_message:
-            extended_properties["error_message"] = error_message
+        # Calculate successful and failed queries
+        successful_queries = 0
+        failed_queries = 0
+        if success:
+            successful_queries = 1  # At least one query succeeded
+        else:
+            failed_queries = 1  # Processing failed
+
+        extended_properties = {
+            "workspace_id": workspace_config.customer_id,
+            "workspace_name": workspace_config.workspace_name,
+            "duration_seconds": duration_seconds,
+            "total_records": records_processed,
+            "successful_queries": successful_queries,
+            "failed_queries": failed_queries,
+        }
 
         await self._log_health_event(
             operation_name="WorkspaceProcessingEnd",
-            operation_status="Completed" if success else "Failed",
-            workspace_id=workspace_config.customer_id,
+            operation_status=operation_status,
             job_id=job_id,
             extended_properties=extended_properties,
+            operation_status_reason=error_message,
         )
 
     async def log_error(
@@ -264,15 +273,20 @@ class SentinelAggregatorHealthLogger:
         if not self.enabled:
             return
 
-        extended_properties = {"error_type": error_type, "error_message": error_message, **kwargs}
+        extended_properties = {"error_type": error_type, **kwargs}
+
+        # Add workspace_id and query_name to extended properties if provided
+        if workspace_id:
+            extended_properties["workspace_id"] = workspace_id
+        if query_name:
+            extended_properties["query_name"] = query_name
 
         await self._log_health_event(
             operation_name="Error",
             operation_status="Failed",
-            workspace_id=workspace_id,
-            query_name=query_name,
             job_id=job_id,
             extended_properties=extended_properties,
+            operation_status_reason=error_message,
         )
 
     async def log_watermark_update(
@@ -297,8 +311,9 @@ class SentinelAggregatorHealthLogger:
             return
 
         extended_properties = {
-            "watermark_timestamp": watermark_timestamp.isoformat(),
             "workspace_id": workspace_id,
+            "query_name": query_name,
+            "watermark_timestamp": watermark_timestamp.isoformat(),
         }
 
         if previous_watermark:
@@ -310,8 +325,6 @@ class SentinelAggregatorHealthLogger:
         await self._log_health_event(
             operation_name="WatermarkUpdate",
             operation_status="Completed",
-            workspace_id=workspace_id,
-            query_name=query_name,
             job_id=job_id,
             extended_properties=extended_properties,
         )
@@ -321,8 +334,8 @@ class SentinelAggregatorHealthLogger:
         operation_name: str,
         operation_status: str,
         job_id: str,
-        workspace_id: Optional[str] = None,
-        query_name: Optional[str] = None,
+        operation_status_reason: Optional[str] = None,
+        batch_id: Optional[str] = None,
         extended_properties: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
@@ -332,9 +345,9 @@ class SentinelAggregatorHealthLogger:
             operation_name: Name of the operation
             operation_status: Status of the operation
             job_id: Job identifier
-            workspace_id: Optional workspace ID
-            query_name: Optional query name
-            extended_properties: Optional additional properties
+            operation_status_reason: Optional reason/error message for the status
+            batch_id: Optional batch identifier
+            extended_properties: Optional additional properties (should include workspace_id, query_name if relevant)
         """
         if not self.enabled:
             return
@@ -348,12 +361,15 @@ class SentinelAggregatorHealthLogger:
                 "JobId": job_id,
             }
 
-            # Add optional fields if provided
-            if workspace_id:
-                health_record["WorkspaceId"] = workspace_id
+            # Add operation status reason if provided (for errors/warnings)
+            if operation_status_reason:
+                health_record["OperationStatusReason"] = operation_status_reason
 
-            if query_name:
-                health_record["QueryName"] = query_name
+            # Add batch ID to extended properties if provided
+            if batch_id:
+                if extended_properties is None:
+                    extended_properties = {}
+                extended_properties["batch_id"] = batch_id
 
             # Add extended properties as JSON string
             if extended_properties:
@@ -408,7 +424,7 @@ class SentinelAggregatorHealthLogger:
         context_str = f" ({', '.join(context_parts)})" if context_parts else ""
 
         # Log human-readable INFO message
-        health_message = f"🏥 {operation_name}: {operation_status} [Job: {job_id}]{context_str}"
+        health_message = f"{operation_name}: {operation_status} [Job: {job_id}]{context_str}"
 
         # Use appropriate log level based on status
         if operation_status.lower() in ["failed", "error"]:
@@ -592,16 +608,16 @@ class SentinelAggregatorHealthLogger:
                     and hasattr(self.sentinel_client._options, "dcr_immutable_id")
                     else None
                 )
-                logger.info(f"✅ Health test event sent: {test_id}")
+                logger.info(f"Health test event sent: {test_id}")
             else:
                 result["message"] = f"Failed to send test event: {upload_result.error_message}"
                 result["error"] = upload_result.error_message
-                logger.error(f"❌ Health test event failed: {upload_result.error_message}")
+                logger.error(f"Health test event failed: {upload_result.error_message}")
 
         except Exception as e:
             result["message"] = f"Error sending test event: {str(e)}"
             result["error"] = str(e)
-            logger.error(f"❌ Health test event error: {e}", exc_info=True)
+            logger.error(f"Health test event error: {e}", exc_info=True)
 
         return result
 
@@ -657,7 +673,7 @@ class SentinelAggregatorHealthLogger:
 | take 1
 """
 
-            logger.info(f"🔍 Searching for test event: {test_id}")
+            logger.info(f"Searching for test event: {test_id}")
 
             # Try multiple times with increasing delays
             import asyncio
@@ -704,7 +720,7 @@ class SentinelAggregatorHealthLogger:
                         f"(Ingestion delay: {result['ingestion_delay_seconds']:.1f}s, Test ID: {test_id})"
                     )
                     logger.info(
-                        f"✅ Test event verified: {test_id} "
+                        f"Test event verified: {test_id} "
                         f"(query wait: {total_waited}s, ingestion delay: {result['ingestion_delay_seconds']:.1f}s)"
                     )
                     return result
@@ -715,12 +731,12 @@ class SentinelAggregatorHealthLogger:
                 f"It may take up to 10-15 minutes for data to appear in Log Analytics. "
                 f"Test ID: {test_id}"
             )
-            logger.warning(f"⚠️ Test event not found yet: {test_id}")
+            logger.warning(f"Test event not found yet: {test_id}")
 
         except Exception as e:
             result["message"] = f"Error verifying test event: {str(e)}"
             result["error"] = str(e)
-            logger.error(f"❌ Error verifying test event: {e}", exc_info=True)
+            logger.error(f"Error verifying test event: {e}", exc_info=True)
 
         return result
 

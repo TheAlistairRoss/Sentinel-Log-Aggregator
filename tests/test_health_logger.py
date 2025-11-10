@@ -168,9 +168,7 @@ class TestSentinelAggregatorHealthLogger:
         record = data[0]
 
         assert record["OperationStatus"] == "Failed"
-
-        extended_props = json.loads(record["ExtendedProperties"])
-        assert extended_props["error_message"] == error_message
+        assert record["OperationStatusReason"] == error_message
 
     @pytest.mark.asyncio
     async def test_log_query_execution(
@@ -196,13 +194,13 @@ class TestSentinelAggregatorHealthLogger:
         assert record["OperationName"] == "QueryExecution"
         assert record["OperationStatus"] == "Completed"
         assert record["JobId"] == job_id
-        assert record["WorkspaceId"] == test_workspace_config.customer_id
-        assert record["QueryName"] == test_query_execution.query_name
 
         extended_props = json.loads(record["ExtendedProperties"])
+        assert extended_props["workspace_id"] == test_workspace_config.customer_id
+        assert extended_props["query_name"] == test_query_execution.query_name
         assert extended_props["record_count"] == 100
         assert extended_props["duration_seconds"] == 5.5
-        assert extended_props["workspace_name"] == test_workspace_config.workspace_name
+        assert extended_props["workspace_resource_id"] == test_query_execution.workspace_id
 
     @pytest.mark.asyncio
     async def test_log_query_execution_failed(
@@ -234,9 +232,7 @@ class TestSentinelAggregatorHealthLogger:
         record = data[0]
 
         assert record["OperationStatus"] == "Failed"
-
-        extended_props = json.loads(record["ExtendedProperties"])
-        assert extended_props["error_message"] == "Syntax error in KQL"
+        assert record["OperationStatusReason"] == "Syntax error in KQL"
 
     @pytest.mark.asyncio
     async def test_log_workspace_processing_start(
@@ -257,9 +253,9 @@ class TestSentinelAggregatorHealthLogger:
 
         assert record["OperationName"] == "WorkspaceProcessingStart"
         assert record["OperationStatus"] == "Started"
-        assert record["WorkspaceId"] == test_workspace_config.customer_id
 
         extended_props = json.loads(record["ExtendedProperties"])
+        assert extended_props["workspace_id"] == test_workspace_config.customer_id
         assert extended_props["query_names"] == query_names
         assert extended_props["query_count"] == 3
         assert extended_props["workspace_name"] == test_workspace_config.workspace_name
@@ -288,8 +284,12 @@ class TestSentinelAggregatorHealthLogger:
         assert record["OperationStatus"] == "Completed"
 
         extended_props = json.loads(record["ExtendedProperties"])
-        assert extended_props["records_processed"] == 500
+        assert extended_props["workspace_id"] == test_workspace_config.customer_id
+        assert extended_props["workspace_name"] == test_workspace_config.workspace_name
+        assert extended_props["total_records"] == 500
         assert extended_props["duration_seconds"] == 30.2
+        assert extended_props["successful_queries"] == 1
+        assert extended_props["failed_queries"] == 0
 
     @pytest.mark.asyncio
     async def test_log_error(self, health_logger, mock_sentinel_client):
@@ -312,12 +312,12 @@ class TestSentinelAggregatorHealthLogger:
 
         assert record["OperationName"] == "Error"
         assert record["OperationStatus"] == "Failed"
-        assert record["WorkspaceId"] == "test-workspace-id"
-        assert record["QueryName"] == "test_query"
+        assert record["OperationStatusReason"] == "Invalid credentials"
 
         extended_props = json.loads(record["ExtendedProperties"])
         assert extended_props["error_type"] == "AuthenticationError"
-        assert extended_props["error_message"] == "Invalid credentials"
+        assert extended_props["workspace_id"] == "test-workspace-id"
+        assert extended_props["query_name"] == "test_query"
         assert extended_props["additional_context"] == "User authentication failed"
 
     @pytest.mark.asyncio
@@ -344,10 +344,10 @@ class TestSentinelAggregatorHealthLogger:
 
         assert record["OperationName"] == "WatermarkUpdate"
         assert record["OperationStatus"] == "Completed"
-        assert record["WorkspaceId"] == workspace_id
-        assert record["QueryName"] == query_name
 
         extended_props = json.loads(record["ExtendedProperties"])
+        assert extended_props["workspace_id"] == workspace_id
+        assert extended_props["query_name"] == query_name
         assert extended_props["watermark_timestamp"] == watermark_timestamp.isoformat()
         assert extended_props["previous_watermark"] == previous_watermark.isoformat()
         assert extended_props["watermark_advance_seconds"] == 86400.0  # 24 hours

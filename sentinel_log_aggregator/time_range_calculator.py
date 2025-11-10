@@ -13,6 +13,8 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
+from sentinel_log_aggregator.constants import HEALTH_TABLE_NAME
+
 from .health_logger import SentinelAggregatorHealthLogger
 from .models import WorkspaceConfig
 from .time_utils import (
@@ -93,8 +95,8 @@ async def calculate_execution_time_ranges(
         # Validate the final time range
         validate_time_range(start_time, end_time, allow_future_end=False)
 
-        logger.info(f"📅 Execution time range: {start_time.isoformat()} to {end_time.isoformat()}")
-        logger.info(f"⏱️  Batch size: {batch_size}")
+        logger.info(f"Execution time range: {start_time.isoformat()} to {end_time.isoformat()}")
+        logger.info(f"Batch size: {batch_size}")
 
         return start_time, end_time, batch_size
 
@@ -130,7 +132,7 @@ def _calculate_from_explicit_times(client_options) -> Tuple[datetime, datetime]:
         end_time = parse_iso8601_datetime(client_options.end_time)
     else:
         end_time = datetime.now(timezone.utc)
-        logger.info("📅 End time not specified, using current time")
+        logger.info("End time not specified, using current time")
 
     # If start time not specified but end time is, we need a start time
     if not start_time:
@@ -160,7 +162,7 @@ async def _calculate_from_last_successful(
     Raises:
         TimeRangeCalculationError: If last successful calculation fails
     """
-    logger.info("🔍 Querying health table for last successful runs...")
+    logger.info("Querying health table for last successful runs...")
 
     # Get all unique query names from workspaces
     all_query_names = set()
@@ -206,7 +208,7 @@ async def _calculate_from_last_successful(
 
     # Check if any combinations are missing
     if missing_combinations:
-        logger.error("❌ Missing successful runs for the following query+workspace combinations:")
+        logger.error("Missing successful runs for the following query+workspace combinations:")
         for combination in missing_combinations:
             logger.error(f"  • {combination}")
         raise TimeRangeCalculationError(
@@ -222,7 +224,7 @@ async def _calculate_from_last_successful(
     start_time = earliest_last_end_time
     end_time = datetime.now(timezone.utc)
 
-    logger.info(f"✅ Using last successful end time as start: {start_time.isoformat()}")
+    logger.info(f"Using last successful end time as start: {start_time.isoformat()}")
 
     return start_time, end_time
 
@@ -261,14 +263,12 @@ async def _query_all_last_successful_runs(
 
     # Build optimized KQL query for all successful runs
     kql_query = f"""
-    SentinelAggregator-Health_CL
-    | where TimeGenerated between (datetime({start_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')}) .. datetime({end_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')}))
+    {HEALTH_TABLE_NAME}
     | where OperationName == "QueryExecution"
     | where OperationStatus == "Completed"
-    | extend ExtendedProps = parse_json(ExtendedProperties)
-    | extend StartTime = todatetime(ExtendedProps.start_time)
-    | extend EndTime = todatetime(ExtendedProps.end_time)
-    | extend RecordCount = toint(ExtendedProps.record_count)
+    | extend StartTime = todatetime(ExtendedProperties.start_time)
+    | extend EndTime = todatetime(ExtendedProperties.end_time)
+    | extend RecordCount = toint(ExtendedProperties.record_count)
     | where isnotnull(StartTime) and isnotnull(EndTime) and isnotnull(RecordCount)
     | project QueryName, WorkspaceId, StartTime, EndTime, RecordCount, LastRunTime=TimeGenerated
     """
@@ -278,7 +278,7 @@ async def _query_all_last_successful_runs(
         from azure.monitor.query.aio import LogsQueryClient
 
         credential = DefaultAzureCredential()
-        query_client = LogsQueryClient(credential=credential)
+        query_client = LogsQueryClient(credential=credential, logging_enable=True)
 
         # Execute the query against the aggregation workspace
         response = await query_client.query_workspace(
@@ -390,7 +390,7 @@ async def _query_last_successful_for_query_workspace(
         from azure.monitor.query.aio import LogsQueryClient
 
         credential = DefaultAzureCredential()
-        query_client = LogsQueryClient(credential=credential)
+        query_client = LogsQueryClient(credential=credential, logging_enable=True)
 
         # Execute the query
         response = await query_client.query_workspace(
@@ -455,7 +455,7 @@ def calculate_execution_batches(
             min_batch_size=min_batch_size,
         )
 
-        logger.info(f"📊 Calculated {len(batches)} execution batches")
+        logger.info(f"Calculated {len(batches)} execution batches")
 
         # Log batch details in debug mode
         if logger.isEnabledFor(logging.DEBUG):
