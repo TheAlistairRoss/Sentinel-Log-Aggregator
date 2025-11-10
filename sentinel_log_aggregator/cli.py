@@ -790,6 +790,10 @@ async def test_health_logging(
             logger.error(f"❌ {send_result['message']}")
             return False
 
+        if send_result.get("warning"):
+            logger.warning(f"⚠️  {send_result['message']}")
+            return True
+
         logger.info(f"✅ {send_result['message']}")
         test_id = send_result["test_id"]
 

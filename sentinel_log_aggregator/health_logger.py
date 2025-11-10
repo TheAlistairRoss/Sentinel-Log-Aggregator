@@ -537,9 +537,10 @@ class SentinelAggregatorHealthLogger:
         if not self.health_to_sentinel:
             return {
                 "test_id": None,
-                "success": False,
+                "success": True,
                 "message": "Health logging is in console-only mode (not sent to Sentinel)",
                 "timestamp": datetime.now(timezone.utc).isoformat(),
+                "warning": True,
             }
 
         # Generate test ID if not provided
