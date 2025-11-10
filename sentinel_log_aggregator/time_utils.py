@@ -7,6 +7,8 @@ from typing import Optional, Tuple, Union
 import isodate
 from pydantic import ValidationError, validate_call
 
+from .constants import SECONDS_PER_HOUR
+
 
 class TimeParsingError(Exception):
     """Raised when time parsing fails."""
@@ -77,7 +79,7 @@ def validate_batch_time_size(duration_str: str) -> timedelta:
     duration = parse_iso8601_duration(duration_str)
 
     # Convert to total hours for validation
-    total_hours = duration.total_seconds() / 3600
+    total_hours = duration.total_seconds() / SECONDS_PER_HOUR
 
     # Check minimum (1 hour)
     if total_hours < 1:
@@ -277,7 +279,7 @@ def format_timedelta_for_display(td: timedelta) -> str:
     total_seconds = int(td.total_seconds())
 
     days, remainder = divmod(total_seconds, 86400)
-    hours, remainder = divmod(remainder, 3600)
+    hours, remainder = divmod(remainder, SECONDS_PER_HOUR)
     minutes, seconds = divmod(remainder, 60)
 
     parts = []

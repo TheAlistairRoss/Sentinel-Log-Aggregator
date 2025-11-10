@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Union
 from uuid import uuid4
 
+from .constants import HEALTH_STREAM_NAME
 from .exceptions import SentinelAggregatorError
 from .models import QueryExecution, WorkspaceConfig
 from .sentinel_client import SentinelAggregatorClient
@@ -44,7 +45,7 @@ class SentinelAggregatorHealthLogger:
         self.sentinel_client = sentinel_client
         self.enabled = enabled
         self.health_to_sentinel = health_to_sentinel
-        self.health_stream_name = "Custom-SentinelAggregator-Health_CL"
+        self.health_stream_name = HEALTH_STREAM_NAME
 
         if self.enabled and not self.health_to_sentinel:
             logger.info("Health logging enabled - console only (not sent to Sentinel)")

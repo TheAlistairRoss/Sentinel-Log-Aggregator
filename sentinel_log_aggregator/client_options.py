@@ -13,6 +13,15 @@ from azure.core.credentials import TokenCredential
 from azure.core.pipeline.policies import HTTPPolicy
 from pydantic import ValidationError
 
+from .constants import (
+    DEFAULT_BATCH_TIME_SIZE,
+    DEFAULT_LOOKBACK_PERIOD,
+    DEFAULT_MAX_CONCURRENT_QUERIES,
+    DEFAULT_MAX_RETRIES,
+    DEFAULT_QUERY_TIMEOUT_SECONDS,
+    DEFAULT_RETRY_DELAY_SECONDS,
+    MIN_QUERY_TIMEOUT,
+)
 from .time_utils import TimeParsingError, parse_iso8601_duration, validate_batch_time_size
 from .validation import ClientOptionsModel, validate_client_options
 
@@ -39,11 +48,11 @@ class SentinelAggregatorClientOptions(Configuration):
     :type health_to_sentinel: bool
     :param max_concurrent_queries: Maximum concurrent queries (default: 5)
     :type max_concurrent_queries: int
-    :param query_timeout_seconds: Query timeout in seconds (default: 300)
+    :param query_timeout_seconds: Query timeout in seconds (default: from constants.py)
     :type query_timeout_seconds: int
-    :param max_retries: Maximum number of retries (default: 3)
+    :param max_retries: Maximum number of retries (default: from constants.py)
     :type max_retries: int
-    :param retry_delay_seconds: Initial retry delay in seconds (default: 5)
+    :param retry_delay_seconds: Initial retry delay in seconds (default: from constants.py)
     :type retry_delay_seconds: int
     :param queries: Specific queries to run (comma-separated string)
     :type queries: Optional[str]
@@ -70,10 +79,10 @@ class SentinelAggregatorClientOptions(Configuration):
         end_time: Optional[str] = None,
         use_last_successful: bool = False,
         health_to_sentinel: bool = False,
-        max_concurrent_queries: int = 5,
-        query_timeout_seconds: int = 300,
-        max_retries: int = 3,
-        retry_delay_seconds: int = 5,
+        max_concurrent_queries: int = DEFAULT_MAX_CONCURRENT_QUERIES,
+        query_timeout_seconds: int = DEFAULT_QUERY_TIMEOUT_SECONDS,
+        max_retries: int = DEFAULT_MAX_RETRIES,
+        retry_delay_seconds: int = DEFAULT_RETRY_DELAY_SECONDS,
         queries: Optional[str] = None,
         workspaces: Optional[str] = None,
         dry_run: bool = False,
@@ -89,8 +98,8 @@ class SentinelAggregatorClientOptions(Configuration):
         self.dcr_immutable_id = dcr_immutable_id
 
         # Time configuration
-        self.lookback_period = lookback_period or "P30D"
-        self.batch_time_size = batch_time_size or "PT24H"
+        self.lookback_period = lookback_period or DEFAULT_LOOKBACK_PERIOD
+        self.batch_time_size = batch_time_size or DEFAULT_BATCH_TIME_SIZE
         self.start_time = start_time
         self.end_time = end_time
         self.use_last_successful = use_last_successful
@@ -167,8 +176,8 @@ class SentinelAggregatorClientOptions(Configuration):
             if self.max_concurrent_queries <= 0:
                 errors.append("max_concurrent_queries must be positive")
 
-            if self.query_timeout_seconds < 30:
-                errors.append("query_timeout_seconds must be at least 30")
+            if self.query_timeout_seconds < MIN_QUERY_TIMEOUT:
+                errors.append(f"query_timeout_seconds must be at least {MIN_QUERY_TIMEOUT}")
 
             # Retry configuration validation
             if self.max_retries < 0:
@@ -201,10 +210,16 @@ class SentinelAggregatorClientOptions(Configuration):
             end_time=os.getenv("END_TIME"),
             use_last_successful=os.getenv("USE_LAST_SUCCESSFUL", "false").lower() == "true",
             health_to_sentinel=os.getenv("HEALTH_TO_SENTINEL", "false").lower() == "true",
-            max_concurrent_queries=int(os.getenv("MAX_CONCURRENT_QUERIES", "5")),
-            query_timeout_seconds=int(os.getenv("QUERY_TIMEOUT_SECONDS", "300")),
-            max_retries=int(os.getenv("MAX_RETRIES", "3")),
-            retry_delay_seconds=int(os.getenv("RETRY_DELAY_SECONDS", "5")),
+            max_concurrent_queries=int(
+                os.getenv("MAX_CONCURRENT_QUERIES", str(DEFAULT_MAX_CONCURRENT_QUERIES))
+            ),
+            query_timeout_seconds=int(
+                os.getenv("QUERY_TIMEOUT_SECONDS", str(DEFAULT_QUERY_TIMEOUT_SECONDS))
+            ),
+            max_retries=int(os.getenv("MAX_RETRIES", str(DEFAULT_MAX_RETRIES))),
+            retry_delay_seconds=int(
+                os.getenv("RETRY_DELAY_SECONDS", str(DEFAULT_RETRY_DELAY_SECONDS))
+            ),
             queries=os.getenv("QUERIES"),
             workspaces=os.getenv("WORKSPACES"),
             dry_run=os.getenv("DRY_RUN", "false").lower() == "true",
@@ -242,10 +257,14 @@ class SentinelAggregatorClientOptions(Configuration):
             end_time=config_data.get("end_time"),
             use_last_successful=config_data.get("use_last_successful", False),
             health_to_sentinel=config_data.get("health_to_sentinel", False),
-            max_concurrent_queries=config_data.get("max_concurrent_queries", 5),
-            query_timeout_seconds=config_data.get("query_timeout_seconds", 300),
-            max_retries=config_data.get("max_retries", 3),
-            retry_delay_seconds=config_data.get("retry_delay_seconds", 5),
+            max_concurrent_queries=config_data.get(
+                "max_concurrent_queries", DEFAULT_MAX_CONCURRENT_QUERIES
+            ),
+            query_timeout_seconds=config_data.get(
+                "query_timeout_seconds", DEFAULT_QUERY_TIMEOUT_SECONDS
+            ),
+            max_retries=config_data.get("max_retries", DEFAULT_MAX_RETRIES),
+            retry_delay_seconds=config_data.get("retry_delay_seconds", DEFAULT_RETRY_DELAY_SECONDS),
             queries=config_data.get("queries"),
             workspaces=config_data.get("workspaces"),
             dry_run=config_data.get("dry_run", False),

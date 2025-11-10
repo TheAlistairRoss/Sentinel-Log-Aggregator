@@ -156,7 +156,9 @@ class SentinelLogFormatter:
         """Format progress update message."""
         percentage = (completed / total * 100) if total > 0 else 0
         # Safely convert to strings to handle mock objects in tests
-        base_msg = f"[PROGRESS] Job: {str(job_id)} | Completed: {completed}/{total} ({percentage:.1f}%)"
+        base_msg = (
+            f"[PROGRESS] Job: {str(job_id)} | Completed: {completed}/{total} ({percentage:.1f}%)"
+        )
 
         if additional_info:
             base_msg += f" | {str(additional_info)}"

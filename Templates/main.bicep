@@ -11,7 +11,7 @@ param retentionDays int = -1
 @description('The table total retention in days, between 4 and 4383. Setting this property to -1 will default to table retention.')
 param totalRetentionDays int = -1
 
-var healthTableName = 'SentinelAggregator-Health_CL'
+var healthTableName = 'SentinelAggregator_Health_CL'
 var healthTableStream = 'Custom-${healthTableName}'
 
 var dataCollectionRuleName = 'DCR-SentinelLogAggregator'

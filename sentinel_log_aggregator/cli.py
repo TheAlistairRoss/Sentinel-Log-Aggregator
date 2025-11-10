@@ -20,6 +20,11 @@ from dotenv import load_dotenv
 
 # Import Azure SDK-compliant components
 from .client_options import SentinelAggregatorClientOptions
+from .constants import (
+    DEFAULT_BATCH_TIME_SIZE,
+    DEFAULT_LOOKBACK_PERIOD,
+    DEFAULT_QUERY_TIMEOUT_SECONDS,
+)
 from .health_logger import SentinelAggregatorHealthLogger
 from .logging_utils import configure_logging
 from .models import WorkspaceConfig
@@ -79,9 +84,11 @@ def create_client_options_from_args(args) -> SentinelAggregatorClientOptions:
         )
 
     # Get time configuration (these may not be present for all subcommands)
-    lookback_period = getattr(args, "lookback_period", None) or os.getenv("LOOKBACK_PERIOD", "P30D")
+    lookback_period = getattr(args, "lookback_period", None) or os.getenv(
+        "LOOKBACK_PERIOD", DEFAULT_LOOKBACK_PERIOD
+    )
     batch_time_size = getattr(args, "batch_time_size", None) or os.getenv(
-        "BATCH_TIME_SIZE", "PT24H"
+        "BATCH_TIME_SIZE", DEFAULT_BATCH_TIME_SIZE
     )
     start_time = getattr(args, "start_time", None) or os.getenv("START_TIME")
     end_time = getattr(args, "end_time", None) or os.getenv("END_TIME")
@@ -127,7 +134,7 @@ def create_client_options_from_args(args) -> SentinelAggregatorClientOptions:
         parallel=parallel,
         max_concurrent_queries=max_concurrent,
         query_timeout_seconds=getattr(args, "query_timeout_seconds", None)
-        or int(os.getenv("QUERY_TIMEOUT_SECONDS", "300")),
+        or int(os.getenv("QUERY_TIMEOUT_SECONDS", str(DEFAULT_QUERY_TIMEOUT_SECONDS))),
         max_retries=getattr(args, "max_retries", None) or int(os.getenv("MAX_RETRIES", "3")),
         retry_delay_seconds=getattr(args, "retry_delay_seconds", None)
         or int(os.getenv("RETRY_DELAY_SECONDS", "5")),
@@ -571,7 +578,9 @@ Examples:
     )
 
     run_parser.add_argument(
-        "--query-timeout-seconds", type=int, help="Query timeout in seconds (default: 300)"
+        "--query-timeout-seconds",
+        type=int,
+        help=f"Query timeout in seconds (default: {DEFAULT_QUERY_TIMEOUT_SECONDS})",
     )
 
     run_parser.add_argument(
@@ -680,8 +689,8 @@ Examples:
     )
     query_status_parser.add_argument(
         "--lookback-period",
-        default="P30D",
-        help="ISO 8601 duration for how far back to search (default: P30D)",
+        default=DEFAULT_LOOKBACK_PERIOD,
+        help=f"ISO 8601 duration for how far back to search (default: {DEFAULT_LOOKBACK_PERIOD})",
     )
     query_status_parser.add_argument(
         "--query-names", help="Comma-separated list of query names to filter (optional)"

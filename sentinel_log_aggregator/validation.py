@@ -13,6 +13,14 @@ from typing import Any, Dict, List, Optional, Union
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from pydantic.networks import AnyUrl
 
+from .constants import (
+    DEFAULT_QUERY_TIMEOUT_SECONDS,
+    MAX_PARAMETER_VALUE_LENGTH,
+    MAX_QUERY_TIMEOUT,
+    MAX_UPLOAD_TIMEOUT,
+    MIN_QUERY_TIMEOUT,
+)
+
 
 class WorkspaceConfigModel(BaseModel):
     """Pydantic model for workspace configuration validation."""
@@ -74,8 +82,13 @@ class WorkspaceConfigModel(BaseModel):
                 raise ValueError(f"Parameter name must be a string, got {type(param_name)}")
 
             # Allow any type for parameter values, but warn about complex types
-            if isinstance(param_value, (dict, list)) and len(str(param_value)) > 1000:
-                raise ValueError(f"Parameter '{param_name}' value is too complex (>1000 chars)")
+            if (
+                isinstance(param_value, (dict, list))
+                and len(str(param_value)) > MAX_PARAMETER_VALUE_LENGTH
+            ):
+                raise ValueError(
+                    f"Parameter '{param_name}' value is too complex (>{MAX_PARAMETER_VALUE_LENGTH} chars)"
+                )
 
         return v
 
@@ -134,7 +147,9 @@ class QueryDefinitionModel(BaseModel):
         description="Azure Monitor custom log table name",
     )
     description: str = Field(
-        default="", max_length=1000, description="Human-readable query description"
+        default="",
+        max_length=MAX_PARAMETER_VALUE_LENGTH,
+        description="Human-readable query description",
     )
     stream_name: str = Field(
         ...,
@@ -192,7 +207,10 @@ class ClientOptionsModel(BaseModel):
         default=5, ge=1, le=20, description="Maximum number of concurrent queries"
     )
     query_timeout_seconds: int = Field(
-        default=300, ge=30, le=3600, description="Query timeout in seconds"
+        default=DEFAULT_QUERY_TIMEOUT_SECONDS,
+        ge=MIN_QUERY_TIMEOUT,
+        le=MAX_QUERY_TIMEOUT,
+        description="Query timeout in seconds",
     )
     batch_hours: int = Field(
         default=24, ge=1, le=168, description="Batch processing time window in hours"
@@ -200,7 +218,10 @@ class ClientOptionsModel(BaseModel):
 
     # Upload settings
     upload_timeout_seconds: int = Field(
-        default=300, ge=30, le=1800, description="Upload timeout in seconds"
+        default=DEFAULT_QUERY_TIMEOUT_SECONDS,
+        ge=MIN_QUERY_TIMEOUT,
+        le=MAX_UPLOAD_TIMEOUT,
+        description="Upload timeout in seconds",
     )
     max_upload_retries: int = Field(
         default=3, ge=1, le=10, description="Maximum upload retry attempts"

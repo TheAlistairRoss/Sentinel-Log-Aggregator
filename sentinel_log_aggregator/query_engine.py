@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from .health_logger import SentinelAggregatorHealthLogger
 
 from .client_options import SentinelAggregatorClientOptions
+from .constants import SECONDS_PER_HOUR
 from .logging_formatter import ContextualLogger
 from .logging_utils import get_logger
 from .models import (
@@ -230,8 +231,8 @@ class SentinelQueryEngine:
             try:
                 exec_time_str = f"{query_result.execution_time:.2f}s"
             except (TypeError, ValueError, AttributeError):
-                exec_time_str = str(getattr(query_result, 'execution_time', 'N/A'))
-            
+                exec_time_str = str(getattr(query_result, "execution_time", "N/A"))
+
             self.logger.debug(
                 f"✅ Query execution completed: success={query_result.succeeded}, "
                 f"records={query_result.record_count}, duration={exec_time_str}"
@@ -277,8 +278,8 @@ class SentinelQueryEngine:
                     try:
                         upload_time_str = f"{upload_result.upload_time:.2f}s"
                     except (TypeError, ValueError, AttributeError):
-                        upload_time_str = str(getattr(upload_result, 'upload_time', 'N/A'))
-                    
+                        upload_time_str = str(getattr(upload_result, "upload_time", "N/A"))
+
                     self.logger.debug(
                         f"✅ Upload completed: success={upload_result.succeeded}, "
                         f"records={upload_result.record_count}, duration={upload_time_str}"
@@ -489,7 +490,7 @@ class SentinelQueryEngine:
 
         self.logger.batch_start(
             total_days=(end_time - start_time).days,
-            batch_hours=int(batch_size.total_seconds() / 3600),
+            batch_hours=int(batch_size.total_seconds() / SECONDS_PER_HOUR),
             workspace_count=len(workspace_configs),
         )
 

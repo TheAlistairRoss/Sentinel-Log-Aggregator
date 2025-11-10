@@ -40,6 +40,7 @@ from azure.monitor.ingestion.aio import LogsIngestionClient
 from azure.monitor.query.aio import LogsQueryClient
 
 from .client_options import SentinelAggregatorClientOptions
+from .constants import DEFAULT_PAGE_SIZE
 from .exceptions import (
     CredentialValidationError,
     DataIngestionError,
@@ -416,7 +417,7 @@ class SentinelAggregatorClient:
         *,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
-        page_size: int = 1000,
+        page_size: int = DEFAULT_PAGE_SIZE,
         timeout_seconds: Optional[int] = None,
     ) -> ItemPaged[Dict[str, Any]]:
         """

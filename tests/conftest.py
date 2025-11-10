@@ -384,7 +384,7 @@ class TestSentinelQueryEngine:
         # Add required string attributes that production code may format
         client.workspace_id = "test-workspace-id"
         client.workspace_alias = "test-workspace"
-        
+
         # Mock successful query response
         client.query_workspace = AsyncMock(
             return_value=MagicMock(

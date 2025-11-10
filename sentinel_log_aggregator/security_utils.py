@@ -11,6 +11,8 @@ import re
 import secrets
 from typing import Any, Dict, List, Mapping, Optional, Union
 
+from .constants import MAX_QUERY_SIZE, MAX_USER_INPUT_LENGTH
+
 logger = logging.getLogger(__name__)
 
 
@@ -91,8 +93,8 @@ def validate_kql_query(query: str) -> bool:
         raise SecurityError("Query cannot be empty")
 
     # Check for excessive complexity that might indicate DoS attempts
-    if len(query) > 100000:  # 100KB limit
-        raise SecurityError("Query exceeds maximum allowed length")
+    if len(query) > MAX_QUERY_SIZE:  # 100KB limit
+        raise SecurityError(f"Query exceeds maximum allowed length ({MAX_QUERY_SIZE} chars)")
 
     query_lower = query.lower()
 
@@ -277,7 +279,7 @@ def validate_file_path(file_path: str, allowed_extensions: Optional[List[str]] =
     return True
 
 
-def sanitize_user_input(user_input: str, max_length: int = 1000) -> str:
+def sanitize_user_input(user_input: str, max_length: int = MAX_USER_INPUT_LENGTH) -> str:
     """
     Sanitize user input to prevent injection attacks.
 

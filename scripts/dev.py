@@ -54,14 +54,39 @@ def install_dev():
 
 def format_code():
     """Format code with black and isort."""
-    run_command("black sentinel_log_aggregator/ tests/ scripts/", "Formatting code with black")
-    run_command("isort sentinel_log_aggregator/ tests/ scripts/", "Sorting imports with isort")
+    run_command(
+        "python -m black sentinel_log_aggregator/ tests/ scripts/", "Formatting code with black"
+    )
+    run_command(
+        "python -m isort sentinel_log_aggregator/ tests/ scripts/", "Sorting imports with isort"
+    )
+
+
+def format_check():
+    """Check code formatting without modifying files (matches CI/CD pipeline)."""
+    run_command(
+        "python -m black --check --diff sentinel_log_aggregator/ tests/",
+        "Checking code formatting with black",
+    )
+    run_command(
+        "python -m isort --check-only --diff sentinel_log_aggregator/ tests/",
+        "Checking import sorting with isort",
+    )
 
 
 def lint():
-    """Run linting checks."""
-    run_command("flake8 sentinel_log_aggregator/ tests/", "Running flake8 linting")
-    run_command("mypy sentinel_log_aggregator/", "Running mypy type checking")
+    """Run linting checks (matches CI/CD pipeline)."""
+    # Critical errors only
+    run_command(
+        "python -m flake8 sentinel_log_aggregator/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics",
+        "Running flake8 critical checks",
+    )
+    # Full lint with complexity
+    run_command(
+        "python -m flake8 sentinel_log_aggregator/ tests/ --count --exit-zero --max-complexity=10 --max-line-length=100 --statistics",
+        "Running flake8 full checks",
+    )
+    run_command("python -m mypy sentinel_log_aggregator/", "Running mypy type checking")
 
 
 def test():
@@ -73,8 +98,32 @@ def test():
 
 
 def security():
-    """Run security scans."""
-    run_command("python build/run_security_scan.py", "Running comprehensive security scan")
+    """Run security scans (matches CI/CD pipeline)."""
+    print("🔒 Running security scans...")
+
+    # Bandit - static security analysis
+    run_command(
+        "python -m bandit -r sentinel_log_aggregator/ -f json -o bandit-report.json",
+        "Running Bandit security scan (JSON report)",
+    )
+    run_command(
+        "python -m bandit -r sentinel_log_aggregator/",
+        "Running Bandit security scan (console output)",
+    )
+
+    # Safety - dependency vulnerability scan
+    run_command(
+        "python -m safety check --output json > safety-report.json",
+        "Running Safety dependency scan",
+    )
+
+    # pip-audit - official Python security audit
+    run_command(
+        "python -m pip_audit --format=json --output=pip-audit-report.json",
+        "Running pip-audit vulnerability scan",
+    )
+
+    print("✅ All security scans completed!")
 
 
 def build():
@@ -106,12 +155,12 @@ def pre_commit_run():
 
 
 def check():
-    """Run all checks (format, lint, test, security)."""
-    format_code()
+    """Run all checks (format-check, lint, test, security) - matches CI/CD pipeline."""
+    format_check()
     lint()
     test()
     security()
-    print("\n🎉 All checks passed!")
+    print("\n🎉 All checks passed! Ready for CI/CD!")
 
 
 def main():
@@ -123,6 +172,7 @@ def main():
     subparsers.add_parser("clean", help="Clean build artifacts and cache files")
     subparsers.add_parser("install-dev", help="Install development dependencies")
     subparsers.add_parser("format", help="Format code with black and isort")
+    subparsers.add_parser("format-check", help="Check code formatting without modifying files")
     subparsers.add_parser("lint", help="Run linting checks")
     subparsers.add_parser("test", help="Run the test suite")
     subparsers.add_parser("security", help="Run security scans")
@@ -130,7 +180,7 @@ def main():
     subparsers.add_parser("docs", help="Build documentation")
     subparsers.add_parser("pre-commit-install", help="Install pre-commit hooks")
     subparsers.add_parser("pre-commit-run", help="Run pre-commit hooks on all files")
-    subparsers.add_parser("check", help="Run all checks (format, lint, test, security)")
+    subparsers.add_parser("check", help="Run all checks (format-check, lint, test, security)")
 
     args = parser.parse_args()
 
@@ -143,6 +193,7 @@ def main():
         "clean": clean,
         "install-dev": install_dev,
         "format": format_code,
+        "format-check": format_check,
         "lint": lint,
         "test": test,
         "security": security,
