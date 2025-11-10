@@ -253,6 +253,7 @@ def create_health_logger_from_args(
     client_options: SentinelAggregatorClientOptions,
     workspaces: List[WorkspaceConfig],
     force_enable: bool = False,
+    force_to_sentinel: bool = False,
 ) -> Optional[SentinelAggregatorHealthLogger]:
     """
     Create health logger from CLI arguments if health logging is enabled.
@@ -263,6 +264,8 @@ def create_health_logger_from_args(
         workspaces: Available workspaces
         force_enable: Force health logging enabled regardless of args.enable_health_logging
                      (used by test-health command where health logging is mandatory)
+        force_to_sentinel: Force health_to_sentinel=True regardless of configuration
+                          (used by test-health command to ensure events are sent to Sentinel)
 
     Returns:
         SentinelAggregatorHealthLogger if enabled, None otherwise
@@ -280,9 +283,11 @@ def create_health_logger_from_args(
         getattr(args, "health_dcr_immutable_id", None) or client_options.dcr_immutable_id
     )
 
-    # Get health to sentinel flag
+    # Get health to sentinel flag - force to True if force_to_sentinel is set
     health_to_sentinel = (
-        getattr(args, "health_to_sentinel", False) or client_options.health_to_sentinel
+        force_to_sentinel
+        or getattr(args, "health_to_sentinel", False)
+        or client_options.health_to_sentinel
     )
 
     # Create health client options with health-specific DCR settings
@@ -772,9 +777,10 @@ async def test_health_logging(
     logger.info("🧪 Testing health logging...")
 
     try:
-        # Create health logger with force_enable=True since health logging is mandatory for this command
+        # Create health logger with force_enable=True and force_to_sentinel=True
+        # since test-health command is specifically for testing Sentinel ingestion
         health_logger = create_health_logger_from_args(
-            args, client_options, workspaces, force_enable=True
+            args, client_options, workspaces, force_enable=True, force_to_sentinel=True
         )
 
         if not health_logger:
