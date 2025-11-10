@@ -2022,7 +2022,9 @@
 <span class="s2">| where TimeGenerated &gt; ago(</span><span class="si">{</span><span class="n">lookback_minutes</span><span class="si">}</span><span class="s2">m)</span>
 <span class="s2">| where JobId == &quot;</span><span class="si">{</span><span class="n">test_id</span><span class="si">}</span><span class="s2">&quot;</span>
 <span class="s2">| where OperationName == &quot;HealthTest&quot;</span>
-<span class="s2">| project TimeGenerated, OperationName, OperationStatus, JobId, ExtendedProperties</span>
+<span class="s2">| extend IngestionTime = ingestion_time()</span>
+<span class="s2">| extend TimeTakenSeconds = datetime_diff(&#39;second&#39;, IngestionTime, TimeGenerated)</span>
+<span class="s2">| project TimeGenerated, OperationName, OperationStatus, JobId, ExtendedProperties, IngestionTime, TimeTakenSeconds</span>
 <span class="s2">| take 1</span>
 <span class="s2">&quot;&quot;&quot;</span>
 
@@ -2055,13 +2057,26 @@
 
                 <span class="k">if</span> <span class="n">query_result</span><span class="o">.</span><span class="n">succeeded</span> <span class="ow">and</span> <span class="n">query_result</span><span class="o">.</span><span class="n">record_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">result</span><span class="p">[</span><span class="s2">&quot;found&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="n">result</span><span class="p">[</span><span class="s2">&quot;record&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_result</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">query_result</span><span class="o">.</span><span class="n">data</span> <span class="k">else</span> <span class="kc">None</span>
-                    <span class="n">result</span><span class="p">[</span><span class="s2">&quot;ingestion_delay_seconds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_waited</span>
+                    <span class="n">record</span> <span class="o">=</span> <span class="n">query_result</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">query_result</span><span class="o">.</span><span class="n">data</span> <span class="k">else</span> <span class="kc">None</span>
+                    <span class="n">result</span><span class="p">[</span><span class="s2">&quot;record&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">record</span>
+
+                    <span class="c1"># Extract TimeTakenSeconds from query result if available</span>
+                    <span class="k">if</span> <span class="n">record</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                        <span class="n">time_taken</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TimeTakenSeconds&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">time_taken</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;ingestion_delay_seconds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">time_taken</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;ingestion_delay_seconds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_waited</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;ingestion_delay_seconds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_waited</span>
+
                     <span class="n">result</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Test event found after </span><span class="si">{</span><span class="n">total_waited</span><span class="si">}</span><span class="s2"> seconds (Test ID: </span><span class="si">{</span><span class="n">test_id</span><span class="si">}</span><span class="s2">)&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Test event found after </span><span class="si">{</span><span class="n">total_waited</span><span class="si">}</span><span class="s2"> seconds &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;(Ingestion delay: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;ingestion_delay_seconds&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s, Test ID: </span><span class="si">{</span><span class="n">test_id</span><span class="si">}</span><span class="s2">)&quot;</span>
                     <span class="p">)</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;✅ Test event verified: </span><span class="si">{</span><span class="n">test_id</span><span class="si">}</span><span class="s2"> (ingestion delay: </span><span class="si">{</span><span class="n">total_waited</span><span class="si">}</span><span class="s2">s)&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;✅ Test event verified: </span><span class="si">{</span><span class="n">test_id</span><span class="si">}</span><span class="s2"> &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;(query wait: </span><span class="si">{</span><span class="n">total_waited</span><span class="si">}</span><span class="s2">s, ingestion delay: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;ingestion_delay_seconds&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s)&quot;</span>
                     <span class="p">)</span>
                     <span class="k">return</span> <span class="n">result</span>
 
