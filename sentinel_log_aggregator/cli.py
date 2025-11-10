@@ -249,7 +249,10 @@ async def check_service_health(
 
 
 def create_health_logger_from_args(
-    args, client_options: SentinelAggregatorClientOptions, workspaces: List[WorkspaceConfig]
+    args,
+    client_options: SentinelAggregatorClientOptions,
+    workspaces: List[WorkspaceConfig],
+    force_enable: bool = False,
 ) -> Optional[SentinelAggregatorHealthLogger]:
     """
     Create health logger from CLI arguments if health logging is enabled.
@@ -258,11 +261,13 @@ def create_health_logger_from_args(
         args: CLI arguments
         client_options: Main client options
         workspaces: Available workspaces
+        force_enable: Force health logging enabled regardless of args.enable_health_logging
+                     (used by test-health command where health logging is mandatory)
 
     Returns:
         SentinelAggregatorHealthLogger if enabled, None otherwise
     """
-    if not getattr(args, "enable_health_logging", False):
+    if not force_enable and not getattr(args, "enable_health_logging", False):
         return None
 
     logger = logging.getLogger(__name__)
@@ -767,12 +772,14 @@ async def test_health_logging(
     logger.info("🧪 Testing health logging...")
 
     try:
-        # Create health logger
-        health_logger = create_health_logger_from_args(args, client_options, workspaces)
+        # Create health logger with force_enable=True since health logging is mandatory for this command
+        health_logger = create_health_logger_from_args(
+            args, client_options, workspaces, force_enable=True
+        )
 
         if not health_logger:
-            logger.error("❌ Health logging is not enabled or configured")
-            logger.info("💡 Enable health logging with --enable-health-logging")
+            logger.error("❌ Failed to create health logger")
+            logger.info("💡 Check DCR configuration (--dcr-endpoint and --dcr-immutable-id)")
             return False
 
         # Send test event
@@ -847,12 +854,14 @@ async def verify_health_logging_setup(
     logger.info("🏥 Verifying health logging setup...")
 
     try:
-        # Create health logger using the same logic as the run command
-        health_logger = create_health_logger_from_args(args, client_options, workspaces)
+        # Create health logger with force_enable=True since verification requires health logging
+        health_logger = create_health_logger_from_args(
+            args, client_options, workspaces, force_enable=True
+        )
 
         if not health_logger:
-            logger.error("❌ Health logging is not enabled or configured")
-            logger.info("💡 Enable health logging with --enable-health-logging")
+            logger.error("❌ Failed to create health logger")
+            logger.info("💡 Check DCR configuration (--dcr-endpoint and --dcr-immutable-id)")
             return False
 
         # Determine which workspace to test against
@@ -929,12 +938,14 @@ async def query_last_successful_runs(
     logger.info("📊 Querying last successful runs...")
 
     try:
-        # Create health logger to access health table querying functionality
-        health_logger = create_health_logger_from_args(args, client_options, workspaces)
+        # Create health logger with force_enable=True since querying requires health logging
+        health_logger = create_health_logger_from_args(
+            args, client_options, workspaces, force_enable=True
+        )
 
         if not health_logger:
-            logger.error("❌ Health logging is not enabled")
-            logger.info("💡 Enable health logging with --enable-health-logging")
+            logger.error("❌ Failed to create health logger")
+            logger.info("💡 Check DCR configuration (--dcr-endpoint and --dcr-immutable-id)")
             return False
 
         # Determine workspace to query against
@@ -1347,13 +1358,8 @@ async def main():
                 if workspaces:
                     logger.info(f"📄 Loaded {len(workspaces)} workspaces:")
                     for i, workspace in enumerate(workspaces, 1):
-                        masked_id = (
-                            workspace.customer_id[:8] + "***"
-                            if len(workspace.customer_id) > 8
-                            else "***"
-                        )
                         logger.info(
-                            f"  • Workspace {i}: {workspace.workspace_name} (ID: {masked_id})"
+                            f"  • Workspace {i}: {workspace.workspace_name} (ID: {workspace.customer_id})"
                         )
                 else:
                     logger.warning("⚠️ No workspaces found in configuration")
