@@ -813,8 +813,6 @@ async def test_health_logging(
         logger.info(f"✅ {send_result['message']}")
         test_id = send_result["test_id"]
 
-
-
         log_output = {
             "Test ID": test_id,
             "Stream Name": send_result.get("stream_name", "N/A"),
