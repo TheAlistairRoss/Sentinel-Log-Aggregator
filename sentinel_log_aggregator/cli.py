@@ -25,6 +25,7 @@ from .constants import (
     DEFAULT_BATCH_TIME_SIZE,
     DEFAULT_LOOKBACK_PERIOD,
     DEFAULT_QUERY_TIMEOUT_SECONDS,
+    HEALTH_TABLE_NAME,
 )
 from .health_logger import SentinelAggregatorHealthLogger
 from .logging_utils import configure_logging
@@ -825,13 +826,23 @@ async def test_health_logging(
 
         # Verify if requested
         if args.verify:
-            # Determine workspace ID
+            # Determine workspace ID - use aggregation workspace
             verify_workspace_id = args.health_workspace_id
             if not verify_workspace_id and workspaces:
-                verify_workspace_id = workspaces[0].customer_id
-                logger.info(
-                    f"🔍 Using first workspace for verification: {workspaces[0].workspace_name}"
-                )
+                from .workspace_manager import WorkspaceManager
+
+                workspace_manager = WorkspaceManager(workspaces)
+                aggregation_workspace = workspace_manager.get_aggregation_workspace()
+                if aggregation_workspace:
+                    verify_workspace_id = aggregation_workspace.customer_id
+                    logger.info(
+                        f"🔍 Using aggregation workspace for verification: {aggregation_workspace.workspace_name}"
+                    )
+                else:
+                    logger.warning(
+                        "⚠️  No aggregation workspace found, health table may not be available"
+                    )
+                    return False
 
             if not verify_workspace_id:
                 logger.error("❌ No workspace available for verification")
@@ -859,7 +870,7 @@ async def test_health_logging(
         else:
             logger.info("💡 Manual Verification:")
             logger.info(
-                f"Run this query against your target workspace: {send_result.get('stream_name', 'Custom-SentinelAggregator_Health_CL')} | where JobId == '{test_id}' | where OperationName == 'HealthTest'"
+                f"Run this query against your aggregation workspace: {send_result.get('stream_name', HEALTH_TABLE_NAME)} | where JobId == '{test_id}' | where OperationName == 'HealthTest'"
             )
             return True
 
@@ -905,11 +916,23 @@ async def verify_health_logging_setup(
             logger.info("💡 Check DCR configuration (--dcr-endpoint and --dcr-immutable-id)")
             return False
 
-        # Determine which workspace to test against
+        # Determine which workspace to test against - use aggregation workspace
         test_workspace_id = args.health_workspace_id
         if not test_workspace_id and workspaces:
-            test_workspace_id = workspaces[0].customer_id
-            logger.info(f"🔍 Using first workspace for testing: {workspaces[0].workspace_name}")
+            from .workspace_manager import WorkspaceManager
+
+            workspace_manager = WorkspaceManager(workspaces)
+            aggregation_workspace = workspace_manager.get_aggregation_workspace()
+            if aggregation_workspace:
+                test_workspace_id = aggregation_workspace.customer_id
+                logger.info(
+                    f"🔍 Using aggregation workspace for testing: {aggregation_workspace.workspace_name}"
+                )
+            else:
+                logger.warning(
+                    "⚠️  No aggregation workspace found, health table may not be available"
+                )
+                return False
 
         if not test_workspace_id:
             logger.error("❌ No workspace available for health logging verification")
@@ -993,13 +1016,23 @@ async def query_last_successful_runs(
             logger.info("💡 Check DCR configuration (--dcr-endpoint and --dcr-immutable-id)")
             return False
 
-        # Determine workspace to query against
+        # Determine workspace to query against - use aggregation workspace
         health_workspace_id = getattr(args, "health_workspace_id", None)
         if not health_workspace_id and workspaces:
-            health_workspace_id = workspaces[0].customer_id
-            logger.debug(
-                f"Using first workspace for health queries: {workspaces[0].workspace_name}"
-            )
+            from .workspace_manager import WorkspaceManager
+
+            workspace_manager = WorkspaceManager(workspaces)
+            aggregation_workspace = workspace_manager.get_aggregation_workspace()
+            if aggregation_workspace:
+                health_workspace_id = aggregation_workspace.customer_id
+                logger.debug(
+                    f"Using aggregation workspace for health queries: {aggregation_workspace.workspace_name}"
+                )
+            else:
+                logger.warning(
+                    "⚠️  No aggregation workspace found, health table may not be available"
+                )
+                return False
 
         if not health_workspace_id:
             logger.error("❌ No workspace available for health table queries")
