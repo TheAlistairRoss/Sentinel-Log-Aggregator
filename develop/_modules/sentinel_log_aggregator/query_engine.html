@@ -1548,12 +1548,12 @@
             <span class="n">time_range_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">end_time</span><span class="p">)</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;🔍 Executing query &#39;</span><span class="si">{</span><span class="n">query_name</span><span class="si">}</span><span class="s2">&#39; for workspace </span><span class="si">{</span><span class="n">workspace_alias</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">workspace_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">***)&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;🔍 Executing query &#39;</span><span class="si">{</span><span class="n">query_name</span><span class="si">}</span><span class="s2">&#39; for workspace </span><span class="si">{</span><span class="n">workspace_alias</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">workspace_id</span><span class="si">}</span><span class="s2">)&quot;</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⏰ Time range: </span><span class="si">{</span><span class="n">time_range_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📤 Destination stream: </span><span class="si">{</span><span class="n">destination_stream</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Log comprehensive query execution details as single JSON line</span>
+        <span class="c1"># Log comprehensive query execution details as formatted JSON</span>
         <span class="n">query_execution_details</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;operation&quot;</span><span class="p">:</span> <span class="s2">&quot;query_execution&quot;</span><span class="p">,</span>
             <span class="s2">&quot;workspace_resource_id&quot;</span><span class="p">:</span> <span class="n">workspace_resource_id</span><span class="p">,</span>
@@ -1566,9 +1566,13 @@
             <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">end_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="s2">&quot;isoformat&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">end_time</span><span class="p">),</span>
             <span class="s2">&quot;destination_stream&quot;</span><span class="p">:</span> <span class="n">destination_stream</span><span class="p">,</span>
             <span class="s2">&quot;execution_id&quot;</span><span class="p">:</span> <span class="n">execution_id</span><span class="p">,</span>
-            <span class="s2">&quot;kql_query&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">,</span>
         <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">query_execution_details</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;📋 Query execution metadata:</span><span class="se">\n</span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">query_execution_details</span><span class="p">,</span><span class="w"> </span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Log the KQL query separately with proper formatting</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📝 KQL Query:</span><span class="se">\n</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="n">query_response</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">transformed_data</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1601,12 +1605,19 @@
             <span class="c1"># Safely extract attributes for logging (handle potential mocks in tests)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">exec_time_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">query_result</span><span class="o">.</span><span class="n">execution_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s&quot;</span>
+                <span class="n">exec_time_val</span> <span class="o">=</span> <span class="n">query_result</span><span class="o">.</span><span class="n">execution_time</span>
             <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
                 <span class="n">exec_time_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">query_result</span><span class="p">,</span> <span class="s2">&quot;execution_time&quot;</span><span class="p">,</span> <span class="s2">&quot;N/A&quot;</span><span class="p">))</span>
+                <span class="n">exec_time_val</span> <span class="o">=</span> <span class="kc">None</span>
 
+            <span class="n">query_completion</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="n">query_result</span><span class="o">.</span><span class="n">succeeded</span><span class="p">,</span>
+                <span class="s2">&quot;records&quot;</span><span class="p">:</span> <span class="n">query_result</span><span class="o">.</span><span class="n">record_count</span><span class="p">,</span>
+                <span class="s2">&quot;duration_seconds&quot;</span><span class="p">:</span> <span class="n">exec_time_val</span><span class="p">,</span>
+                <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">exec_time_str</span><span class="p">,</span>
+            <span class="p">}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;✅ Query execution completed: success=</span><span class="si">{</span><span class="n">query_result</span><span class="o">.</span><span class="n">succeeded</span><span class="si">}</span><span class="s2">, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;records=</span><span class="si">{</span><span class="n">query_result</span><span class="o">.</span><span class="n">record_count</span><span class="si">}</span><span class="s2">, duration=</span><span class="si">{</span><span class="n">exec_time_str</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;✅ Query execution completed:</span><span class="se">\n</span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">query_completion</span><span class="p">,</span><span class="w"> </span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
 
             <span class="k">if</span> <span class="n">query_result</span><span class="o">.</span><span class="n">succeeded</span><span class="p">:</span>
@@ -1930,8 +1941,6 @@
                 <span class="p">)</span>
 
             <span class="k">for</span> <span class="n">query_config</span> <span class="ow">in</span> <span class="n">queries_list</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🔎 Processing query configuration: </span><span class="si">{</span><span class="n">query_config</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
                 <span class="c1"># Handle both dict and string query configurations</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">query_config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                     <span class="n">query_name</span> <span class="o">=</span> <span class="n">query_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">query_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;query_name&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">))</span>
@@ -1989,9 +1998,13 @@
                                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                                     <span class="sa">f</span><span class="s2">&quot;✅ Successfully loaded query &#39;</span><span class="si">{</span><span class="n">loaded_query_name</span><span class="si">}</span><span class="s2">&#39; from file &#39;</span><span class="si">{</span><span class="n">query_file</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
                                 <span class="p">)</span>
+                                <span class="n">query_details</span> <span class="o">=</span> <span class="p">{</span>
+                                    <span class="s2">&quot;query_name&quot;</span><span class="p">:</span> <span class="n">loaded_query_name</span><span class="p">,</span>
+                                    <span class="s2">&quot;destination_stream&quot;</span><span class="p">:</span> <span class="n">query_instance</span><span class="o">.</span><span class="n">destination_stream</span><span class="p">,</span>
+                                    <span class="s2">&quot;parameters&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">query_instance</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+                                <span class="p">}</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                                    <span class="sa">f</span><span class="s2">&quot;📊 Query details - Destination: </span><span class="si">{</span><span class="n">query_instance</span><span class="o">.</span><span class="n">destination_stream</span><span class="si">}</span><span class="s2">, &quot;</span>
-                                    <span class="sa">f</span><span class="s2">&quot;Parameters: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">query_instance</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+                                    <span class="sa">f</span><span class="s2">&quot;📊 Query details:</span><span class="se">\n</span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">query_details</span><span class="p">,</span><span class="w"> </span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
                                 <span class="p">)</span>
                             <span class="k">else</span><span class="p">:</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
@@ -2053,9 +2066,7 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📤 Target stream: </span><span class="si">{</span><span class="n">destination_stream</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
                         <span class="c1"># Create tasks for each time batch</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;📊 Creating </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">time_batches</span><span class="p">)</span><span class="si">}</span><span class="s2"> batch tasks for query &#39;</span><span class="si">{</span><span class="n">actual_query_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
-                        <span class="p">)</span>
+                        <span class="n">batch_list</span> <span class="o">=</span> <span class="p">[]</span>
                         <span class="k">for</span> <span class="n">batch_idx</span><span class="p">,</span> <span class="p">(</span><span class="n">batch_start</span><span class="p">,</span> <span class="n">batch_end</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">time_batches</span><span class="p">):</span>
                             <span class="k">try</span><span class="p">:</span>
                                 <span class="n">execution_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">batch_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">workspace_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">actual_query_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">batch_start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">_%H&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -2066,15 +2077,23 @@
                             <span class="k">if</span> <span class="n">batch_idx</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">batch_idx</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">time_batches</span><span class="p">)</span> <span class="o">-</span> <span class="mi">3</span><span class="p">:</span>
                                 <span class="c1"># Log first 3 and last 3 batches in debug mode</span>
                                 <span class="k">try</span><span class="p">:</span>
-                                    <span class="n">batch_range_str</span> <span class="o">=</span> <span class="p">(</span>
-                                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">batch_start</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">batch_end</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
-                                    <span class="p">)</span>
-                                <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
-                                    <span class="n">batch_range_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">batch_start</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">batch_end</span><span class="si">}</span><span class="s2">&quot;</span>
+                                    <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
 
-                                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                                    <span class="sa">f</span><span class="s2">&quot;  ⏰ Batch </span><span class="si">{</span><span class="n">batch_idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">time_batches</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">batch_range_str</span><span class="si">}</span><span class="s2">&quot;</span>
-                                <span class="p">)</span>
+                                    <span class="n">time_period</span> <span class="o">=</span> <span class="n">batch_end</span> <span class="o">-</span> <span class="n">batch_start</span>
+                                    <span class="n">batch_info</span> <span class="o">=</span> <span class="p">{</span>
+                                        <span class="s2">&quot;Index&quot;</span><span class="p">:</span> <span class="n">batch_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                                        <span class="s2">&quot;StartTime&quot;</span><span class="p">:</span> <span class="n">batch_start</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+                                        <span class="s2">&quot;EndTime&quot;</span><span class="p">:</span> <span class="n">batch_end</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+                                        <span class="s2">&quot;TimePeriod&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">time_period</span><span class="p">),</span>
+                                    <span class="p">}</span>
+                                <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+                                    <span class="n">batch_info</span> <span class="o">=</span> <span class="p">{</span>
+                                        <span class="s2">&quot;Index&quot;</span><span class="p">:</span> <span class="n">batch_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                                        <span class="s2">&quot;StartTime&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">batch_start</span><span class="p">),</span>
+                                        <span class="s2">&quot;EndTime&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">batch_end</span><span class="p">),</span>
+                                        <span class="s2">&quot;TimePeriod&quot;</span><span class="p">:</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
+                                    <span class="p">}</span>
+                                <span class="n">batch_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch_info</span><span class="p">)</span>
 
                             <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_single_query_with_upload</span><span class="p">(</span>
                                 <span class="n">workspace_id</span><span class="o">=</span><span class="n">workspace_id</span><span class="p">,</span>
@@ -2088,6 +2107,12 @@
                                 <span class="n">workspace_resource_id</span><span class="o">=</span><span class="n">workspace</span><span class="o">.</span><span class="n">resource_id</span><span class="p">,</span>
                             <span class="p">)</span>
                             <span class="n">all_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+
+                        <span class="c1"># Log batch information as JSON array</span>
+                        <span class="k">if</span> <span class="n">batch_list</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s2">&quot;📊 Created </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">time_batches</span><span class="p">)</span><span class="si">}</span><span class="s2"> batch tasks for query &#39;</span><span class="si">{</span><span class="n">actual_query_name</span><span class="si">}</span><span class="s2">&#39;:</span><span class="se">\n</span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">batch_list</span><span class="p">,</span><span class="w"> </span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="p">)</span>
 
                     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
