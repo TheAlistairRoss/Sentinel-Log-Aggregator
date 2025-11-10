@@ -461,6 +461,7 @@ class TestSentinelLogFormatter:
     def test_format_workspace_query_detail(self):
         """Test workspace query detail formatting."""
         workspace_query = {
+            "job_id": "test-job-123",
             "workspaceId": "ws-12345678",
             "query": "incident_summary",
             "logsDownloaded": 1500,
@@ -475,20 +476,21 @@ class TestSentinelLogFormatter:
 
         result = SentinelLogFormatter.format_workspace_query_detail(workspace_query)
 
-        expected_parts = [
-            "workspaceId=ws-12345678",
-            "query=incident_summary",
-            "logsDownloaded=1500",
-            "uploadSuccess=1450",
-            "uploadFailure=50",
-            "avgQueryTime=12.50s",
-            "totalQueryTime=125.00s",
-            "queryExecutions=10",
-            "startTimeRange=2024-01-01T00:00:00Z",
-            "endTimeRange=2024-01-02T00:00:00Z",
-        ]
-        expected = " | ".join(expected_parts)
-        assert result == expected
+        import json
+
+        result_data = json.loads(result)
+        assert result_data["event"] == "WORKSPACE_QUERY_DETAIL"
+        assert result_data["job_id"] == "test-job-123"
+        assert result_data["workspaceId"] == "ws-12345678"
+        assert result_data["query"] == "incident_summary"
+        assert result_data["logsDownloaded"] == 1500
+        assert result_data["uploadSuccess"] == 1450
+        assert result_data["uploadFailure"] == 50
+        assert result_data["avgQueryTime"] == "12.50s"
+        assert result_data["totalQueryTime"] == "125.00s"
+        assert result_data["queryExecutions"] == 10
+        assert result_data["startTimeRange"] == "2024-01-01T00:00:00Z"
+        assert result_data["endTimeRange"] == "2024-01-02T00:00:00Z"
 
     def test_format_workspace_query_detail_missing_values(self):
         """Test workspace query detail formatting with missing values."""
@@ -496,20 +498,21 @@ class TestSentinelLogFormatter:
 
         result = SentinelLogFormatter.format_workspace_query_detail(workspace_query)
 
-        expected_parts = [
-            "workspaceId=unknown",
-            "query=alert_summary",
-            "logsDownloaded=0",
-            "uploadSuccess=0",
-            "uploadFailure=0",
-            "avgQueryTime=0.00s",
-            "totalQueryTime=0.00s",
-            "queryExecutions=0",
-            "startTimeRange=unknown",
-            "endTimeRange=unknown",
-        ]
-        expected = " | ".join(expected_parts)
-        assert result == expected
+        import json
+
+        result_data = json.loads(result)
+        assert result_data["event"] == "WORKSPACE_QUERY_DETAIL"
+        assert result_data["job_id"] == "unknown"
+        assert result_data["workspaceId"] == "unknown"
+        assert result_data["query"] == "alert_summary"
+        assert result_data["logsDownloaded"] == 0
+        assert result_data["uploadSuccess"] == 0
+        assert result_data["uploadFailure"] == 0
+        assert result_data["avgQueryTime"] == "0.00s"
+        assert result_data["totalQueryTime"] == "0.00s"
+        assert result_data["queryExecutions"] == 0
+        assert result_data["startTimeRange"] == "unknown"
+        assert result_data["endTimeRange"] == "unknown"
 
 
 class TestContextualLogger:
@@ -772,9 +775,9 @@ class TestContextualLogger:
 
         assert mock_logger.info.call_count == 2
 
-        # Check first call
+        # Check first call - should be JSON
         first_call = mock_logger.info.call_args_list[0][0][0]
-        assert "[WORKSPACE_QUERY_DETAIL]" in first_call
+        assert "WORKSPACE_QUERY_DETAIL" in first_call
         assert "ws-123" in first_call
         assert "test_query" in first_call
 

@@ -219,28 +219,25 @@ class SentinelLogFormatter:
 
     @staticmethod
     def format_workspace_query_detail(workspace_query: Dict[str, Any]) -> str:
-        """Format workspace/query detail as key-value pairs."""
-        kv_pairs = []
+        """Format workspace/query detail as JSON."""
+        import json
 
-        # Core identification
-        kv_pairs.append(f"workspaceId={workspace_query.get('workspaceId', 'unknown')}")
-        kv_pairs.append(f"query={workspace_query.get('query', 'unknown')}")
+        detail_data = {
+            "event": "WORKSPACE_QUERY_DETAIL",
+            "job_id": workspace_query.get("job_id", "unknown"),
+            "workspaceId": workspace_query.get("workspaceId", "unknown"),
+            "query": workspace_query.get("query", "unknown"),
+            "logsDownloaded": workspace_query.get("logsDownloaded", 0),
+            "uploadSuccess": workspace_query.get("uploadSuccess", 0),
+            "uploadFailure": workspace_query.get("uploadFailure", 0),
+            "avgQueryTime": f"{workspace_query.get('avgQueryTime', 0):.2f}s",
+            "totalQueryTime": f"{workspace_query.get('totalQueryTime', 0):.2f}s",
+            "queryExecutions": workspace_query.get("queryExecutions", 0),
+            "startTimeRange": workspace_query.get("startTimeRange", "unknown"),
+            "endTimeRange": workspace_query.get("endTimeRange", "unknown"),
+        }
 
-        # Record statistics
-        kv_pairs.append(f"logsDownloaded={workspace_query.get('logsDownloaded', 0)}")
-        kv_pairs.append(f"uploadSuccess={workspace_query.get('uploadSuccess', 0)}")
-        kv_pairs.append(f"uploadFailure={workspace_query.get('uploadFailure', 0)}")
-
-        # Performance metrics
-        kv_pairs.append(f"avgQueryTime={workspace_query.get('avgQueryTime', 0):.2f}s")
-        kv_pairs.append(f"totalQueryTime={workspace_query.get('totalQueryTime', 0):.2f}s")
-        kv_pairs.append(f"queryExecutions={workspace_query.get('queryExecutions', 0)}")
-
-        # Time range
-        kv_pairs.append(f"startTimeRange={workspace_query.get('startTimeRange', 'unknown')}")
-        kv_pairs.append(f"endTimeRange={workspace_query.get('endTimeRange', 'unknown')}")
-
-        return " | ".join(kv_pairs)
+        return json.dumps(detail_data, indent=2)
 
 
 class ContextualLogger:
@@ -381,11 +378,14 @@ class ContextualLogger:
             self.logger.info(msg)
 
     def workspace_query_details(self, workspace_query_details: List[Dict[str, Any]]) -> None:
-        """Log workspace/query details in key-value format."""
+        """Log workspace/query details in JSON format."""
         if self.job_id:
             for detail in workspace_query_details:
-                kv_detail = self.formatter.format_workspace_query_detail(detail)
-                self.logger.info(f"[WORKSPACE_QUERY_DETAIL] Job: {self.job_id} | {kv_detail}")
+                # Add job_id to detail before formatting
+                detail_with_job = detail.copy()
+                detail_with_job["job_id"] = self.job_id
+                json_detail = self.formatter.format_workspace_query_detail(detail_with_job)
+                self.logger.info(json_detail)
 
     # Convenience methods for standard logging
     def info(self, message: str) -> None:
