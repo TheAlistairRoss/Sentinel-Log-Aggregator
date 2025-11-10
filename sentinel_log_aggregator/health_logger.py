@@ -650,7 +650,9 @@ class SentinelAggregatorHealthLogger:
 | where TimeGenerated > ago({lookback_minutes}m)
 | where JobId == "{test_id}"
 | where OperationName == "HealthTest"
-| project TimeGenerated, OperationName, OperationStatus, JobId, ExtendedProperties
+| extend IngestionTime = ingestion_time()
+| extend TimeTakenSeconds = datetime_diff('second', IngestionTime, TimeGenerated)
+| project TimeGenerated, OperationName, OperationStatus, JobId, ExtendedProperties, IngestionTime, TimeTakenSeconds
 | take 1
 """
 
@@ -683,13 +685,26 @@ class SentinelAggregatorHealthLogger:
 
                 if query_result.succeeded and query_result.record_count > 0:
                     result["found"] = True
-                    result["record"] = query_result.data[0] if query_result.data else None
-                    result["ingestion_delay_seconds"] = total_waited
+                    record = query_result.data[0] if query_result.data else None
+                    result["record"] = record
+
+                    # Extract TimeTakenSeconds from query result if available
+                    if record and isinstance(record, dict):
+                        time_taken = record.get("TimeTakenSeconds")
+                        if time_taken is not None:
+                            result["ingestion_delay_seconds"] = float(time_taken)
+                        else:
+                            result["ingestion_delay_seconds"] = total_waited
+                    else:
+                        result["ingestion_delay_seconds"] = total_waited
+
                     result["message"] = (
-                        f"Test event found after {total_waited} seconds (Test ID: {test_id})"
+                        f"Test event found after {total_waited} seconds "
+                        f"(Ingestion delay: {result['ingestion_delay_seconds']:.1f}s, Test ID: {test_id})"
                     )
                     logger.info(
-                        f"✅ Test event verified: {test_id} (ingestion delay: {total_waited}s)"
+                        f"✅ Test event verified: {test_id} "
+                        f"(query wait: {total_waited}s, ingestion delay: {result['ingestion_delay_seconds']:.1f}s)"
                     )
                     return result
 
