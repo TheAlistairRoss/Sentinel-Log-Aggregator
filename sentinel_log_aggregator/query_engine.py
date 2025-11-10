@@ -8,6 +8,7 @@ for centralized reporting.
 
 import asyncio
 import gc
+import json
 import logging
 import time
 import uuid
@@ -151,6 +152,7 @@ class SentinelQueryEngine:
         end_time: datetime,
         execution_id: str,
         workspace_alias: str = "",
+        workspace_resource_id: str = "",
     ) -> QueryExecution:
         """
         Execute a single query and upload results immediately.
@@ -164,6 +166,7 @@ class SentinelQueryEngine:
             end_time: Query time range end
             execution_id: Unique execution identifier
             workspace_alias: Short workspace identifier for logging
+            workspace_resource_id: Full Azure resource ID for the workspace
 
         Returns:
             QueryExecution tracking object
@@ -196,6 +199,23 @@ class SentinelQueryEngine:
         self.logger.debug(f"⏰ Time range: {time_range_str}")
         self.logger.debug(f"📤 Destination stream: {destination_stream}")
 
+        # Log comprehensive query execution details as single JSON line
+        query_execution_details = {
+            "operation": "query_execution",
+            "workspace_resource_id": workspace_resource_id,
+            "workspace_id": workspace_id,
+            "workspace_alias": workspace_alias,
+            "query_name": query_name,
+            "start_time": (
+                start_time.isoformat() if hasattr(start_time, "isoformat") else str(start_time)
+            ),
+            "end_time": end_time.isoformat() if hasattr(end_time, "isoformat") else str(end_time),
+            "destination_stream": destination_stream,
+            "execution_id": execution_id,
+            "kql_query": query,
+        }
+        self.logger.debug(json.dumps(query_execution_details, default=str))
+
         query_response = None
         transformed_data = None
 
@@ -204,18 +224,15 @@ class SentinelQueryEngine:
             query_start_time = time.time()
 
             self.logger.query_start(query_name, workspace_alias, time_range_str)
-            self.logger.debug(
-                f"🔄 Sending query to Azure Monitor for workspace {workspace_alias}..."
-            )
 
             # Log query execution start to health logger
             if self.health_logger:
-                self.logger.debug(f"📝 Logging query execution start to health logger...")
                 await self.health_logger.log_query_execution(
                     job_id=self.job_correlation_id,
                     query_execution=execution,
                     workspace_config=WorkspaceConfig(
-                        resource_id=f"/subscriptions/unknown/resourceGroups/unknown/providers/Microsoft.OperationalInsights/workspaces/{workspace_alias}",
+                        resource_id=workspace_resource_id
+                        or f"/subscriptions/unknown/resourceGroups/unknown/providers/Microsoft.OperationalInsights/workspaces/{workspace_alias}",
                         customer_id=workspace_id,
                         queries_list=[],
                         parameters={},
@@ -501,13 +518,6 @@ class SentinelQueryEngine:
             workspace_id = workspace.customer_id
             queries_list = workspace.queries_list
 
-            self.logger.debug(
-                f"🔍 Processing workspace: {workspace_id[:8]}*** with {len(queries_list)} queries"
-            )
-            self.logger.debug(
-                f"📋 Query configuration types: {[type(q).__name__ for q in queries_list]}"
-            )
-
             # Extract workspace name from resource ID with validation
             try:
                 resource_parts = workspace.resource_id.split("/")
@@ -526,6 +536,13 @@ class SentinelQueryEngine:
                     f"Failed to extract workspace name from resource ID: {workspace.resource_id}, using workspace ID as alias"
                 )
                 workspace_alias = workspace_id
+
+            self.logger.debug(
+                f"🔍 Processing workspace: {workspace_alias} with {len(queries_list)} queries"
+            )
+            self.logger.debug(
+                f"📋 Query configuration types: {[type(q).__name__ for q in queries_list]}"
+            )
 
             # Extract query names for health logging - handle both string and dict formats
             query_names_for_logging = []
@@ -711,6 +728,7 @@ class SentinelQueryEngine:
                                 end_time=batch_end,
                                 execution_id=execution_id,
                                 workspace_alias=workspace_alias,
+                                workspace_resource_id=workspace.resource_id,
                             )
                             all_tasks.append(task)
 

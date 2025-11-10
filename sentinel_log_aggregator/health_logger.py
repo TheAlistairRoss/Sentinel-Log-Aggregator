@@ -359,21 +359,14 @@ class SentinelAggregatorHealthLogger:
             if extended_properties:
                 health_record["ExtendedProperties"] = json.dumps(extended_properties, default=str)
 
-            # Log to console (always)
-            self._log_health_to_console(health_record, extended_properties)
-
-            # Upload to Log Analytics only if health_to_sentinel is enabled
+            # Upload to Log Analytics if health_to_sentinel is enabled
             if self.health_to_sentinel:
                 await self.sentinel_client.upload_logs(
                     data=[health_record], stream_name=self.health_stream_name
                 )
-                logger.debug(
-                    f"Health event sent to Sentinel: {operation_name} - {operation_status} (Job: {job_id})"
-                )
-            else:
-                logger.debug(
-                    f"Health event logged to console only: {operation_name} - {operation_status} (Job: {job_id})"
-                )
+
+            # Log single consolidated JSON output
+            self._log_health_to_console(health_record, extended_properties)
 
         except Exception as e:
             # Log health logging errors but don't fail the main operation
@@ -384,18 +377,17 @@ class SentinelAggregatorHealthLogger:
         self, health_record: Dict[str, Any], extended_properties: Optional[Dict[str, Any]] = None
     ) -> None:
         """
-        Log health event to console as info message.
+        Log health event to console with both human-readable INFO and structured JSON DEBUG.
 
         Args:
             health_record: Health record data
             extended_properties: Extended properties for additional context
         """
-        # Format a human-readable health message
         operation_name = health_record.get("OperationName", "Unknown")
         operation_status = health_record.get("OperationStatus", "Unknown")
         job_id = health_record.get("JobId", "")[:8]  # Truncate for readability
 
-        # Build context information
+        # Build context information for INFO message
         context_parts = []
 
         if workspace_id := health_record.get("WorkspaceId"):
@@ -415,7 +407,7 @@ class SentinelAggregatorHealthLogger:
 
         context_str = f" ({', '.join(context_parts)})" if context_parts else ""
 
-        # Format the log message
+        # Log human-readable INFO message
         health_message = f"🏥 {operation_name}: {operation_status} [Job: {job_id}]{context_str}"
 
         # Use appropriate log level based on status
@@ -425,6 +417,12 @@ class SentinelAggregatorHealthLogger:
             logger.warning(health_message)
         else:
             logger.info(health_message)
+
+        # Log structured JSON at DEBUG level for detailed analysis
+        # Create a clean record for logging (remove Time as it's handled by log formatter)
+        debug_record = {k: v for k, v in health_record.items() if k != "Time"}
+        debug_record["to_sentinel"] = self.health_to_sentinel
+        logger.debug(json.dumps(debug_record, default=str))
 
     async def verify_health_table_setup(self, workspace_id: str) -> dict:
         """

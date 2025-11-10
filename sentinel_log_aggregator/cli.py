@@ -376,6 +376,9 @@ async def run_aggregation(
     # Generate job ID for health logging
     job_id = health_logger.create_job_id() if health_logger else "cli-job"
 
+    # Create Azure SDK-compliant credential (will be closed in finally block)
+    credential = DefaultAzureCredential()
+
     try:
         # Log job start if health logging is enabled
         if health_logger:
@@ -394,8 +397,7 @@ async def run_aggregation(
                 },
             )
 
-        # Create Azure SDK-compliant client
-        credential = DefaultAzureCredential()
+        # Create Azure SDK-compliant client with context manager
         async with SentinelAggregatorClient(
             dcr_logs_ingestion_endpoint=client_options.dcr_logs_ingestion_endpoint,
             credential=credential,
@@ -455,6 +457,20 @@ async def run_aggregation(
                 logger.debug(f"Failed to log error to health logger: {health_error}")
 
         return False
+
+    finally:
+        # Clean up Azure resources
+        try:
+            # Close health logger's client session if it exists
+            if health_logger and health_logger.sentinel_client:
+                await health_logger.sentinel_client.close()
+                logger.debug("✅ Health logger client session closed")
+
+            # Close credential
+            await credential.close()
+            logger.debug("✅ Credential closed")
+        except Exception as cleanup_error:
+            logger.debug(f"Error during cleanup: {cleanup_error}")
 
 
 def create_parser() -> argparse.ArgumentParser:
