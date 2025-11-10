@@ -11,7 +11,6 @@ import json
 import logging
 import os
 import sys
-
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -811,8 +810,6 @@ async def test_health_logging(
 
         logger.info(f"✅ {send_result['message']}")
         test_id = send_result["test_id"]
-
-
 
         log_output = {
             "Test ID": test_id,
