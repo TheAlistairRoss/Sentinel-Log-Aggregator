@@ -812,25 +812,19 @@ async def test_health_logging(
         logger.info(f"✅ {send_result['message']}")
         test_id = send_result["test_id"]
 
-        # Display detailed information about what was sent at INFO level
-        logger.info("")
-        logger.info("📋 Test Health Event Details:")
-        logger.info("=" * 70)
-        logger.info(f"  Test ID: {test_id}")
-        logger.info(f"  Stream Name: {send_result.get('stream_name', 'N/A')}")
-        if send_result.get("dcr_endpoint"):
-            logger.info(f"  DCR Endpoint: {send_result['dcr_endpoint']}")
-        if send_result.get("dcr_immutable_id"):
-            logger.info(f"  DCR Immutable ID: {send_result['dcr_immutable_id'][:40]}...")
+        # Display detailed information as a single structured JSON log
+        import json
 
-        if send_result.get("log_record"):
-            logger.info("")
-            logger.info("  Log Record Sent:")
-            import json
+        log_output = {
+            "Test ID": test_id,
+            "Stream Name": send_result.get("stream_name", "N/A"),
+            "Data Collection Rule Endpoint": send_result.get("dcr_endpoint", ""),
+            "Data Collection Rule Immutable Id": send_result.get("dcr_immutable_id", ""),
+            "Log Records": send_result.get("log_record", {}),
+        }
 
-            logger.info(json.dumps(send_result["log_record"], indent=4))
-        logger.info("=" * 70)
-        logger.info("")
+        logger.info("Log Record Sent:")
+        logger.info(json.dumps(log_output, indent=4))
 
         # Verify if requested
         if args.verify:
