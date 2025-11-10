@@ -870,7 +870,7 @@ async def test_health_logging(
         else:
             logger.info("💡 Manual Verification:")
             logger.info(
-                f"Run this query against your aggregation workspace: {send_result.get('stream_name', HEALTH_TABLE_NAME)} | where JobId == '{test_id}' | where OperationName == 'HealthTest'"
+                f"Run this query against your aggregation workspace: {HEALTH_TABLE_NAME} | where JobId == '{test_id}' | where OperationName == 'HealthTest'"
             )
             return True
 
