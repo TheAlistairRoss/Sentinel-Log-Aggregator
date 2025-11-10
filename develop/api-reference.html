@@ -1062,7 +1062,9 @@
 <li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_watermark_update"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_watermark_update()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_workspace_processing_end"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_workspace_processing_end()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_workspace_processing_start"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_workspace_processing_start()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.SentinelAggregatorHealthLogger.send_test_event"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.send_test_event()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.SentinelAggregatorHealthLogger.verify_health_table_setup"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.verify_health_table_setup()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sentinel_log_aggregator.SentinelAggregatorHealthLogger.verify_test_event"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.verify_test_event()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -3174,6 +3176,33 @@ to the SentinelAggregatorHealth_CL Log Analytics table.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="sentinel_log_aggregator.SentinelAggregatorHealthLogger.send_test_event">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send_test_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/sentinel_log_aggregator/health_logger.html#SentinelAggregatorHealthLogger.send_test_event"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sentinel_log_aggregator.SentinelAggregatorHealthLogger.send_test_event" title="Link to this definition"></a></dt>
+<dd><p>Send a test health event to verify health logging functionality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>test_id</strong> – Optional test identifier (generates one if not provided)</p></li>
+<li><p><strong>**kwargs</strong> – Additional properties to include in the test event</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>test_id: The test event identifier</p></li>
+<li><p>success: Whether the test event was sent successfully</p></li>
+<li><p>message: Description of the result</p></li>
+<li><p>timestamp: When the test was performed</p></li>
+<li><p>error: Error message if failed</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary with test results</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="sentinel_log_aggregator.SentinelAggregatorHealthLogger.verify_health_table_setup">
 <em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">verify_health_table_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">workspace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span></span><a class="reference internal" href="_modules/sentinel_log_aggregator/health_logger.html#SentinelAggregatorHealthLogger.verify_health_table_setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sentinel_log_aggregator.SentinelAggregatorHealthLogger.verify_health_table_setup" title="Link to this definition"></a></dt>
 <dd><p>Verify that the health logging table and DCR are properly configured.</p>
@@ -3186,6 +3215,34 @@ to the SentinelAggregatorHealth_CL Log Analytics table.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sentinel_log_aggregator.SentinelAggregatorHealthLogger.verify_test_event">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">verify_test_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_wait_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/sentinel_log_aggregator/health_logger.html#SentinelAggregatorHealthLogger.verify_test_event"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sentinel_log_aggregator.SentinelAggregatorHealthLogger.verify_test_event" title="Link to this definition"></a></dt>
+<dd><p>Verify that a test health event was ingested successfully.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>test_id</strong> – The test event identifier to look for</p></li>
+<li><p><strong>workspace_id</strong> – Workspace ID where health table is located</p></li>
+<li><p><strong>max_wait_seconds</strong> – Maximum time to wait for ingestion (default: 300 seconds / 5 minutes)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>test_id: The test event identifier</p></li>
+<li><p>found: Whether the test event was found</p></li>
+<li><p>message: Description of the result</p></li>
+<li><p>ingestion_delay_seconds: Time between send and ingestion (if found)</p></li>
+<li><p>record: The actual record found (if found)</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary with verification results</p>
 </dd>
 </dl>
 </dd></dl>

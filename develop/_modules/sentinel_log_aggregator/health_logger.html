@@ -1060,7 +1060,9 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_watermark_update"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_watermark_update()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_workspace_processing_end"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_workspace_processing_end()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.log_workspace_processing_start"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.log_workspace_processing_start()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.send_test_event"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.send_test_event()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.verify_health_table_setup"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.verify_health_table_setup()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.verify_test_event"><code class="docutils literal notranslate"><span class="pre">SentinelAggregatorHealthLogger.verify_test_event()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1315,7 +1317,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">uuid</span><span class="w"> </span><span class="kn">import</span> <span class="n">uuid4</span>
 
@@ -1842,6 +1844,198 @@
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">result</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Health setup verification failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Health setup verification error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="SentinelAggregatorHealthLogger.send_test_event">
+<a class="viewcode-back" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.send_test_event">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_test_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a test health event to verify health logging functionality.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            test_id: Optional test identifier (generates one if not provided)</span>
+<span class="sd">            **kwargs: Additional properties to include in the test event</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dictionary with test results:</span>
+<span class="sd">            - test_id: The test event identifier</span>
+<span class="sd">            - success: Whether the test event was sent successfully</span>
+<span class="sd">            - message: Description of the result</span>
+<span class="sd">            - timestamp: When the test was performed</span>
+<span class="sd">            - error: Error message if failed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;test_id&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Health logging is disabled&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+            <span class="p">}</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">health_to_sentinel</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;test_id&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Health logging is in console-only mode (not sent to Sentinel)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+            <span class="p">}</span>
+
+        <span class="c1"># Generate test ID if not provided</span>
+        <span class="k">if</span> <span class="n">test_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">test_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;health-test-</span><span class="si">{</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">[:</span><span class="mi">12</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;test_id&quot;</span><span class="p">:</span> <span class="n">test_id</span><span class="p">,</span>
+            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="p">}</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Create test health event</span>
+            <span class="n">extended_properties</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;test_event&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">&quot;test_id&quot;</span><span class="p">:</span> <span class="n">test_id</span><span class="p">,</span>
+                <span class="s2">&quot;test_timestamp&quot;</span><span class="p">:</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">}</span>
+
+            <span class="n">test_record</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;TimeGenerated&quot;</span><span class="p">:</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+                <span class="s2">&quot;OperationName&quot;</span><span class="p">:</span> <span class="s2">&quot;HealthTest&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;OperationStatus&quot;</span><span class="p">:</span> <span class="s2">&quot;TestEvent&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;JobId&quot;</span><span class="p">:</span> <span class="n">test_id</span><span class="p">,</span>
+                <span class="s2">&quot;ExtendedProperties&quot;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">extended_properties</span><span class="p">),</span>
+            <span class="p">}</span>
+
+            <span class="c1"># Attempt to upload the test event</span>
+            <span class="n">upload_result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">sentinel_client</span><span class="o">.</span><span class="n">upload_logs</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">test_record</span><span class="p">],</span> <span class="n">stream_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">health_stream_name</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">upload_result</span><span class="o">.</span><span class="n">succeeded</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;success&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Test event sent successfully (Test ID: </span><span class="si">{</span><span class="n">test_id</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Health test event sent: </span><span class="si">{</span><span class="n">test_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Failed to send test event: </span><span class="si">{</span><span class="n">upload_result</span><span class="o">.</span><span class="n">error_message</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">upload_result</span><span class="o">.</span><span class="n">error_message</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Health test event failed: </span><span class="si">{</span><span class="n">upload_result</span><span class="o">.</span><span class="n">error_message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error sending test event: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Health test event error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="SentinelAggregatorHealthLogger.verify_test_event">
+<a class="viewcode-back" href="../../api-reference.html#sentinel_log_aggregator.SentinelAggregatorHealthLogger.verify_test_event">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">verify_test_event</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">test_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">workspace_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_wait_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">300</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Verify that a test health event was ingested successfully.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            test_id: The test event identifier to look for</span>
+<span class="sd">            workspace_id: Workspace ID where health table is located</span>
+<span class="sd">            max_wait_seconds: Maximum time to wait for ingestion (default: 300 seconds / 5 minutes)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dictionary with verification results:</span>
+<span class="sd">            - test_id: The test event identifier</span>
+<span class="sd">            - found: Whether the test event was found</span>
+<span class="sd">            - message: Description of the result</span>
+<span class="sd">            - ingestion_delay_seconds: Time between send and ingestion (if found)</span>
+<span class="sd">            - record: The actual record found (if found)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enabled</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">health_to_sentinel</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;test_id&quot;</span><span class="p">:</span> <span class="n">test_id</span><span class="p">,</span>
+                <span class="s2">&quot;found&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Health logging is not configured to send to Sentinel&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;test_id&quot;</span><span class="p">:</span> <span class="n">test_id</span><span class="p">,</span>
+            <span class="s2">&quot;found&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ingestion_delay_seconds&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;record&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">table_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">health_stream_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Custom-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Query for the test event</span>
+            <span class="c1"># Use a lookback of max_wait_seconds + 60 seconds buffer</span>
+            <span class="n">lookback_minutes</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_wait_seconds</span> <span class="o">+</span> <span class="mi">60</span><span class="p">)</span> <span class="o">//</span> <span class="mi">60</span>
+
+            <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="si">{</span><span class="n">table_name</span><span class="si">}</span>
+<span class="s2">| where TimeGenerated &gt; ago(</span><span class="si">{</span><span class="n">lookback_minutes</span><span class="si">}</span><span class="s2">m)</span>
+<span class="s2">| where JobId == &quot;</span><span class="si">{</span><span class="n">test_id</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="s2">| where OperationName == &quot;HealthTest&quot;</span>
+<span class="s2">| project TimeGenerated, OperationName, OperationStatus, JobId, ExtendedProperties</span>
+<span class="s2">| take 1</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🔍 Searching for test event: </span><span class="si">{</span><span class="n">test_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Try multiple times with increasing delays</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+            <span class="n">wait_intervals</span> <span class="o">=</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">]</span>  <span class="c1"># seconds</span>
+            <span class="n">total_waited</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">for</span> <span class="n">wait_seconds</span> <span class="ow">in</span> <span class="n">wait_intervals</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">total_waited</span> <span class="o">&gt;=</span> <span class="n">max_wait_seconds</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+                <span class="k">if</span> <span class="n">total_waited</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Don&#39;t wait on first attempt</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⏳ Waiting </span><span class="si">{</span><span class="n">wait_seconds</span><span class="si">}</span><span class="s2"> seconds before retry...&quot;</span><span class="p">)</span>
+                    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait_seconds</span><span class="p">)</span>
+                    <span class="n">total_waited</span> <span class="o">+=</span> <span class="n">wait_seconds</span>
+
+                <span class="n">end_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+                <span class="n">start_time</span> <span class="o">=</span> <span class="n">end_time</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">lookback_minutes</span><span class="p">)</span>
+
+                <span class="n">query_result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">sentinel_client</span><span class="o">.</span><span class="n">query_workspace</span><span class="p">(</span>
+                    <span class="n">workspace_id</span><span class="o">=</span><span class="n">workspace_id</span><span class="p">,</span>
+                    <span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
+                    <span class="n">start_time</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span>
+                    <span class="n">end_time</span><span class="o">=</span><span class="n">end_time</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">query_result</span><span class="o">.</span><span class="n">succeeded</span> <span class="ow">and</span> <span class="n">query_result</span><span class="o">.</span><span class="n">record_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span><span class="s2">&quot;found&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">result</span><span class="p">[</span><span class="s2">&quot;record&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_result</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">query_result</span><span class="o">.</span><span class="n">data</span> <span class="k">else</span> <span class="kc">None</span>
+                    <span class="n">result</span><span class="p">[</span><span class="s2">&quot;ingestion_delay_seconds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_waited</span>
+                    <span class="n">result</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Test event found after </span><span class="si">{</span><span class="n">total_waited</span><span class="si">}</span><span class="s2"> seconds (Test ID: </span><span class="si">{</span><span class="n">test_id</span><span class="si">}</span><span class="s2">)&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;✅ Test event verified: </span><span class="si">{</span><span class="n">test_id</span><span class="si">}</span><span class="s2"> (ingestion delay: </span><span class="si">{</span><span class="n">total_waited</span><span class="si">}</span><span class="s2">s)&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">return</span> <span class="n">result</span>
+
+            <span class="c1"># Not found after all retries</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Test event not found after </span><span class="si">{</span><span class="n">total_waited</span><span class="si">}</span><span class="s2"> seconds. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;It may take up to 10-15 minutes for data to appear in Log Analytics. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Test ID: </span><span class="si">{</span><span class="n">test_id</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚠️ Test event not found yet: </span><span class="si">{</span><span class="n">test_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error verifying test event: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Error verifying test event: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">result</span></div>
 
