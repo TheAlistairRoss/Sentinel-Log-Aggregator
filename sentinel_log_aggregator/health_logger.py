@@ -8,7 +8,7 @@ for monitoring job execution, query performance, and workspace processing.
 import asyncio
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Union
 from uuid import uuid4
 
@@ -507,6 +507,192 @@ class SentinelAggregatorHealthLogger:
         except Exception as e:
             result["message"] = f"Health setup verification failed: {e}"
             logger.debug(f"Health setup verification error: {e}", exc_info=True)
+
+        return result
+
+    async def send_test_event(self, test_id: Optional[str] = None, **kwargs) -> Dict[str, Any]:
+        """
+        Send a test health event to verify health logging functionality.
+
+        Args:
+            test_id: Optional test identifier (generates one if not provided)
+            **kwargs: Additional properties to include in the test event
+
+        Returns:
+            Dictionary with test results:
+            - test_id: The test event identifier
+            - success: Whether the test event was sent successfully
+            - message: Description of the result
+            - timestamp: When the test was performed
+            - error: Error message if failed
+        """
+        if not self.enabled:
+            return {
+                "test_id": None,
+                "success": False,
+                "message": "Health logging is disabled",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+
+        if not self.health_to_sentinel:
+            return {
+                "test_id": None,
+                "success": False,
+                "message": "Health logging is in console-only mode (not sent to Sentinel)",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+
+        # Generate test ID if not provided
+        if test_id is None:
+            test_id = f"health-test-{uuid4().hex[:12]}"
+
+        timestamp = datetime.now(timezone.utc)
+        result = {
+            "test_id": test_id,
+            "success": False,
+            "message": "",
+            "timestamp": timestamp.isoformat(),
+        }
+
+        try:
+            # Create test health event
+            extended_properties = {
+                "test_event": True,
+                "test_id": test_id,
+                "test_timestamp": timestamp.isoformat(),
+                **kwargs,
+            }
+
+            test_record = {
+                "TimeGenerated": timestamp.isoformat(),
+                "OperationName": "HealthTest",
+                "OperationStatus": "TestEvent",
+                "JobId": test_id,
+                "ExtendedProperties": json.dumps(extended_properties),
+            }
+
+            # Attempt to upload the test event
+            upload_result = await self.sentinel_client.upload_logs(
+                data=[test_record], stream_name=self.health_stream_name
+            )
+
+            if upload_result.succeeded:
+                result["success"] = True
+                result["message"] = f"Test event sent successfully (Test ID: {test_id})"
+                logger.info(f"✅ Health test event sent: {test_id}")
+            else:
+                result["message"] = f"Failed to send test event: {upload_result.error_message}"
+                result["error"] = upload_result.error_message
+                logger.error(f"❌ Health test event failed: {upload_result.error_message}")
+
+        except Exception as e:
+            result["message"] = f"Error sending test event: {str(e)}"
+            result["error"] = str(e)
+            logger.error(f"❌ Health test event error: {e}", exc_info=True)
+
+        return result
+
+    async def verify_test_event(
+        self, test_id: str, workspace_id: str, max_wait_seconds: int = 300
+    ) -> Dict[str, Any]:
+        """
+        Verify that a test health event was ingested successfully.
+
+        Args:
+            test_id: The test event identifier to look for
+            workspace_id: Workspace ID where health table is located
+            max_wait_seconds: Maximum time to wait for ingestion (default: 300 seconds / 5 minutes)
+
+        Returns:
+            Dictionary with verification results:
+            - test_id: The test event identifier
+            - found: Whether the test event was found
+            - message: Description of the result
+            - ingestion_delay_seconds: Time between send and ingestion (if found)
+            - record: The actual record found (if found)
+        """
+        if not self.enabled or not self.health_to_sentinel:
+            return {
+                "test_id": test_id,
+                "found": False,
+                "message": "Health logging is not configured to send to Sentinel",
+            }
+
+        result = {
+            "test_id": test_id,
+            "found": False,
+            "message": "",
+            "ingestion_delay_seconds": None,
+            "record": None,
+        }
+
+        try:
+            table_name = self.health_stream_name.replace("Custom-", "").replace("-", "_")
+
+            # Query for the test event
+            # Use a lookback of max_wait_seconds + 60 seconds buffer
+            lookback_minutes = (max_wait_seconds + 60) // 60
+
+            query = f"""
+{table_name}
+| where TimeGenerated > ago({lookback_minutes}m)
+| where JobId == "{test_id}"
+| where OperationName == "HealthTest"
+| project TimeGenerated, OperationName, OperationStatus, JobId, ExtendedProperties
+| take 1
+"""
+
+            logger.info(f"🔍 Searching for test event: {test_id}")
+
+            # Try multiple times with increasing delays
+            import asyncio
+
+            wait_intervals = [5, 10, 15, 30, 60]  # seconds
+            total_waited = 0
+
+            for wait_seconds in wait_intervals:
+                if total_waited >= max_wait_seconds:
+                    break
+
+                if total_waited > 0:  # Don't wait on first attempt
+                    logger.info(f"⏳ Waiting {wait_seconds} seconds before retry...")
+                    await asyncio.sleep(wait_seconds)
+                    total_waited += wait_seconds
+
+                end_time = datetime.now(timezone.utc)
+                start_time = end_time - timedelta(minutes=lookback_minutes)
+
+                query_result = await self.sentinel_client.query_workspace(
+                    workspace_id=workspace_id,
+                    query=query,
+                    start_time=start_time,
+                    end_time=end_time,
+                )
+
+                if query_result.succeeded and query_result.record_count > 0:
+                    result["found"] = True
+                    result["record"] = query_result.data[0] if query_result.data else None
+                    result["ingestion_delay_seconds"] = total_waited
+                    result["message"] = (
+                        f"Test event found after {total_waited} seconds (Test ID: {test_id})"
+                    )
+                    logger.info(
+                        f"✅ Test event verified: {test_id} (ingestion delay: {total_waited}s)"
+                    )
+                    return result
+
+            # Not found after all retries
+            result["message"] = (
+                f"Test event not found after {total_waited} seconds. "
+                f"It may take up to 10-15 minutes for data to appear in Log Analytics. "
+                f"Test ID: {test_id}"
+            )
+            logger.warning(f"⚠️ Test event not found yet: {test_id}")
+
+        except Exception as e:
+            result["message"] = f"Error verifying test event: {str(e)}"
+            result["error"] = str(e)
+            logger.error(f"❌ Error verifying test event: {e}", exc_info=True)
 
         return result
 

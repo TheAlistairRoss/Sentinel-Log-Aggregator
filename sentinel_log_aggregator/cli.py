@@ -707,7 +707,125 @@ Examples:
         help="DCR immutable ID for health logging (if different from main DCR)",
     )
 
+    # Test health command
+    test_health_parser = subparsers.add_parser(
+        "test-health",
+        help="Send test health event and optionally verify ingestion",
+        description="Send a test event to health logging table and optionally verify it was ingested",
+    )
+    test_health_parser.add_argument(
+        "--workspace-config",
+        type=Path,
+        required=True,
+        help="Path to workspace configuration file (YAML format)",
+    )
+    test_health_parser.add_argument(
+        "--test-id", help="Custom test identifier (auto-generated if not provided)"
+    )
+    test_health_parser.add_argument(
+        "--verify",
+        action="store_true",
+        help="Verify that the test event was ingested after sending",
+    )
+    test_health_parser.add_argument(
+        "--max-wait",
+        type=int,
+        default=300,
+        help="Maximum seconds to wait for verification (default: 300)",
+    )
+    test_health_parser.add_argument(
+        "--health-workspace-id",
+        help="Workspace ID where health table is located (if different from first data workspace)",
+    )
+    test_health_parser.add_argument(
+        "--health-dcr-endpoint", help="DCR endpoint for health logging (if different from main DCR)"
+    )
+    test_health_parser.add_argument(
+        "--health-dcr-immutable-id",
+        help="DCR immutable ID for health logging (if different from main DCR)",
+    )
+
     return parser
+
+
+async def test_health_logging(
+    args, client_options: SentinelAggregatorClientOptions, workspaces: List[WorkspaceConfig]
+) -> bool:
+    """
+    Send a test health event and optionally verify ingestion.
+
+    Args:
+        args: CLI arguments
+        client_options: Client configuration options
+        workspaces: Available workspace configurations
+
+    Returns:
+        bool: True if test succeeded, False otherwise
+    """
+    logger = logging.getLogger(__name__)
+
+    logger.info("🧪 Testing health logging...")
+
+    try:
+        # Create health logger
+        health_logger = create_health_logger_from_args(args, client_options, workspaces)
+
+        if not health_logger:
+            logger.error("❌ Health logging is not enabled or configured")
+            logger.info("💡 Enable health logging with --enable-health-logging")
+            return False
+
+        # Send test event
+        logger.info("📤 Sending test health event...")
+        send_result = await health_logger.send_test_event(test_id=args.test_id)
+
+        if not send_result["success"]:
+            logger.error(f"❌ {send_result['message']}")
+            return False
+
+        logger.info(f"✅ {send_result['message']}")
+        test_id = send_result["test_id"]
+
+        # Verify if requested
+        if args.verify:
+            # Determine workspace ID
+            verify_workspace_id = args.health_workspace_id
+            if not verify_workspace_id and workspaces:
+                verify_workspace_id = workspaces[0].customer_id
+                logger.info(
+                    f"🔍 Using first workspace for verification: {workspaces[0].workspace_name}"
+                )
+
+            if not verify_workspace_id:
+                logger.error("❌ No workspace available for verification")
+                return False
+
+            logger.info(f"🔍 Verifying test event ingestion (max wait: {args.max_wait} seconds)...")
+            verify_result = await health_logger.verify_test_event(
+                test_id=test_id,
+                workspace_id=verify_workspace_id,
+                max_wait_seconds=args.max_wait,
+            )
+
+            logger.info("📊 Verification Results:")
+            logger.info("=" * 50)
+            logger.info(f"  • Test ID: {verify_result['test_id']}")
+            logger.info(f"  • Found: {'✅' if verify_result['found'] else '❌'}")
+            logger.info(f"  • Message: {verify_result['message']}")
+            if verify_result.get("ingestion_delay_seconds") is not None:
+                logger.info(
+                    f"  • Ingestion Delay: {verify_result['ingestion_delay_seconds']} seconds"
+                )
+            logger.info("=" * 50)
+
+            return verify_result["found"]
+        else:
+            logger.info("💡 Use --verify flag to check if the test event was ingested successfully")
+            return True
+
+    except Exception as e:
+        logger.error(f"❌ Health test failed: {e}", exc_info=True)
+        return False
 
 
 async def verify_health_logging_setup(
@@ -1191,6 +1309,9 @@ async def main():
 
         elif args.command == "verify-health":
             success = await verify_health_logging_setup(args, client_options, workspaces)
+
+        elif args.command == "test-health":
+            success = await test_health_logging(args, client_options, workspaces)
 
         elif args.command == "query-status":
             success = await query_last_successful_runs(args, client_options, workspaces)

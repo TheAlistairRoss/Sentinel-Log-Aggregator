@@ -424,3 +424,213 @@ class TestSentinelAggregatorHealthLogger:
         )  # str() format, not isoformat()
         assert extended_props["list_data"] == ["item1", "item2"]
         assert extended_props["dict_data"] == {"key": "value"}
+
+    @pytest.mark.asyncio
+    async def test_send_test_event_success(self, health_logger, mock_sentinel_client):
+        """Test sending a test health event successfully."""
+        from sentinel_log_aggregator.responses import UploadResult, UploadStatus
+
+        # Mock successful upload
+        mock_sentinel_client.upload_logs.return_value = UploadResult(
+            status=UploadStatus.SUCCESS,
+            record_count=1,
+            upload_time=0.1,
+            stream_name="Custom-SentinelAggregator-Health_CL",
+            dcr_immutable_id="dcr-test",
+            error_message=None,
+        )
+
+        result = await health_logger.send_test_event(test_id="test-123")
+
+        assert result["success"] is True
+        assert result["test_id"] == "test-123"
+        assert "Test ID: test-123" in result["message"]
+        assert "error" not in result
+
+        # Verify upload was called
+        mock_sentinel_client.upload_logs.assert_called_once()
+        call_args = mock_sentinel_client.upload_logs.call_args
+        data = call_args[1]["data"]
+        assert len(data) == 1
+        assert data[0]["OperationName"] == "HealthTest"
+        assert data[0]["JobId"] == "test-123"
+
+    @pytest.mark.asyncio
+    async def test_send_test_event_auto_generated_id(self, health_logger, mock_sentinel_client):
+        """Test sending a test event with auto-generated ID."""
+        from sentinel_log_aggregator.responses import UploadResult, UploadStatus
+
+        mock_sentinel_client.upload_logs.return_value = UploadResult(
+            status=UploadStatus.SUCCESS,
+            record_count=1,
+            upload_time=0.1,
+            stream_name="Custom-SentinelAggregator-Health_CL",
+            dcr_immutable_id="dcr-test",
+            error_message=None,
+        )
+
+        result = await health_logger.send_test_event()
+
+        assert result["success"] is True
+        assert result["test_id"] is not None
+        assert result["test_id"].startswith("health-test-")
+
+    @pytest.mark.asyncio
+    async def test_send_test_event_disabled(self, mock_sentinel_client):
+        """Test sending test event when health logging is disabled."""
+        disabled_logger = SentinelAggregatorHealthLogger(
+            sentinel_client=mock_sentinel_client,
+            enabled=False,
+            health_to_sentinel=False,
+        )
+
+        result = await disabled_logger.send_test_event()
+
+        assert result["success"] is False
+        assert "disabled" in result["message"].lower()
+        mock_sentinel_client.upload_logs.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_send_test_event_console_only(self, mock_sentinel_client):
+        """Test sending test event when in console-only mode."""
+        console_logger = SentinelAggregatorHealthLogger(
+            sentinel_client=mock_sentinel_client,
+            enabled=True,
+            health_to_sentinel=False,  # Console-only mode
+        )
+
+        result = await console_logger.send_test_event()
+
+        assert result["success"] is False
+        assert "console-only" in result["message"].lower()
+        mock_sentinel_client.upload_logs.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_send_test_event_upload_failure(self, health_logger, mock_sentinel_client):
+        """Test sending test event when upload fails."""
+        from sentinel_log_aggregator.responses import UploadResult, UploadStatus
+
+        mock_sentinel_client.upload_logs.return_value = UploadResult(
+            status=UploadStatus.FAILED,
+            record_count=0,
+            upload_time=0.1,
+            stream_name="Custom-SentinelAggregator-Health_CL",
+            dcr_immutable_id="dcr-test",
+            error_message="Upload failed",
+        )
+
+        result = await health_logger.send_test_event(test_id="test-failed")
+
+        assert result["success"] is False
+        assert result["test_id"] == "test-failed"
+        assert "failed" in result["message"].lower()
+        assert "error" in result
+
+    @pytest.mark.asyncio
+    async def test_send_test_event_with_custom_properties(
+        self, health_logger, mock_sentinel_client
+    ):
+        """Test sending test event with custom properties."""
+        from sentinel_log_aggregator.responses import UploadResult, UploadStatus
+
+        mock_sentinel_client.upload_logs.return_value = UploadResult(
+            status=UploadStatus.SUCCESS,
+            record_count=1,
+            upload_time=0.1,
+            stream_name="Custom-SentinelAggregator-Health_CL",
+            dcr_immutable_id="dcr-test",
+            error_message=None,
+        )
+
+        result = await health_logger.send_test_event(
+            test_id="test-custom",
+            custom_field="custom_value",
+            numeric_field=42,
+        )
+
+        assert result["success"] is True
+
+        # Verify custom properties were included
+        call_args = mock_sentinel_client.upload_logs.call_args
+        data = call_args[1]["data"]
+        extended_props = json.loads(data[0]["ExtendedProperties"])
+        assert extended_props["custom_field"] == "custom_value"
+        assert extended_props["numeric_field"] == 42
+        assert extended_props["test_event"] is True
+
+    @pytest.mark.asyncio
+    async def test_verify_test_event_found(self, health_logger, mock_sentinel_client):
+        """Test verifying a test event that is found."""
+        from sentinel_log_aggregator.responses import QueryResult, QueryStatus
+
+        # Mock successful query result
+        mock_sentinel_client.query_workspace = AsyncMock()
+        mock_sentinel_client.query_workspace.return_value = QueryResult(
+            status=QueryStatus.SUCCESS,
+            record_count=1,
+            data=[
+                {
+                    "TimeGenerated": "2024-01-01T12:00:00Z",
+                    "OperationName": "HealthTest",
+                    "JobId": "test-123",
+                }
+            ],
+            error_message=None,
+        )
+
+        result = await health_logger.verify_test_event(
+            test_id="test-123",
+            workspace_id="workspace-id",
+            max_wait_seconds=60,
+        )
+
+        assert result["found"] is True
+        assert result["test_id"] == "test-123"
+        assert "found" in result["message"].lower()
+        assert result["record"] is not None
+
+    @pytest.mark.asyncio
+    async def test_verify_test_event_not_found(self, health_logger, mock_sentinel_client):
+        """Test verifying a test event that is not found."""
+        from sentinel_log_aggregator.responses import QueryResult, QueryStatus
+
+        # Mock empty query result
+        mock_sentinel_client.query_workspace = AsyncMock()
+        mock_sentinel_client.query_workspace.return_value = QueryResult(
+            status=QueryStatus.SUCCESS,
+            record_count=0,
+            data=[],
+            error_message=None,
+        )
+
+        result = await health_logger.verify_test_event(
+            test_id="test-missing",
+            workspace_id="workspace-id",
+            max_wait_seconds=15,  # Short wait for testing
+        )
+
+        assert result["found"] is False
+        assert result["test_id"] == "test-missing"
+        assert "not found" in result["message"].lower()
+
+    @pytest.mark.asyncio
+    async def test_verify_test_event_disabled(self, mock_sentinel_client):
+        """Test verifying test event when health logging is disabled."""
+        disabled_logger = SentinelAggregatorHealthLogger(
+            sentinel_client=mock_sentinel_client,
+            enabled=False,
+            health_to_sentinel=False,
+        )
+
+        result = await disabled_logger.verify_test_event(
+            test_id="test-123",
+            workspace_id="workspace-id",
+        )
+
+        assert result["found"] is False
+        assert "not configured" in result["message"].lower()
+        (
+            mock_sentinel_client.query_workspace.assert_not_called()
+            if hasattr(mock_sentinel_client, "query_workspace")
+            else None
+        )
