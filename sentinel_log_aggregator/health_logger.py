@@ -659,6 +659,8 @@ class SentinelAggregatorHealthLogger:
             logger.info(f"🔍 Searching for test event: {test_id}")
 
             # Try multiple times with increasing delays
+            import asyncio
+
             wait_intervals = [5, 10, 15, 30, 60]  # seconds
             total_waited = 0
 

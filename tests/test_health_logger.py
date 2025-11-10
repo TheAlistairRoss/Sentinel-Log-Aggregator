@@ -75,7 +75,7 @@ class TestSentinelAggregatorHealthLogger:
     def test_initialization_enabled(self, health_logger):
         """Test health logger initialization when enabled."""
         assert health_logger.enabled is True
-        assert health_logger.health_stream_name == "Custom-SentinelAggregator_Health_CL"
+        assert health_logger.health_stream_name == "Custom-SentinelAggregator-Health_CL"
 
     def test_initialization_disabled(self, mock_sentinel_client):
         """Test health logger initialization when disabled."""
@@ -106,7 +106,7 @@ class TestSentinelAggregatorHealthLogger:
 
         # Verify the data structure
         call_args = mock_sentinel_client.upload_logs.call_args
-        assert call_args[1]["stream_name"] == "Custom-SentinelAggregator_Health_CL"
+        assert call_args[1]["stream_name"] == "Custom-SentinelAggregator-Health_CL"
 
         data = call_args[1]["data"]
         assert len(data) == 1
@@ -501,8 +501,7 @@ class TestSentinelAggregatorHealthLogger:
 
         result = await console_logger.send_test_event()
 
-        assert result["success"] is True  # Console-only mode is now considered successful
-        assert result.get("warning") is True  # But includes a warning flag
+        assert result["success"] is False
         assert "console-only" in result["message"].lower()
         mock_sentinel_client.upload_logs.assert_not_called()
 

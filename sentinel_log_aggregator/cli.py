@@ -7,10 +7,11 @@ and query execution following Azure CLI patterns and conventions.
 
 import argparse
 import asyncio
+import json
 import logging
 import os
 import sys
-import json
+
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -434,9 +435,7 @@ async def run_aggregation(
             logger.info(f"  • Unique Queries: {overview['total_unique_queries']}")
             logger.info(f"  • Records Downloaded: {overview['total_records_downloaded']:,}")
             logger.info(f"  • Records Uploaded: {overview['total_records_uploaded']:,}")
-            logger.info("")
             logger.info("💡 Note: Detailed workspace/query analytics available in logs above")
-            logger.info("")
 
             return summary.failed_queries == 0
 
@@ -813,6 +812,8 @@ async def test_health_logging(
         logger.info(f"✅ {send_result['message']}")
         test_id = send_result["test_id"]
 
+
+
         log_output = {
             "Test ID": test_id,
             "Stream Name": send_result.get("stream_name", "N/A"),
@@ -858,12 +859,10 @@ async def test_health_logging(
 
             return verify_result["found"]
         else:
-            logger.info("")
             logger.info("💡 Manual Verification:")
             logger.info(
                 f"Run this query against your target workspace: {send_result.get('stream_name', 'Custom-SentinelAggregator_Health_CL')} | where JobId == '{test_id}' | where OperationName == 'HealthTest'"
             )
-            logger.info("")
             return True
 
     except Exception as e:
@@ -927,16 +926,13 @@ async def verify_health_logging_setup(
             and verification_result["table_exists"]
             and verification_result["dcr_accessible"]
         ):
-            logger.info("")
             logger.info("🎉 Health logging is fully operational!")
             return True
         elif verification_result["enabled"] and verification_result["table_exists"]:
-            logger.warning("")
             logger.warning("⚠️  Health table exists but DCR access failed")
             logger.info("💡 Check DCR configuration and permissions")
             return False
         elif verification_result["enabled"]:
-            logger.error("")
             logger.error("❌ Health logging enabled but table not found")
             logger.info("💡 Deploy the health logging infrastructure using:")
             logger.info("   az deployment group create \\")
@@ -945,7 +941,6 @@ async def verify_health_logging_setup(
             logger.info("     --parameters workspaceName=<your-workspace>")
             return False
         else:
-            logger.info("")
             logger.info("ℹ️  Health logging is disabled")
             return True
 
@@ -1148,7 +1143,6 @@ def _display_successful_runs_table(runs: List[Dict[str, Any]]) -> None:
     header_line = " | ".join(headers)
     separator_line = "-" * len(header_line)
 
-    logger.info("")
     logger.info("📊 Last Successful Runs:")
     logger.info(separator_line)
     logger.info(header_line)
@@ -1182,7 +1176,6 @@ def _display_successful_runs_table(runs: List[Dict[str, Any]]) -> None:
         logger.info(row)
 
     logger.info(separator_line)
-    logger.info("")
 
 
 async def _load_and_validate_queries(workspace_manager) -> Dict[str, Any]:
