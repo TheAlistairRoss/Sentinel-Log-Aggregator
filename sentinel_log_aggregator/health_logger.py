@@ -665,11 +665,11 @@ class SentinelAggregatorHealthLogger:
             wait_intervals = [5, 10, 15, 30, 60]  # seconds
             total_waited = 0
 
-            for wait_seconds in wait_intervals:
+            for i, wait_seconds in enumerate(wait_intervals):
                 if total_waited >= max_wait_seconds:
                     break
 
-                if total_waited > 0:  # Don't wait on first attempt
+                if i > 0:  # Don't wait on first attempt
                     logger.info(f"⏳ Waiting {wait_seconds} seconds before retry...")
                     await asyncio.sleep(wait_seconds)
                     total_waited += wait_seconds
