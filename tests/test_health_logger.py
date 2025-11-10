@@ -75,7 +75,7 @@ class TestSentinelAggregatorHealthLogger:
     def test_initialization_enabled(self, health_logger):
         """Test health logger initialization when enabled."""
         assert health_logger.enabled is True
-        assert health_logger.health_stream_name == "Custom-SentinelAggregator-Health_CL"
+        assert health_logger.health_stream_name == "Custom-SentinelAggregator_Health_CL"
 
     def test_initialization_disabled(self, mock_sentinel_client):
         """Test health logger initialization when disabled."""
