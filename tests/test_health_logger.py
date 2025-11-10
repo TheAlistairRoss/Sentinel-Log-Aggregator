@@ -501,7 +501,9 @@ class TestSentinelAggregatorHealthLogger:
 
         result = await console_logger.send_test_event()
 
-        assert result["success"] is False
+        assert result["success"] is True
+        assert result.get("warning") is True
+        assert result.get("console_only") is True
         assert "console-only" in result["message"].lower()
         mock_sentinel_client.upload_logs.assert_not_called()
 
