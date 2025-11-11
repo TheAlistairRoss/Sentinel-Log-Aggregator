@@ -6,12 +6,8 @@ for workspace configurations, KQL query definitions, and execution tracking.
 Includes both legacy models and new Azure SDK-compliant response models.
 """
 
-import os
-import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from enum import Enum
-from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import yaml
@@ -347,9 +343,6 @@ class BatchExecutionSummary:
                 ]
                 successful_uploads = [
                     e for e in query_executions if e.upload_status == UploadStatus.SUCCESS.value
-                ]
-                failed_uploads = [
-                    e for e in query_executions if e.upload_status == UploadStatus.FAILED.value
                 ]
 
                 # Calculate execution time statistics

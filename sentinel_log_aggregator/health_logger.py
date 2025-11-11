@@ -5,15 +5,13 @@ Provides comprehensive health and operational logging to Log Analytics tables
 for monitoring job execution, query performance, and workspace processing.
 """
 
-import asyncio
 import json
 import logging
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 from .constants import HEALTH_STREAM_NAME
-from .exceptions import SentinelAggregatorError
 from .models import QueryExecution, WorkspaceConfig
 from .sentinel_client import SentinelAggregatorClient
 
@@ -387,7 +385,7 @@ class SentinelAggregatorHealthLogger:
         except Exception as e:
             # Log health logging errors but don't fail the main operation
             logger.error(f"Failed to log health event: {e}")
-            logger.debug(f"Health logging error details", exc_info=True)
+            logger.debug("Health logging error details", exc_info=True)
 
     def _log_health_to_console(
         self, health_record: Dict[str, Any], extended_properties: Optional[Dict[str, Any]] = None

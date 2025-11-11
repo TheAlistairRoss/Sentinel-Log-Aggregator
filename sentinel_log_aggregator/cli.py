@@ -15,7 +15,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from azure.core.exceptions import AzureError
 from azure.identity.aio import DefaultAzureCredential
 from dotenv import load_dotenv
 
@@ -33,7 +32,7 @@ from .models import WorkspaceConfig
 from .query_engine import SentinelQueryEngine
 from .sentinel_client import SentinelAggregatorClient
 from .version import __version__
-from .workspace_manager import WorkspaceManager, load_workspace_config
+from .workspace_manager import WorkspaceManager
 
 
 def load_environment_variables(env_file_path: Optional[Path] = None) -> None:
@@ -375,15 +374,15 @@ async def run_aggregation(
             logger.error(f"-{error}")
         return False
 
-    logger.info(f"Starting log aggregation process...")
+    logger.info("Starting log aggregation process...")
     logger.info(f"-Lookback period: {client_options.lookback_period}")
     logger.info(f"-Batch time size: {client_options.batch_time_size}")
     logger.info(f"-Max concurrent queries: {client_options.max_concurrent_queries}")
     logger.info(f"-Workspaces: {len(workspaces)}")
     if health_logger:
-        logger.info(f"-Health logging: Enabled")
+        logger.info("-Health logging: Enabled")
     else:
-        logger.info(f"-Health logging: Disabled")
+        logger.info("-Health logging: Disabled")
 
     # Generate job ID for health logging
     job_id = health_logger.create_job_id() if health_logger else "cli-job"
@@ -442,7 +441,7 @@ async def run_aggregation(
 
             # Overview section
             overview = detailed_summary["overview"]
-            logger.info(f"Results:")
+            logger.info("Results:")
             logger.info(f"-Time Range: {overview['total_time_range']}")
             logger.info(f"-Total Duration: {overview['total_duration_seconds']:.2f}s")
             logger.info(f"-Workspaces: {overview['total_workspaces']}")
@@ -497,28 +496,28 @@ Examples:
     --dcr-endpoint "https://myworkspace-abcd.centralus-1.ingest.monitor.azure.com" \\
     --dcr-immutable-id "dcr-12345678901234567890" \\
     --start-time "2025-10-01T00:00:00Z" --end-time "2025-11-01T00:00:00Z"
-  
+
   # Using lookback period with custom batch size
   sentinel-aggregator run --workspace-config workspaces.yaml \\
     --lookback-period "P7D" --batch-time-size "PT12H"
-  
+
   # Using last successful timestamps
   sentinel-aggregator run --workspace-config workspaces.yaml \\
     --use-last-successful --batch-time-size "PT6H"
-  
+
   # Health logging to Sentinel table
   sentinel-aggregator run --workspace-config workspaces.yaml \\
     --enable-health-logging --health-to-sentinel
-  
+
   # Query last successful runs
   sentinel-aggregator query-status --workspace-config workspaces.yaml \\
     --lookback-period "P14D" --query-names "incident_summary,alert_summary"
-  
+
   # Health check with custom DCR configuration
   sentinel-aggregator health --workspace-config workspaces.yaml \\
     --dcr-endpoint "https://myworkspace-abcd.centralus-1.ingest.monitor.azure.com" \\
     --dcr-immutable-id "dcr-12345678901234567890"
-  
+
   # Validate configuration with debug logging
   sentinel-aggregator --log-level DEBUG validate --workspace-config workspaces.yaml
         """,
@@ -1125,8 +1124,6 @@ async def _query_health_table_for_last_successful(
     Returns:
         List of successful run records
     """
-    from datetime import timezone
-
     # Build KQL query
     kql_query = f"""
     SentinelAggregator-Health_CL
@@ -1265,7 +1262,6 @@ async def _load_and_validate_queries(workspace_manager) -> Dict[str, Any]:
     Raises:
         Exception: If critical query loading errors occur
     """
-    import os
     from pathlib import Path
 
     from .models import KQLQueryDefinition
@@ -1392,7 +1388,7 @@ async def main():
             except ValueError as e:
                 if "DCR" in str(e):
                     logger.debug(
-                        f"DCR configuration not provided for validation - will validate workspace config only"
+                        "DCR configuration not provided for validation - will validate workspace config only"
                     )
                     client_options = None
                 else:
@@ -1453,7 +1449,7 @@ async def main():
                         logger.error(f"-{error}")
                     success = False
                 else:
-                    logger.info(f"Workspace configuration validation successful")
+                    logger.info("Workspace configuration validation successful")
 
                 # Show workspace summary regardless of validation status
                 if workspaces:

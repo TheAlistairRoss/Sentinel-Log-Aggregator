@@ -9,21 +9,16 @@ retry logic, error handling, and observability.
 import asyncio
 import logging
 import re
-import uuid
 from datetime import datetime, timezone
-from typing import Any, AsyncIterator, Dict, List, Optional, Union
-from urllib.parse import urlparse
+from typing import Any, Dict, List, Optional
 
-from azure.core.configuration import Configuration
 from azure.core.credentials_async import AsyncTokenCredential
 from azure.core.exceptions import (
     AzureError,
     ClientAuthenticationError,
     HttpResponseError,
-    ServiceRequestTimeoutError,
 )
 from azure.core.paging import ItemPaged
-from azure.core.pipeline import Pipeline
 from azure.core.pipeline.policies import (
     BearerTokenCredentialPolicy,
     HeadersPolicy,
@@ -32,8 +27,6 @@ from azure.core.pipeline.policies import (
     RetryPolicy,
     UserAgentPolicy,
 )
-from azure.core.polling import LROPoller
-from azure.core.rest import HttpRequest
 from azure.core.tracing.decorator_async import distributed_trace_async
 from azure.identity.aio import DefaultAzureCredential
 from azure.monitor.ingestion.aio import LogsIngestionClient
@@ -45,8 +38,6 @@ from .exceptions import (
     CredentialValidationError,
     DataIngestionError,
     QueryExecutionError,
-    SentinelAggregatorError,
-    WorkspaceAccessError,
 )
 from .models import KQLQueryDefinition, WorkspaceConfig
 from .responses import (
@@ -62,7 +53,6 @@ from .responses import (
 from .security_utils import (
     SecureLogger,
     generate_correlation_id,
-    sanitize_log_output,
     validate_kql_query,
     validate_workspace_id,
 )
@@ -368,7 +358,7 @@ class SentinelAggregatorClient:
                 request_id=getattr(response, "request_id", None),
             )
 
-        except asyncio.TimeoutError as e:
+        except asyncio.TimeoutError:
             execution_time = (datetime.now(timezone.utc) - start_exec).total_seconds()
             self._logger.error(
                 f"Query timeout after {execution_time:.2f}s for workspace {workspace_id} "
@@ -787,7 +777,7 @@ class BatchOperationPoller:
                     else:
                         failed_workspaces += 1
 
-                except Exception as e:
+                except Exception:
                     # Handle workspace-level errors
                     failed_workspaces += 1
                     # Add error handling as needed
@@ -810,7 +800,7 @@ class BatchOperationPoller:
             else:
                 self._result.status = BatchStatus.PARTIAL_SUCCESS
 
-        except Exception as e:
+        except Exception:
             self._result.status = BatchStatus.FAILED
             # Add error details to result
 
