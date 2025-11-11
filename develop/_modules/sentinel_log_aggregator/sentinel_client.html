@@ -1666,9 +1666,23 @@
             <span class="n">timespan</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">start_time</span> <span class="ow">and</span> <span class="n">end_time</span><span class="p">:</span>
                 <span class="n">timespan</span> <span class="o">=</span> <span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Query timespan configured: </span><span class="si">{</span><span class="n">start_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">end_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span><span class="si">}</span><span class="s2"> &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;[workspace=</span><span class="si">{</span><span class="n">workspace_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">...] [correlation_id=</span><span class="si">{</span><span class="n">correlation_id</span><span class="si">}</span><span class="s2">]&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Query executed WITHOUT timespan filter - this may scan entire table! &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;[workspace=</span><span class="si">{</span><span class="n">workspace_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">...] [correlation_id=</span><span class="si">{</span><span class="n">correlation_id</span><span class="si">}</span><span class="s2">]&quot;</span>
+                <span class="p">)</span>
 
             <span class="c1"># Execute query with timeout</span>
             <span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout_seconds</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">query_timeout_seconds</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Executing query with timeout=</span><span class="si">{</span><span class="n">timeout</span><span class="si">}</span><span class="s2">s, timespan=</span><span class="si">{</span><span class="n">timespan</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="kc">None</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;[workspace=</span><span class="si">{</span><span class="n">workspace_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">...] [correlation_id=</span><span class="si">{</span><span class="n">correlation_id</span><span class="si">}</span><span class="s2">]&quot;</span>
+            <span class="p">)</span>
 
             <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait_for</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_logs_query_client_instance</span><span class="o">.</span><span class="n">query_workspace</span><span class="p">(</span>
@@ -1698,6 +1712,23 @@
                             <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">row</span><span class="p">)))</span>
 
             <span class="n">execution_time</span> <span class="o">=</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">-</span> <span class="n">start_exec</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+
+            <span class="c1"># Log query execution details</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Query completed: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2"> records in </span><span class="si">{</span><span class="n">execution_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;[workspace=</span><span class="si">{</span><span class="n">workspace_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">...] &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;[timespan=</span><span class="si">{</span><span class="s1">&#39;YES&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">timespan</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;NO&#39;</span><span class="si">}</span><span class="s2">] &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;[correlation_id=</span><span class="si">{</span><span class="n">correlation_id</span><span class="si">}</span><span class="s2">]&quot;</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Log statistics if available</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="s2">&quot;statistics&quot;</span><span class="p">):</span>
+                <span class="n">stats</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">statistics</span>
+                <span class="k">if</span> <span class="n">stats</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Query statistics: </span><span class="si">{</span><span class="n">stats</span><span class="si">}</span><span class="s2"> &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;[workspace=</span><span class="si">{</span><span class="n">workspace_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">...] [correlation_id=</span><span class="si">{</span><span class="n">correlation_id</span><span class="si">}</span><span class="s2">]&quot;</span>
+                    <span class="p">)</span>
 
             <span class="k">return</span> <span class="n">QueryResult</span><span class="p">(</span>
                 <span class="n">status</span><span class="o">=</span><span class="n">QueryStatus</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">,</span>

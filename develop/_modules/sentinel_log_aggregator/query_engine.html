@@ -1439,7 +1439,11 @@
             <span class="c1"># Subtract 1 millisecond from batch_end to prevent overlapping boundaries</span>
             <span class="c1"># Azure Monitor queries are inclusive on both start and end times</span>
             <span class="c1"># This ensures records at exact boundary timestamps don&#39;t appear in multiple batches</span>
-            <span class="n">adjusted_batch_end</span> <span class="o">=</span> <span class="n">batch_end</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">milliseconds</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># Exception: Don&#39;t subtract from the final end_time as it&#39;s already the desired boundary</span>
+            <span class="k">if</span> <span class="n">batch_end</span> <span class="o">&lt;</span> <span class="n">end_time</span><span class="p">:</span>
+                <span class="n">adjusted_batch_end</span> <span class="o">=</span> <span class="n">batch_end</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">milliseconds</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">adjusted_batch_end</span> <span class="o">=</span> <span class="n">batch_end</span>
             <span class="n">batches</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">current_time</span><span class="p">,</span> <span class="n">adjusted_batch_end</span><span class="p">))</span>
             <span class="n">current_time</span> <span class="o">=</span> <span class="n">batch_end</span>
 
