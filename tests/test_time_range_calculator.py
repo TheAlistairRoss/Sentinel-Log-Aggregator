@@ -533,9 +533,7 @@ class TestLastSuccessfulRunsProcessing:
         ) as mock_query:
             mock_query.return_value = {}  # No successful runs found
 
-            with pytest.raises(
-                TimeRangeCalculationError, match="Cannot use --use-last-successful"
-            ):
+            with pytest.raises(TimeRangeCalculationError, match="Cannot use --use-last-successful"):
                 await _calculate_from_last_successful(
                     client_options, workspaces, mock_health_logger, batch_size
                 )

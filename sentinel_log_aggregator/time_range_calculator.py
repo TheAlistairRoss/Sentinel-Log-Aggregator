@@ -251,25 +251,24 @@ async def _calculate_from_last_successful(
     # Check if any combinations are missing
     if missing_combinations:
         logger.error("Missing successful runs for the following query+workspace combinations:")
-        
+
         # Log health error event for each missing combination
         from .models import QueryExecution
-        
+
         for combination in missing_combinations:
             logger.error(f"  ⚠️  {combination}")
-            
+
             # Parse combination string: "query_name (workspace: workspace_id)"
             try:
                 parts = combination.split(" (workspace: ")
                 query_name = parts[0]
                 workspace_id = parts[1].rstrip(")") if len(parts) > 1 else "unknown"
-                
+
                 # Find the workspace config for this workspace_id
                 workspace_config = next(
-                    (w for w in workspaces if w.customer_id == workspace_id), 
-                    None
+                    (w for w in workspaces if w.customer_id == workspace_id), None
                 )
-                
+
                 if workspace_config:
                     # Create QueryExecution with error details
                     error_msg = (
@@ -277,7 +276,7 @@ async def _calculate_from_last_successful(
                         "Run without --use-last-successful and specify explicit time range: "
                         "--start-time YYYY-MM-DDTHH:MM:SS --end-time YYYY-MM-DDTHH:MM:SS"
                     )
-                    
+
                     query_execution = QueryExecution(
                         query_name=query_name,
                         workspace_id=workspace_config.resource_id,
@@ -287,7 +286,7 @@ async def _calculate_from_last_successful(
                         record_count=0,
                         query_error_message=error_msg,
                     )
-                    
+
                     # Log to health table (or console in dry-run mode)
                     await health_logger.log_query_execution(
                         job_id=job_id or "unknown",
@@ -297,7 +296,7 @@ async def _calculate_from_last_successful(
                     )
             except Exception as log_error:
                 logger.debug(f"Failed to log health error for {combination}: {log_error}")
-        
+
         # Raise error with helpful remediation message
         raise TimeRangeCalculationError(
             f"Cannot use --use-last-successful: Missing last successful run data for "
@@ -426,7 +425,9 @@ async def _query_all_last_successful_runs(
                             else:
                                 result[f"{field.lower()}"] = result[field]
 
-            logger.debug(f"Found {len(results_map)} unique query+workspace combinations in health logs")
+            logger.debug(
+                f"Found {len(results_map)} unique query+workspace combinations in health logs"
+            )
             return results_map
 
         finally:
