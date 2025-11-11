@@ -239,13 +239,15 @@ class TestBatchCalculation:
         batches = calculate_batches(start, end, batch_size)
 
         assert len(batches) == 2
+        # First batch (intermediate): adjusted by -1ms
         assert batches[0] == (
             datetime(2025, 11, 1, 0, 0, 0, tzinfo=timezone.utc),
             datetime(2025, 11, 1, 23, 59, 59, 999000, tzinfo=timezone.utc),
         )
+        # Last batch: ends at end_time (not adjusted)
         assert batches[1] == (
             datetime(2025, 11, 2, 0, 0, 0, tzinfo=timezone.utc),
-            datetime(2025, 11, 2, 23, 59, 59, 999000, tzinfo=timezone.utc),
+            datetime(2025, 11, 3, 0, 0, 0, tzinfo=timezone.utc),
         )
 
     def test_calculate_partial_batches(self):
@@ -257,13 +259,15 @@ class TestBatchCalculation:
         batches = calculate_batches(start, end, batch_size)
 
         assert len(batches) == 2
+        # First batch (intermediate): adjusted by -1ms
         assert batches[0] == (
             datetime(2025, 11, 1, 0, 0, 0, tzinfo=timezone.utc),
             datetime(2025, 11, 1, 11, 59, 59, 999000, tzinfo=timezone.utc),
         )
+        # Last batch: ends at end_time (not adjusted)
         assert batches[1] == (
             datetime(2025, 11, 1, 12, 0, 0, tzinfo=timezone.utc),
-            datetime(2025, 11, 1, 17, 59, 59, 999000, tzinfo=timezone.utc),
+            datetime(2025, 11, 1, 18, 0, 0, tzinfo=timezone.utc),
         )
 
     def test_calculate_single_batch(self):
@@ -275,7 +279,8 @@ class TestBatchCalculation:
         batches = calculate_batches(start, end, batch_size)
 
         assert len(batches) == 1
-        assert batches[0] == (start, datetime(2025, 11, 1, 5, 59, 59, 999000, tzinfo=timezone.utc))
+        # Single batch is also the last batch: ends at end_time (not adjusted)
+        assert batches[0] == (start, end)
 
     def test_calculate_empty_range(self):
         """Test calculating batches for very short time range."""
@@ -378,8 +383,8 @@ class TestIntegrationScenarios:
         # First batch should start at calculated start time
         assert batches[0][0] == start_time
 
-        # Last batch should end 1ms before end time (to prevent overlapping boundaries)
-        assert batches[-1][1] == end_time - timedelta(milliseconds=1)
+        # Last batch should end at end_time (not adjusted)
+        assert batches[-1][1] == end_time
 
     def test_explicit_time_range_scenario(self):
         """Test explicit time range scenario."""

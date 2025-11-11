@@ -551,13 +551,15 @@ class TestBatchCalculation:
         batches = calculate_execution_batches(start_time, end_time, batch_size)
 
         assert len(batches) == 2
+        # First batch (intermediate): adjusted by -1ms
         assert batches[0] == (
             datetime(2025, 11, 1, 0, 0, 0, tzinfo=timezone.utc),
             datetime(2025, 11, 1, 23, 59, 59, 999000, tzinfo=timezone.utc),
         )
+        # Last batch: ends at end_time (not adjusted)
         assert batches[1] == (
             datetime(2025, 11, 2, 0, 0, 0, tzinfo=timezone.utc),
-            datetime(2025, 11, 2, 23, 59, 59, 999000, tzinfo=timezone.utc),
+            datetime(2025, 11, 3, 0, 0, 0, tzinfo=timezone.utc),
         )
 
     def test_calculate_execution_batches_partial(self):
@@ -569,13 +571,15 @@ class TestBatchCalculation:
         batches = calculate_execution_batches(start_time, end_time, batch_size)
 
         assert len(batches) == 2
+        # First batch (intermediate): adjusted by -1ms
         assert batches[0] == (
             datetime(2025, 11, 1, 0, 0, 0, tzinfo=timezone.utc),
             datetime(2025, 11, 1, 11, 59, 59, 999000, tzinfo=timezone.utc),
         )
+        # Last batch: ends at end_time (not adjusted)
         assert batches[1] == (
             datetime(2025, 11, 1, 12, 0, 0, tzinfo=timezone.utc),
-            datetime(2025, 11, 1, 17, 59, 59, 999000, tzinfo=timezone.utc),
+            datetime(2025, 11, 1, 18, 0, 0, tzinfo=timezone.utc),
         )
 
     def test_calculate_execution_batches_single(self):
@@ -587,10 +591,8 @@ class TestBatchCalculation:
         batches = calculate_execution_batches(start_time, end_time, batch_size)
 
         assert len(batches) == 1
-        assert batches[0] == (
-            start_time,
-            datetime(2025, 11, 1, 5, 59, 59, 999000, tzinfo=timezone.utc),
-        )
+        # Single batch is also the last batch: ends at end_time (not adjusted)
+        assert batches[0] == (start_time, end_time)
 
     def test_calculate_execution_batches_empty(self):
         """Test batch calculation for very short time range."""
@@ -693,7 +695,8 @@ class TestIntegrationScenarios:
 
         # Verify full range coverage
         assert batches[0][0] == start_time
-        assert batches[-1][1] == end_time - timedelta(milliseconds=1)
+        # Last batch should end at end_time (not adjusted)
+        assert batches[-1][1] == end_time
 
     @pytest.mark.asyncio
     async def test_full_explicit_time_scenario(self):
@@ -732,9 +735,14 @@ class TestIntegrationScenarios:
         # Should have 3 batches (24 hours / 8 hours)
         assert len(batches) == 3
 
-        # Verify each batch is approximately 8 hours (minus 1ms for boundary adjustment)
-        for batch_start, batch_end in batches:
-            assert batch_end - batch_start == timedelta(hours=8, milliseconds=-1)
+        # Verify each batch duration (intermediate batches have 1ms adjustment, last batch doesn't)
+        for i, (batch_start, batch_end) in enumerate(batches):
+            if i < len(batches) - 1:
+                # Intermediate batches: 8 hours minus 1ms for boundary adjustment
+                assert batch_end - batch_start == timedelta(hours=8, milliseconds=-1)
+            else:
+                # Last batch: exactly at end_time (no adjustment)
+                assert batch_end - batch_start == timedelta(hours=8)
 
     @pytest.mark.skip(reason="Complex Azure mocking scenario - core functionality tested elsewhere")
     @pytest.mark.asyncio

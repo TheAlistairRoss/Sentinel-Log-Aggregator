@@ -312,9 +312,23 @@ class SentinelAggregatorClient:
             timespan = None
             if start_time and end_time:
                 timespan = (start_time, end_time)
+                self._logger.debug(
+                    f"Query timespan configured: {start_time.isoformat()} to {end_time.isoformat()} "
+                    f"[workspace={workspace_id[:8]}...] [correlation_id={correlation_id}]"
+                )
+            else:
+                self._logger.warning(
+                    f"Query executed WITHOUT timespan filter - this may scan entire table! "
+                    f"[workspace={workspace_id[:8]}...] [correlation_id={correlation_id}]"
+                )
 
             # Execute query with timeout
             timeout = timeout_seconds or self._options.query_timeout_seconds
+
+            self._logger.debug(
+                f"Executing query with timeout={timeout}s, timespan={timespan is not None} "
+                f"[workspace={workspace_id[:8]}...] [correlation_id={correlation_id}]"
+            )
 
             response = await asyncio.wait_for(
                 self._logs_query_client_instance.query_workspace(
@@ -344,6 +358,23 @@ class SentinelAggregatorClient:
                             results.append(dict(zip(columns, row)))
 
             execution_time = (datetime.now(timezone.utc) - start_exec).total_seconds()
+
+            # Log query execution details
+            self._logger.info(
+                f"Query completed: {len(results)} records in {execution_time:.2f}s "
+                f"[workspace={workspace_id[:8]}...] "
+                f"[timespan={'YES' if timespan else 'NO'}] "
+                f"[correlation_id={correlation_id}]"
+            )
+
+            # Log statistics if available
+            if hasattr(response, "statistics"):
+                stats = response.statistics
+                if stats:
+                    self._logger.debug(
+                        f"Query statistics: {stats} "
+                        f"[workspace={workspace_id[:8]}...] [correlation_id={correlation_id}]"
+                    )
 
             return QueryResult(
                 status=QueryStatus.SUCCESS,
