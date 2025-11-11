@@ -253,7 +253,7 @@ async def _calculate_from_last_successful(
         logger.error("Missing successful runs for the following query+workspace combinations:")
 
         # Log health error event for each missing combination
-        from .models import QueryExecution
+        from .models import AVAILABLE_QUERIES, QueryExecution, QueryStatus, UploadStatus
 
         for combination in missing_combinations:
             logger.error(f"  ⚠️  {combination}")
@@ -270,6 +270,12 @@ async def _calculate_from_last_successful(
                 )
 
                 if workspace_config:
+                    # Get destination stream from query definition if available
+                    destination_stream = "unknown"
+                    if query_name in AVAILABLE_QUERIES:
+                        query_def = AVAILABLE_QUERIES[query_name]
+                        destination_stream = getattr(query_def, "destination_stream", "unknown")
+
                     # Create QueryExecution with error details
                     error_msg = (
                         "No last successful run found. "
@@ -277,14 +283,21 @@ async def _calculate_from_last_successful(
                         "--start-time YYYY-MM-DDTHH:MM:SS --end-time YYYY-MM-DDTHH:MM:SS"
                     )
 
+                    timestamp = datetime.now(timezone.utc)
                     query_execution = QueryExecution(
-                        query_name=query_name,
+                        job_correlation_id=job_id or "unknown",
+                        execution_id=f"missing_baseline_{workspace_id[:8]}_{query_name}",
                         workspace_id=workspace_config.resource_id,
-                        start_time=datetime.now(timezone.utc),
-                        end_time=datetime.now(timezone.utc),
+                        query_name=query_name,
+                        destination_stream=destination_stream,
+                        start_time=timestamp,
+                        end_time=timestamp,
+                        execution_timestamp=timestamp,
+                        query_status=QueryStatus.FAILED.value,
                         query_duration_seconds=0.0,
                         record_count=0,
                         query_error_message=error_msg,
+                        upload_status=UploadStatus.SKIPPED.value,
                     )
 
                     # Log to health table (or console in dry-run mode)
