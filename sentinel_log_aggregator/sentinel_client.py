@@ -549,6 +549,21 @@ class SentinelAggregatorClient:
                 correlation_id=correlation_id,
             )
 
+        # In dry-run mode, simulate successful upload without actually sending data
+        if self._options.dry_run:
+            self._logger.info(
+                f"DRY-RUN: Would upload {len(data)} records to stream {stream_name} "
+                f"[correlation_id={correlation_id}]"
+            )
+            return UploadResult(
+                status=UploadStatus.SUCCESS,
+                record_count=len(data),
+                upload_time=0.0,  # No actual upload time in dry-run
+                stream_name=stream_name,
+                dcr_immutable_id=self._options.dcr_immutable_id,
+                correlation_id=correlation_id,
+            )
+
         # Validate stream name for security
         if not stream_name or not re.match(r"^[A-Za-z0-9_-]+$", stream_name):
             raise DataIngestionError("Invalid stream name format", stream_name=stream_name)

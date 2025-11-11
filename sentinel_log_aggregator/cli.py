@@ -292,11 +292,17 @@ def create_health_logger_from_args(
     )
 
     # Get health to sentinel flag - force to True if force_to_sentinel is set
+    # BUT always disable for dry-run mode (no uploads should occur in dry-run)
     health_to_sentinel = (
         force_to_sentinel
         or getattr(args, "health_to_sentinel", False)
         or client_options.health_to_sentinel
     )
+
+    # Override: disable health uploads in dry-run mode
+    if client_options.dry_run:
+        health_to_sentinel = False
+        logger.info("Dry-run mode: Health logs will be shown in console only (not uploaded)")
 
     # Create health client options with health-specific DCR settings
     health_client_options = SentinelAggregatorClientOptions(
