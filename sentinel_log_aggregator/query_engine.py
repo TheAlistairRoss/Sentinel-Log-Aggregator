@@ -510,17 +510,19 @@ class SentinelQueryEngine:
 
             self.logger.debug(f"Time range calculation exception: {traceback.format_exc()}")
             return BatchExecutionSummary(
-                job_id=job_id,
+                job_correlation_id=self.job_correlation_id,
                 batch_id=batch_id,
-                start_time=datetime.now(timezone.utc),
-                end_time=datetime.now(timezone.utc),
-                total_duration=0.0,
-                total_workspaces=len(workspace_configs),
+                notebook_run_timestamp=datetime.now(timezone.utc),
                 total_queries=0,
-                successful_executions=0,
-                failed_executions=0,
-                total_records_processed=0,
-                success_rate=0.0,
+                successful_queries=0,
+                failed_queries=0,
+                successful_uploads=0,
+                failed_uploads=0,
+                total_records=0,
+                total_uploaded_records=0,
+                total_duration_seconds=0.0,
+                time_range_start=datetime.now(timezone.utc),
+                time_range_end=datetime.now(timezone.utc),
                 executions=[],
             )
 

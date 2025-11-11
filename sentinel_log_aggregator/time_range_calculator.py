@@ -17,6 +17,7 @@ from sentinel_log_aggregator.constants import HEALTH_TABLE_NAME
 
 from .health_logger import SentinelAggregatorHealthLogger
 from .models import WorkspaceConfig
+from .query_registry import query_registry
 from .time_utils import (
     InvalidTimeRangeError,
     TimeParsingError,
@@ -167,8 +168,24 @@ async def _calculate_from_last_successful(
     # Get all unique query names from workspaces
     all_query_names = set()
     for workspace in workspaces:
-        for query_config in workspace.queries_list:
-            all_query_names.add(query_config.get("name", query_config.get("query_name", "unknown")))
+        for query_item in workspace.queries_list:
+            # Handle both dict format (tests) and string format (production YAML file paths)
+            if isinstance(query_item, dict):
+                # Test format: {"name": "test_query"}
+                query_name = query_item.get("name", query_item.get("query_name", "unknown"))
+                all_query_names.add(query_name)
+            elif isinstance(query_item, str):
+                # Production format: "Queries\incident_summary.yaml"
+                query_file_name = query_item.replace("\\", "/").split("/")[-1].replace(".yaml", "")
+
+                # Try to find matching query in registry
+                for reg_query_name in query_registry.list_queries():
+                    if query_file_name in reg_query_name or reg_query_name in query_file_name:
+                        all_query_names.add(reg_query_name)
+                        break
+                else:
+                    # Fallback: use the filename as query name
+                    all_query_names.add(query_file_name)
 
     if not all_query_names:
         raise TimeRangeCalculationError("No queries found in workspace configurations")
@@ -187,8 +204,29 @@ async def _calculate_from_last_successful(
     for workspace in workspaces:
         workspace_id = workspace.customer_id
 
-        for query_config in workspace.queries_list:
-            query_name = query_config.get("name", query_config.get("query_name", "unknown"))
+        for query_item in workspace.queries_list:
+            # Handle both dict format (tests) and string format (production YAML file paths)
+            if isinstance(query_item, dict):
+                # Test format: {"name": "test_query"}
+                query_name = query_item.get("name", query_item.get("query_name", "unknown"))
+            elif isinstance(query_item, str):
+                # Production format: "Queries\incident_summary.yaml"
+                query_file_name = query_item.replace("\\", "/").split("/")[-1].replace(".yaml", "")
+
+                # Try to find matching query in registry
+                query_name = None
+                for reg_query_name in query_registry.list_queries():
+                    if query_file_name in reg_query_name or reg_query_name in query_file_name:
+                        query_name = reg_query_name
+                        break
+
+                if not query_name:
+                    # Fallback: use the filename as query name
+                    query_name = query_file_name
+            else:
+                # Unknown format, skip
+                logger.warning(f"Unknown query item format: {type(query_item)}")
+                continue
 
             # Look up the result from our batched query
             key = (query_name, workspace_id)
