@@ -1867,17 +1867,19 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Time range calculation exception: </span><span class="si">{</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">BatchExecutionSummary</span><span class="p">(</span>
-                <span class="n">job_id</span><span class="o">=</span><span class="n">job_id</span><span class="p">,</span>
+                <span class="n">job_correlation_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">job_correlation_id</span><span class="p">,</span>
                 <span class="n">batch_id</span><span class="o">=</span><span class="n">batch_id</span><span class="p">,</span>
-                <span class="n">start_time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">),</span>
-                <span class="n">end_time</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">),</span>
-                <span class="n">total_duration</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-                <span class="n">total_workspaces</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">workspace_configs</span><span class="p">),</span>
+                <span class="n">notebook_run_timestamp</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">),</span>
                 <span class="n">total_queries</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                <span class="n">successful_executions</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                <span class="n">failed_executions</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                <span class="n">total_records_processed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                <span class="n">success_rate</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                <span class="n">successful_queries</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">failed_queries</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">successful_uploads</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">failed_uploads</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">total_records</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">total_uploaded_records</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">total_duration_seconds</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                <span class="n">time_range_start</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">),</span>
+                <span class="n">time_range_end</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">),</span>
                 <span class="n">executions</span><span class="o">=</span><span class="p">[],</span>
             <span class="p">)</span>
 
