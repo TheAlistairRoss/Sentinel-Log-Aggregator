@@ -32,7 +32,7 @@ from .models import WorkspaceConfig
 from .query_engine import SentinelQueryEngine
 from .sentinel_client import SentinelAggregatorClient
 from .version import __version__
-from .workspace_manager import WorkspaceManager
+from .workspace_manager import WorkspaceManager, load_workspace_config  # noqa: F401 - used by tests
 
 
 def load_environment_variables(env_file_path: Optional[Path] = None) -> None:
