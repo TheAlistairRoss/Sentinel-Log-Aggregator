@@ -1347,21 +1347,16 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">AsyncIterator</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlparse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">azure.core.configuration</span><span class="w"> </span><span class="kn">import</span> <span class="n">Configuration</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">azure.core.credentials_async</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncTokenCredential</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">azure.core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AzureError</span><span class="p">,</span>
     <span class="n">ClientAuthenticationError</span><span class="p">,</span>
     <span class="n">HttpResponseError</span><span class="p">,</span>
-    <span class="n">ServiceRequestTimeoutError</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">azure.core.paging</span><span class="w"> </span><span class="kn">import</span> <span class="n">ItemPaged</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">azure.core.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">azure.core.pipeline.policies</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">BearerTokenCredentialPolicy</span><span class="p">,</span>
     <span class="n">HeadersPolicy</span><span class="p">,</span>
@@ -1370,8 +1365,6 @@
     <span class="n">RetryPolicy</span><span class="p">,</span>
     <span class="n">UserAgentPolicy</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">azure.core.polling</span><span class="w"> </span><span class="kn">import</span> <span class="n">LROPoller</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">azure.core.rest</span><span class="w"> </span><span class="kn">import</span> <span class="n">HttpRequest</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">azure.core.tracing.decorator_async</span><span class="w"> </span><span class="kn">import</span> <span class="n">distributed_trace_async</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">azure.identity.aio</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultAzureCredential</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">azure.monitor.ingestion.aio</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogsIngestionClient</span>
@@ -1383,8 +1376,6 @@
     <span class="n">CredentialValidationError</span><span class="p">,</span>
     <span class="n">DataIngestionError</span><span class="p">,</span>
     <span class="n">QueryExecutionError</span><span class="p">,</span>
-    <span class="n">SentinelAggregatorError</span><span class="p">,</span>
-    <span class="n">WorkspaceAccessError</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">KQLQueryDefinition</span><span class="p">,</span> <span class="n">WorkspaceConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.responses</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -1400,7 +1391,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.security_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">SecureLogger</span><span class="p">,</span>
     <span class="n">generate_correlation_id</span><span class="p">,</span>
-    <span class="n">sanitize_log_output</span><span class="p">,</span>
     <span class="n">validate_kql_query</span><span class="p">,</span>
     <span class="n">validate_workspace_id</span><span class="p">,</span>
 <span class="p">)</span>
@@ -1722,7 +1712,7 @@
                 <span class="n">request_id</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="s2">&quot;request_id&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
             <span class="p">)</span>
 
-        <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TimeoutError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TimeoutError</span><span class="p">:</span>
             <span class="n">execution_time</span> <span class="o">=</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">-</span> <span class="n">start_exec</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Query timeout after </span><span class="si">{</span><span class="n">execution_time</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s for workspace </span><span class="si">{</span><span class="n">workspace_id</span><span class="si">}</span><span class="s2"> &quot;</span>
@@ -2161,7 +2151,7 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">failed_workspaces</span> <span class="o">+=</span> <span class="mi">1</span>
 
-                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                     <span class="c1"># Handle workspace-level errors</span>
                     <span class="n">failed_workspaces</span> <span class="o">+=</span> <span class="mi">1</span>
                     <span class="c1"># Add error handling as needed</span>
@@ -2184,7 +2174,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">BatchStatus</span><span class="o">.</span><span class="n">PARTIAL_SUCCESS</span>
 
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_result</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">BatchStatus</span><span class="o">.</span><span class="n">FAILED</span>
             <span class="c1"># Add error details to result</span>
 
