@@ -1909,6 +1909,21 @@
                 <span class="n">correlation_id</span><span class="o">=</span><span class="n">correlation_id</span><span class="p">,</span>
             <span class="p">)</span>
 
+        <span class="c1"># In dry-run mode, simulate successful upload without actually sending data</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">dry_run</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;DRY-RUN: Would upload </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2"> records to stream </span><span class="si">{</span><span class="n">stream_name</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;[correlation_id=</span><span class="si">{</span><span class="n">correlation_id</span><span class="si">}</span><span class="s2">]&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">UploadResult</span><span class="p">(</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">UploadStatus</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">,</span>
+                <span class="n">record_count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+                <span class="n">upload_time</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># No actual upload time in dry-run</span>
+                <span class="n">stream_name</span><span class="o">=</span><span class="n">stream_name</span><span class="p">,</span>
+                <span class="n">dcr_immutable_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">dcr_immutable_id</span><span class="p">,</span>
+                <span class="n">correlation_id</span><span class="o">=</span><span class="n">correlation_id</span><span class="p">,</span>
+            <span class="p">)</span>
+
         <span class="c1"># Validate stream name for security</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">stream_name</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^[A-Za-z0-9_-]+$&quot;</span><span class="p">,</span> <span class="n">stream_name</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">DataIngestionError</span><span class="p">(</span><span class="s2">&quot;Invalid stream name format&quot;</span><span class="p">,</span> <span class="n">stream_name</span><span class="o">=</span><span class="n">stream_name</span><span class="p">)</span>
