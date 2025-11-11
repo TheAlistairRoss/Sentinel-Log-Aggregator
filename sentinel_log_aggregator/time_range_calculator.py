@@ -42,6 +42,7 @@ async def calculate_execution_time_ranges(
     client_options,
     workspaces: List[WorkspaceConfig],
     health_logger: Optional[SentinelAggregatorHealthLogger] = None,
+    job_id: Optional[str] = None,
 ) -> Tuple[datetime, datetime, timedelta]:
     """
     Calculate execution time ranges based on client options and precedence rules.
@@ -55,6 +56,7 @@ async def calculate_execution_time_ranges(
         client_options: Client configuration options
         workspaces: List of workspace configurations
         health_logger: Optional health logger for querying last successful runs
+        job_id: Optional job correlation ID for health logging
 
     Returns:
         Tuple of (start_time, end_time, batch_size) in UTC
@@ -68,7 +70,7 @@ async def calculate_execution_time_ranges(
 
         # Precedence 1: Use last successful timestamps
         if client_options.use_last_successful:
-            logger.info("🕐 Using last successful run timestamps")
+            logger.info("Using last successful run timestamps")
 
             if not health_logger:
                 raise TimeRangeCalculationError(
@@ -76,7 +78,7 @@ async def calculate_execution_time_ranges(
                 )
 
             start_time, end_time = await _calculate_from_last_successful(
-                client_options, workspaces, health_logger, batch_size
+                client_options, workspaces, health_logger, batch_size, job_id
             )
 
         # Precedence 2: Explicit start/end times
@@ -147,6 +149,7 @@ async def _calculate_from_last_successful(
     workspaces: List[WorkspaceConfig],
     health_logger: SentinelAggregatorHealthLogger,
     batch_size: timedelta,
+    job_id: Optional[str] = None,
 ) -> Tuple[datetime, datetime]:
     """
     Calculate time range from last successful run timestamps.
@@ -156,6 +159,7 @@ async def _calculate_from_last_successful(
         workspaces: List of workspace configurations
         health_logger: Health logger for querying last successful runs
         batch_size: Batch size for calculations
+        job_id: Optional job correlation ID for health logging
 
     Returns:
         Tuple of (start_time, end_time) in UTC
@@ -247,10 +251,60 @@ async def _calculate_from_last_successful(
     # Check if any combinations are missing
     if missing_combinations:
         logger.error("Missing successful runs for the following query+workspace combinations:")
+        
+        # Log health error event for each missing combination
+        from .models import QueryExecution
+        
         for combination in missing_combinations:
-            logger.error(f"  • {combination}")
+            logger.error(f"  ⚠️  {combination}")
+            
+            # Parse combination string: "query_name (workspace: workspace_id)"
+            try:
+                parts = combination.split(" (workspace: ")
+                query_name = parts[0]
+                workspace_id = parts[1].rstrip(")") if len(parts) > 1 else "unknown"
+                
+                # Find the workspace config for this workspace_id
+                workspace_config = next(
+                    (w for w in workspaces if w.customer_id == workspace_id), 
+                    None
+                )
+                
+                if workspace_config:
+                    # Create QueryExecution with error details
+                    error_msg = (
+                        "No last successful run found. "
+                        "Run without --use-last-successful and specify explicit time range: "
+                        "--start-time YYYY-MM-DDTHH:MM:SS --end-time YYYY-MM-DDTHH:MM:SS"
+                    )
+                    
+                    query_execution = QueryExecution(
+                        query_name=query_name,
+                        workspace_id=workspace_config.resource_id,
+                        start_time=datetime.now(timezone.utc),
+                        end_time=datetime.now(timezone.utc),
+                        query_duration_seconds=0.0,
+                        record_count=0,
+                        query_error_message=error_msg,
+                    )
+                    
+                    # Log to health table (or console in dry-run mode)
+                    await health_logger.log_query_execution(
+                        job_id=job_id or "unknown",
+                        query_execution=query_execution,
+                        workspace_config=workspace_config,
+                        batch_id=None,
+                    )
+            except Exception as log_error:
+                logger.debug(f"Failed to log health error for {combination}: {log_error}")
+        
+        # Raise error with helpful remediation message
         raise TimeRangeCalculationError(
-            f"Cannot use last successful timestamps - missing {len(missing_combinations)} query+workspace combinations"
+            f"Cannot use --use-last-successful: Missing last successful run data for "
+            f"{len(missing_combinations)} query+workspace combination(s). "
+            f"To resolve: Run the aggregator WITHOUT --use-last-successful flag and specify "
+            f"explicit time range using --start-time and --end-time to populate initial baseline data. "
+            f"Example: --start-time 2025-10-01T00:00:00 --end-time 2025-11-01T00:00:00"
         )
 
     # Use the earliest last successful end time as our start time
@@ -307,7 +361,9 @@ async def _query_all_last_successful_runs(
     | extend StartTime = todatetime(ExtendedProperties.start_time)
     | extend EndTime = todatetime(ExtendedProperties.end_time)
     | extend RecordCount = toint(ExtendedProperties.record_count)
-    | where isnotnull(StartTime) and isnotnull(EndTime) and isnotnull(RecordCount)
+    | extend QueryName = tostring(ExtendedProperties.query_name)
+    | extend WorkspaceId = tostring(ExtendedProperties.workspace_id)
+    | where isnotnull(StartTime) and isnotnull(EndTime) and isnotnull(RecordCount) and isnotnull(QueryName) and isnotnull(WorkspaceId)
     | project QueryName, WorkspaceId, StartTime, EndTime, RecordCount, LastRunTime=TimeGenerated
     """
 
@@ -318,62 +374,65 @@ async def _query_all_last_successful_runs(
         credential = DefaultAzureCredential()
         query_client = LogsQueryClient(credential=credential, logging_enable=True)
 
-        # Execute the query against the aggregation workspace
-        response = await query_client.query_workspace(
-            workspace_id=aggregation_workspace.customer_id,
-            query=kql_query,
-            timespan=(start_time, end_time),
-        )
+        try:
+            # Execute the query against the aggregation workspace
+            response = await query_client.query_workspace(
+                workspace_id=aggregation_workspace.customer_id,
+                query=kql_query,
+                timespan=(start_time, end_time),
+            )
 
-        # Process all results and map to (query_name, workspace_id) -> latest result
-        results_map = {}
+            # Process all results and map to (query_name, workspace_id) -> latest result
+            results_map = {}
 
-        if response.tables and response.tables[0].rows:
-            table = response.tables[0]
-            column_names = [col.name for col in table.columns]
+            if response.tables and response.tables[0].rows:
+                table = response.tables[0]
+                column_names = [col.name for col in table.columns]
 
-            # Process each row and keep the latest result per query+workspace combination
-            for row in table.rows:
-                row_dict = dict(zip(column_names, row))
+                # Process each row and keep the latest result per query+workspace combination
+                for row in table.rows:
+                    row_dict = dict(zip(column_names, row))
 
-                query_name = row_dict.get("QueryName")
-                workspace_id = row_dict.get("WorkspaceId")
-                last_run_time = row_dict.get("LastRunTime")
+                    query_name = row_dict.get("QueryName")
+                    workspace_id = row_dict.get("WorkspaceId")
+                    last_run_time = row_dict.get("LastRunTime")
 
-                if not query_name or not workspace_id:
-                    continue
+                    if not query_name or not workspace_id:
+                        continue
 
-                # Convert timestamp for comparison
-                if isinstance(last_run_time, str):
-                    last_run_time = parse_iso8601_datetime(last_run_time)
+                    # Convert timestamp for comparison
+                    if isinstance(last_run_time, str):
+                        last_run_time = parse_iso8601_datetime(last_run_time)
 
-                key = (query_name, workspace_id)
+                    key = (query_name, workspace_id)
 
-                # Keep the record with the latest timestamp for each key
-                if key not in results_map:
-                    results_map[key] = row_dict.copy()
-                else:
-                    existing_time = results_map[key].get("LastRunTime")
-                    if isinstance(existing_time, str):
-                        existing_time = parse_iso8601_datetime(existing_time)
-
-                    if last_run_time and (not existing_time or last_run_time > existing_time):
+                    # Keep the record with the latest timestamp for each key
+                    if key not in results_map:
                         results_map[key] = row_dict.copy()
+                    else:
+                        existing_time = results_map[key].get("LastRunTime")
+                        if isinstance(existing_time, str):
+                            existing_time = parse_iso8601_datetime(existing_time)
 
-            # Convert datetime fields for all results
-            for result in results_map.values():
-                for field in ["StartTime", "EndTime", "LastRunTime"]:
-                    if field in result and result[field]:
-                        if isinstance(result[field], str):
-                            result[f"{field.lower()}"] = parse_iso8601_datetime(result[field])
-                        else:
-                            result[f"{field.lower()}"] = result[field]
+                        if last_run_time and (not existing_time or last_run_time > existing_time):
+                            results_map[key] = row_dict.copy()
 
-        await credential.close()
-        await query_client.close()
+                # Convert datetime fields for all results
+                for result in results_map.values():
+                    for field in ["StartTime", "EndTime", "LastRunTime"]:
+                        if field in result and result[field]:
+                            if isinstance(result[field], str):
+                                result[f"{field.lower()}"] = parse_iso8601_datetime(result[field])
+                            else:
+                                result[f"{field.lower()}"] = result[field]
 
-        logger.debug(f"Found {len(results_map)} unique query+workspace combinations in health logs")
-        return results_map
+            logger.debug(f"Found {len(results_map)} unique query+workspace combinations in health logs")
+            return results_map
+
+        finally:
+            # Always close resources, even if query fails
+            await credential.close()
+            await query_client.close()
 
     except Exception as e:
         logger.error(f"Failed to query all last successful runs: {e}")

@@ -494,6 +494,7 @@ class SentinelQueryEngine:
                 client_options=self.client_options,
                 workspaces=workspace_configs,
                 health_logger=self.health_logger,
+                job_id=self.job_correlation_id,
             )
 
             self.logger.debug(f"Time range calculated: {start_time} to {end_time}")
