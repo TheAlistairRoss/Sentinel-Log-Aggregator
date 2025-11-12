@@ -46,6 +46,7 @@ class SentinelQueryEngine:
         self,
         client_options: SentinelAggregatorClientOptions,
         azure_client: SentinelAggregatorClient,
+        job_id: str,
         health_logger: Optional["SentinelAggregatorHealthLogger"] = None,
     ):
         """
@@ -54,14 +55,15 @@ class SentinelQueryEngine:
         Args:
             client_options: Azure SDK-compliant client options
             azure_client: Azure SDK-compliant Sentinel client for queries and ingestion
+            job_id: Job ID for correlation with health logs and tracking execution
             health_logger: Optional health logger for operational monitoring
         """
         self.client_options = client_options
         self.azure_client = azure_client
         self.health_logger = health_logger
 
-        # Generate unique job correlation ID
-        self.job_correlation_id = f"{uuid.uuid4()}"
+        # Use provided job_id for correlation across all operations
+        self.job_correlation_id = job_id
 
         # Set up logging with contextual formatter
         base_logger = get_logger(__name__)

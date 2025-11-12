@@ -415,8 +415,10 @@ async def run_aggregation(
             options=client_options,
         ) as client:
 
-            # Use the high-level query engine for batch processing
-            query_engine = SentinelQueryEngine(client_options, client, health_logger=health_logger)
+            # Use the high-level query engine for batch processing with shared job_id
+            query_engine = SentinelQueryEngine(
+                client_options, client, job_id=job_id, health_logger=health_logger
+            )
 
             # Execute batch queries with streaming upload
             summary = await query_engine.execute_batch_queries_with_streaming_upload(

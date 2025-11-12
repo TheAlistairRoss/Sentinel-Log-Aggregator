@@ -360,7 +360,7 @@ class TestSentinelQueryEngine:
     @pytest.fixture
     def query_engine(self, client_options, mock_azure_client):
         """Create test query engine."""
-        return SentinelQueryEngine(client_options, mock_azure_client)
+        return SentinelQueryEngine(client_options, mock_azure_client, job_id="test-job-id")
 
     @pytest.fixture
     def sample_workspaces(self):
@@ -660,7 +660,7 @@ class TestQueryEnginePerformance:
     @pytest.fixture
     def query_engine(self, client_options, mock_azure_client):
         """Create test query engine."""
-        return SentinelQueryEngine(client_options, mock_azure_client)
+        return SentinelQueryEngine(client_options, mock_azure_client, job_id="test-job-id")
 
     @pytest.mark.slow
     @pytest.mark.asyncio

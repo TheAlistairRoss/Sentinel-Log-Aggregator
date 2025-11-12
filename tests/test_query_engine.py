@@ -351,7 +351,7 @@ class TestSentinelQueryEngine:
     @pytest.fixture
     def query_engine(self, client_options, mock_azure_client):
         """Create test query engine."""
-        return SentinelQueryEngine(client_options, mock_azure_client)
+        return SentinelQueryEngine(client_options, mock_azure_client, job_id="test-job-id")
 
     @pytest.fixture
     def sample_workspaces(self):
@@ -651,7 +651,7 @@ class TestQueryEnginePerformance:
     @pytest.fixture
     def query_engine(self, client_options, mock_azure_client):
         """Create test query engine."""
-        return SentinelQueryEngine(client_options, mock_azure_client)
+        return SentinelQueryEngine(client_options, mock_azure_client, job_id="test-job-id")
 
     @pytest.mark.slow
     @pytest.mark.asyncio
@@ -2093,7 +2093,7 @@ class TestQueryEngineMissingCoverage:
             dcr_immutable_id="dcr-12345678123456781234567812345678",
         )
 
-        engine = SentinelQueryEngine(options, None)
+        engine = SentinelQueryEngine(options, None, job_id="test-job-id")
 
         # Test with invalid query name
         with pytest.raises(
@@ -2111,7 +2111,7 @@ class TestQueryEngineMissingCoverage:
             dcr_immutable_id="dcr-12345678123456781234567812345678",
         )
 
-        engine = SentinelQueryEngine(options, None)
+        engine = SentinelQueryEngine(options, None, job_id="test-job-id")
 
         # Since AVAILABLE_QUERIES is now empty, we need to load a query first for testing
         from pathlib import Path
@@ -2149,7 +2149,7 @@ class TestQueryEngineMissingCoverage:
             dcr_immutable_id="dcr-12345678123456781234567812345678",
         )
 
-        engine = SentinelQueryEngine(options, None)
+        engine = SentinelQueryEngine(options, None, job_id="test-job-id")
 
         # Test with invalid query name
         with pytest.raises(
@@ -2167,7 +2167,7 @@ class TestQueryEngineMissingCoverage:
             dcr_immutable_id="dcr-12345678123456781234567812345678",
         )
 
-        engine = SentinelQueryEngine(options, None)
+        engine = SentinelQueryEngine(options, None, job_id="test-job-id")
 
         # Since AVAILABLE_QUERIES is now empty, we need to load a query first for testing
         from pathlib import Path
@@ -2211,7 +2211,7 @@ class TestQueryEngineMissingCoverage:
         mock_client = AsyncMock()
         mock_client.query_workspace = AsyncMock(side_effect=Exception("Test exception"))
 
-        engine = SentinelQueryEngine(options, mock_client)
+        engine = SentinelQueryEngine(options, mock_client, job_id="test-job-id")
 
         # Execute query and expect it to handle the exception gracefully
         await engine.execute_single_query_with_upload(
@@ -2262,7 +2262,7 @@ class TestQueryEngineMissingCoverage:
             return_value=MagicMock(status=UploadStatus.SUCCESS, succeeded=True, record_count=1)
         )
 
-        engine = SentinelQueryEngine(options, mock_client)
+        engine = SentinelQueryEngine(options, mock_client, job_id="test-job-id")
 
         # Track garbage collection before and after
         gc_count_before = len(gc.get_objects())
@@ -2315,7 +2315,7 @@ class TestQueryEngineMissingCoverage:
             return_value=MagicMock(status=UploadStatus.SUCCESS, succeeded=True, record_count=1)
         )
 
-        engine = SentinelQueryEngine(options, mock_client)
+        engine = SentinelQueryEngine(options, mock_client, job_id="test-job-id")
 
         # Since AVAILABLE_QUERIES is now empty, we need to load test queries first
         from pathlib import Path
@@ -2413,7 +2413,7 @@ class TestQueryEngineMissingCoverage:
             return_value=MagicMock(status=UploadStatus.SUCCESS, succeeded=True, record_count=1000)
         )
 
-        engine = SentinelQueryEngine(options, mock_client)
+        engine = SentinelQueryEngine(options, mock_client, job_id="test-job-id")
 
         # Since AVAILABLE_QUERIES is now empty, we need to load a test query first
         from pathlib import Path
@@ -2502,7 +2502,7 @@ class TestQueryEngineCompleteCoverage:
             return_value=MagicMock(status=UploadStatus.SUCCESS, succeeded=True, record_count=1)
         )
 
-        engine = SentinelQueryEngine(options, mock_client)
+        engine = SentinelQueryEngine(options, mock_client, job_id="test-job-id")
 
         # This will execute successfully and trigger the finally block cleanup
         await engine.execute_single_query_with_upload(
@@ -2549,7 +2549,7 @@ class TestQueryEngineCompleteCoverage:
             return_value=MagicMock(status=UploadStatus.SUCCESS, succeeded=True, record_count=1)
         )
 
-        engine = SentinelQueryEngine(options, mock_client)
+        engine = SentinelQueryEngine(options, mock_client, job_id="test-job-id")
 
         await engine.execute_single_query_with_upload(
             workspace_id="test-workspace-id",
@@ -2590,7 +2590,7 @@ class TestQueryEngineCompleteCoverage:
         )
 
         mock_client = AsyncMock()
-        engine = SentinelQueryEngine(options, mock_client)
+        engine = SentinelQueryEngine(options, mock_client, job_id="test-job-id")
 
         # Since AVAILABLE_QUERIES is now empty, we need to load a test query first
         from pathlib import Path
@@ -2673,7 +2673,7 @@ class TestQueryEngineCompleteCoverage:
             )
         )
 
-        engine = SentinelQueryEngine(options, mock_client)
+        engine = SentinelQueryEngine(options, mock_client, job_id="test-job-id")
 
         # Since AVAILABLE_QUERIES is now empty, we need to load test queries first
         from pathlib import Path
@@ -2751,7 +2751,7 @@ class TestQueryEngineCompleteCoverage:
         )
 
         mock_client = AsyncMock()
-        engine = SentinelQueryEngine(options, mock_client)
+        engine = SentinelQueryEngine(options, mock_client, job_id="test-job-id")
 
         workspace = WorkspaceConfig(
             resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
@@ -2818,7 +2818,7 @@ class TestQueryEngineCompleteCoverage:
             )
         )
 
-        engine = SentinelQueryEngine(options, mock_client)
+        engine = SentinelQueryEngine(options, mock_client, job_id="test-job-id")
 
         workspace = WorkspaceConfig(
             resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
@@ -2860,7 +2860,7 @@ class TestQueryEngineCompleteCoverage:
         )
 
         mock_client = AsyncMock()
-        engine = SentinelQueryEngine(options, mock_client)
+        engine = SentinelQueryEngine(options, mock_client, job_id="test-job-id")
 
         # Test with empty execution log
         summary = engine.get_execution_summary()
@@ -2881,7 +2881,7 @@ class TestQueryEngineCompleteCoverage:
         )
 
         mock_client = AsyncMock()
-        engine = SentinelQueryEngine(options, mock_client)
+        engine = SentinelQueryEngine(options, mock_client, job_id="test-job-id")
 
         # Add some test executions
         execution1 = QueryExecution(
@@ -2940,7 +2940,7 @@ class TestQueryEngineRemainingLines:
             dcr_immutable_id="dcr-12345678123456781234567812345678",
         )
 
-        engine = SentinelQueryEngine(options, None)
+        engine = SentinelQueryEngine(options, None, job_id="test-job-id")
 
         # This should raise a ValueError for invalid query name which is caught on line 104
         with pytest.raises(ValueError, match="Query 'nonexistent_query' not found"):
@@ -2965,7 +2965,7 @@ class TestQueryEngineRemainingLines:
             dcr_immutable_id="dcr-12345678123456781234567812345678",
         )
 
-        engine = SentinelQueryEngine(options, None)
+        engine = SentinelQueryEngine(options, None, job_id="test-job-id")
 
         # Test successful build
         result = engine.build_query_from_name(test_query_1.name)
@@ -3007,7 +3007,7 @@ class TestQueryEngineRemainingLines:
             return_value=MagicMock(status=UploadStatus.SUCCESS, succeeded=True, record_count=0)
         )
 
-        engine = SentinelQueryEngine(options, mock_client)
+        engine = SentinelQueryEngine(options, mock_client, job_id="test-job-id")
 
         await engine.execute_single_query_with_upload(
             workspace_id="test-workspace-id",
@@ -3050,7 +3050,7 @@ class TestQueryEngineRemainingLines:
             )
         )
 
-        engine = SentinelQueryEngine(options, mock_client)
+        engine = SentinelQueryEngine(options, mock_client, job_id="test-job-id")
 
         await engine.execute_single_query_with_upload(
             workspace_id="test-workspace-id",
@@ -3098,7 +3098,7 @@ class TestQueryEngineRemainingLines:
         )
 
         mock_client = AsyncMock()
-        engine = SentinelQueryEngine(options, mock_client)
+        engine = SentinelQueryEngine(options, mock_client, job_id="test-job-id")
 
         # Create multiple workspaces to ensure we have multiple batches
         workspaces = [
@@ -3203,7 +3203,7 @@ class TestQueryEngineRemainingLines:
         )
 
         mock_client = AsyncMock()
-        engine = SentinelQueryEngine(options, mock_client)
+        engine = SentinelQueryEngine(options, mock_client, job_id="test-job-id")
 
         # Test for line 245: memory cleanup in finally block
         mock_successful_query = MagicMock()
@@ -3328,7 +3328,7 @@ class TestQueryEngineRemainingLines:
             return_value=MagicMock(status=UploadStatus.SUCCESS, succeeded=True, record_count=1)
         )
 
-        engine = SentinelQueryEngine(options, mock_client)
+        engine = SentinelQueryEngine(options, mock_client, job_id="test-job-id")
 
         workspace = WorkspaceConfig(
             resource_id="/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
