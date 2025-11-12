@@ -15,7 +15,6 @@ from sentinel_log_aggregator.time_range_calculator import (
     TimeRangeCalculationError,
     _calculate_from_explicit_times,
     _calculate_from_last_successful,
-    _query_last_successful_for_query_workspace,
     calculate_execution_batches,
     calculate_execution_time_ranges,
     validate_time_configuration,
@@ -358,101 +357,6 @@ class TestLastSuccessfulRunsProcessing:
     """Test processing of last successful runs from health table."""
 
     @pytest.mark.asyncio
-    async def test_query_last_successful_for_query_workspace_success(self):
-        """Test successful query for last successful run."""
-        workspace_id = "test-workspace-id"
-        query_name = "test_query"
-
-        # Mock the health logger and Azure clients
-        mock_health_logger = AsyncMock()
-
-        with (
-            patch("azure.monitor.query.aio.LogsQueryClient") as mock_logs_client_class,
-            patch("azure.identity.aio.DefaultAzureCredential") as mock_credential_class,
-        ):
-
-            # Set up mock objects
-            mock_credential = AsyncMock()
-            mock_credential_class.return_value = mock_credential
-
-            mock_query_client = AsyncMock()
-            mock_logs_client_class.return_value = mock_query_client
-
-            # Mock response
-            mock_response = MagicMock()
-            mock_table = MagicMock()
-
-            # Create proper column mocks with name attribute
-            mock_columns = []
-            for col_name in [
-                "QueryName",
-                "WorkspaceId",
-                "StartTime",
-                "EndTime",
-                "RecordCount",
-                "LastRunTime",
-            ]:
-                mock_col = MagicMock()
-                mock_col.name = col_name
-                mock_columns.append(mock_col)
-
-            mock_table.columns = mock_columns
-            mock_table.rows = [
-                [
-                    "test_query",
-                    "test-workspace-id",
-                    "2025-11-01T10:00:00Z",
-                    "2025-11-01T12:00:00Z",
-                    100,
-                    "2025-11-01T12:05:00Z",
-                ]
-            ]
-            mock_response.tables = [mock_table]
-            mock_query_client.query_workspace.return_value = mock_response
-
-            result = await _query_last_successful_for_query_workspace(
-                mock_health_logger, workspace_id, query_name
-            )
-
-            # Verify result
-            assert result is not None
-            assert result["QueryName"] == "test_query"
-            assert result["WorkspaceId"] == "test-workspace-id"
-            assert "starttime" in result
-            assert "endtime" in result
-
-    @pytest.mark.asyncio
-    async def test_query_last_successful_for_query_workspace_no_results(self):
-        """Test query when no results are found."""
-        workspace_id = "test-workspace-id"
-        query_name = "test_query"
-
-        mock_health_logger = AsyncMock()
-
-        with (
-            patch("azure.monitor.query.aio.LogsQueryClient") as mock_logs_client_class,
-            patch("azure.identity.aio.DefaultAzureCredential") as mock_credential_class,
-        ):
-
-            # Set up mock objects
-            mock_credential = AsyncMock()
-            mock_credential_class.return_value = mock_credential
-
-            mock_query_client = AsyncMock()
-            mock_logs_client_class.return_value = mock_query_client
-
-            # Mock empty response
-            mock_response = MagicMock()
-            mock_response.tables = []
-            mock_query_client.query_workspace.return_value = mock_response
-
-            result = await _query_last_successful_for_query_workspace(
-                mock_health_logger, workspace_id, query_name
-            )
-
-            assert result is None
-
-    @pytest.mark.asyncio
     async def test_calculate_from_last_successful_success(self, mock_azure_credentials):
         """Test successful calculation from last successful runs."""
         from sentinel_log_aggregator.client_options import SentinelAggregatorClientOptions
@@ -551,10 +455,10 @@ class TestBatchCalculation:
         batches = calculate_execution_batches(start_time, end_time, batch_size)
 
         assert len(batches) == 2
-        # First batch (intermediate): adjusted by -1ms
+        # First batch (intermediate): adjusted by -1µs
         assert batches[0] == (
             datetime(2025, 11, 1, 0, 0, 0, tzinfo=timezone.utc),
-            datetime(2025, 11, 1, 23, 59, 59, 999000, tzinfo=timezone.utc),
+            datetime(2025, 11, 1, 23, 59, 59, 999999, tzinfo=timezone.utc),
         )
         # Last batch: ends at end_time (not adjusted)
         assert batches[1] == (
@@ -571,10 +475,10 @@ class TestBatchCalculation:
         batches = calculate_execution_batches(start_time, end_time, batch_size)
 
         assert len(batches) == 2
-        # First batch (intermediate): adjusted by -1ms
+        # First batch (intermediate): adjusted by -1µs
         assert batches[0] == (
             datetime(2025, 11, 1, 0, 0, 0, tzinfo=timezone.utc),
-            datetime(2025, 11, 1, 11, 59, 59, 999000, tzinfo=timezone.utc),
+            datetime(2025, 11, 1, 11, 59, 59, 999999, tzinfo=timezone.utc),
         )
         # Last batch: ends at end_time (not adjusted)
         assert batches[1] == (
@@ -689,9 +593,9 @@ class TestIntegrationScenarios:
         # Should have 12 batches (3 days * 4 batches per day)
         assert len(batches) == 12
 
-        # Verify batch continuity (batches have 1ms gap to prevent overlapping boundaries)
+        # Verify batch continuity (batches have 1µs gap to prevent overlapping boundaries)
         for i in range(len(batches) - 1):
-            assert batches[i][1] + timedelta(milliseconds=1) == batches[i + 1][0]
+            assert batches[i][1] + timedelta(microseconds=1) == batches[i + 1][0]
 
         # Verify full range coverage
         assert batches[0][0] == start_time
@@ -735,11 +639,11 @@ class TestIntegrationScenarios:
         # Should have 3 batches (24 hours / 8 hours)
         assert len(batches) == 3
 
-        # Verify each batch duration (intermediate batches have 1ms adjustment, last batch doesn't)
+        # Verify each batch duration (intermediate batches have 1µs adjustment, last batch doesn't)
         for i, (batch_start, batch_end) in enumerate(batches):
             if i < len(batches) - 1:
-                # Intermediate batches: 8 hours minus 1ms for boundary adjustment
-                assert batch_end - batch_start == timedelta(hours=8, milliseconds=-1)
+                # Intermediate batches: 8 hours minus 1µs for boundary adjustment
+                assert batch_end - batch_start == timedelta(hours=8, microseconds=-1)
             else:
                 # Last batch: exactly at end_time (no adjustment)
                 assert batch_end - batch_start == timedelta(hours=8)

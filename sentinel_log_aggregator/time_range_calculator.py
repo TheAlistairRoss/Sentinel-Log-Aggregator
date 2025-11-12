@@ -319,16 +319,18 @@ async def _calculate_from_last_successful(
             f"Example: --start-time 2025-10-01T00:00:00 --end-time 2025-11-01T00:00:00"
         )
 
-    # Use the earliest last successful end time as our start time
+    # Use the earliest last successful end time + 1 microsecond as our start time
+    # This ensures continuous data coverage with no gaps or overlaps
     if earliest_last_end_time is None:
         raise TimeRangeCalculationError(
             "No successful runs found for any query+workspace combinations"
         )
 
-    start_time = earliest_last_end_time
+    # Add 1 microsecond to the last end time to start from the next moment
+    start_time = earliest_last_end_time + timedelta(microseconds=1)
     end_time = datetime.now(timezone.utc)
 
-    logger.info(f"Using last successful end time as start: {start_time.isoformat()}")
+    logger.info(f"Using last successful end time + 1µs as start: {start_time.isoformat()}")
 
     return start_time, end_time
 
@@ -367,17 +369,21 @@ async def _query_all_last_successful_runs(
 
     # Build optimized KQL query for all successful runs
     kql_query = f"""
-    {HEALTH_TABLE_NAME}
-    | where OperationName == "QueryExecution"
-    | where OperationStatus == "Completed"
-    | extend StartTime = todatetime(ExtendedProperties.start_time)
-    | extend EndTime = todatetime(ExtendedProperties.end_time)
-    | extend RecordCount = toint(ExtendedProperties.record_count)
-    | extend QueryName = tostring(ExtendedProperties.query_name)
-    | extend WorkspaceId = tostring(ExtendedProperties.workspace_id)
-    | where isnotnull(StartTime) and isnotnull(EndTime) and isnotnull(RecordCount) and isnotnull(QueryName) and isnotnull(WorkspaceId)
-    | project QueryName, WorkspaceId, StartTime, EndTime, RecordCount, LastRunTime=TimeGenerated
-    """
+{HEALTH_TABLE_NAME}
+| where OperationName == 'QueryExecution'
+| where OperationStatus == 'Completed'
+| extend EndTime = todatetime(ExtendedProperties.end_time)
+| extend QueryName = tostring(ExtendedProperties.query_name)
+| extend WorkspaceId = tostring(ExtendedProperties.workspace_id)
+| where isnotnull(EndTime) and isnotnull(QueryName)and isnotnull(WorkspaceId) 
+| summarize arg_max(EndTime, *) by QueryName, WorkspaceId
+| project 
+    LastRunTime=TimeGenerated,
+    QueryName,
+    WorkspaceId,
+    EndTime, 
+    JobId    
+"""
 
     try:
         from azure.identity.aio import DefaultAzureCredential
@@ -451,87 +457,6 @@ async def _query_all_last_successful_runs(
     except Exception as e:
         logger.error(f"Failed to query all last successful runs: {e}")
         return {}
-
-
-async def _query_last_successful_for_query_workspace(
-    health_logger: SentinelAggregatorHealthLogger,
-    workspace_id: str,
-    query_name: str,
-    lookback_days: int = 30,
-) -> Optional[Dict[str, Any]]:
-    """
-    Query last successful run for a specific query+workspace combination.
-
-    Note: This function is kept for backward compatibility but the optimized
-    _query_all_last_successful_runs should be used instead for better performance.
-
-    Args:
-        health_logger: Health logger with sentinel client
-        workspace_id: Workspace ID to query
-        query_name: Query name to search for
-        lookback_days: How many days back to search
-
-    Returns:
-        Dict with last successful run data or None if not found
-    """
-    from datetime import timedelta
-
-    end_time = datetime.now(timezone.utc)
-    start_time = end_time - timedelta(days=lookback_days)
-
-    # Build KQL query for specific query+workspace combination
-    kql_query = f"""
-    SentinelAggregator-Health_CL
-    | where TimeGenerated between (datetime({start_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')}) .. datetime({end_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')}))
-    | where OperationName == "QueryExecution"
-    | where OperationStatus == "Completed"
-    | where QueryName == "{query_name}"
-    | where WorkspaceId == "{workspace_id}"
-    | extend ExtendedProps = parse_json(ExtendedProperties)
-    | extend StartTime = todatetime(ExtendedProps.start_time)
-    | extend EndTime = todatetime(ExtendedProps.end_time)
-    | extend RecordCount = toint(ExtendedProps.record_count)
-    | where isnotnull(StartTime) and isnotnull(EndTime) and isnotnull(RecordCount)
-    | top 1 by TimeGenerated desc
-    | project QueryName, WorkspaceId, StartTime, EndTime, RecordCount, LastRunTime=TimeGenerated
-    """
-
-    try:
-        from azure.identity.aio import DefaultAzureCredential
-        from azure.monitor.query.aio import LogsQueryClient
-
-        credential = DefaultAzureCredential()
-        query_client = LogsQueryClient(credential=credential, logging_enable=True)
-
-        # Execute the query
-        response = await query_client.query_workspace(
-            workspace_id=workspace_id, query=kql_query, timespan=(start_time, end_time)
-        )
-
-        # Convert results
-        result = None
-        if response.tables and response.tables[0].rows:
-            table = response.tables[0]
-            column_names = [col.name for col in table.columns]
-            row = table.rows[0]
-            result = dict(zip(column_names, row))
-
-            # Convert datetime fields
-            for field in ["StartTime", "EndTime", "LastRunTime"]:
-                if field in result and result[field]:
-                    if isinstance(result[field], str):
-                        result[f"{field.lower()}"] = parse_iso8601_datetime(result[field])
-                    else:
-                        result[f"{field.lower()}"] = result[field]
-
-        await credential.close()
-        await query_client.close()
-
-        return result
-
-    except Exception as e:
-        logger.debug(f"Failed to query last successful run for {query_name}/{workspace_id}: {e}")
-        return None
 
 
 def calculate_execution_batches(

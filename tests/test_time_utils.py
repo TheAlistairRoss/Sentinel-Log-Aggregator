@@ -239,10 +239,10 @@ class TestBatchCalculation:
         batches = calculate_batches(start, end, batch_size)
 
         assert len(batches) == 2
-        # First batch (intermediate): adjusted by -1ms
+        # First batch (intermediate): adjusted by -1µs
         assert batches[0] == (
             datetime(2025, 11, 1, 0, 0, 0, tzinfo=timezone.utc),
-            datetime(2025, 11, 1, 23, 59, 59, 999000, tzinfo=timezone.utc),
+            datetime(2025, 11, 1, 23, 59, 59, 999999, tzinfo=timezone.utc),
         )
         # Last batch: ends at end_time (not adjusted)
         assert batches[1] == (
@@ -259,10 +259,10 @@ class TestBatchCalculation:
         batches = calculate_batches(start, end, batch_size)
 
         assert len(batches) == 2
-        # First batch (intermediate): adjusted by -1ms
+        # First batch (intermediate): adjusted by -1µs
         assert batches[0] == (
             datetime(2025, 11, 1, 0, 0, 0, tzinfo=timezone.utc),
-            datetime(2025, 11, 1, 11, 59, 59, 999000, tzinfo=timezone.utc),
+            datetime(2025, 11, 1, 11, 59, 59, 999999, tzinfo=timezone.utc),
         )
         # Last batch: ends at end_time (not adjusted)
         assert batches[1] == (
@@ -404,9 +404,9 @@ class TestIntegrationScenarios:
         # Should have 4 batches (24 hours / 6 hours)
         assert len(batches) == 4
 
-        # Verify batch continuity (batches have 1ms gap to prevent overlapping boundaries)
+        # Verify batch continuity (batches have 1µs gap to prevent overlapping boundaries)
         for i in range(len(batches) - 1):
-            assert batches[i][1] + timedelta(milliseconds=1) == batches[i + 1][0]
+            assert batches[i][1] + timedelta(microseconds=1) == batches[i + 1][0]
 
     def test_format_for_logging_scenario(self):
         """Test formatting datetime for logging scenario."""

@@ -491,17 +491,18 @@ def create_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Using command line arguments with time ranges
+  # Using command line arguments with time ranges (NOTE: --end-time is INCLUSIVE)
+  # Query data from October 1st through October 31st (entire month)
   sentinel-aggregator run --workspace-config workspaces.yaml \\
     --dcr-endpoint "https://myworkspace-abcd.centralus-1.ingest.monitor.azure.com" \\
     --dcr-immutable-id "dcr-12345678901234567890" \\
-    --start-time "2025-10-01T00:00:00Z" --end-time "2025-11-01T00:00:00Z"
+    --start-time "2025-10-01T00:00:00Z" --end-time "2025-10-31T23:59:59.999999Z"
 
   # Using lookback period with custom batch size
   sentinel-aggregator run --workspace-config workspaces.yaml \\
     --lookback-period "P7D" --batch-time-size "PT12H"
 
-  # Using last successful timestamps
+  # Using last successful timestamps (automatically continues from last run)
   sentinel-aggregator run --workspace-config workspaces.yaml \\
     --use-last-successful --batch-time-size "PT6H"
 
@@ -520,6 +521,10 @@ Examples:
 
   # Validate configuration with debug logging
   sentinel-aggregator --log-level DEBUG validate --workspace-config workspaces.yaml
+
+IMPORTANT: --end-time is INCLUSIVE. To query an entire month, use:
+  --start-time "2025-10-01T00:00:00Z" --end-time "2025-10-31T23:59:59.999999Z"
+  This includes all data up to and including the last microsecond of October 31st.
         """,
     )
 
@@ -596,7 +601,9 @@ Examples:
 
     run_parser.add_argument(
         "--end-time",
-        help="Explicit end time in ISO 8601 format (defaults to now if start-time provided)",
+        help="Explicit end time in ISO 8601 format (INCLUSIVE - includes data up to this timestamp). "
+        "Defaults to now if start-time provided. Use microsecond precision for exact boundaries: "
+        "2025-10-31T23:59:59.999999Z includes all of October 31st",
     )
 
     run_parser.add_argument(
@@ -1076,10 +1083,39 @@ async def query_last_successful_runs(
             f"Searching for successful runs from {format_datetime_for_display(start_time)} to {format_datetime_for_display(end_time)}"
         )
 
-        # Query health table for last successful runs
-        successful_runs = await _query_health_table_for_last_successful(
-            health_logger, health_workspace_id, start_time, end_time, query_names_filter
+        # Import time range calculator to use common health query function
+        from .time_range_calculator import _query_all_last_successful_runs
+        from .workspace_manager import WorkspaceManager
+
+        # Get workspaces for the common query function
+        workspace_manager = WorkspaceManager.from_file(args.workspace_config)
+        workspaces_list = list(workspace_manager.workspaces)
+
+        # Query health table using common function
+        results_map = await _query_all_last_successful_runs(
+            health_logger, workspaces_list, lookback_days=30
         )
+
+        # Convert results_map to list format for display
+        # Filter by query names if specified
+        successful_runs = []
+        for (query_name, workspace_id), result in results_map.items():
+            # Apply query name filter if provided
+            if query_names_filter and query_name not in query_names_filter:
+                continue
+
+            # Convert result dict to expected format for display
+            successful_runs.append({
+                "QueryName": query_name,
+                "WorkspaceId": workspace_id,
+                "StartTime": result.get("StartTime", result.get("start_time")),
+                "EndTime": result.get("EndTime", result.get("end_time")),
+                "RecordCount": result.get("RecordCount", result.get("record_count")),
+                "LastRunTime": result.get("LastRunTime", result.get("last_run_time")),
+            })
+
+        # Sort by QueryName and WorkspaceId
+        successful_runs.sort(key=lambda x: (x["QueryName"], x["WorkspaceId"]))
 
         if not successful_runs:
             logger.warning("No successful runs found in the specified time period")
@@ -1104,83 +1140,6 @@ async def query_last_successful_runs(
                 logger.debug(f"Error closing health logger client: {cleanup_error}")
 
 
-async def _query_health_table_for_last_successful(
-    health_logger: SentinelAggregatorHealthLogger,
-    workspace_id: str,
-    start_time: datetime,
-    end_time: datetime,
-    query_names_filter: Optional[List[str]] = None,
-) -> List[Dict[str, Any]]:
-    """
-    Query health table for last successful runs.
-
-    Args:
-        health_logger: Health logger with sentinel client
-        workspace_id: Workspace ID to query
-        start_time: Start time for search
-        end_time: End time for search
-        query_names_filter: Optional list of query names to filter by
-
-    Returns:
-        List of successful run records
-    """
-    # Build KQL query
-    kql_query = f"""
-    SentinelAggregator-Health_CL
-    | where TimeGenerated between (datetime({start_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')}) .. datetime({end_time.strftime('%Y-%m-%dT%H:%M:%S.%fZ')}))
-    | where OperationName == "QueryExecution"
-    | where OperationStatus == "Completed"
-    | extend ExtendedProps = parse_json(ExtendedProperties)
-    | extend StartTime = todatetime(ExtendedProps.start_time)
-    | extend EndTime = todatetime(ExtendedProps.end_time)
-    | extend RecordCount = toint(ExtendedProps.record_count)
-    | where isnotnull(StartTime) and isnotnull(EndTime) and isnotnull(RecordCount)
-    """
-
-    # Add query name filter if provided
-    if query_names_filter:
-        query_names_quoted = ", ".join([f'"{name}"' for name in query_names_filter])
-        kql_query += f"\n    | where QueryName in ({query_names_quoted})"
-
-    # Get most recent successful run per query+workspace combination
-    kql_query += """
-    | summarize arg_max(TimeGenerated, StartTime, EndTime, RecordCount) by QueryName, WorkspaceId
-    | project QueryName, WorkspaceId, StartTime, EndTime, RecordCount, LastRunTime=TimeGenerated
-    | order by QueryName asc, WorkspaceId asc
-    """
-
-    # Execute query
-    try:
-        from azure.identity.aio import DefaultAzureCredential
-        from azure.monitor.query.aio import LogsQueryClient
-
-        credential = DefaultAzureCredential()
-        query_client = LogsQueryClient(credential=credential, logging_enable=True)
-
-        # Execute the query
-        response = await query_client.query_workspace(
-            workspace_id=workspace_id, query=kql_query, timespan=(start_time, end_time)
-        )
-
-        # Convert results to list of dictionaries
-        results = []
-        if response.tables:
-            table = response.tables[0]
-            column_names = [col.name for col in table.columns]
-
-            for row in table.rows:
-                result = dict(zip(column_names, row))
-                results.append(result)
-
-        await credential.close()
-        await query_client.close()
-
-        return results
-
-    except Exception as e:
-        logger = logging.getLogger(__name__)
-        logger.error(f"Failed to query health table: {e}")
-        raise
 
 
 def _display_successful_runs_table(runs: List[Dict[str, Any]]) -> None:

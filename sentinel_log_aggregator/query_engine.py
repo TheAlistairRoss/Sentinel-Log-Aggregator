@@ -91,12 +91,12 @@ class SentinelQueryEngine:
 
         while current_time < end_time:
             batch_end = min(current_time + timedelta(hours=batch_hours), end_time)
-            # Subtract 1 millisecond from batch_end to prevent overlapping boundaries
+            # Subtract 1 microsecond from batch_end to prevent overlapping boundaries
             # Azure Monitor queries are inclusive on both start and end times
             # This ensures records at exact boundary timestamps don't appear in multiple batches
             # Exception: Don't subtract from the final end_time as it's already the desired boundary
             if batch_end < end_time:
-                adjusted_batch_end = batch_end - timedelta(milliseconds=1)
+                adjusted_batch_end = batch_end - timedelta(microseconds=1)
             else:
                 adjusted_batch_end = batch_end
             batches.append((current_time, adjusted_batch_end))
