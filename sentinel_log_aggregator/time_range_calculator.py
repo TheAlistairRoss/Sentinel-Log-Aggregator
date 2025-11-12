@@ -231,9 +231,13 @@ async def _calculate_from_last_successful(
     """
     Calculate time range from last successful run timestamps.
 
+    NOTE: This function modifies the input workspaces list in-place to filter out
+    query+workspace combinations that don't have baseline data. Only combinations
+    with successful last runs will remain in the queries_list for each workspace.
+
     Args:
         client_options: Client configuration options
-        workspaces: List of workspace configurations
+        workspaces: List of workspace configurations (MODIFIED IN-PLACE)
         health_logger: Health logger for querying last successful runs
         batch_size: Batch size for calculations
         job_id: Optional job correlation ID for health logging
@@ -242,7 +246,7 @@ async def _calculate_from_last_successful(
         Tuple of (start_time, end_time) in UTC
 
     Raises:
-        TimeRangeCalculationError: If last successful calculation fails
+        TimeRangeCalculationError: If last successful calculation fails or no combinations have baseline data
     """
     logger.info("Querying health table for last successful runs...")
 
@@ -265,8 +269,11 @@ async def _calculate_from_last_successful(
     )
 
     # Check last successful runs for each workspace + query combination
+    # Build a map of successful combinations to use for filtering
+    successful_last_end_times = {}
     missing_combinations = []
-    earliest_last_end_time = None
+
+    from .models import AVAILABLE_QUERIES, QueryExecution, QueryStatus, UploadStatus
 
     for workspace in workspaces:
         workspace_id = workspace.customer_id
@@ -282,94 +289,124 @@ async def _calculate_from_last_successful(
             last_successful = last_successful_results.get(key)
 
             if not last_successful:
-                missing_combinations.append(f"{query_name} (workspace: {workspace_id})")
-                continue
+                # Log warning for missing baseline
+                missing_combinations.append(f"{query_name} (workspace: {workspace_id[:8]}...)")
+                logger.warning(
+                    f"⚠️  No last successful run found for {query_name} in workspace {workspace_id[:8]}. "
+                    f"This combination will be SKIPPED. To establish baseline, run: "
+                    f"--start-time YYYY-MM-DDTHH:MM:SS --end-time YYYY-MM-DDTHH:MM:SS"
+                )
 
-            # Track the earliest end time across all queries
+                # Log health warning event for missing combination
+                try:
+                    workspace_config = next(
+                        (w for w in workspaces if w.customer_id == workspace_id), None
+                    )
+
+                    if workspace_config:
+                        # Get destination stream from query definition if available
+                        destination_stream = "unknown"
+                        if query_name in AVAILABLE_QUERIES:
+                            query_def = AVAILABLE_QUERIES[query_name]
+                            destination_stream = getattr(query_def, "destination_stream", "unknown")
+
+                        # Create QueryExecution with warning details
+                        error_msg = (
+                            "No last successful run found - combination skipped. "
+                            "To establish baseline for this combination, run without --use-last-successful "
+                            "and specify explicit time range: --start-time YYYY-MM-DDTHH:MM:SS --end-time YYYY-MM-DDTHH:MM:SS"
+                        )
+
+                        timestamp = datetime.now(timezone.utc)
+                        query_execution = QueryExecution(
+                            job_correlation_id=job_id or "unknown",
+                            execution_id=f"missing_baseline_{workspace_id[:8]}_{query_name}",
+                            workspace_id=workspace_config.resource_id,
+                            query_name=query_name,
+                            destination_stream=destination_stream,
+                            start_time=timestamp,
+                            end_time=timestamp,
+                            execution_timestamp=timestamp,
+                            query_status=QueryStatus.SKIPPED.value,
+                            query_duration_seconds=0.0,
+                            record_count=0,
+                            query_error_message=error_msg,
+                            upload_status=UploadStatus.SKIPPED.value,
+                        )
+
+                        # Log to health table (or console in dry-run mode)
+                        await health_logger.log_query_execution(
+                            job_id=job_id or "unknown",
+                            query_execution=query_execution,
+                            workspace_config=workspace_config,
+                            batch_id=None,
+                        )
+                except Exception as log_error:
+                    logger.debug(
+                        f"Failed to log health warning for {query_name}/{workspace_id[:8]}: {log_error}"
+                    )
+
+                continue  # Skip this combination but continue with others
+
+            # Track the end time for this successful combination
             last_end_time = last_successful.get("end_time")
             if isinstance(last_end_time, str):
                 last_end_time = parse_iso8601_datetime(last_end_time)
 
-            if earliest_last_end_time is None or last_end_time < earliest_last_end_time:
-                earliest_last_end_time = last_end_time
+            successful_last_end_times[key] = last_end_time
 
-    # Check if any combinations are missing
+    # Report summary of missing combinations (if any)
     if missing_combinations:
-        logger.error("Missing successful runs for the following query+workspace combinations:")
-
-        # Log health error event for each missing combination
-        from .models import AVAILABLE_QUERIES, QueryExecution, QueryStatus, UploadStatus
-
-        for combination in missing_combinations:
-            logger.error(f"  ⚠️  {combination}")
-
-            # Parse combination string: "query_name (workspace: workspace_id)"
-            try:
-                parts = combination.split(" (workspace: ")
-                query_name = parts[0]
-                workspace_id = parts[1].rstrip(")") if len(parts) > 1 else "unknown"
-
-                # Find the workspace config for this workspace_id
-                workspace_config = next(
-                    (w for w in workspaces if w.customer_id == workspace_id), None
-                )
-
-                if workspace_config:
-                    # Get destination stream from query definition if available
-                    destination_stream = "unknown"
-                    if query_name in AVAILABLE_QUERIES:
-                        query_def = AVAILABLE_QUERIES[query_name]
-                        destination_stream = getattr(query_def, "destination_stream", "unknown")
-
-                    # Create QueryExecution with error details
-                    error_msg = (
-                        "No last successful run found. "
-                        "Run without --use-last-successful and specify explicit time range: "
-                        "--start-time YYYY-MM-DDTHH:MM:SS --end-time YYYY-MM-DDTHH:MM:SS"
-                    )
-
-                    timestamp = datetime.now(timezone.utc)
-                    query_execution = QueryExecution(
-                        job_correlation_id=job_id or "unknown",
-                        execution_id=f"missing_baseline_{workspace_id[:8]}_{query_name}",
-                        workspace_id=workspace_config.resource_id,
-                        query_name=query_name,
-                        destination_stream=destination_stream,
-                        start_time=timestamp,
-                        end_time=timestamp,
-                        execution_timestamp=timestamp,
-                        query_status=QueryStatus.FAILED.value,
-                        query_duration_seconds=0.0,
-                        record_count=0,
-                        query_error_message=error_msg,
-                        upload_status=UploadStatus.SKIPPED.value,
-                    )
-
-                    # Log to health table (or console in dry-run mode)
-                    await health_logger.log_query_execution(
-                        job_id=job_id or "unknown",
-                        query_execution=query_execution,
-                        workspace_config=workspace_config,
-                        batch_id=None,
-                    )
-            except Exception as log_error:
-                logger.debug(f"Failed to log health error for {combination}: {log_error}")
-
-        # Raise error with helpful remediation message
-        raise TimeRangeCalculationError(
-            f"Cannot use --use-last-successful: Missing last successful run data for "
-            f"{len(missing_combinations)} query+workspace combination(s). "
-            f"To resolve: Run the aggregator WITHOUT --use-last-successful flag and specify "
-            f"explicit time range using --start-time and --end-time to populate initial baseline data. "
-            f"Example: --start-time 2025-10-01T00:00:00 --end-time 2025-11-01T00:00:00"
+        logger.warning(
+            f"⚠️  Skipping {len(missing_combinations)} query+workspace combination(s) "
+            f"with missing baseline data. These will NOT be executed in this run."
+        )
+        logger.info(
+            f"Proceeding with {len(successful_last_end_times)} combination(s) that have baseline data."
         )
 
     # Use the earliest last successful end time + 1 microsecond as our start time
     # This ensures continuous data coverage with no gaps or overlaps
-    if earliest_last_end_time is None:
+    if not successful_last_end_times:
         raise TimeRangeCalculationError(
-            "No successful runs found for any query+workspace combinations"
+            "No successful runs found for ANY query+workspace combinations. "
+            "Cannot proceed with --use-last-successful. "
+            "To establish initial baseline data, run without --use-last-successful flag and specify "
+            "explicit time range using --start-time and --end-time. "
+            "Example: --start-time 2025-10-01T00:00:00 --end-time 2025-11-01T00:00:00"
         )
+
+    earliest_last_end_time = min(successful_last_end_times.values())
+
+    # Filter workspaces to only include queries that have baseline data
+    # This is done in-place to affect the downstream query execution
+    from dataclasses import replace
+
+    filtered_workspaces = []
+    for workspace in workspaces:
+        # Get only the queries that have successful last runs for this workspace
+        filtered_queries = []
+        for query_item in workspace.queries_list:
+            query_name = _resolve_query_name(query_item)
+            if query_name:
+                key = (query_name, workspace.customer_id)
+                if key in successful_last_end_times:
+                    filtered_queries.append(query_item)
+
+        # Only include workspace if it has at least one query with baseline data
+        if filtered_queries:
+            # Create a new workspace config with filtered queries
+            filtered_workspace = replace(workspace, queries_list=filtered_queries)
+            filtered_workspaces.append(filtered_workspace)
+
+    # Replace the original workspaces list with filtered version
+    workspaces.clear()
+    workspaces.extend(filtered_workspaces)
+
+    logger.info(
+        f"After filtering: {len(workspaces)} workspace(s) with "
+        f"{sum(len(w.queries_list) for w in workspaces)} query combinations will be executed"
+    )
 
     # Add 1 microsecond to the last end time to start from the next moment
     start_time = earliest_last_end_time + timedelta(microseconds=1)
