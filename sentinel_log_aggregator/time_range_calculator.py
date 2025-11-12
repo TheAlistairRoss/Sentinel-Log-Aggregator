@@ -405,7 +405,15 @@ async def _query_all_last_successful_runs(
 
             if response.tables and response.tables[0].rows:
                 table = response.tables[0]
-                column_names = [col.name for col in table.columns]
+                # Handle both object-style columns (with .name attribute) and dict/string columns
+                column_names = []
+                for col in table.columns:
+                    if hasattr(col, "name"):
+                        column_names.append(col.name)
+                    elif isinstance(col, dict):
+                        column_names.append(col.get("name", str(col)))
+                    else:
+                        column_names.append(str(col))
 
                 # Process each row and keep the latest result per query+workspace combination
                 for row in table.rows:
