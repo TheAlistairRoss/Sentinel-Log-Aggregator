@@ -1105,14 +1105,16 @@ async def query_last_successful_runs(
                 continue
 
             # Convert result dict to expected format for display
-            successful_runs.append({
-                "QueryName": query_name,
-                "WorkspaceId": workspace_id,
-                "StartTime": result.get("StartTime", result.get("start_time")),
-                "EndTime": result.get("EndTime", result.get("end_time")),
-                "RecordCount": result.get("RecordCount", result.get("record_count")),
-                "LastRunTime": result.get("LastRunTime", result.get("last_run_time")),
-            })
+            successful_runs.append(
+                {
+                    "QueryName": query_name,
+                    "WorkspaceId": workspace_id,
+                    "StartTime": result.get("StartTime", result.get("start_time")),
+                    "EndTime": result.get("EndTime", result.get("end_time")),
+                    "RecordCount": result.get("RecordCount", result.get("record_count")),
+                    "LastRunTime": result.get("LastRunTime", result.get("last_run_time")),
+                }
+            )
 
         # Sort by QueryName and WorkspaceId
         successful_runs.sort(key=lambda x: (x["QueryName"], x["WorkspaceId"]))
@@ -1138,8 +1140,6 @@ async def query_last_successful_runs(
                 await health_logger.sentinel_client.close()
             except Exception as cleanup_error:
                 logger.debug(f"Error closing health logger client: {cleanup_error}")
-
-
 
 
 def _display_successful_runs_table(runs: List[Dict[str, Any]]) -> None:
