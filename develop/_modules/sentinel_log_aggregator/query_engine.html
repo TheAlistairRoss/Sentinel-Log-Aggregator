@@ -1388,6 +1388,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">client_options</span><span class="p">:</span> <span class="n">SentinelAggregatorClientOptions</span><span class="p">,</span>
         <span class="n">azure_client</span><span class="p">:</span> <span class="n">SentinelAggregatorClient</span><span class="p">,</span>
+        <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">health_logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SentinelAggregatorHealthLogger&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1396,14 +1397,15 @@
 <span class="sd">        Args:</span>
 <span class="sd">            client_options: Azure SDK-compliant client options</span>
 <span class="sd">            azure_client: Azure SDK-compliant Sentinel client for queries and ingestion</span>
+<span class="sd">            job_id: Job ID for correlation with health logs and tracking execution</span>
 <span class="sd">            health_logger: Optional health logger for operational monitoring</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">client_options</span> <span class="o">=</span> <span class="n">client_options</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">azure_client</span> <span class="o">=</span> <span class="n">azure_client</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">health_logger</span> <span class="o">=</span> <span class="n">health_logger</span>
 
-        <span class="c1"># Generate unique job correlation ID</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">job_correlation_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="c1"># Use provided job_id for correlation across all operations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">job_correlation_id</span> <span class="o">=</span> <span class="n">job_id</span>
 
         <span class="c1"># Set up logging with contextual formatter</span>
         <span class="n">base_logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
