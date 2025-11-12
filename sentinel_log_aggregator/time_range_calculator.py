@@ -11,12 +11,13 @@ Also handles batch calculation from last successful runs with proper constraints
 
 import logging
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from sentinel_log_aggregator.constants import HEALTH_TABLE_NAME
 
 from .health_logger import SentinelAggregatorHealthLogger
-from .models import WorkspaceConfig
+from .models import AVAILABLE_QUERIES, WorkspaceConfig
 from .query_registry import query_registry
 from .time_utils import (
     InvalidTimeRangeError,
@@ -36,6 +37,82 @@ class TimeRangeCalculationError(Exception):
     """Raised when time range calculation fails."""
 
     pass
+
+
+def _resolve_query_name(query_item: Any) -> Optional[str]:
+    """
+    Resolve query name from workspace query item.
+
+    This function handles different query formats:
+    - If query_item is already in AVAILABLE_QUERIES registry, use it directly
+    - If query_item is a file path, load the YAML and extract the 'name' field
+
+    Args:
+        query_item: Query name (string) or dict (for tests)
+
+    Returns:
+        The query name as defined in the 'name' field, or None if cannot be resolved
+
+    Raises:
+        TimeRangeCalculationError: If query file exists but doesn't have a 'name' field
+    """
+    import yaml
+
+    # Handle test format: dict with 'name' key
+    if isinstance(query_item, dict):
+        query_name = query_item.get("name")
+        if not query_name:
+            raise TimeRangeCalculationError(
+                f"Query dictionary must have a 'name' field: {query_item}"
+            )
+        return query_name
+
+    # Handle string format
+    if isinstance(query_item, str):
+        # Check if it's already registered
+        if query_item in AVAILABLE_QUERIES:
+            return query_item
+
+        # Check if it's registered in the query registry
+        if query_item in query_registry.list_queries():
+            return query_item
+
+        # Try to load as a file path
+        query_file = Path(query_item)
+        if query_file.exists() and query_file.suffix in [".yaml", ".yml"]:
+            try:
+                with open(query_file, "r") as f:
+                    query_data = yaml.safe_load(f)
+
+                if not isinstance(query_data, dict):
+                    raise TimeRangeCalculationError(
+                        f"Invalid query file format in {query_file}: Expected dict, got {type(query_data)}"
+                    )
+
+                query_name = query_data.get("name")
+                if not query_name:
+                    raise TimeRangeCalculationError(
+                        f"Query file {query_file} must have a 'name' field defined. "
+                        f"The 'name' field is mandatory and must match the name used in health logging."
+                    )
+
+                logger.debug(f"Resolved query name '{query_name}' from file {query_file}")
+                return query_name
+
+            except Exception as e:
+                if isinstance(e, TimeRangeCalculationError):
+                    raise
+                raise TimeRangeCalculationError(f"Failed to load query name from {query_file}: {e}")
+        else:
+            raise TimeRangeCalculationError(
+                f"Query '{query_item}' not found in registry and not a valid YAML file. "
+                f"Available queries: {sorted(AVAILABLE_QUERIES.keys())}. "
+                f"If this is a query file path, ensure it exists and has .yaml or .yml extension."
+            )
+
+    raise TimeRangeCalculationError(
+        f"Invalid query item type: {type(query_item)}. Expected string or dict."
+    )
 
 
 async def calculate_execution_time_ranges(
@@ -173,23 +250,9 @@ async def _calculate_from_last_successful(
     all_query_names = set()
     for workspace in workspaces:
         for query_item in workspace.queries_list:
-            # Handle both dict format (tests) and string format (production YAML file paths)
-            if isinstance(query_item, dict):
-                # Test format: {"name": "test_query"}
-                query_name = query_item.get("name", query_item.get("query_name", "unknown"))
+            query_name = _resolve_query_name(query_item)
+            if query_name:
                 all_query_names.add(query_name)
-            elif isinstance(query_item, str):
-                # Production format: "Queries\incident_summary.yaml"
-                query_file_name = query_item.replace("\\", "/").split("/")[-1].replace(".yaml", "")
-
-                # Try to find matching query in registry
-                for reg_query_name in query_registry.list_queries():
-                    if query_file_name in reg_query_name or reg_query_name in query_file_name:
-                        all_query_names.add(reg_query_name)
-                        break
-                else:
-                    # Fallback: use the filename as query name
-                    all_query_names.add(query_file_name)
 
     if not all_query_names:
         raise TimeRangeCalculationError("No queries found in workspace configurations")
@@ -209,27 +272,9 @@ async def _calculate_from_last_successful(
         workspace_id = workspace.customer_id
 
         for query_item in workspace.queries_list:
-            # Handle both dict format (tests) and string format (production YAML file paths)
-            if isinstance(query_item, dict):
-                # Test format: {"name": "test_query"}
-                query_name = query_item.get("name", query_item.get("query_name", "unknown"))
-            elif isinstance(query_item, str):
-                # Production format: "Queries\incident_summary.yaml"
-                query_file_name = query_item.replace("\\", "/").split("/")[-1].replace(".yaml", "")
-
-                # Try to find matching query in registry
-                query_name = None
-                for reg_query_name in query_registry.list_queries():
-                    if query_file_name in reg_query_name or reg_query_name in query_file_name:
-                        query_name = reg_query_name
-                        break
-
-                if not query_name:
-                    # Fallback: use the filename as query name
-                    query_name = query_file_name
-            else:
-                # Unknown format, skip
-                logger.warning(f"Unknown query item format: {type(query_item)}")
+            query_name = _resolve_query_name(query_item)
+            if not query_name:
+                logger.warning(f"Could not resolve query name for item: {query_item}")
                 continue
 
             # Look up the result from our batched query
