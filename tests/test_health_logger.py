@@ -348,8 +348,8 @@ class TestSentinelAggregatorHealthLogger:
         extended_props = json.loads(record["ExtendedProperties"])
         assert extended_props["workspace_id"] == workspace_id
         assert extended_props["query_name"] == query_name
-        assert extended_props["watermark_timestamp"] == watermark_timestamp.isoformat()
-        assert extended_props["previous_watermark"] == previous_watermark.isoformat()
+        assert extended_props["watermark_timestamp"] == "2024-01-15T12:00:00.000000Z"
+        assert extended_props["previous_watermark"] == "2024-01-14T12:00:00.000000Z"
         assert extended_props["watermark_advance_seconds"] == 86400.0  # 24 hours
 
     @pytest.mark.asyncio
