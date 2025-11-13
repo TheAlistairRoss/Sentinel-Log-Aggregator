@@ -112,6 +112,12 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../configuration.html#advanced-configuration">Advanced configuration</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../configuration.html#custom-retry-policies">Custom retry policies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration.html#time-precision-and-datetime-formatting">Time precision and datetime formatting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../configuration.html#iso-8601-format-with-microseconds">ISO 8601 format with microseconds</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../configuration.html#why-microsecond-precision-matters">Why microsecond precision matters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../configuration.html#kql-log-analytics-compatibility">KQL/Log Analytics compatibility</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../configuration.html#logging-configuration">Logging configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../configuration.html#connection-string-configuration">Connection string configuration</a></li>
 </ul>
@@ -1352,6 +1358,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">HEALTH_STREAM_NAME</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">QueryExecution</span><span class="p">,</span> <span class="n">WorkspaceConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.sentinel_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentinelAggregatorClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.time_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_datetime_iso8601</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -1505,8 +1512,8 @@
         <span class="n">extended_properties</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;workspace_id&quot;</span><span class="p">:</span> <span class="n">workspace_config</span><span class="o">.</span><span class="n">customer_id</span><span class="p">,</span>
             <span class="s2">&quot;query_name&quot;</span><span class="p">:</span> <span class="n">query_execution</span><span class="o">.</span><span class="n">query_name</span><span class="p">,</span>
-            <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">query_execution</span><span class="o">.</span><span class="n">start_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
-            <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">query_execution</span><span class="o">.</span><span class="n">end_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+            <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">format_datetime_iso8601</span><span class="p">(</span><span class="n">query_execution</span><span class="o">.</span><span class="n">start_time</span><span class="p">),</span>
+            <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">format_datetime_iso8601</span><span class="p">(</span><span class="n">query_execution</span><span class="o">.</span><span class="n">end_time</span><span class="p">),</span>
             <span class="s2">&quot;duration_seconds&quot;</span><span class="p">:</span> <span class="n">query_execution</span><span class="o">.</span><span class="n">query_duration_seconds</span> <span class="ow">or</span> <span class="mf">0.0</span><span class="p">,</span>
             <span class="s2">&quot;record_count&quot;</span><span class="p">:</span> <span class="n">query_execution</span><span class="o">.</span><span class="n">record_count</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
             <span class="s2">&quot;workspace_resource_id&quot;</span><span class="p">:</span> <span class="n">query_execution</span><span class="o">.</span><span class="n">workspace_id</span><span class="p">,</span>
@@ -1674,11 +1681,11 @@
         <span class="n">extended_properties</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;workspace_id&quot;</span><span class="p">:</span> <span class="n">workspace_id</span><span class="p">,</span>
             <span class="s2">&quot;query_name&quot;</span><span class="p">:</span> <span class="n">query_name</span><span class="p">,</span>
-            <span class="s2">&quot;watermark_timestamp&quot;</span><span class="p">:</span> <span class="n">watermark_timestamp</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+            <span class="s2">&quot;watermark_timestamp&quot;</span><span class="p">:</span> <span class="n">format_datetime_iso8601</span><span class="p">(</span><span class="n">watermark_timestamp</span><span class="p">),</span>
         <span class="p">}</span>
 
         <span class="k">if</span> <span class="n">previous_watermark</span><span class="p">:</span>
-            <span class="n">extended_properties</span><span class="p">[</span><span class="s2">&quot;previous_watermark&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">previous_watermark</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+            <span class="n">extended_properties</span><span class="p">[</span><span class="s2">&quot;previous_watermark&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">format_datetime_iso8601</span><span class="p">(</span><span class="n">previous_watermark</span><span class="p">)</span>
             <span class="n">extended_properties</span><span class="p">[</span><span class="s2">&quot;watermark_advance_seconds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">watermark_timestamp</span> <span class="o">-</span> <span class="n">previous_watermark</span>
             <span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
@@ -1717,7 +1724,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># Create health log record</span>
             <span class="n">health_record</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;TimeGenerated&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+                <span class="s2">&quot;TimeGenerated&quot;</span><span class="p">:</span> <span class="n">format_datetime_iso8601</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)),</span>
                 <span class="s2">&quot;OperationName&quot;</span><span class="p">:</span> <span class="n">operation_name</span><span class="p">,</span>
                 <span class="s2">&quot;OperationStatus&quot;</span><span class="p">:</span> <span class="n">operation_status</span><span class="p">,</span>
                 <span class="s2">&quot;JobId&quot;</span><span class="p">:</span> <span class="n">job_id</span><span class="p">,</span>
@@ -1857,7 +1864,7 @@
                 <span class="c1"># Test DCR accessibility by attempting a small upload</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">test_record</span> <span class="o">=</span> <span class="p">{</span>
-                        <span class="s2">&quot;TimeGenerated&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+                        <span class="s2">&quot;TimeGenerated&quot;</span><span class="p">:</span> <span class="n">format_datetime_iso8601</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)),</span>
                         <span class="s2">&quot;OperationName&quot;</span><span class="p">:</span> <span class="s2">&quot;HealthCheck&quot;</span><span class="p">,</span>
                         <span class="s2">&quot;OperationStatus&quot;</span><span class="p">:</span> <span class="s2">&quot;Testing&quot;</span><span class="p">,</span>
                         <span class="s2">&quot;JobId&quot;</span><span class="p">:</span> <span class="s2">&quot;health-check-test&quot;</span><span class="p">,</span>
@@ -1912,7 +1919,7 @@
                 <span class="s2">&quot;test_id&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
                 <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Health logging is disabled&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">format_datetime_iso8601</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)),</span>
             <span class="p">}</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">health_to_sentinel</span><span class="p">:</span>
@@ -1920,7 +1927,7 @@
                 <span class="s2">&quot;test_id&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
                 <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
                 <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Health logging is in console-only mode (not sent to Sentinel)&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">format_datetime_iso8601</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)),</span>
                 <span class="s2">&quot;warning&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
                 <span class="s2">&quot;console_only&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
             <span class="p">}</span>
@@ -1934,7 +1941,7 @@
             <span class="s2">&quot;test_id&quot;</span><span class="p">:</span> <span class="n">test_id</span><span class="p">,</span>
             <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
             <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">format_datetime_iso8601</span><span class="p">(</span><span class="n">timestamp</span><span class="p">),</span>
         <span class="p">}</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -1942,12 +1949,12 @@
             <span class="n">extended_properties</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;test_event&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
                 <span class="s2">&quot;test_id&quot;</span><span class="p">:</span> <span class="n">test_id</span><span class="p">,</span>
-                <span class="s2">&quot;test_timestamp&quot;</span><span class="p">:</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+                <span class="s2">&quot;test_timestamp&quot;</span><span class="p">:</span> <span class="n">format_datetime_iso8601</span><span class="p">(</span><span class="n">timestamp</span><span class="p">),</span>
                 <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
             <span class="p">}</span>
 
             <span class="n">test_record</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;TimeGenerated&quot;</span><span class="p">:</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+                <span class="s2">&quot;TimeGenerated&quot;</span><span class="p">:</span> <span class="n">format_datetime_iso8601</span><span class="p">(</span><span class="n">timestamp</span><span class="p">),</span>
                 <span class="s2">&quot;OperationName&quot;</span><span class="p">:</span> <span class="s2">&quot;HealthTest&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;OperationStatus&quot;</span><span class="p">:</span> <span class="s2">&quot;TestEvent&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;JobId&quot;</span><span class="p">:</span> <span class="n">test_id</span><span class="p">,</span>

@@ -112,6 +112,12 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../configuration.html#advanced-configuration">Advanced configuration</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../configuration.html#custom-retry-policies">Custom retry policies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../configuration.html#time-precision-and-datetime-formatting">Time precision and datetime formatting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../configuration.html#iso-8601-format-with-microseconds">ISO 8601 format with microseconds</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../configuration.html#why-microsecond-precision-matters">Why microsecond precision matters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../configuration.html#kql-log-analytics-compatibility">KQL/Log Analytics compatibility</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../configuration.html#logging-configuration">Logging configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../configuration.html#connection-string-configuration">Connection string configuration</a></li>
 </ul>
@@ -1370,6 +1376,7 @@
     <span class="n">WorkspaceConfig</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.sentinel_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentinelAggregatorClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.time_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_datetime_iso8601</span>
 
 
 <div class="viewcode-block" id="SentinelQueryEngine">
@@ -1573,9 +1580,15 @@
             <span class="s2">&quot;workspace_alias&quot;</span><span class="p">:</span> <span class="n">workspace_alias</span><span class="p">,</span>
             <span class="s2">&quot;query_name&quot;</span><span class="p">:</span> <span class="n">query_name</span><span class="p">,</span>
             <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="n">start_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="s2">&quot;isoformat&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
+                <span class="n">format_datetime_iso8601</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="s2">&quot;isoformat&quot;</span><span class="p">)</span>
+                <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
             <span class="p">),</span>
-            <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">end_time</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="s2">&quot;isoformat&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">end_time</span><span class="p">),</span>
+            <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">format_datetime_iso8601</span><span class="p">(</span><span class="n">end_time</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">end_time</span><span class="p">,</span> <span class="s2">&quot;isoformat&quot;</span><span class="p">)</span>
+                <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">end_time</span><span class="p">)</span>
+            <span class="p">),</span>
             <span class="s2">&quot;destination_stream&quot;</span><span class="p">:</span> <span class="n">destination_stream</span><span class="p">,</span>
             <span class="s2">&quot;execution_id&quot;</span><span class="p">:</span> <span class="n">execution_id</span><span class="p">,</span>
         <span class="p">}</span>
@@ -1793,14 +1806,18 @@
 
             <span class="c1"># Ensure required metadata fields</span>
             <span class="k">if</span> <span class="s2">&quot;TimeGenerated&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">transformed_record</span><span class="p">:</span>
-                <span class="n">transformed_record</span><span class="p">[</span><span class="s2">&quot;TimeGenerated&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+                <span class="n">transformed_record</span><span class="p">[</span><span class="s2">&quot;TimeGenerated&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">format_datetime_iso8601</span><span class="p">(</span>
+                    <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+                <span class="p">)</span>
 
             <span class="k">if</span> <span class="s2">&quot;WorkspaceId&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">transformed_record</span><span class="p">:</span>
                 <span class="n">transformed_record</span><span class="p">[</span><span class="s2">&quot;WorkspaceId&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">workspace_id</span>
 
             <span class="c1"># Add processing metadata</span>
             <span class="n">transformed_record</span><span class="p">[</span><span class="s2">&quot;ProcessedBy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SentinelLogAggregator&quot;</span>
-            <span class="n">transformed_record</span><span class="p">[</span><span class="s2">&quot;ProcessingTimestamp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+            <span class="n">transformed_record</span><span class="p">[</span><span class="s2">&quot;ProcessingTimestamp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">format_datetime_iso8601</span><span class="p">(</span>
+                <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="n">transformed_record</span><span class="p">[</span><span class="s2">&quot;JobCorrelationId&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_correlation_id</span>
 
             <span class="n">transformed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transformed_record</span><span class="p">)</span>

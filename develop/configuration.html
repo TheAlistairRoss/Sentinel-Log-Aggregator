@@ -115,6 +115,12 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#advanced-configuration">Advanced configuration</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#custom-retry-policies">Custom retry policies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#time-precision-and-datetime-formatting">Time precision and datetime formatting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#iso-8601-format-with-microseconds">ISO 8601 format with microseconds</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#why-microsecond-precision-matters">Why microsecond precision matters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kql-log-analytics-compatibility">KQL/Log Analytics compatibility</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#logging-configuration">Logging configuration</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#connection-string-configuration">Connection string configuration</a></li>
 </ul>
@@ -1589,6 +1595,45 @@
 <span class="c1"># The client will automatically use exponential backoff</span>
 </pre></div>
 </div>
+</section>
+<section id="time-precision-and-datetime-formatting">
+<h3>Time precision and datetime formatting<a class="headerlink" href="#time-precision-and-datetime-formatting" title="Link to this heading"></a></h3>
+<p>The Sentinel Log Aggregator uses <strong>microsecond precision</strong> (6 decimal places) for all datetime values to ensure data consistency and prevent gaps when using incremental processing with <code class="docutils literal notranslate"><span class="pre">--use-last-successful</span></code>.</p>
+<section id="iso-8601-format-with-microseconds">
+<h4>ISO 8601 format with microseconds<a class="headerlink" href="#iso-8601-format-with-microseconds" title="Link to this heading"></a></h4>
+<p>All datetime values are formatted as: <code class="docutils literal notranslate"><span class="pre">yyyy-MM-ddTHH:mm:ss.ffffffZ</span></code></p>
+<p><strong>Examples:</strong></p>
+<ul class="simple">
+<li><p>Start of November 2025: <code class="docutils literal notranslate"><span class="pre">2025-11-01T00:00:00.000000Z</span></code></p></li>
+<li><p>End of October 2025: <code class="docutils literal notranslate"><span class="pre">2025-10-31T23:59:59.999999Z</span></code></p></li>
+<li><p>KQL documentation example: <code class="docutils literal notranslate"><span class="pre">2014-05-25T08:20:03.123456Z</span></code></p></li>
+</ul>
+</section>
+<section id="why-microsecond-precision-matters">
+<h4>Why microsecond precision matters<a class="headerlink" href="#why-microsecond-precision-matters" title="Link to this heading"></a></h4>
+<p>When using <code class="docutils literal notranslate"><span class="pre">--use-last-successful</span></code> for incremental processing, the aggregator:</p>
+<ol class="arabic simple">
+<li><p>Stores the <code class="docutils literal notranslate"><span class="pre">EndTime</span></code> of the last successful query execution with microsecond precision</p></li>
+<li><p>Uses <code class="docutils literal notranslate"><span class="pre">EndTime</span> <span class="pre">+</span> <span class="pre">1</span> <span class="pre">microsecond</span></code> as the <code class="docutils literal notranslate"><span class="pre">StartTime</span></code> for the next batch</p></li>
+<li><p>Prevents data gaps or overlaps at batch boundaries</p></li>
+</ol>
+<p><strong>Example: Continuous batches without gaps</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Last</span> <span class="n">successful</span> <span class="n">EndTime</span><span class="p">:</span>  <span class="mi">2025</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">31</span><span class="n">T23</span><span class="p">:</span><span class="mi">59</span><span class="p">:</span><span class="mf">59.000000</span><span class="n">Z</span>
+<span class="n">Next</span> <span class="n">batch</span> <span class="n">StartTime</span><span class="p">:</span>     <span class="mi">2025</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">31</span><span class="n">T23</span><span class="p">:</span><span class="mi">59</span><span class="p">:</span><span class="mf">59.000001</span><span class="n">Z</span>  <span class="p">(</span><span class="n">adds</span> <span class="mi">1</span><span class="n">µs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This precision ensures no logs are missed between consecutive runs, even when queries span month boundaries or other time transitions.</p>
+</section>
+<section id="kql-log-analytics-compatibility">
+<h4>KQL/Log Analytics compatibility<a class="headerlink" href="#kql-log-analytics-compatibility" title="Link to this heading"></a></h4>
+<p>Microsoft Azure Log Analytics and Kusto Query Language (KQL) support microsecond precision in datetime values, making this format fully compatible with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">TimeGenerated</span></code> fields in Log Analytics workspaces</p></li>
+<li><p>KQL <code class="docutils literal notranslate"><span class="pre">between</span></code> and <code class="docutils literal notranslate"><span class="pre">where</span></code> operators for time filtering</p></li>
+<li><p>Data Collection Rule (DCR) ingestion timestamps</p></li>
+</ul>
+<p>All datetime values in health logs, query metadata, and uploaded data use this consistent format throughout the aggregator.</p>
+</section>
 </section>
 <section id="logging-configuration">
 <h3>Logging configuration<a class="headerlink" href="#logging-configuration" title="Link to this heading"></a></h3>
