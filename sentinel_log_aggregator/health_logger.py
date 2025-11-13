@@ -14,6 +14,7 @@ from uuid import uuid4
 from .constants import HEALTH_STREAM_NAME
 from .models import QueryExecution, WorkspaceConfig
 from .sentinel_client import SentinelAggregatorClient
+from .time_utils import format_datetime_iso8601
 
 logger = logging.getLogger(__name__)
 
@@ -154,8 +155,8 @@ class SentinelAggregatorHealthLogger:
         extended_properties = {
             "workspace_id": workspace_config.customer_id,
             "query_name": query_execution.query_name,
-            "start_time": query_execution.start_time.isoformat(),
-            "end_time": query_execution.end_time.isoformat(),
+            "start_time": format_datetime_iso8601(query_execution.start_time),
+            "end_time": format_datetime_iso8601(query_execution.end_time),
             "duration_seconds": query_execution.query_duration_seconds or 0.0,
             "record_count": query_execution.record_count or 0,
             "workspace_resource_id": query_execution.workspace_id,
@@ -311,11 +312,11 @@ class SentinelAggregatorHealthLogger:
         extended_properties = {
             "workspace_id": workspace_id,
             "query_name": query_name,
-            "watermark_timestamp": watermark_timestamp.isoformat(),
+            "watermark_timestamp": format_datetime_iso8601(watermark_timestamp),
         }
 
         if previous_watermark:
-            extended_properties["previous_watermark"] = previous_watermark.isoformat()
+            extended_properties["previous_watermark"] = format_datetime_iso8601(previous_watermark)
             extended_properties["watermark_advance_seconds"] = (
                 watermark_timestamp - previous_watermark
             ).total_seconds()
@@ -353,7 +354,7 @@ class SentinelAggregatorHealthLogger:
         try:
             # Create health log record
             health_record = {
-                "TimeGenerated": datetime.now(timezone.utc).isoformat(),
+                "TimeGenerated": format_datetime_iso8601(datetime.now(timezone.utc)),
                 "OperationName": operation_name,
                 "OperationStatus": operation_status,
                 "JobId": job_id,
@@ -491,7 +492,7 @@ class SentinelAggregatorHealthLogger:
                 # Test DCR accessibility by attempting a small upload
                 try:
                     test_record = {
-                        "TimeGenerated": datetime.now(timezone.utc).isoformat(),
+                        "TimeGenerated": format_datetime_iso8601(datetime.now(timezone.utc)),
                         "OperationName": "HealthCheck",
                         "OperationStatus": "Testing",
                         "JobId": "health-check-test",
@@ -543,7 +544,7 @@ class SentinelAggregatorHealthLogger:
                 "test_id": None,
                 "success": False,
                 "message": "Health logging is disabled",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": format_datetime_iso8601(datetime.now(timezone.utc)),
             }
 
         if not self.health_to_sentinel:
@@ -551,7 +552,7 @@ class SentinelAggregatorHealthLogger:
                 "test_id": None,
                 "success": True,
                 "message": "Health logging is in console-only mode (not sent to Sentinel)",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": format_datetime_iso8601(datetime.now(timezone.utc)),
                 "warning": True,
                 "console_only": True,
             }
@@ -565,7 +566,7 @@ class SentinelAggregatorHealthLogger:
             "test_id": test_id,
             "success": False,
             "message": "",
-            "timestamp": timestamp.isoformat(),
+            "timestamp": format_datetime_iso8601(timestamp),
         }
 
         try:
@@ -573,12 +574,12 @@ class SentinelAggregatorHealthLogger:
             extended_properties = {
                 "test_event": True,
                 "test_id": test_id,
-                "test_timestamp": timestamp.isoformat(),
+                "test_timestamp": format_datetime_iso8601(timestamp),
                 **kwargs,
             }
 
             test_record = {
-                "TimeGenerated": timestamp.isoformat(),
+                "TimeGenerated": format_datetime_iso8601(timestamp),
                 "OperationName": "HealthTest",
                 "OperationStatus": "TestEvent",
                 "JobId": test_id,

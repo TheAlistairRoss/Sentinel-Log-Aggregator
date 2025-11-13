@@ -78,6 +78,7 @@ An Azure SDK-compliant Python client library for aggregating and processing logs
 - **Multi-workspace Support**: Query and aggregate data across multiple Sentinel workspaces
 - **Batch Processing**: Configurable time-based batching with concurrent execution
 - **Centralized Reporting**: Transform and normalize data for centralized analytics
+- **Microsecond Precision**: ISO 8601 datetime formatting with 6-decimal precision prevents data gaps
 - **Comprehensive Error Handling**: Service-specific exceptions with detailed error information
 - **Distributed Tracing**: Built-in Azure Monitor Application Insights integration
 - **Long-running Operations**: LRO support for batch operations with progress tracking

@@ -13,6 +13,8 @@ from datetime import datetime, timezone
 from functools import wraps
 from typing import Any, Callable, Dict, Generator, MutableMapping, Optional, Union
 
+from .time_utils import format_datetime_iso8601
+
 
 class SentinelLoggerAdapter(logging.LoggerAdapter):
     """
@@ -36,7 +38,7 @@ class SentinelLoggerAdapter(logging.LoggerAdapter):
         extra = kwargs.get("extra", {})
         extra.update(self.extra)
         extra["correlation_id"] = self.correlation_id
-        extra["timestamp"] = datetime.now(timezone.utc).isoformat()
+        extra["timestamp"] = format_datetime_iso8601(datetime.now(timezone.utc))
         kwargs["extra"] = extra
         return msg, kwargs
 

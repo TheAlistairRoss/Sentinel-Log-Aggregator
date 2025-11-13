@@ -50,6 +50,7 @@ from .responses import (
     UploadStatus,
     WorkspaceQueryExecution,
 )
+from .time_utils import format_datetime_iso8601
 from .security_utils import (
     SecureLogger,
     generate_correlation_id,
@@ -313,7 +314,7 @@ class SentinelAggregatorClient:
             if start_time and end_time:
                 timespan = (start_time, end_time)
                 self._logger.debug(
-                    f"Query timespan configured: {start_time.isoformat()} to {end_time.isoformat()} "
+                    f"Query timespan configured: {format_datetime_iso8601(start_time)} to {format_datetime_iso8601(end_time)} "
                     f"[workspace={workspace_id[:8]}...] [correlation_id={correlation_id}]"
                 )
             else:
@@ -521,8 +522,8 @@ class SentinelAggregatorClient:
         def convert_value(value):
             """Convert a single value to JSON-serializable format."""
             if isinstance(value, datetime):
-                # Convert datetime to ISO format string
-                return value.isoformat()
+                # Convert datetime to ISO format string with microsecond precision
+                return format_datetime_iso8601(value)
             elif isinstance(value, Decimal):
                 # Convert Decimal to float
                 return float(value)

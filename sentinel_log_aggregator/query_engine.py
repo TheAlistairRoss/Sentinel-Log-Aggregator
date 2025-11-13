@@ -32,6 +32,7 @@ from .models import (
     WorkspaceConfig,
 )
 from .sentinel_client import SentinelAggregatorClient
+from .time_utils import format_datetime_iso8601
 
 
 class SentinelQueryEngine:
@@ -219,9 +220,15 @@ class SentinelQueryEngine:
             "workspace_alias": workspace_alias,
             "query_name": query_name,
             "start_time": (
-                start_time.isoformat() if hasattr(start_time, "isoformat") else str(start_time)
+                format_datetime_iso8601(start_time)
+                if hasattr(start_time, "isoformat")
+                else str(start_time)
             ),
-            "end_time": end_time.isoformat() if hasattr(end_time, "isoformat") else str(end_time),
+            "end_time": (
+                format_datetime_iso8601(end_time)
+                if hasattr(end_time, "isoformat")
+                else str(end_time)
+            ),
             "destination_stream": destination_stream,
             "execution_id": execution_id,
         }
@@ -438,14 +445,18 @@ class SentinelQueryEngine:
 
             # Ensure required metadata fields
             if "TimeGenerated" not in transformed_record:
-                transformed_record["TimeGenerated"] = datetime.now(timezone.utc).isoformat()
+                transformed_record["TimeGenerated"] = format_datetime_iso8601(
+                    datetime.now(timezone.utc)
+                )
 
             if "WorkspaceId" not in transformed_record:
                 transformed_record["WorkspaceId"] = workspace_id
 
             # Add processing metadata
             transformed_record["ProcessedBy"] = "SentinelLogAggregator"
-            transformed_record["ProcessingTimestamp"] = datetime.now(timezone.utc).isoformat()
+            transformed_record["ProcessingTimestamp"] = format_datetime_iso8601(
+                datetime.now(timezone.utc)
+            )
             transformed_record["JobCorrelationId"] = self.job_correlation_id
 
             transformed.append(transformed_record)

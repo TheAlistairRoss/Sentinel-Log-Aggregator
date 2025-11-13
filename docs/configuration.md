@@ -265,6 +265,43 @@ options = SentinelAggregatorClientOptions(
 # The client will automatically use exponential backoff
 ```
 
+### Time precision and datetime formatting
+
+The Sentinel Log Aggregator uses **microsecond precision** (6 decimal places) for all datetime values to ensure data consistency and prevent gaps when using incremental processing with `--use-last-successful`.
+
+#### ISO 8601 format with microseconds
+
+All datetime values are formatted as: `yyyy-MM-ddTHH:mm:ss.ffffffZ`
+
+**Examples:**
+- Start of November 2025: `2025-11-01T00:00:00.000000Z`
+- End of October 2025: `2025-10-31T23:59:59.999999Z`
+- KQL documentation example: `2014-05-25T08:20:03.123456Z`
+
+#### Why microsecond precision matters
+
+When using `--use-last-successful` for incremental processing, the aggregator:
+1. Stores the `EndTime` of the last successful query execution with microsecond precision
+2. Uses `EndTime + 1 microsecond` as the `StartTime` for the next batch
+3. Prevents data gaps or overlaps at batch boundaries
+
+**Example: Continuous batches without gaps**
+```
+Last successful EndTime:  2025-10-31T23:59:59.000000Z
+Next batch StartTime:     2025-10-31T23:59:59.000001Z  (adds 1µs)
+```
+
+This precision ensures no logs are missed between consecutive runs, even when queries span month boundaries or other time transitions.
+
+#### KQL/Log Analytics compatibility
+
+Microsoft Azure Log Analytics and Kusto Query Language (KQL) support microsecond precision in datetime values, making this format fully compatible with:
+- `TimeGenerated` fields in Log Analytics workspaces
+- KQL `between` and `where` operators for time filtering
+- Data Collection Rule (DCR) ingestion timestamps
+
+All datetime values in health logs, query metadata, and uploaded data use this consistent format throughout the aggregator.
+
 ### Logging configuration
 
 ```python

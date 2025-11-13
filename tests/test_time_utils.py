@@ -297,6 +297,49 @@ class TestBatchCalculation:
 class TestDateTimeFormatting:
     """Test datetime formatting functionality."""
 
+    def test_format_datetime_iso8601(self):
+        """Test formatting datetime to ISO 8601 with microsecond precision."""
+        from sentinel_log_aggregator.time_utils import format_datetime_iso8601
+
+        # Test with UTC datetime with microseconds
+        dt = datetime(2025, 10, 31, 23, 59, 59, 123456, tzinfo=timezone.utc)
+        formatted = format_datetime_iso8601(dt)
+        assert formatted == "2025-10-31T23:59:59.123456Z"
+
+        # Test with zero microseconds
+        dt_no_micro = datetime(2025, 11, 1, 0, 0, 0, 0, tzinfo=timezone.utc)
+        formatted_no_micro = format_datetime_iso8601(dt_no_micro)
+        assert formatted_no_micro == "2025-11-01T00:00:00.000000Z"
+
+        # Test with naive datetime (should assume UTC)
+        dt_naive = datetime(2025, 10, 31, 12, 30, 45, 654321)
+        formatted_naive = format_datetime_iso8601(dt_naive)
+        assert formatted_naive == "2025-10-31T12:30:45.654321Z"
+
+        # Test with non-UTC timezone (should convert to UTC)
+        from datetime import timedelta as td
+
+        eastern = timezone(td(hours=-5))
+        dt_eastern = datetime(2025, 10, 31, 18, 0, 0, 999999, tzinfo=eastern)
+        formatted_eastern = format_datetime_iso8601(dt_eastern)
+        assert formatted_eastern == "2025-10-31T23:00:00.999999Z"
+
+    def test_format_datetime_iso8601_examples(self):
+        """Test specific examples for documentation."""
+        from sentinel_log_aggregator.time_utils import format_datetime_iso8601
+
+        # Start of November 2025
+        start_nov = datetime(2025, 11, 1, 0, 0, 0, 0, tzinfo=timezone.utc)
+        assert format_datetime_iso8601(start_nov) == "2025-11-01T00:00:00.000000Z"
+
+        # End of October 2025 (last microsecond)
+        end_oct = datetime(2025, 10, 31, 23, 59, 59, 999999, tzinfo=timezone.utc)
+        assert format_datetime_iso8601(end_oct) == "2025-10-31T23:59:59.999999Z"
+
+        # Example from KQL documentation
+        example_dt = datetime(2014, 5, 25, 8, 20, 3, 123456, tzinfo=timezone.utc)
+        assert format_datetime_iso8601(example_dt) == "2014-05-25T08:20:03.123456Z"
+
     def test_format_datetime_display(self):
         """Test formatting datetime for display."""
         dt = datetime(2025, 11, 3, 14, 30, 45, tzinfo=timezone.utc)

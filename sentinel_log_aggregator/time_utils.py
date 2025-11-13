@@ -101,8 +101,14 @@ def parse_iso8601_datetime(datetime_str: str) -> datetime:
     """
     Parse ISO 8601 datetime string to UTC datetime object.
 
+    Supports various precision levels (seconds, milliseconds, microseconds).
+    Examples:
+    - "2025-10-01T17:00:00Z"
+    - "2025-10-01T17:00:00.123456Z"
+    - "2025-10-01T17:00:00.123456+00:00"
+
     Args:
-        datetime_str: ISO 8601 datetime string (e.g., "2025-10-01T17:00:00Z")
+        datetime_str: ISO 8601 datetime string
 
     Returns:
         datetime object in UTC timezone
@@ -126,6 +132,48 @@ def parse_iso8601_datetime(datetime_str: str) -> datetime:
 
     except (isodate.ISO8601Error, ValueError) as e:
         raise TimeParsingError(f"Invalid ISO 8601 datetime format '{datetime_str}': {e}")
+
+
+@validate_call
+def format_datetime_iso8601(dt: datetime) -> str:
+    """
+    Format datetime to ISO 8601 string with microsecond precision.
+
+    This function ensures consistent datetime formatting across the application
+    following KQL/Log Analytics recommendations for ISO 8601 format with microseconds.
+
+    Format: yyyy-MM-ddTHH:mm:ss.ffffffZ
+    Example: 2025-10-31T23:59:59.123456Z
+
+    Args:
+        dt: Datetime to format (will be converted to UTC if not already)
+
+    Returns:
+        ISO 8601 formatted string with microsecond precision and UTC timezone (Z suffix)
+
+    Examples:
+        >>> from datetime import datetime, timezone
+        >>> dt = datetime(2025, 10, 31, 23, 59, 59, 123456, tzinfo=timezone.utc)
+        >>> format_datetime_iso8601(dt)
+        '2025-10-31T23:59:59.123456Z'
+    """
+    # Ensure datetime is timezone-aware
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    else:
+        # Convert to UTC
+        dt = dt.astimezone(timezone.utc)
+
+    # Format with microsecond precision
+    # isoformat() gives us: 2025-10-31T23:59:59.123456+00:00
+    # We need: 2025-10-31T23:59:59.123456Z
+    iso_str = dt.isoformat(timespec="microseconds")
+
+    # Replace +00:00 with Z for UTC
+    if iso_str.endswith("+00:00"):
+        iso_str = iso_str[:-6] + "Z"
+
+    return iso_str
 
 
 @validate_call
