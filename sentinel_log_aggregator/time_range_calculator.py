@@ -353,7 +353,17 @@ async def _calculate_from_last_successful(
             if isinstance(last_end_time, str):
                 last_end_time = parse_iso8601_datetime(last_end_time)
 
-            successful_last_end_times[key] = last_end_time
+            # Only store if we have a valid end time
+            if last_end_time is not None:
+                successful_last_end_times[key] = last_end_time
+            else:
+                logger.warning(
+                    f"⚠️  Query {query_name} in workspace {workspace_id[:8]}... has null end_time in health data. "
+                    f"This combination will be SKIPPED."
+                )
+                missing_combinations.append(
+                    f"{query_name} (workspace: {workspace_id[:8]}...) - null end_time"
+                )
 
     # Report summary of missing combinations (if any)
     if missing_combinations:
@@ -501,6 +511,10 @@ async def _query_all_last_successful_runs(
                 for row in table.rows:
                     row_dict = dict(zip(column_names, row))
 
+                    # Map EndTime directly to end_time for downstream code
+                    if "EndTime" in row_dict:
+                        row_dict["end_time"] = row_dict["EndTime"]
+
                     query_name = row_dict.get("QueryName")
                     workspace_id = row_dict.get("WorkspaceId")
                     last_run_time = row_dict.get("LastRunTime")
@@ -524,15 +538,6 @@ async def _query_all_last_successful_runs(
 
                         if last_run_time and (not existing_time or last_run_time > existing_time):
                             results_map[key] = row_dict.copy()
-
-                # Convert datetime fields for all results
-                for result in results_map.values():
-                    for field in ["StartTime", "EndTime", "LastRunTime"]:
-                        if field in result and result[field]:
-                            if isinstance(result[field], str):
-                                result[f"{field.lower()}"] = parse_iso8601_datetime(result[field])
-                            else:
-                                result[f"{field.lower()}"] = result[field]
 
             logger.debug(
                 f"Found {len(results_map)} unique query+workspace combinations in health logs"
