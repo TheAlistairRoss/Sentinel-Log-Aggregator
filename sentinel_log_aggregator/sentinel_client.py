@@ -50,13 +50,13 @@ from .responses import (
     UploadStatus,
     WorkspaceQueryExecution,
 )
-from .time_utils import format_datetime_iso8601
 from .security_utils import (
     SecureLogger,
     generate_correlation_id,
     validate_kql_query,
     validate_workspace_id,
 )
+from .time_utils import format_datetime_iso8601
 
 
 class SentinelAggregatorClient:
