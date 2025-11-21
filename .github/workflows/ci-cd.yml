@@ -55,14 +55,14 @@ jobs:
         pip-audit --format=json --output=pip-audit-report.json || true
     
     - name: Upload Bandit results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: always()
       with:
         name: bandit-results-${{ matrix.python-version }}
         path: bandit-report.json
 
     - name: Upload Security Scan Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: always()
       with:
         name: security-scan-results-${{ matrix.python-version }}
@@ -160,7 +160,7 @@ jobs:
         twine check dist/*
     
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: dist
         path: dist/
