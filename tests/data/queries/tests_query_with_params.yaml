@@ -1,0 +1,20 @@
+name: "tests_query_with_params"
+destination_stream: "Custom-Reports_LogAggregatorHealth_CL"
+description: "Used for log aggregator unit testing. This query is used for testing parameter replacement"
+stream_name: "stream_workspace_usage"
+
+parameters:
+  non_required_param:
+    type: "string"
+    required: false
+    default: ""
+    description: "Non required workspace parameter"
+  required_param:
+    type: "string"
+    required: true
+    description: "Required workspace parameter"
+query: |
+    print 
+      TestMessage = "Test query with parameters",
+      RequiredParam = "{required_param}",
+      NonRequiredParam = "{non_required_param}"

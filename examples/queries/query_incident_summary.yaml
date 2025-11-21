@@ -1,0 +1,54 @@
+name: "query_incident_summary"
+destination_stream: "Custom-Reports_IncidentDetails_CL"
+description: "Get incident summary statistics for a time period"
+stream_name: "stream_incident_summary"
+
+parameters:
+  row_level_security_tag:
+    type: "string"
+    required: false
+    default: ""
+    description: "Row Level Security Tag for filtering data access"
+
+query: |
+  let Incidents = 
+      SecurityIncident
+      | summarize arg_max(TimeGenerated, *) by ProviderIncidentId
+  ;
+  let AlertDetails = 
+      Incidents
+      | where array_length(AlertIds) > 0
+      | mv-expand AlertIds to typeof(string)
+      | lookup kind=leftouter (
+          SecurityAlert
+          | summarize arg_max(TimeGenerated, ProductName) by SystemAlertId
+          )
+          on $left.AlertIds == $right.SystemAlertId
+      | summarize Count = count() by IncidentNumber, ProductName
+      | extend ProductAlertsBag = bag_pack(ProductName, Count)
+      | summarize ProductAlerts = make_list(ProductAlertsBag) by IncidentNumber
+  ;
+  Incidents
+  | lookup kind = leftouter (
+      AlertDetails
+      )
+      on IncidentNumber
+  | project
+      OriginalTimeGenerated = TimeGenerated,
+      TimeGenerated = now(), 
+      WorkspaceId = TenantId,
+      IncidentNumber,
+      Redirected = iff(tostring(Labels) has '"labelName":"Redirected"', true, false),
+      Severity,
+      Status,
+      Classification,
+      CreatedTime,
+      FirstModifiedTime,
+      FirstActivityTime,
+      LastActivityTime,
+      ClosedTime,
+      MeanTimeToTriage = iff(isnotempty(FirstModifiedTime), datetime_diff('second', FirstModifiedTime, CreatedTime), int(null)),
+      MeanTimeToRemediate = iff(isnotempty(ClosedTime), datetime_diff('second', ClosedTime, CreatedTime), int(null)),
+      AlertCount = toint(AdditionalData.alertsCount),
+      ProductAlerts = iff(isempty(ProductAlerts), dynamic([]), ProductAlerts),
+      RowLevelSecurityTag = '{row_level_security_tag}'

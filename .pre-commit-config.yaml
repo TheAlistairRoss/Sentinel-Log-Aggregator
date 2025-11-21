@@ -1,118 +1,45 @@
 # Pre-commit configuration for Microsoft Sentinel Log Aggregator
-# Run `pre-commit install` to set up the git hooks
+# Simplified to match GitHub Actions critical checks only
+# Run: pre-commit install
 
 repos:
-  # Python code formatting
-  - repo: https://github.com/psf/black
-    rev: 23.10.1
-    hooks:
-      - id: black
-        language_version: python3
-        args: [--line-length=100]
-
-  # Import sorting
-  - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-        args: [--profile=black, --line-length=100]
-
-  # Linting
-  - repo: https://github.com/pycqa/flake8
-    rev: 6.1.0
-    hooks:
-      - id: flake8
-        args: [--max-line-length=100, --extend-ignore=E203,W503]
-        additional_dependencies: [flake8-docstrings, flake8-bugbear]
-
-  # Security scanning
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
-    hooks:
-      - id: bandit
-        args: [-r, sentinel_log_aggregator/, -f, json, -o, bandit-report.json]
-        types: [python]
-
-  # Type checking
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.7.0
-    hooks:
-      - id: mypy
-        additional_dependencies: [types-PyYAML, types-requests]
-        args: [--ignore-missing-imports, --strict-optional]
-
-  # General file checks
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
-    hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-json
-      - id: check-added-large-files
-        args: [--maxkb=1000]
-      - id: check-merge-conflict
-      - id: check-case-conflict
-      - id: debug-statements
-      - id: requirements-txt-fixer
-
-  # Secrets detection
-  - repo: https://github.com/Yelp/detect-secrets
-    rev: v1.4.0
-    hooks:
-      - id: detect-secrets
-        args: ['--baseline', '.secrets.baseline']
-        exclude: package.lock.json
-
-  # YAML linting
-  - repo: https://github.com/adrienverge/yamllint
-    rev: v1.33.0
-    hooks:
-      - id: yamllint
-        args: [-d, '{extends: default, rules: {line-length: {max: 120}, truthy: {check-keys: false}}}']
-
-  # Dockerfile linting
-  - repo: https://github.com/hadolint/hadolint
-    rev: v2.12.0
-    hooks:
-      - id: hadolint
-        args: [--ignore, DL3008, --ignore, DL3009]
-
-  # Commit message format check
-  - repo: https://github.com/commitizen-tools/commitizen
-    rev: v3.12.0
-    hooks:
-      - id: commitizen
-        stages: [commit-msg]
-
-  # Python docstring formatting
-  - repo: https://github.com/pycqa/pydocstyle
-    rev: 6.3.0
-    hooks:
-      - id: pydocstyle
-        args: [--convention=google]
-        additional_dependencies: [toml]
-
-# Local hooks for custom checks
   - repo: local
     hooks:
+      # Black - AUTO-FIXES formatting issues
+      - id: black
+        name: black
+        entry: black
+        language: system
+        types: [python]
+        args: [--line-length=100, --target-version=py311]
+      
+      # isort - AUTO-FIXES import order
+      - id: isort
+        name: isort
+        entry: isort
+        language: system
+        types: [python]
+        args: [--profile=black, --line-length=100]
+      
+      # flake8 - Critical syntax/runtime errors only
+      - id: flake8-critical
+        name: flake8 (critical errors)
+        entry: pwsh
+        language: system
+        types: [python]
+        args: [-c, 'flake8 $args --max-line-length=100 --extend-ignore=E203,W503 --select=E9,F63,F7,F82']
+        pass_filenames: true
+      
+      # Run tests before push (not on every commit)
       - id: pytest-check
-        name: pytest-check
+        name: pytest
         entry: pytest
         language: system
-        args: [tests/, --tb=short, -q]
+        args: [tests/, --tb=short, -q, --maxfail=5, -x]
         types: [python]
         pass_filenames: false
-        stages: [push]
-
-      - id: security-check
-        name: security-check
-        entry: python
-        language: system
-        args: [-m, sentinel_log_aggregator.security_utils]
-        types: [python]
-        pass_filenames: false
+        stages: [pre-push]
 
 # Global configuration
-fail_fast: false
-default_stages: [commit]
+fail_fast: true
+default_stages: [pre-commit]

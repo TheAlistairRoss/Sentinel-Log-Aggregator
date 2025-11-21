@@ -1,0 +1,93 @@
+name: 📖 Documentation Issue
+description: Report an issue with documentation
+title: "[DOCS] "
+labels: ["documentation", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us improve our documentation! Please provide details about what needs to be fixed or improved.
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: Which type of documentation has the issue?
+      options:
+        - "README.md"
+        - "Installation Guide"
+        - "API Documentation"
+        - "CLI Documentation"
+        - "Configuration Guide"
+        - "Troubleshooting Guide"
+        - "Workflow Documentation"
+        - "Code Examples"
+        - "Inline Code Comments"
+        - "Other"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue Type
+      description: What type of documentation issue is this?
+      options:
+        - "Incorrect Information"
+        - "Missing Information"
+        - "Unclear Instructions"
+        - "Broken Links"
+        - "Formatting Issues"
+        - "Outdated Content"
+        - "Missing Examples"
+        - "Typos/Grammar"
+        - "Accessibility Issue"
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Documentation Location
+      description: Where is the issue located?
+      placeholder: "e.g., docs/installation.md, README.md line 45, API docs for SentinelQueryEngine"
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: Current Content
+      description: What does the documentation currently say? (copy/paste if applicable)
+      placeholder: Paste the current documentation content that has issues
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Issue Description
+      description: What is wrong or unclear?
+      placeholder: Describe specifically what is incorrect, missing, or unclear
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested-improvement
+    attributes:
+      label: Suggested Improvement
+      description: How should it be improved?
+      placeholder: Provide your suggested correction or improvement
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any additional context
+      placeholder: |
+        - Your experience level with the project
+        - What you were trying to accomplish
+        - Screenshots (if relevant)
+        - Related documentation sections

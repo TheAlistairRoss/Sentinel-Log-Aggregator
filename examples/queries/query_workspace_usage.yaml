@@ -1,0 +1,41 @@
+name: "query_workspace_usage"
+destination_stream: "Custom-Reports_WorkspaceUsage_CL"
+description: "Get workspace usage statistics for a time period"
+stream_name: "stream_workspace_usage"
+
+parameters:
+  row_level_security_tag:
+    type: "string"
+    required: false
+    default: ""
+    description: "Row level security tag for workspace identification"
+
+query: |
+  let BillableUsage = 
+      Usage
+      | summarize QuantityGB = toreal(sum(Quantity) / 1000) by bin(StartTime, 1d), DataType, TenantId, IsBillable
+      | extend Name = 'Billable Data GB'
+      | project TimeGenerated = StartTime, DataType, IsBillable, Name, QuantityGB, TenantId
+      ;
+  let BenefitsUsed = 
+      Operation
+      | where Detail startswith 'Benefit amount used'
+      | parse Detail with 'Benefit amount used: ' QuantityGB:real ' GB'
+      | parse OperationKey with 'Benefit type used: ' DataType:string
+      | extend QuantityGB = QuantityGB * -1 
+      | extend Name = 'Ingestion Benefit Used GB'
+      | extend IsBillable = true
+      | project TimeGenerated, DataType, IsBillable, Name, QuantityGB, TenantId ;
+  union BillableUsage, BenefitsUsed
+  | extend OriginalTimeGenerated = TimeGenerated
+  | extend TimeGenerated = now()
+  | order by OriginalTimeGenerated desc
+  | project 
+      TimeGenerated, 
+      OriginalTimeGenerated, 
+      DataType, 
+      IsBillable, 
+      Name, 
+      QuantityGB, 
+      WorkspaceId = TenantId,
+      RowLevelSecurityTag = "{row_level_security_tag}"

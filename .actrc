@@ -1,0 +1,10 @@
+# Act configuration for running GitHub Actions locally
+# Use larger runner images with more tools pre-installed
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
+--container-architecture linux/amd64
+
+# Bind workspace to allow file access
+--bind
+
+# Use host network for better connectivity
+--container-daemon-socket -

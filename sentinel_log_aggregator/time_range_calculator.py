@@ -1,0 +1,679 @@
+"""
+Time range calculation logic for Sentinel Log Aggregator.
+
+Handles the precedence of different time specification methods:
+1. use_last_successful (highest priority)
+2. start_time/end_time (explicit time range)
+3. lookback_period (relative time range)
+
+Also handles batch calculation from last successful runs with proper constraints.
+"""
+
+import logging
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+from sentinel_log_aggregator.constants import HEALTH_TABLE_NAME
+
+from .health_logger import SentinelAggregatorHealthLogger
+from .models import AVAILABLE_QUERIES, WorkspaceConfig
+from .query_registry import query_registry
+from .time_utils import (
+    InvalidTimeRangeError,
+    TimeParsingError,
+    calculate_batches,
+    calculate_time_range_from_lookback,
+    parse_iso8601_datetime,
+    parse_iso8601_duration,
+    validate_batch_time_size,
+    validate_time_range,
+)
+
+logger = logging.getLogger(__name__)
+
+
+class TimeRangeCalculationError(Exception):
+    """Raised when time range calculation fails."""
+
+    pass
+
+
+def _resolve_query_name(query_item: Any) -> Optional[str]:
+    """
+    Resolve query name from workspace query item.
+
+    This function handles different query formats:
+    - If query_item is already in AVAILABLE_QUERIES registry, use it directly
+    - If query_item is a file path, load the YAML and extract the 'name' field
+
+    Args:
+        query_item: Query name (string) or dict (for tests)
+
+    Returns:
+        The query name as defined in the 'name' field, or None if cannot be resolved
+
+    Raises:
+        TimeRangeCalculationError: If query file exists but doesn't have a 'name' field
+    """
+    import yaml
+
+    # Handle test format: dict with 'name' key
+    if isinstance(query_item, dict):
+        query_name = query_item.get("name")
+        if not query_name:
+            raise TimeRangeCalculationError(
+                f"Query dictionary must have a 'name' field: {query_item}"
+            )
+        return query_name
+
+    # Handle string format
+    if isinstance(query_item, str):
+        # Check if it's already registered
+        if query_item in AVAILABLE_QUERIES:
+            return query_item
+
+        # Check if it's registered in the query registry
+        if query_item in query_registry.list_queries():
+            return query_item
+
+        # Try to load as a file path
+        query_file = Path(query_item)
+        if query_file.exists() and query_file.suffix in [".yaml", ".yml"]:
+            try:
+                with open(query_file, "r") as f:
+                    query_data = yaml.safe_load(f)
+
+                if not isinstance(query_data, dict):
+                    raise TimeRangeCalculationError(
+                        f"Invalid query file format in {query_file}: Expected dict, got {type(query_data)}"
+                    )
+
+                query_name = query_data.get("name")
+                if not query_name:
+                    raise TimeRangeCalculationError(
+                        f"Query file {query_file} must have a 'name' field defined. "
+                        f"The 'name' field is mandatory and must match the name used in health logging."
+                    )
+
+                logger.debug(f"Resolved query name '{query_name}' from file {query_file}")
+                return query_name
+
+            except Exception as e:
+                if isinstance(e, TimeRangeCalculationError):
+                    raise
+                raise TimeRangeCalculationError(f"Failed to load query name from {query_file}: {e}")
+        else:
+            raise TimeRangeCalculationError(
+                f"Query '{query_item}' not found in registry and not a valid YAML file. "
+                f"Available queries: {sorted(AVAILABLE_QUERIES.keys())}. "
+                f"If this is a query file path, ensure it exists and has .yaml or .yml extension."
+            )
+
+    raise TimeRangeCalculationError(
+        f"Invalid query item type: {type(query_item)}. Expected string or dict."
+    )
+
+
+async def calculate_execution_time_ranges(
+    client_options,
+    workspaces: List[WorkspaceConfig],
+    health_logger: Optional[SentinelAggregatorHealthLogger] = None,
+    job_id: Optional[str] = None,
+) -> Tuple[datetime, datetime, timedelta]:
+    """
+    Calculate execution time ranges based on client options and precedence rules.
+
+    Precedence order:
+    1. use_last_successful -> Query health table for last successful runs
+    2. start_time/end_time -> Use explicit time range
+    3. lookback_period -> Use relative time range from now
+
+    Args:
+        client_options: Client configuration options
+        workspaces: List of workspace configurations
+        health_logger: Optional health logger for querying last successful runs
+        job_id: Optional job correlation ID for health logging
+
+    Returns:
+        Tuple of (start_time, end_time, batch_size) in UTC
+
+    Raises:
+        TimeRangeCalculationError: If time range calculation fails
+    """
+    try:
+        # Get batch size
+        batch_size = validate_batch_time_size(client_options.batch_time_size)
+
+        # Precedence 1: Use last successful timestamps
+        if client_options.use_last_successful:
+            logger.info("Using last successful run timestamps")
+
+            if not health_logger:
+                raise TimeRangeCalculationError(
+                    "use_last_successful requires health logging to be enabled"
+                )
+
+            start_time, end_time = await _calculate_from_last_successful(
+                client_options, workspaces, health_logger, batch_size, job_id
+            )
+
+        # Precedence 2: Explicit start/end times
+        elif client_options.start_time or client_options.end_time:
+            logger.info("🕐 Using explicit time range")
+
+            start_time, end_time = _calculate_from_explicit_times(client_options)
+
+        # Precedence 3: Lookback period
+        else:
+            logger.info(f"🕐 Using lookback period: {client_options.lookback_period}")
+
+            start_time, end_time = calculate_time_range_from_lookback(
+                client_options.lookback_period
+            )
+
+        # Validate the final time range
+        validate_time_range(start_time, end_time, allow_future_end=False)
+
+        logger.info(f"Execution time range: {start_time.isoformat()} to {end_time.isoformat()}")
+        logger.info(f"Batch size: {batch_size}")
+
+        return start_time, end_time, batch_size
+
+    except (TimeParsingError, InvalidTimeRangeError) as e:
+        raise TimeRangeCalculationError(f"Time range calculation failed: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error in time range calculation: {e}")
+        raise TimeRangeCalculationError(f"Time range calculation failed: {e}")
+
+
+def _calculate_from_explicit_times(client_options) -> Tuple[datetime, datetime]:
+    """
+    Calculate time range from explicit start/end times.
+
+    Args:
+        client_options: Client configuration options
+
+    Returns:
+        Tuple of (start_time, end_time) in UTC
+
+    Raises:
+        TimeRangeCalculationError: If explicit times are invalid
+    """
+    start_time = None
+    end_time = None
+
+    # Parse start time
+    if client_options.start_time:
+        start_time = parse_iso8601_datetime(client_options.start_time)
+
+    # Parse end time or default to now
+    if client_options.end_time:
+        end_time = parse_iso8601_datetime(client_options.end_time)
+    else:
+        end_time = datetime.now(timezone.utc)
+        logger.info("End time not specified, using current time")
+
+    # If start time not specified but end time is, we need a start time
+    if not start_time:
+        raise TimeRangeCalculationError("start_time is required when using explicit time range")
+
+    return start_time, end_time
+
+
+async def _calculate_from_last_successful(
+    client_options,
+    workspaces: List[WorkspaceConfig],
+    health_logger: SentinelAggregatorHealthLogger,
+    batch_size: timedelta,
+    job_id: Optional[str] = None,
+) -> Tuple[datetime, datetime]:
+    """
+    Calculate time range from last successful run timestamps.
+
+    NOTE: This function modifies the input workspaces list in-place to filter out
+    query+workspace combinations that don't have baseline data. Only combinations
+    with successful last runs will remain in the queries_list for each workspace.
+
+    Args:
+        client_options: Client configuration options
+        workspaces: List of workspace configurations (MODIFIED IN-PLACE)
+        health_logger: Health logger for querying last successful runs
+        batch_size: Batch size for calculations
+        job_id: Optional job correlation ID for health logging
+
+    Returns:
+        Tuple of (start_time, end_time) in UTC
+
+    Raises:
+        TimeRangeCalculationError: If last successful calculation fails or no combinations have baseline data
+    """
+    logger.info("Querying health table for last successful runs...")
+
+    # Get all unique query names from workspaces
+    all_query_names = set()
+    for workspace in workspaces:
+        for query_item in workspace.queries_list:
+            query_name = _resolve_query_name(query_item)
+            if query_name:
+                all_query_names.add(query_name)
+
+    if not all_query_names:
+        raise TimeRangeCalculationError("No queries found in workspace configurations")
+
+    logger.debug(f"Checking last successful runs for queries: {sorted(all_query_names)}")
+
+    # Get all last successful runs in a single query
+    last_successful_results = await _query_all_last_successful_runs(
+        health_logger, list(workspaces), lookback_days=30
+    )
+
+    # Check last successful runs for each workspace + query combination
+    # Build a map of successful combinations to use for filtering
+    successful_last_end_times = {}
+    missing_combinations = []
+
+    from .models import AVAILABLE_QUERIES, QueryExecution, QueryStatus, UploadStatus
+
+    for workspace in workspaces:
+        workspace_id = workspace.customer_id
+
+        for query_item in workspace.queries_list:
+            query_name = _resolve_query_name(query_item)
+            if not query_name:
+                logger.warning(f"Could not resolve query name for item: {query_item}")
+                continue
+
+            # Look up the result from our batched query
+            key = (query_name, workspace_id)
+            last_successful = last_successful_results.get(key)
+
+            if not last_successful:
+                # Log warning for missing baseline
+                missing_combinations.append(f"{query_name} (workspace: {workspace_id[:8]}...)")
+                logger.warning(
+                    f"⚠️  No last successful run found for {query_name} in workspace {workspace_id[:8]}. "
+                    f"This combination will be SKIPPED. To establish baseline, run: "
+                    f"--start-time YYYY-MM-DDTHH:MM:SS --end-time YYYY-MM-DDTHH:MM:SS"
+                )
+
+                # Log health warning event for missing combination
+                try:
+                    workspace_config = next(
+                        (w for w in workspaces if w.customer_id == workspace_id), None
+                    )
+
+                    if workspace_config:
+                        # Get destination stream from query definition if available
+                        destination_stream = "unknown"
+                        if query_name in AVAILABLE_QUERIES:
+                            query_def = AVAILABLE_QUERIES[query_name]
+                            destination_stream = getattr(query_def, "destination_stream", "unknown")
+
+                        # Create QueryExecution with warning details
+                        error_msg = (
+                            "No last successful run found - combination skipped. "
+                            "To establish baseline for this combination, run without --use-last-successful "
+                            "and specify explicit time range: --start-time YYYY-MM-DDTHH:MM:SS --end-time YYYY-MM-DDTHH:MM:SS"
+                        )
+
+                        timestamp = datetime.now(timezone.utc)
+                        query_execution = QueryExecution(
+                            job_correlation_id=job_id or "unknown",
+                            execution_id=f"missing_baseline_{workspace_id[:8]}_{query_name}",
+                            workspace_id=workspace_config.resource_id,
+                            query_name=query_name,
+                            destination_stream=destination_stream,
+                            start_time=timestamp,
+                            end_time=timestamp,
+                            execution_timestamp=timestamp,
+                            query_status=QueryStatus.SKIPPED.value,
+                            query_duration_seconds=0.0,
+                            record_count=0,
+                            query_error_message=error_msg,
+                            upload_status=UploadStatus.SKIPPED.value,
+                        )
+
+                        # Log to health table (or console in dry-run mode)
+                        await health_logger.log_query_execution(
+                            job_id=job_id or "unknown",
+                            query_execution=query_execution,
+                            workspace_config=workspace_config,
+                            batch_id=None,
+                        )
+                except Exception as log_error:
+                    logger.debug(
+                        f"Failed to log health warning for {query_name}/{workspace_id[:8]}: {log_error}"
+                    )
+
+                continue  # Skip this combination but continue with others
+
+            # Track the end time for this successful combination
+            last_end_time = last_successful.get("end_time")
+            if isinstance(last_end_time, str):
+                last_end_time = parse_iso8601_datetime(last_end_time)
+
+            # Only store if we have a valid end time
+            if last_end_time is not None:
+                successful_last_end_times[key] = last_end_time
+            else:
+                logger.warning(
+                    f"⚠️  Query {query_name} in workspace {workspace_id[:8]}... has null end_time in health data. "
+                    f"This combination will be SKIPPED."
+                )
+                missing_combinations.append(
+                    f"{query_name} (workspace: {workspace_id[:8]}...) - null end_time"
+                )
+
+    # Report summary of missing combinations (if any)
+    if missing_combinations:
+        logger.warning(
+            f"⚠️  Skipping {len(missing_combinations)} query+workspace combination(s) "
+            f"with missing baseline data. These will NOT be executed in this run."
+        )
+        logger.info(
+            f"Proceeding with {len(successful_last_end_times)} combination(s) that have baseline data."
+        )
+
+    # Use the earliest last successful end time + 1 microsecond as our start time
+    # This ensures continuous data coverage with no gaps or overlaps
+    if not successful_last_end_times:
+        raise TimeRangeCalculationError(
+            "No successful runs found for ANY query+workspace combinations. "
+            "Cannot proceed with --use-last-successful. "
+            "To establish initial baseline data, run without --use-last-successful flag and specify "
+            "explicit time range using --start-time and --end-time. "
+            "Example: --start-time 2025-10-01T00:00:00 --end-time 2025-11-01T00:00:00"
+        )
+
+    earliest_last_end_time = min(successful_last_end_times.values())
+
+    # Filter workspaces to only include queries that have baseline data
+    # This is done in-place to affect the downstream query execution
+    from dataclasses import replace
+
+    filtered_workspaces = []
+    for workspace in workspaces:
+        # Get only the queries that have successful last runs for this workspace
+        filtered_queries = []
+        for query_item in workspace.queries_list:
+            query_name = _resolve_query_name(query_item)
+            if query_name:
+                key = (query_name, workspace.customer_id)
+                if key in successful_last_end_times:
+                    filtered_queries.append(query_item)
+
+        # Only include workspace if it has at least one query with baseline data
+        if filtered_queries:
+            # Create a new workspace config with filtered queries
+            filtered_workspace = replace(workspace, queries_list=filtered_queries)
+            filtered_workspaces.append(filtered_workspace)
+
+    # Replace the original workspaces list with filtered version
+    workspaces.clear()
+    workspaces.extend(filtered_workspaces)
+
+    logger.info(
+        f"After filtering: {len(workspaces)} workspace(s) with "
+        f"{sum(len(w.queries_list) for w in workspaces)} query combinations will be executed"
+    )
+
+    # Add 1 microsecond to the last end time to start from the next moment
+    start_time = earliest_last_end_time + timedelta(microseconds=1)
+    end_time = datetime.now(timezone.utc)
+
+    logger.info(f"Using last successful end time + 1µs as start: {start_time.isoformat()}")
+
+    return start_time, end_time
+
+
+async def _query_all_last_successful_runs(
+    health_logger: SentinelAggregatorHealthLogger,
+    workspaces: List[WorkspaceConfig],
+    lookback_days: int = 30,
+) -> Dict[Tuple[str, str], Dict[str, Any]]:
+    """
+    Query last successful runs for all workspace+query combinations in one optimized query.
+
+    Args:
+        health_logger: Health logger with sentinel client
+        workspaces: List of workspace configurations
+        lookback_days: How many days back to search
+
+    Returns:
+        Dict mapping (query_name, workspace_id) tuples to last successful run data
+    """
+    from datetime import timedelta
+
+    end_time = datetime.now(timezone.utc)
+    start_time = end_time - timedelta(days=lookback_days)
+
+    # Get the aggregation workspace for querying
+    aggregation_workspace = None
+    for workspace in workspaces:
+        if workspace.aggregation_workspace:
+            aggregation_workspace = workspace
+            break
+
+    if not aggregation_workspace:
+        logger.warning("No aggregation workspace found, using first workspace for health queries")
+        aggregation_workspace = workspaces[0]
+
+    # Build optimized KQL query for all successful runs
+    kql_query = f"""
+{HEALTH_TABLE_NAME}
+| where OperationName == 'QueryExecution'
+| where OperationStatus == 'Completed'
+| extend EndTime = todatetime(ExtendedProperties.end_time)
+| extend QueryName = tostring(ExtendedProperties.query_name)
+| extend WorkspaceId = tostring(ExtendedProperties.workspace_id)
+| where isnotnull(EndTime) and isnotnull(QueryName)and isnotnull(WorkspaceId) 
+| summarize arg_max(EndTime, *) by QueryName, WorkspaceId
+| project 
+    LastRunTime=TimeGenerated,
+    QueryName,
+    WorkspaceId,
+    EndTime, 
+    JobId    
+"""
+
+    try:
+        from azure.identity.aio import DefaultAzureCredential
+        from azure.monitor.query.aio import LogsQueryClient
+
+        credential = DefaultAzureCredential()
+        query_client = LogsQueryClient(credential=credential, logging_enable=True)
+
+        try:
+            # Execute the query against the aggregation workspace
+            response = await query_client.query_workspace(
+                workspace_id=aggregation_workspace.customer_id,
+                query=kql_query,
+                timespan=(start_time, end_time),
+            )
+
+            # Process all results and map to (query_name, workspace_id) -> latest result
+            results_map = {}
+
+            if response.tables and response.tables[0].rows:
+                table = response.tables[0]
+                # Handle both object-style columns (with .name attribute) and dict/string columns
+                column_names = []
+                for col in table.columns:
+                    if hasattr(col, "name"):
+                        column_names.append(col.name)
+                    elif isinstance(col, dict):
+                        column_names.append(col.get("name", str(col)))
+                    else:
+                        column_names.append(str(col))
+
+                # Process each row and keep the latest result per query+workspace combination
+                for row in table.rows:
+                    row_dict = dict(zip(column_names, row))
+
+                    # Map EndTime directly to end_time for downstream code
+                    if "EndTime" in row_dict:
+                        row_dict["end_time"] = row_dict["EndTime"]
+
+                    query_name = row_dict.get("QueryName")
+                    workspace_id = row_dict.get("WorkspaceId")
+                    last_run_time = row_dict.get("LastRunTime")
+
+                    if not query_name or not workspace_id:
+                        continue
+
+                    # Convert timestamp for comparison
+                    if isinstance(last_run_time, str):
+                        last_run_time = parse_iso8601_datetime(last_run_time)
+
+                    key = (query_name, workspace_id)
+
+                    # Keep the record with the latest timestamp for each key
+                    if key not in results_map:
+                        results_map[key] = row_dict.copy()
+                    else:
+                        existing_time = results_map[key].get("LastRunTime")
+                        if isinstance(existing_time, str):
+                            existing_time = parse_iso8601_datetime(existing_time)
+
+                        if last_run_time and (not existing_time or last_run_time > existing_time):
+                            results_map[key] = row_dict.copy()
+
+            logger.debug(
+                f"Found {len(results_map)} unique query+workspace combinations in health logs"
+            )
+            return results_map
+
+        finally:
+            # Always close resources, even if query fails
+            await credential.close()
+            await query_client.close()
+
+    except Exception as e:
+        logger.error(f"Failed to query all last successful runs: {e}")
+        return {}
+
+
+def calculate_execution_batches(
+    start_time: datetime,
+    end_time: datetime,
+    batch_size: timedelta,
+    min_batch_size: Optional[timedelta] = None,
+) -> List[Tuple[datetime, datetime]]:
+    """
+    Calculate execution batches with minimum batch size constraint.
+
+    Args:
+        start_time: Batch start time (UTC)
+        end_time: Batch end time (UTC)
+        batch_size: Size of each batch
+        min_batch_size: Minimum batch size (defaults to 1 hour)
+
+    Returns:
+        List of (batch_start, batch_end) tuples
+
+    Raises:
+        TimeRangeCalculationError: If batch calculation fails
+    """
+    if min_batch_size is None:
+        min_batch_size = timedelta(hours=1)
+
+    try:
+        batches = calculate_batches(
+            start_time=start_time,
+            end_time=end_time,
+            batch_size=batch_size,
+            min_batch_size=min_batch_size,
+        )
+
+        logger.info(f"Calculated {len(batches)} execution batches")
+
+        # Log batch details in debug mode
+        if logger.isEnabledFor(logging.DEBUG):
+            for i, (batch_start, batch_end) in enumerate(batches, 1):
+                duration = batch_end - batch_start
+                logger.debug(
+                    f"  Batch {i}: {batch_start.isoformat()} to {batch_end.isoformat()} ({duration})"
+                )
+
+        return batches
+
+    except Exception as e:
+        raise TimeRangeCalculationError(f"Batch calculation failed: {e}")
+
+
+def validate_time_configuration(client_options) -> List[str]:
+    """
+    Validate time configuration for conflicts and constraints.
+
+    Args:
+        client_options: Client configuration options
+
+    Returns:
+        List of validation error messages (empty if valid)
+    """
+    errors = []
+
+    try:
+        # Check for conflicting time specifications
+        has_explicit_times = bool(client_options.start_time or client_options.end_time)
+        has_lookback = bool(
+            client_options.lookback_period and client_options.lookback_period != "P30D"
+        )  # Default value
+        has_last_successful = bool(client_options.use_last_successful)
+
+        time_methods = sum([has_explicit_times, has_lookback, has_last_successful])
+
+        if time_methods > 1:
+            active_methods = []
+            if has_explicit_times:
+                active_methods.append("explicit times (start_time/end_time)")
+            if has_lookback:
+                active_methods.append("lookback_period")
+            if has_last_successful:
+                active_methods.append("use_last_successful")
+
+            errors.append(
+                f"Conflicting time specifications: {', '.join(active_methods)}. Use only one method."
+            )
+
+        # Validate explicit times if provided
+        if client_options.start_time:
+            try:
+                start_time = parse_iso8601_datetime(client_options.start_time)
+            except TimeParsingError as e:
+                errors.append(f"Invalid start_time: {e}")
+
+        if client_options.end_time:
+            try:
+                end_time = parse_iso8601_datetime(client_options.end_time)
+            except TimeParsingError as e:
+                errors.append(f"Invalid end_time: {e}")
+
+        # Validate time range if both are provided
+        if client_options.start_time and client_options.end_time:
+            try:
+                start_time = parse_iso8601_datetime(client_options.start_time)
+                end_time = parse_iso8601_datetime(client_options.end_time)
+                validate_time_range(start_time, end_time, allow_future_end=False)
+            except (TimeParsingError, InvalidTimeRangeError) as e:
+                errors.append(f"Invalid time range: {e}")
+
+        # Validate lookback period
+        if client_options.lookback_period:
+            try:
+                parse_iso8601_duration(client_options.lookback_period)
+            except TimeParsingError as e:
+                errors.append(f"Invalid lookback_period: {e}")
+
+        # Validate batch time size
+        if client_options.batch_time_size:
+            try:
+                validate_batch_time_size(client_options.batch_time_size)
+            except TimeParsingError as e:
+                errors.append(f"Invalid batch_time_size: {e}")
+
+    except Exception as e:
+        errors.append(f"Time configuration validation error: {e}")
+
+    return errors

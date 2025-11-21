@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Sentinel Log Aggregator now uses YAML files to define KQL queries instead of hardcoded Python classes. This makes it much easier to:
+The Sentinel Log Aggregator uses YAML files to define KQL queries instead of hardcoded Python classes. This makes it much easier to:
 
 - Add new queries without touching Python code
 - Edit existing queries without rebuilding the package
@@ -10,9 +10,16 @@ The Sentinel Log Aggregator now uses YAML files to define KQL queries instead of
 - Share queries with non-Python developers
 - Validate query syntax in editors with KQL support
 
-## Query File Structure
+## Query File Organization
 
-All query YAML files are stored in: `sentinel_log_aggregator/queries/`
+Query YAML files can be organized in any directory structure that suits your needs. Common patterns include:
+
+- `queries/security/` - Security-focused queries
+- `queries/compliance/` - Compliance and audit queries  
+- `queries/operations/` - Operational monitoring queries
+- `queries/custom/` - Custom organization-specific queries
+
+Example queries are provided in: `examples/queries/`
 
 ### Basic YAML Structure
 
@@ -59,9 +66,9 @@ SecurityEvent
 
 ## Adding New Queries
 
-1. Create a new `.yaml` file in `sentinel_log_aggregator/queries/`
+1. Create a new `.yaml` file in your queries directory (e.g., `queries/custom/`)
 2. Follow the structure above
-3. The query will be automatically loaded when the package starts
+3. Configure the query path in your workspace configuration
 4. No Python code changes needed!
 
 ## File Naming Convention
@@ -72,7 +79,7 @@ SecurityEvent
 
 ## Example: Adding a Security Events Query
 
-File: `sentinel_log_aggregator/queries/security_events.yaml`
+File: `queries/security/security_events.yaml`
 
 ```yaml
 name: "query_security_events"

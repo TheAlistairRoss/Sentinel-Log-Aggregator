@@ -1,0 +1,94 @@
+name: 🔒 Security Issue
+description: Report a security vulnerability (private disclosure)
+title: "[SECURITY] "
+labels: ["security", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚠️ SECURITY NOTICE ⚠️
+        
+        **If this is a high-severity security vulnerability, please use GitHub's private vulnerability reporting instead of this public issue.**
+        
+        Go to: Security tab → Report a vulnerability
+        
+        This public template should only be used for:
+        - Low-severity security improvements
+        - Security-related feature requests
+        - Questions about security practices
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Security Issue Confirmation
+      description: Please confirm this is appropriate for public disclosure
+      options:
+        - label: This is NOT a high-severity vulnerability requiring private disclosure
+          required: true
+        - label: I understand that high-severity issues should use private vulnerability reporting
+          required: true
+
+  - type: dropdown
+    id: security-type
+    attributes:
+      label: Security Issue Type
+      description: What type of security issue is this?
+      options:
+        - "Security Enhancement Request"
+        - "Security Documentation Improvement"
+        - "Security Configuration Question"
+        - "Low-Severity Security Improvement"
+        - "Security Best Practice Suggestion"
+        - "Dependency Security Update"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the security concern or improvement
+      placeholder: Provide details about the security issue or enhancement
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected Component
+      description: Which component is affected?
+      options:
+        - "Authentication/Authorization"
+        - "Data Processing"
+        - "Azure Integration"
+        - "Configuration Management"
+        - "CLI Interface"
+        - "Dependencies"
+        - "CI/CD Pipeline"
+        - "Documentation"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Potential Impact
+      description: What is the potential security impact?
+      placeholder: Describe potential risks or security implications
+
+  - type: textarea
+    id: recommendation
+    attributes:
+      label: Recommended Action
+      description: What do you recommend to address this?
+      placeholder: Suggest specific actions or improvements
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any additional context or information
+      placeholder: References, standards, best practices, etc.

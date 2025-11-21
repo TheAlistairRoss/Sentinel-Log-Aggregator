@@ -1,0 +1,216 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run weekly security scan on Mondays at 2 AM UTC
+    - cron: '0 2 * * 1'
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  security-comprehensive:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev,security]"
+
+    - name: Install Bandit
+      run: pip install bandit
+
+    # Static Application Security Testing (SAST)
+    - name: Run Bandit Security Scan
+      run: |
+        bandit -r sentinel_log_aggregator/ -f json -o bandit-report.json
+        bandit -r sentinel_log_aggregator/ --severity-level medium || true
+
+    - name: Run Semgrep SAST
+      uses: returntocorp/semgrep-action@v1
+      with:
+        config: >-
+          p/security-audit
+          p/secrets
+          p/python
+
+    # Software Composition Analysis (SCA)
+    - name: Run Safety (Python Package Vulnerabilities)
+      run: |
+        pip install safety
+        safety check --json > safety-report.json || true
+        safety check --short-report || true
+
+    - name: Run pip-audit (Official Python Security Audit)
+      run: |
+        pip install pip-audit
+        pip-audit --format=json --output=pip-audit-report.json || true
+        pip-audit --desc || true
+
+    # Container and Infrastructure Security
+    - name: Run Trivy Vulnerability Scanner
+      uses: aquasecurity/trivy-action@0.28.0
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH,MEDIUM'
+        exit-code: '0'  # Don't fail the job on vulnerabilities
+
+    - name: Run Trivy Config Scan
+      uses: aquasecurity/trivy-action@0.28.0
+      with:
+        scan-type: 'config'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-config-results.sarif'
+        exit-code: '0'  # Don't fail the job on misconfigurations
+
+    - name: Verify Trivy Output Files
+      run: |
+        echo "Checking for Trivy output files..."
+        ls -la *.sarif || echo "No SARIF files found"
+        if [ ! -f trivy-results.sarif ]; then
+          echo "trivy-results.sarif not found, creating empty file"
+          echo '{"runs": [{"tool": {"driver": {"name": "trivy"}}, "results": []}]}' > trivy-results.sarif
+        fi
+        if [ ! -f trivy-config-results.sarif ]; then
+          echo "trivy-config-results.sarif not found, creating empty file"
+          echo '{"runs": [{"tool": {"driver": {"name": "trivy"}}, "results": []}]}' > trivy-config-results.sarif
+        fi
+
+    # Generate Software Bill of Materials (SBOM)
+    - name: Generate SBOM with Syft
+      run: |
+        curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+        syft packages dir:. -o spdx-json=sbom.json
+        syft packages dir:. -o cyclonedx-json=sbom-cyclonedx.json
+
+    # License Compliance
+    - name: Check License Compliance
+      run: |
+        pip install pip-licenses
+        pip-licenses --format=json --output-file=licenses.json
+        pip-licenses --summary
+
+    # Upload Security Reports
+    - name: Upload Security Scan Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          *.json
+          *.sarif
+        if-no-files-found: warn
+
+    # Upload SARIF files to GitHub Security tab
+    - name: Upload Trivy SARIF results
+      uses: github/codeql-action/upload-sarif@v3
+      if: always() && hashFiles('trivy-results.sarif') != ''
+      with:
+        sarif_file: trivy-results.sarif
+        category: trivy-fs
+
+    - name: Upload Trivy Config SARIF results
+      uses: github/codeql-action/upload-sarif@v3
+      if: always() && hashFiles('trivy-config-results.sarif') != ''
+      with:
+        sarif_file: trivy-config-results.sarif
+        category: trivy-config
+
+    - name: Upload Semgrep SARIF results
+      uses: github/codeql-action/upload-sarif@v3
+      if: always() && hashFiles('results.sarif') != ''
+      with:
+        sarif_file: results.sarif
+        category: semgrep
+
+    # Security Summary Report
+    - name: Generate Security Summary
+      if: always()
+      run: |
+        echo "## 🛡️ Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Bandit Summary
+        if [ -f bandit-report.json ]; then
+          BANDIT_ISSUES=$(jq '.results | length' bandit-report.json)
+          echo "### 🔍 Bandit (SAST): $BANDIT_ISSUES issues found" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # Safety Summary
+        if [ -f safety-report.json ]; then
+          SAFETY_VULNS=$(jq '.report.vulnerabilities | length' safety-report.json 2>/dev/null || echo "0")
+          echo "### 📦 Safety (SCA): $SAFETY_VULNS vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # pip-audit Summary
+        if [ -f pip-audit-report.json ]; then
+          PIP_AUDIT_VULNS=$(jq '.vulnerabilities | length' pip-audit-report.json 2>/dev/null || echo "0")
+          echo "### 🔐 pip-audit: $PIP_AUDIT_VULNS vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "📋 Detailed reports are available in the workflow artifacts." >> $GITHUB_STEP_SUMMARY
+
+  codeql:
+    name: CodeQL Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: python
+        queries: security-extended,security-and-quality
+
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:python"
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v4
+      with:
+        fail-on-severity: moderate
+        allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC

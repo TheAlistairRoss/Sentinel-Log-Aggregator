@@ -1,0 +1,7 @@
+name: "tests_query_broken_syntax"
+destination_stream: "Custom-Reports_LogAggregatorHealth_CL"
+description: "Used for log aggregator unit testing. This query should fail due to broken syntax"
+
+parameters:
+query: |
+    print This is a broken query

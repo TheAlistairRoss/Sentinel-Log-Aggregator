@@ -1,0 +1,41 @@
+# Include documentation and configuration files
+include README.md
+include CHANGELOG.md
+include LICENSE
+include pyproject.toml
+include requirements*.txt
+include .bandit
+include .semgrep.yml
+
+# Include package data
+recursive-include sentinel_log_aggregator *.py
+recursive-include sentinel_log_aggregator *.yaml
+recursive-include sentinel_log_aggregator *.yml
+recursive-include sentinel_log_aggregator py.typed
+
+# Include documentation
+recursive-include docs *.md
+recursive-include docs *.rst
+recursive-include docs *.txt
+recursive-include docs *.yml
+recursive-include docs *.yaml
+
+# Include tests (for development installations)
+recursive-include tests *.py
+recursive-include tests *.yaml
+recursive-include tests *.yml
+recursive-include tests *.json
+
+# Exclude unnecessary files
+exclude .gitignore
+exclude .pre-commit-config.yaml
+exclude run_security_scan.py
+exclude *.egg-info
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude * .DS_Store
+recursive-exclude * .pytest_cache
+recursive-exclude * .coverage
+recursive-exclude * htmlcov
+recursive-exclude * .mypy_cache
+recursive-exclude reports *

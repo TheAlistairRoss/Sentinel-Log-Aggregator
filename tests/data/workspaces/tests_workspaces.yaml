@@ -1,0 +1,69 @@
+# Microsoft Sentinel Workspaces Configuration
+# 
+# This file defines dummy workspaces with queries and parameters in different combinations.
+# This is used for unit testing of the code and not for production use.
+#
+# The metadata section below uses dynamic environment variable substitution:
+# - ${VAR_NAME:-default} syntax allows environment variable override with fallback defaults
+# - Use tests/test_utils.py load_test_workspace_config_with_metadata() to resolve variables
+# - Set environment variables like TEST_ENVIRONMENT, BUILD_USER, etc. to customize metadata
+
+workspaces:
+  - # Test Workspace with no parameters. This should fail as the required parameter is not declared
+    resource_id: "/subscriptions/10000000-0000-0000-0000-000000000000/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/testWorkspace01"
+    customer_id: "11000000-0000-0000-0000-000000000000"
+    queries_list:
+      - tests/data/queries/tests_query_with_params.yaml
+    
+  - # Test Workspace with only required parameters. This should succeeed with the required_param as true and the non_required_param as false
+    resource_id: "/subscriptions/20000000-0000-0000-0000-000000000000/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/testWorkspace02"
+    customer_id: "22000000-0000-0000-0000-000000000000"
+    parameters:
+      required_param: "true"
+    queries_list:
+      - tests/data/queries/tests_query_with_params.yaml
+
+  - # Test Workspace with queries that do and do not require parameters. 
+    # This should succeed for tests_query_with_params with the required_param as true and the non_required_param as true
+    # This should success for test_query_without_params as no parameter replacement is required.
+    resource_id: "/subscriptions/30000000-0000-0000-0000-000000000000/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/testWorkspace03"
+    customer_id: "33000000-0000-0000-0000-000000000000"
+    parameters:
+      required_param: "true"
+      non_required_param: "true"
+    queries_list:
+      - tests/data/queries/tests_query_with_params.yaml
+      - tests/data/queries/tests_query_without_params.yaml
+
+
+  - # Test Workspace with all parameters, but a with a non-existent query listed. 
+    # This should fail stop the script before any queries are executed as the test_query_non_existent does not exist and therefore can be identified / repaired before running.
+    resource_id: "/subscriptions/40000000-0000-0000-0000-000000000000/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/testWorkspace04"
+    customer_id: "44000000-0000-0000-0000-000000000000"
+    parameters:
+      required_param: "true"
+      non_required_param: "true"
+    queries_list:
+      - tests/data/queries/tests_query_log_aggregator.yaml
+      - tests/data/queries/tests_query_non_existent.yaml
+
+  - # Test Workspace with a broken query
+  # This should succeed for tests_query_with_params.
+  # This should stop attempting to run all tests_query_broken_syntax for this workspace. Queries with errors may still run successfully on other workspaces, so should only be stopped on a per workspace basis.
+    resource_id: "/subscriptions/50000000-0000-0000-0000-000000000000/resourcegroups/test-rg/providers/microsoft.operationalinsights/workspaces/testWorkspace05"
+    customer_id: "55000000-0000-0000-0000-000000000000"
+    parameters:
+      required_param: "true"
+      non_required_param: "true"
+    queries_list:
+      - tests/data/queries/tests_query_with_params.yaml
+      - tests/data/queries/tests_query_broken_syntax.yaml
+
+# Configuration metadata
+metadata:
+  version: "${PACKAGE_VERSION:-1.0.0}"
+  description: "Microsoft Sentinel pseudo workspaces for unit testing"
+  last_updated: "${BUILD_TIMESTAMP:-2025-11-03}"
+  created_by: "${BUILD_USER:-test-automation}"
+  config_format_version: "2.0"
+  test_environment: "${TEST_ENVIRONMENT:-development}"

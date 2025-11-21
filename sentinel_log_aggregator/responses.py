@@ -5,17 +5,19 @@ Provides structured response objects following Azure SDK patterns using
 azure.core.Model base class for type safety and consistency.
 """
 
-from typing import List, Dict, Any, Optional, Union
-from datetime import datetime, timezone
 from dataclasses import dataclass
-from azure.core import CaseInsensitiveEnumMeta
+from datetime import datetime, timezone
 from enum import Enum
+from typing import Any, Dict, List, Optional, Union
+
+from azure.core import CaseInsensitiveEnumMeta
 
 
 class QueryStatus(str, Enum, metaclass=CaseInsensitiveEnumMeta):
     """Status of query execution."""
+
     PENDING = "pending"
-    SUCCESS = "success"  
+    SUCCESS = "success"
     COMPLETED = "success"  # Alias for SUCCESS for test compatibility
     FAILED = "failed"
     TIMEOUT = "timeout"
@@ -24,6 +26,7 @@ class QueryStatus(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
 class UploadStatus(str, Enum, metaclass=CaseInsensitiveEnumMeta):
     """Status of data upload to Azure Monitor."""
+
     PENDING = "pending"
     SUCCESS = "success"
     FAILED = "failed"
@@ -32,6 +35,7 @@ class UploadStatus(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 
 class BatchStatus(str, Enum, metaclass=CaseInsensitiveEnumMeta):
     """Status of batch operation."""
+
     PENDING = "pending"
     RUNNING = "running"
     SUCCESS = "success"
@@ -44,7 +48,7 @@ class BatchStatus(str, Enum, metaclass=CaseInsensitiveEnumMeta):
 class QueryResult:
     """
     Result of a KQL query execution.
-    
+
     :param status: Query execution status
     :type status: QueryStatus
     :param data: Query result data as list of dictionaries
@@ -70,40 +74,89 @@ class QueryResult:
     :param error_code: Error code if query failed
     :type error_code: Optional[str]
     """
+
     status: QueryStatus
-    data: List[Dict[str, Any]]
-    record_count: int
-    execution_time: float
-    workspace_id: str
-    query: str
+    data: List[Dict[str, Any]] = None
+    record_count: int = 0
+    execution_time: float = 0.0
+    workspace_id: str = ""
+    query: str = ""
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
     correlation_id: Optional[str] = None
     request_id: Optional[str] = None
     error_message: Optional[str] = None
     error_code: Optional[str] = None
-    
+
+    def __init__(
+        self,
+        status: QueryStatus,
+        data: Optional[List[Dict[str, Any]]] = None,
+        record_count: int = 0,
+        execution_time: Optional[float] = None,
+        workspace_id: str = "",
+        query: str = "",
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None,
+        correlation_id: Optional[str] = None,
+        request_id: Optional[str] = None,
+        error_message: Optional[str] = None,
+        error_code: Optional[str] = None,
+        # Backward compatibility aliases
+        records: Optional[List[Dict[str, Any]]] = None,
+        execution_time_seconds: Optional[float] = None,
+    ):
+        """Initialize QueryResult with support for legacy parameter names."""
+        self.status = status
+        # Use 'records' if provided, otherwise 'data'
+        self.data = records if records is not None else (data if data is not None else [])
+        self.record_count = record_count
+        # Use 'execution_time_seconds' if provided, otherwise 'execution_time'
+        self.execution_time = (
+            execution_time_seconds
+            if execution_time_seconds is not None
+            else (execution_time if execution_time is not None else 0.0)
+        )
+        self.workspace_id = workspace_id
+        self.query = query
+        self.start_time = start_time
+        self.end_time = end_time
+        self.correlation_id = correlation_id
+        self.request_id = request_id
+        self.error_message = error_message
+        self.error_code = error_code
+
     @property
     def succeeded(self) -> bool:
         """Whether the query executed successfully."""
         return self.status == QueryStatus.SUCCESS
-    
+
     @property
     def failed(self) -> bool:
         """Whether the query failed."""
         return self.status == QueryStatus.FAILED
-    
+
     @property
     def workspace_alias(self) -> str:
-        """Masked workspace ID for logging."""
-        return f"{self.workspace_id[:8]}..." if self.workspace_id else "unknown"
+        """Workspace ID for logging."""
+        return self.workspace_id if self.workspace_id else "unknown"
+
+    @property
+    def records(self) -> List[Dict[str, Any]]:
+        """Alias for data property for backward compatibility."""
+        return self.data
+
+    @property
+    def execution_time_seconds(self) -> float:
+        """Alias for execution_time for backward compatibility."""
+        return self.execution_time
 
 
-@dataclass  
+@dataclass
 class UploadResult:
     """
     Result of data upload to Azure Monitor.
-    
+
     :param status: Upload status
     :type status: UploadStatus
     :param record_count: Number of records uploaded
@@ -112,8 +165,8 @@ class UploadResult:
     :type upload_time: float
     :param stream_name: Destination stream name
     :type stream_name: str
-    :param dcr_rule_id: Data Collection Rule ID
-    :type dcr_rule_id: str
+    :param dcr_immutable_id: Data Collection Rule immutable ID
+    :type dcr_immutable_id: str
     :param correlation_id: Operation correlation ID
     :type correlation_id: Optional[str]
     :param request_id: Azure request ID
@@ -125,22 +178,23 @@ class UploadResult:
     :param bytes_uploaded: Number of bytes uploaded
     :type bytes_uploaded: Optional[int]
     """
+
     status: UploadStatus
     record_count: int
     upload_time: float
     stream_name: str
-    dcr_rule_id: str
+    dcr_immutable_id: str
     correlation_id: Optional[str] = None
     request_id: Optional[str] = None
     error_message: Optional[str] = None
     error_code: Optional[str] = None
     bytes_uploaded: Optional[int] = None
-    
+
     @property
     def succeeded(self) -> bool:
         """Whether the upload succeeded."""
         return self.status == UploadStatus.SUCCESS
-    
+
     @property
     def failed(self) -> bool:
         """Whether the upload failed."""
@@ -151,7 +205,7 @@ class UploadResult:
 class WorkspaceQueryExecution:
     """
     Result of query execution for a single workspace.
-    
+
     :param workspace_id: Workspace ID
     :type workspace_id: str
     :param workspace_alias: Workspace alias for display
@@ -163,12 +217,13 @@ class WorkspaceQueryExecution:
     :param correlation_id: Operation correlation ID
     :type correlation_id: Optional[str]
     """
+
     workspace_id: str
     workspace_alias: str
     query_result: QueryResult
     upload_result: Optional[UploadResult] = None
     correlation_id: Optional[str] = None
-    
+
     @property
     def succeeded(self) -> bool:
         """Whether both query and upload (if attempted) succeeded."""
@@ -181,7 +236,7 @@ class WorkspaceQueryExecution:
 class BatchExecutionResult:
     """
     Result of batch query execution across multiple workspaces.
-    
+
     :param status: Overall batch execution status
     :type status: BatchStatus
     :param workspace_results: Results for each workspace
@@ -205,6 +260,7 @@ class BatchExecutionResult:
     :param report_name: Name of the report being generated
     :type report_name: Optional[str]
     """
+
     status: BatchStatus
     workspace_results: List[WorkspaceQueryExecution]
     total_records: int
@@ -216,28 +272,28 @@ class BatchExecutionResult:
     failed_workspaces: int = 0
     query_name: Optional[str] = None
     report_name: Optional[str] = None
-    
+
     @property
     def succeeded(self) -> bool:
         """Whether the batch execution succeeded."""
         return self.status == BatchStatus.SUCCESS
-    
+
     @property
     def failed(self) -> bool:
         """Whether the batch execution failed."""
         return self.status == BatchStatus.FAILED
-    
+
     @property
     def partial_success(self) -> bool:
         """Whether the batch had partial success."""
         return self.status == BatchStatus.PARTIAL_SUCCESS
-    
+
     @property
     def success_rate(self) -> float:
         """Success rate as percentage."""
         total = self.successful_workspaces + self.failed_workspaces
         return (self.successful_workspaces / total * 100) if total > 0 else 0.0
-    
+
     @property
     def duration(self) -> Optional[float]:
         """Total duration in seconds if completed."""
@@ -250,7 +306,7 @@ class BatchExecutionResult:
 class ServiceProperties:
     """
     Service properties for health checks and diagnostics.
-    
+
     :param service_version: Service version
     :type service_version: str
     :param connectivity_status: Service connectivity status
@@ -259,27 +315,25 @@ class ServiceProperties:
     :type authentication_status: str
     :param dcr_endpoint: DCR endpoint URL
     :type dcr_endpoint: str
-    :param dcr_rule_id: DCR rule ID
-    :type dcr_rule_id: str
+    :param dcr_immutable_id: DCR immutable ID
+    :type dcr_immutable_id: str
     :param workspace_count: Number of configured workspaces
     :type workspace_count: int
     :param available_queries: Number of available queries
     :type available_queries: int
-    :param available_reports: Number of available reports
-    :type available_reports: int
     :param last_check_time: Last health check time
     :type last_check_time: datetime
     """
+
     service_version: str
     connectivity_status: str
     authentication_status: str
     dcr_endpoint: str
-    dcr_rule_id: str
+    dcr_immutable_id: str
     workspace_count: int
     available_queries: int
-    available_reports: int
-    last_check_time: datetime = None
-    
-    def __post_init__(self):
+    last_check_time: Optional[datetime] = None
+
+    def __post_init__(self) -> None:
         if self.last_check_time is None:
             self.last_check_time = datetime.now(timezone.utc)

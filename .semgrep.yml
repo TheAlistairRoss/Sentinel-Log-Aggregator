@@ -1,0 +1,49 @@
+# Semgrep configuration for advanced static analysis
+rules:
+  # Azure-specific security patterns
+  - id: azure-hardcoded-credentials
+    patterns:
+      - pattern: |
+          $KEY = "..."
+      - metavariable-pattern:
+          metavariable: $KEY
+          patterns:
+            - pattern-regex: .*(client_secret|api_key|access_key|secret_key).*
+    message: Potential hardcoded Azure credentials detected
+    languages: [python]
+    severity: ERROR
+
+  - id: dangerous-yaml-load
+    patterns:
+      - pattern: yaml.load($X)
+      - pattern: yaml.load($X, ...)
+    message: Use yaml.safe_load() instead of yaml.load() to prevent code execution
+    languages: [python]
+    severity: ERROR
+
+  - id: sql-injection-risk
+    patterns:
+      - pattern: |
+          $QUERY = "..." + $VAR + "..."
+      - pattern: |
+          $QUERY = f"...{$VAR}..."
+    message: Potential SQL injection vulnerability - use parameterized queries
+    languages: [python]
+    severity: WARNING
+
+  # Azure SDK security patterns
+  - id: azure-insecure-transport
+    patterns:
+      - pattern: |
+          $CLIENT = $CLASS(..., transport=HttpTransport(...))
+    message: Use default secure transport for Azure SDK clients
+    languages: [python]
+    severity: WARNING
+
+# Rule categories to include
+include:
+  - p/security-audit
+  - p/secrets
+  - p/python
+  - p/dockerfile
+  - p/yaml
