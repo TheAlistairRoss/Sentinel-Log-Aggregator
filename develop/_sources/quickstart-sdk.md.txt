@@ -191,7 +191,42 @@ async with SentinelAggregatorClient(options) as client:
     summary = await client.execute_queries(workspaces)
 ```
 
-### Pattern 3: Workspace Filtering and Selection
+### Pattern 3: Incremental Processing (Continue from Last Successful)
+
+```python
+from sentinel_log_aggregator import (
+    SentinelAggregatorClient,
+    SentinelAggregatorClientOptions,
+    load_workspace_config
+)
+
+# Configure for incremental processing
+options = SentinelAggregatorClientOptions(
+    use_last_successful=True,        # Enable incremental mode
+    health_to_sentinel=True,         # Required for tracking
+    batch_time_size="PT12H",
+    lookback_period="P7D",           # Used only on first run
+    dcr_logs_ingestion_endpoint="https://your-dcr.monitor.azure.com",
+    dcr_immutable_id="dcr-your-rule-id"
+)
+
+workspaces = load_workspace_config("workspaces.yaml")
+
+async with SentinelAggregatorClient(endpoint, credential, options=options) as client:
+    # First run: processes last 7 days
+    # Subsequent runs: processes only new data since last success
+    summary = await client.execute_queries(workspaces)
+    
+    print(f"Processed {summary.total_records_uploaded} new records")
+```
+
+**When to use:**
+- Scheduled jobs (hourly, daily, etc.)
+- Continuous aggregation pipelines
+- Resume after failures
+- Efficient resource usage
+
+### Pattern 4: Workspace Filtering and Selection
 
 ```python
 from sentinel_log_aggregator import WorkspaceManager
@@ -212,7 +247,7 @@ customer_workspaces = mgr.filter_by_alias("customer-*")
 filtered = mgr.for_report("report_incidents").for_security_tag("PROD")
 ```
 
-### Pattern 4: Error Handling
+### Pattern 5: Error Handling
 
 ```python
 import asyncio
@@ -228,7 +263,7 @@ async def main():
         options = SentinelAggregatorClientOptions.from_environment()
         workspaces = load_workspace_config("workspaces.yaml")
         
-        async with SentinelAggregatorClient(options) as client:
+        async with SentinelAggregatorClient(endpoint, credential, options=options) as client:
             summary = await client.execute_queries(workspaces)
             
     except ConfigurationError as e:
@@ -247,14 +282,14 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-### Pattern 5: Health Monitoring
+### Pattern 6: Health Monitoring
 
 ```python
 async def main():
     options = SentinelAggregatorClientOptions.from_environment()
     workspaces = load_workspace_config("workspaces.yaml")
     
-    async with SentinelAggregatorClient(options) as client:
+    async with SentinelAggregatorClient(endpoint, credential, options=options) as client:
         # Check health logging setup
         health_status = await client.check_health_logging(workspaces)
         

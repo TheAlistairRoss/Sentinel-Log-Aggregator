@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quick Start - Python SDK &mdash; Microsoft Sentinel Log Aggregator v0.1.0</title>
+  <title>Quick Start - Python SDK &mdash; Microsoft Sentinel Log Aggregator v1.0.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -284,6 +284,7 @@
 <li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#health-checks">Health checks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#single-workspace-queries">Single workspace queries</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#data-upload">Data upload</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#incremental-processing-with-last-successful-timestamps">Incremental processing with last successful timestamps</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="sdk-usage.html#advanced-operations">Advanced operations</a><ul>
@@ -767,14 +768,15 @@
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#unreleased">Unreleased</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#added">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#changed">Changed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#security">Security</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">0.1.0 - 2025-11-01</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#id2">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#features">Features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#technical-details">Technical Details</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">1.0.0 - 2025-11-21</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#initial-release">Initial Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="changelog.html#core-features">Core Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="changelog.html#technical-requirements">Technical Requirements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="changelog.html#license">License</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1534,8 +1536,44 @@
 </pre></div>
 </div>
 </section>
-<section id="pattern-3-workspace-filtering-and-selection">
-<h3>Pattern 3: Workspace Filtering and Selection<a class="headerlink" href="#pattern-3-workspace-filtering-and-selection" title="Link to this heading"></a></h3>
+<section id="pattern-3-incremental-processing-continue-from-last-successful">
+<h3>Pattern 3: Incremental Processing (Continue from Last Successful)<a class="headerlink" href="#pattern-3-incremental-processing-continue-from-last-successful" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sentinel_log_aggregator</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SentinelAggregatorClient</span><span class="p">,</span>
+    <span class="n">SentinelAggregatorClientOptions</span><span class="p">,</span>
+    <span class="n">load_workspace_config</span>
+<span class="p">)</span>
+
+<span class="c1"># Configure for incremental processing</span>
+<span class="n">options</span> <span class="o">=</span> <span class="n">SentinelAggregatorClientOptions</span><span class="p">(</span>
+    <span class="n">use_last_successful</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>        <span class="c1"># Enable incremental mode</span>
+    <span class="n">health_to_sentinel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>         <span class="c1"># Required for tracking</span>
+    <span class="n">batch_time_size</span><span class="o">=</span><span class="s2">&quot;PT12H&quot;</span><span class="p">,</span>
+    <span class="n">lookback_period</span><span class="o">=</span><span class="s2">&quot;P7D&quot;</span><span class="p">,</span>           <span class="c1"># Used only on first run</span>
+    <span class="n">dcr_logs_ingestion_endpoint</span><span class="o">=</span><span class="s2">&quot;https://your-dcr.monitor.azure.com&quot;</span><span class="p">,</span>
+    <span class="n">dcr_immutable_id</span><span class="o">=</span><span class="s2">&quot;dcr-your-rule-id&quot;</span>
+<span class="p">)</span>
+
+<span class="n">workspaces</span> <span class="o">=</span> <span class="n">load_workspace_config</span><span class="p">(</span><span class="s2">&quot;workspaces.yaml&quot;</span><span class="p">)</span>
+
+<span class="k">async</span> <span class="k">with</span> <span class="n">SentinelAggregatorClient</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">credential</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="c1"># First run: processes last 7 days</span>
+    <span class="c1"># Subsequent runs: processes only new data since last success</span>
+    <span class="n">summary</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">execute_queries</span><span class="p">(</span><span class="n">workspaces</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processed </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">total_records_uploaded</span><span class="si">}</span><span class="s2"> new records&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>When to use:</strong></p>
+<ul class="simple">
+<li><p>Scheduled jobs (hourly, daily, etc.)</p></li>
+<li><p>Continuous aggregation pipelines</p></li>
+<li><p>Resume after failures</p></li>
+<li><p>Efficient resource usage</p></li>
+</ul>
+</section>
+<section id="pattern-4-workspace-filtering-and-selection">
+<h3>Pattern 4: Workspace Filtering and Selection<a class="headerlink" href="#pattern-4-workspace-filtering-and-selection" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sentinel_log_aggregator</span><span class="w"> </span><span class="kn">import</span> <span class="n">WorkspaceManager</span>
 
 <span class="n">workspaces</span> <span class="o">=</span> <span class="n">load_workspace_config</span><span class="p">(</span><span class="s2">&quot;workspaces.yaml&quot;</span><span class="p">)</span>
@@ -1555,8 +1593,8 @@
 </pre></div>
 </div>
 </section>
-<section id="pattern-4-error-handling">
-<h3>Pattern 4: Error Handling<a class="headerlink" href="#pattern-4-error-handling" title="Link to this heading"></a></h3>
+<section id="pattern-5-error-handling">
+<h3>Pattern 5: Error Handling<a class="headerlink" href="#pattern-5-error-handling" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sentinel_log_aggregator</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">SentinelAggregatorClient</span><span class="p">,</span>
@@ -1570,7 +1608,7 @@
         <span class="n">options</span> <span class="o">=</span> <span class="n">SentinelAggregatorClientOptions</span><span class="o">.</span><span class="n">from_environment</span><span class="p">()</span>
         <span class="n">workspaces</span> <span class="o">=</span> <span class="n">load_workspace_config</span><span class="p">(</span><span class="s2">&quot;workspaces.yaml&quot;</span><span class="p">)</span>
         
-        <span class="k">async</span> <span class="k">with</span> <span class="n">SentinelAggregatorClient</span><span class="p">(</span><span class="n">options</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">SentinelAggregatorClient</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">credential</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
             <span class="n">summary</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">execute_queries</span><span class="p">(</span><span class="n">workspaces</span><span class="p">)</span>
             
     <span class="k">except</span> <span class="n">ConfigurationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -1590,13 +1628,13 @@
 </pre></div>
 </div>
 </section>
-<section id="pattern-5-health-monitoring">
-<h3>Pattern 5: Health Monitoring<a class="headerlink" href="#pattern-5-health-monitoring" title="Link to this heading"></a></h3>
+<section id="pattern-6-health-monitoring">
+<h3>Pattern 6: Health Monitoring<a class="headerlink" href="#pattern-6-health-monitoring" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
     <span class="n">options</span> <span class="o">=</span> <span class="n">SentinelAggregatorClientOptions</span><span class="o">.</span><span class="n">from_environment</span><span class="p">()</span>
     <span class="n">workspaces</span> <span class="o">=</span> <span class="n">load_workspace_config</span><span class="p">(</span><span class="s2">&quot;workspaces.yaml&quot;</span><span class="p">)</span>
     
-    <span class="k">async</span> <span class="k">with</span> <span class="n">SentinelAggregatorClient</span><span class="p">(</span><span class="n">options</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">SentinelAggregatorClient</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">credential</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="c1"># Check health logging setup</span>
         <span class="n">health_status</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">check_health_logging</span><span class="p">(</span><span class="n">workspaces</span><span class="p">)</span>
         

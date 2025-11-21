@@ -1,16 +1,23 @@
 ---
 title: Microsoft Sentinel Log Aggregator
 description: Learn how to use the Microsoft Sentinel Log Aggregator to collect, process, and aggregate logs from multiple Sentinel workspaces.
-author: Microsoft
-ms.author: sentinel-team
+author: Alistair Ross
+ms.author: community
 ms.service: sentinel
 ms.topic: overview
-ms.date: 2025-11-03
+ms.date: 2025-11-21
 ---
 
 # Microsoft Sentinel Log Aggregator
 
-The Microsoft Sentinel Log Aggregator is an Azure SDK-compliant Python client library designed to collect, process, and aggregate logs from multiple Microsoft Sentinel workspaces into centralized reporting tables for security analytics and dashboard creation.
+> **📝 Documentation Status**: This documentation is actively being developed and improved. Some sections may be incomplete or subject to change. Community contributions and feedback are welcome!
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Open Source](https://img.shields.io/badge/Open%20Source-Community%20Maintained-blue)](https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator)
+
+The Microsoft Sentinel Log Aggregator is an open-source, Azure SDK-compliant Python client library designed to collect, process, and aggregate logs from multiple Microsoft Sentinel workspaces into centralized reporting tables for security analytics and dashboard creation.
+
+**This is a community-maintained open-source project provided under the MIT License. It is not officially supported by Microsoft.**
 
 ## Overview
 

@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Changelog &mdash; Microsoft Sentinel Log Aggregator v0.1.0</title>
+  <title>Changelog &mdash; Microsoft Sentinel Log Aggregator v1.0.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -286,6 +286,7 @@
 <li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#health-checks">Health checks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#single-workspace-queries">Single workspace queries</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#data-upload">Data upload</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#incremental-processing-with-last-successful-timestamps">Incremental processing with last successful timestamps</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="sdk-usage.html#advanced-operations">Advanced operations</a><ul>
@@ -769,14 +770,15 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#unreleased">Unreleased</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#added">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#security">Security</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#id1">0.1.0 - 2025-11-01</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id2">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#features">Features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#technical-details">Technical Details</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">1.0.0 - 2025-11-21</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#initial-release">Initial Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#core-features">Core Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#technical-requirements">Technical Requirements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#license">License</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1350,85 +1352,90 @@
 <p>The format is based on <a class="reference external" href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>,
 and this project adheres to <a class="reference external" href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <section id="unreleased">
-<h2><a class="reference external" href="https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/compare/v0.1.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Link to this heading"></a></h2>
+<h2><a class="reference external" href="https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/compare/v1.0.0...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Link to this heading"></a></h2>
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p>Comprehensive security analysis tools (Bandit, Safety, pip-audit, Semgrep, CodeQL)</p></li>
-<li><p>Microsoft SDL-compliant security pipeline</p></li>
-<li><p>Pre-commit hooks for automated security scanning</p></li>
-<li><p>Local security scanning script (<code class="docutils literal notranslate"><span class="pre">run_security_scan.py</span></code>)</p></li>
-<li><p>Enhanced CI/CD pipeline with security integration</p></li>
-<li><p>SBOM (Software Bill of Materials) generation</p></li>
-<li><p>License compliance checking</p></li>
-<li><p>Comprehensive documentation following Microsoft Learn standards</p></li>
-</ul>
-</section>
-<section id="changed">
-<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p>Enhanced test coverage to 97.56% with comprehensive workspace manager tests</p></li>
-<li><p>Improved error handling and logging throughout the codebase</p></li>
-<li><p>Updated dependency management and removed unused packages</p></li>
-</ul>
-</section>
-<section id="security">
-<h3>Security<a class="headerlink" href="#security" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p>Added comprehensive static analysis security testing (SAST)</p></li>
-<li><p>Implemented software composition analysis (SCA) for dependencies</p></li>
-<li><p>Enhanced secrets detection and prevention</p></li>
-<li><p>Added container and infrastructure security scanning</p></li>
+<li><p>No unreleased changes</p></li>
 </ul>
 </section>
 </section>
 <section id="id1">
-<h2><a class="reference external" href="https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/releases/tag/v0.1.0">0.1.0</a> - 2025-11-01<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
-<section id="id2">
-<h3>Added<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<h2><a class="reference external" href="https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/releases/tag/v1.0.0">1.0.0</a> - 2025-11-21<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="initial-release">
+<h3>Initial Release<a class="headerlink" href="#initial-release" title="Link to this heading"></a></h3>
+<p>First stable release of the Microsoft Sentinel Log Aggregator - an open-source, community-maintained tool for aggregating logs across multiple Microsoft Sentinel workspaces.</p>
+<section id="core-features">
+<h4>Core Features<a class="headerlink" href="#core-features" title="Link to this heading"></a></h4>
+<p><strong>Multi-Workspace Aggregation</strong></p>
 <ul class="simple">
-<li><p>Initial release of Microsoft Sentinel Log Aggregator</p></li>
-<li><p>Azure SDK-compliant Python library for multi-workspace log aggregation</p></li>
-<li><p>Core query engine with batch processing capabilities</p></li>
-<li><p>Azure Monitor client with authentication and retry logic</p></li>
-<li><p>Workspace management system with configuration support</p></li>
-<li><p>Command-line interface (CLI) for easy operation</p></li>
-<li><p>SDK interface for programmatic usage</p></li>
-<li><p>Comprehensive test suite with high coverage</p></li>
-<li><p>Type hints and static analysis support</p></li>
-<li><p>Configuration management via environment variables and YAML</p></li>
-<li><p>Async/await patterns for optimal performance</p></li>
-<li><p>Row-level security tagging for data isolation</p></li>
-<li><p>Correlation ID tracking for audit trails</p></li>
+<li><p>Query and aggregate data across multiple Microsoft Sentinel workspaces</p></li>
+<li><p>Centralized reporting with data transformation and normalization</p></li>
+<li><p>Row-level security tagging for data isolation and multi-tenancy support</p></li>
+</ul>
+<p><strong>Azure SDK Compliance</strong></p>
+<ul class="simple">
+<li><p>Follows Microsoft Azure SDK design guidelines and patterns</p></li>
+<li><p>Native Azure authentication with managed identity, service principal, and Azure CLI support</p></li>
+<li><p>Integration with Azure Monitor Query and Ingestion services</p></li>
+<li><p>Distributed tracing and Application Insights integration</p></li>
+</ul>
+<p><strong>Batch Processing</strong></p>
+<ul class="simple">
+<li><p>Configurable time-based batching for efficient data processing</p></li>
+<li><p>Async/await patterns with configurable concurrency limits</p></li>
 <li><p>Memory-efficient streaming data upload</p></li>
-<li><p>Error tracking and execution monitoring</p></li>
+<li><p>Incremental processing with last successful timestamp tracking</p></li>
+</ul>
+<p><strong>Interfaces</strong></p>
+<ul class="simple">
+<li><p>Command-line interface (CLI) for easy operation and automation</p></li>
+<li><p>Python SDK for programmatic integration</p></li>
+<li><p>Configuration via environment variables, YAML files, or code</p></li>
+</ul>
+<p><strong>Query Management</strong></p>
+<ul class="simple">
+<li><p>Flexible query organization with custom directory structures</p></li>
+<li><p>Parameterized KQL queries with runtime substitution</p></li>
+<li><p>Built-in queries for common security analytics use cases</p></li>
+<li><p>Support for custom query development</p></li>
+</ul>
+<p><strong>Reliability &amp; Observability</strong></p>
+<ul class="simple">
+<li><p>Comprehensive error handling with service-specific exceptions</p></li>
+<li><p>Detailed logging with correlation ID tracking</p></li>
+<li><p>Health monitoring and diagnostics</p></li>
+<li><p>Long-running operation (LRO) support with progress tracking</p></li>
+<li><p>Execution history and status tracking</p></li>
+</ul>
+<p><strong>Security &amp; Compliance</strong></p>
+<ul class="simple">
+<li><p>Comprehensive security scanning (Bandit, Safety, Semgrep, CodeQL)</p></li>
+<li><p>SBOM (Software Bill of Materials) generation</p></li>
+<li><p>License compliance checking</p></li>
+<li><p>Secrets detection and prevention</p></li>
+<li><p>Microsoft SDL-compliant security pipeline</p></li>
+</ul>
+<p><strong>Quality Assurance</strong></p>
+<ul class="simple">
+<li><p>97%+ test coverage with unit and integration tests</p></li>
+<li><p>Full type hints for better IDE support</p></li>
+<li><p>Pre-commit hooks for code quality</p></li>
+<li><p>Automated CI/CD pipelines</p></li>
 </ul>
 </section>
-<section id="features">
-<h3>Features<a class="headerlink" href="#features" title="Link to this heading"></a></h3>
+<section id="technical-requirements">
+<h4>Technical Requirements<a class="headerlink" href="#technical-requirements" title="Link to this heading"></a></h4>
 <ul class="simple">
-<li><p><strong>Multi-workspace Support</strong>: Aggregate logs from multiple Microsoft Sentinel workspaces</p></li>
-<li><p><strong>Batch Processing</strong>: Configurable time-based batching for efficient data processing</p></li>
-<li><p><strong>Azure Integration</strong>: Native Azure SDK integration with managed identity support</p></li>
-<li><p><strong>Concurrent Execution</strong>: Async query execution with configurable concurrency limits</p></li>
-<li><p><strong>Streaming Upload</strong>: Immediate data upload to avoid memory issues</p></li>
-<li><p><strong>Configuration Management</strong>: Flexible configuration via environment variables or YAML files</p></li>
-<li><p><strong>CLI Interface</strong>: Easy-to-use command-line interface for operations</p></li>
-<li><p><strong>SDK Interface</strong>: Programmatic access for integration into larger systems</p></li>
-<li><p><strong>Comprehensive Testing</strong>: 97.56% test coverage with unit and integration tests</p></li>
-<li><p><strong>Type Safety</strong>: Full type hints for better IDE support and code quality</p></li>
+<li><p>Python 3.11 or higher</p></li>
+<li><p>Azure subscription with Microsoft Sentinel workspaces</p></li>
+<li><p>Appropriate Azure RBAC permissions</p></li>
 </ul>
 </section>
-<section id="technical-details">
-<h3>Technical Details<a class="headerlink" href="#technical-details" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p><strong>Python Version</strong>: 3.8+ support</p></li>
-<li><p><strong>Azure SDK</strong>: Uses latest Azure Monitor Query and Ingestion SDKs</p></li>
-<li><p><strong>Authentication</strong>: DefaultAzureCredential with fallback options</p></li>
-<li><p><strong>Performance</strong>: Async/await patterns with configurable concurrency</p></li>
-<li><p><strong>Monitoring</strong>: Comprehensive logging and execution tracking</p></li>
-<li><p><strong>Security</strong>: Row-level security tags and audit trail support</p></li>
-</ul>
+<section id="license">
+<h4>License<a class="headerlink" href="#license" title="Link to this heading"></a></h4>
+<p>Released under the MIT License. This is a community-maintained open-source project.</p>
+</section>
 </section>
 </section>
 </section>

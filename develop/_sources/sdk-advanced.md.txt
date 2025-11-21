@@ -268,6 +268,238 @@ print(f"Discovered {len(discovered_workspaces)} workspaces")
 
 ## Performance Optimization
 
+### Incremental processing pattern
+
+Implement incremental data aggregation using last successful timestamps:
+
+```python
+import asyncio
+import logging
+from datetime import datetime, timezone
+from azure.identity.aio import DefaultAzureCredential
+from sentinel_log_aggregator import (
+    SentinelAggregatorClient,
+    SentinelAggregatorClientOptions,
+    load_workspace_config
+)
+
+logger = logging.getLogger(__name__)
+
+async def scheduled_incremental_aggregation():
+    """
+    Production-ready incremental aggregation pattern.
+    Designed for scheduled execution (e.g., hourly/daily).
+    """
+    
+    try:
+        # Configure for incremental processing
+        options = SentinelAggregatorClientOptions.from_environment()
+        
+        # Override to enable incremental mode
+        options.use_last_successful = True
+        options.health_to_sentinel = True
+        options.batch_time_size = "PT6H"  # Smaller batches for frequent runs
+        
+        # Validate configuration
+        options.validate()
+        
+        # Load workspaces
+        workspaces = load_workspace_config("workspaces.yaml")
+        logger.info(f"Loaded {len(workspaces)} workspaces for incremental processing")
+        
+        # Execute incremental aggregation
+        async with SentinelAggregatorClient(
+            dcr_logs_ingestion_endpoint=options.dcr_logs_ingestion_endpoint,
+            credential=DefaultAzureCredential(),
+            options=options
+        ) as client:
+            
+            # Check health logging setup before starting
+            health_status = await client.check_health_logging(workspaces)
+            if not health_status.all_healthy:
+                logger.warning(f"Health logging issues detected in {len(health_status.unhealthy_workspaces)} workspaces")
+            
+            # Execute queries - will use last successful timestamps
+            logger.info("Starting incremental aggregation...")
+            start_time = datetime.now(timezone.utc)
+            
+            summary = await client.execute_queries(workspaces, dry_run=False)
+            
+            # Log execution summary
+            duration = (datetime.now(timezone.utc) - start_time).total_seconds()
+            logger.info(f"Incremental aggregation completed in {duration:.1f}s")
+            logger.info(f"  Job ID: {summary.job_correlation_id}")
+            logger.info(f"  Records processed: {summary.total_records_uploaded:,}")
+            logger.info(f"  Successful queries: {summary.total_successful_queries}")
+            logger.info(f"  Failed queries: {summary.total_failed_queries}")
+            
+            # Return status for monitoring systems
+            return {
+                "status": "success" if summary.total_failed_queries == 0 else "partial_success",
+                "job_id": summary.job_correlation_id,
+                "records_processed": summary.total_records_uploaded,
+                "duration_seconds": duration,
+                "failed_queries": summary.total_failed_queries
+            }
+            
+    except Exception as e:
+        logger.error(f"Incremental aggregation failed: {e}", exc_info=True)
+        return {
+            "status": "failed",
+            "error": str(e),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+
+# Usage in scheduled task (e.g., Azure Function, cron job)
+result = await scheduled_incremental_aggregation()
+if result["status"] == "failed":
+    # Alert monitoring system
+    logger.critical(f"Aggregation job failed: {result['error']}")
+```
+
+### Checking last successful timestamps
+
+```python
+from sentinel_log_aggregator import SentinelAggregatorClient, load_workspace_config
+from azure.identity.aio import DefaultAzureCredential
+
+async def check_last_execution_status():
+    """
+    Query health logging to see last successful execution times.
+    Useful for monitoring and troubleshooting.
+    """
+    
+    options = SentinelAggregatorClientOptions.from_environment()
+    workspaces = load_workspace_config("workspaces.yaml")
+    credential = DefaultAzureCredential()
+    
+    async with SentinelAggregatorClient(
+        dcr_logs_ingestion_endpoint=options.dcr_logs_ingestion_endpoint,
+        credential=credential,
+        options=options
+    ) as client:
+        # Check execution history for each workspace
+        for workspace in workspaces:
+            # Query health logging table
+            query = f"""
+            SentinelHealthLog_CL
+            | where workspace_id_s == "{workspace.customer_id}"
+            | where status_s == "success"
+            | summarize 
+                LastSuccessful=max(end_time_t),
+                TotalRuns=count(),
+                AvgDuration=avg(duration_seconds_d)
+                by query_name_s
+            | project query_name_s, LastSuccessful, TotalRuns, AvgDuration
+            """
+            
+            result = await client.query_workspace(
+                workspace_id=workspace.customer_id,
+                query=query
+            )
+            
+            if result.succeeded:
+                print(f"\nWorkspace: {workspace.alias or workspace.customer_id[:8]}")
+                print(f"{'Query':<30} {'Last Success':<25} {'Runs':<8} {'Avg Duration'}")
+                print("-" * 80)
+                
+                for record in result.data:
+                    print(
+                        f"{record['query_name_s']:<30} "
+                        f"{record['LastSuccessful']:<25} "
+                        f"{record['TotalRuns']:<8} "
+                        f"{record['AvgDuration']:.1f}s"
+                    )
+
+# Check status
+await check_last_execution_status()
+```
+
+### First-run vs incremental behavior
+
+```python
+import asyncio
+from sentinel_log_aggregator import (
+    SentinelAggregatorClient,
+    SentinelAggregatorClientOptions,
+    load_workspace_config
+)
+from azure.identity.aio import DefaultAzureCredential
+
+async def smart_aggregation():
+    """
+    Automatically handle first run (historical) vs incremental runs.
+    """
+    
+    options = SentinelAggregatorClientOptions(
+        use_last_successful=True,
+        health_to_sentinel=True,
+        lookback_period="P30D",          # Used only on first run
+        batch_time_size="PT12H",
+        dcr_logs_ingestion_endpoint="https://your-dcr.monitor.azure.com",
+        dcr_immutable_id="dcr-your-rule-id"
+    )
+    
+    workspaces = load_workspace_config("workspaces.yaml")
+    credential = DefaultAzureCredential()
+    
+    async with SentinelAggregatorClient(
+        dcr_logs_ingestion_endpoint=options.dcr_logs_ingestion_endpoint,
+        credential=credential,
+        options=options
+    ) as client:
+        # Check if this is first run by querying health logs
+        first_run = await is_first_run(client, workspaces)
+        
+        if first_run:
+            print("First run detected - processing historical data (30 days)")
+            print("Future runs will be incremental from this point")
+        else:
+            print("Incremental run - processing data since last successful execution")
+        
+        # Execute - behavior automatically adjusts
+        summary = await client.execute_queries(workspaces)
+        
+        return summary
+
+async def is_first_run(client, workspaces) -> bool:
+    """
+    Check if any workspace has successful execution history.
+    """
+    try:
+        # Query health logging for any successful runs
+        workspace_ids = [ws.customer_id for ws in workspaces]
+        
+        # Check aggregation workspace for health logs
+        agg_workspace = next((ws for ws in workspaces if ws.aggregation_workspace), None)
+        if not agg_workspace:
+            return True  # No agg workspace, treat as first run
+        
+        query = f"""
+        SentinelHealthLog_CL
+        | where workspace_id_s in ({','.join([f'"{wid}"' for wid in workspace_ids])})
+        | where status_s == "success"
+        | summarize count()
+        """
+        
+        result = await client.query_workspace(
+            workspace_id=agg_workspace.customer_id,
+            query=query
+        )
+        
+        if result.succeeded and result.record_count > 0:
+            count = result.data[0]['count_'] if result.data else 0
+            return count == 0
+        
+        return True  # Assume first run if health query fails
+        
+    except Exception:
+        return True  # Safe default
+
+# Run smart aggregation
+result = await smart_aggregation()
+```
+
 ### Concurrent Execution Tuning
 
 ```python
@@ -278,7 +510,7 @@ options = SentinelAggregatorClientOptions(
     lookback_period="P1D",
     batch_time_size="PT12H",  # Smaller batches
     max_concurrent_queries=10,  # More parallelism
-    dcr_endpoint="https://YOUR-DCE.azure.com",
+    dcr_logs_ingestion_endpoint="https://YOUR-DCE.azure.com",
     dcr_immutable_id="dcr-YOUR-ID"
 )
 
@@ -287,7 +519,7 @@ options = SentinelAggregatorClientOptions(
     lookback_period="P1D",
     batch_time_size="PT6H",  # Very small batches
     max_concurrent_queries=2,  # Limited parallelism
-    dcr_endpoint="https://YOUR-DCE.azure.com",
+    dcr_logs_ingestion_endpoint="https://YOUR-DCE.azure.com",
     dcr_immutable_id="dcr-YOUR-ID"
 )
 ```

@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SDK Advanced Usage &mdash; Microsoft Sentinel Log Aggregator v0.1.0</title>
+  <title>SDK Advanced Usage &mdash; Microsoft Sentinel Log Aggregator v1.0.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/documentation_options.js?v=8d563738"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -284,6 +284,7 @@
 <li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#health-checks">Health checks</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#single-workspace-queries">Single workspace queries</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#data-upload">Data upload</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sdk-usage.html#incremental-processing-with-last-successful-timestamps">Incremental processing with last successful timestamps</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="sdk-usage.html#advanced-operations">Advanced operations</a><ul>
@@ -767,14 +768,15 @@
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#unreleased">Unreleased</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="changelog.html#added">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#changed">Changed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#security">Security</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">0.1.0 - 2025-11-01</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#id2">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#features">Features</a></li>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#technical-details">Technical Details</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">1.0.0 - 2025-11-21</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#initial-release">Initial Release</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="changelog.html#core-features">Core Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="changelog.html#technical-requirements">Technical Requirements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="changelog.html#license">License</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1610,6 +1612,237 @@
 </section>
 <section id="performance-optimization">
 <h2>Performance Optimization<a class="headerlink" href="#performance-optimization" title="Link to this heading"></a></h2>
+<section id="incremental-processing-pattern">
+<h3>Incremental processing pattern<a class="headerlink" href="#incremental-processing-pattern" title="Link to this heading"></a></h3>
+<p>Implement incremental data aggregation using last successful timestamps:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.identity.aio</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultAzureCredential</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sentinel_log_aggregator</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SentinelAggregatorClient</span><span class="p">,</span>
+    <span class="n">SentinelAggregatorClientOptions</span><span class="p">,</span>
+    <span class="n">load_workspace_config</span>
+<span class="p">)</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">scheduled_incremental_aggregation</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Production-ready incremental aggregation pattern.</span>
+<span class="sd">    Designed for scheduled execution (e.g., hourly/daily).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Configure for incremental processing</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">SentinelAggregatorClientOptions</span><span class="o">.</span><span class="n">from_environment</span><span class="p">()</span>
+        
+        <span class="c1"># Override to enable incremental mode</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">use_last_successful</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">health_to_sentinel</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">batch_time_size</span> <span class="o">=</span> <span class="s2">&quot;PT6H&quot;</span>  <span class="c1"># Smaller batches for frequent runs</span>
+        
+        <span class="c1"># Validate configuration</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+        
+        <span class="c1"># Load workspaces</span>
+        <span class="n">workspaces</span> <span class="o">=</span> <span class="n">load_workspace_config</span><span class="p">(</span><span class="s2">&quot;workspaces.yaml&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">workspaces</span><span class="p">)</span><span class="si">}</span><span class="s2"> workspaces for incremental processing&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Execute incremental aggregation</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">SentinelAggregatorClient</span><span class="p">(</span>
+            <span class="n">dcr_logs_ingestion_endpoint</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">dcr_logs_ingestion_endpoint</span><span class="p">,</span>
+            <span class="n">credential</span><span class="o">=</span><span class="n">DefaultAzureCredential</span><span class="p">(),</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">options</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+            
+            <span class="c1"># Check health logging setup before starting</span>
+            <span class="n">health_status</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">check_health_logging</span><span class="p">(</span><span class="n">workspaces</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">health_status</span><span class="o">.</span><span class="n">all_healthy</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Health logging issues detected in </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">health_status</span><span class="o">.</span><span class="n">unhealthy_workspaces</span><span class="p">)</span><span class="si">}</span><span class="s2"> workspaces&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Execute queries - will use last successful timestamps</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting incremental aggregation...&quot;</span><span class="p">)</span>
+            <span class="n">start_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+            
+            <span class="n">summary</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">execute_queries</span><span class="p">(</span><span class="n">workspaces</span><span class="p">,</span> <span class="n">dry_run</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            
+            <span class="c1"># Log execution summary</span>
+            <span class="n">duration</span> <span class="o">=</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Incremental aggregation completed in </span><span class="si">{</span><span class="n">duration</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Job ID: </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">job_correlation_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Records processed: </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">total_records_uploaded</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Successful queries: </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">total_successful_queries</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Failed queries: </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">total_failed_queries</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Return status for monitoring systems</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span> <span class="k">if</span> <span class="n">summary</span><span class="o">.</span><span class="n">total_failed_queries</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;partial_success&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;job_id&quot;</span><span class="p">:</span> <span class="n">summary</span><span class="o">.</span><span class="n">job_correlation_id</span><span class="p">,</span>
+                <span class="s2">&quot;records_processed&quot;</span><span class="p">:</span> <span class="n">summary</span><span class="o">.</span><span class="n">total_records_uploaded</span><span class="p">,</span>
+                <span class="s2">&quot;duration_seconds&quot;</span><span class="p">:</span> <span class="n">duration</span><span class="p">,</span>
+                <span class="s2">&quot;failed_queries&quot;</span><span class="p">:</span> <span class="n">summary</span><span class="o">.</span><span class="n">total_failed_queries</span>
+            <span class="p">}</span>
+            
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Incremental aggregation failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;failed&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="p">}</span>
+
+<span class="c1"># Usage in scheduled task (e.g., Azure Function, cron job)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">scheduled_incremental_aggregation</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;failed&quot;</span><span class="p">:</span>
+    <span class="c1"># Alert monitoring system</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Aggregation job failed: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="checking-last-successful-timestamps">
+<h3>Checking last successful timestamps<a class="headerlink" href="#checking-last-successful-timestamps" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sentinel_log_aggregator</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentinelAggregatorClient</span><span class="p">,</span> <span class="n">load_workspace_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.identity.aio</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultAzureCredential</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check_last_execution_status</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Query health logging to see last successful execution times.</span>
+<span class="sd">    Useful for monitoring and troubleshooting.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">options</span> <span class="o">=</span> <span class="n">SentinelAggregatorClientOptions</span><span class="o">.</span><span class="n">from_environment</span><span class="p">()</span>
+    <span class="n">workspaces</span> <span class="o">=</span> <span class="n">load_workspace_config</span><span class="p">(</span><span class="s2">&quot;workspaces.yaml&quot;</span><span class="p">)</span>
+    <span class="n">credential</span> <span class="o">=</span> <span class="n">DefaultAzureCredential</span><span class="p">()</span>
+    
+    <span class="k">async</span> <span class="k">with</span> <span class="n">SentinelAggregatorClient</span><span class="p">(</span>
+        <span class="n">dcr_logs_ingestion_endpoint</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">dcr_logs_ingestion_endpoint</span><span class="p">,</span>
+        <span class="n">credential</span><span class="o">=</span><span class="n">credential</span><span class="p">,</span>
+        <span class="n">options</span><span class="o">=</span><span class="n">options</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="c1"># Check execution history for each workspace</span>
+        <span class="k">for</span> <span class="n">workspace</span> <span class="ow">in</span> <span class="n">workspaces</span><span class="p">:</span>
+            <span class="c1"># Query health logging table</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SentinelHealthLog_CL</span>
+<span class="s2">            | where workspace_id_s == &quot;</span><span class="si">{</span><span class="n">workspace</span><span class="o">.</span><span class="n">customer_id</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="s2">            | where status_s == &quot;success&quot;</span>
+<span class="s2">            | summarize </span>
+<span class="s2">                LastSuccessful=max(end_time_t),</span>
+<span class="s2">                TotalRuns=count(),</span>
+<span class="s2">                AvgDuration=avg(duration_seconds_d)</span>
+<span class="s2">                by query_name_s</span>
+<span class="s2">            | project query_name_s, LastSuccessful, TotalRuns, AvgDuration</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+            
+            <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">query_workspace</span><span class="p">(</span>
+                <span class="n">workspace_id</span><span class="o">=</span><span class="n">workspace</span><span class="o">.</span><span class="n">customer_id</span><span class="p">,</span>
+                <span class="n">query</span><span class="o">=</span><span class="n">query</span>
+            <span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">succeeded</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Workspace: </span><span class="si">{</span><span class="n">workspace</span><span class="o">.</span><span class="n">alias</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">workspace</span><span class="o">.</span><span class="n">customer_id</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;Query&#39;</span><span class="si">:</span><span class="s2">&lt;30</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;Last Success&#39;</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;Runs&#39;</span><span class="si">:</span><span class="s2">&lt;8</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;Avg Duration&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+                
+                <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;query_name_s&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&lt;30</span><span class="si">}</span><span class="s2"> &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;LastSuccessful&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2"> &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;TotalRuns&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&lt;8</span><span class="si">}</span><span class="s2"> &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;AvgDuration&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s&quot;</span>
+                    <span class="p">)</span>
+
+<span class="c1"># Check status</span>
+<span class="k">await</span> <span class="n">check_last_execution_status</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="first-run-vs-incremental-behavior">
+<h3>First-run vs incremental behavior<a class="headerlink" href="#first-run-vs-incremental-behavior" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sentinel_log_aggregator</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SentinelAggregatorClient</span><span class="p">,</span>
+    <span class="n">SentinelAggregatorClientOptions</span><span class="p">,</span>
+    <span class="n">load_workspace_config</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">azure.identity.aio</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultAzureCredential</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">smart_aggregation</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Automatically handle first run (historical) vs incremental runs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">options</span> <span class="o">=</span> <span class="n">SentinelAggregatorClientOptions</span><span class="p">(</span>
+        <span class="n">use_last_successful</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">health_to_sentinel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">lookback_period</span><span class="o">=</span><span class="s2">&quot;P30D&quot;</span><span class="p">,</span>          <span class="c1"># Used only on first run</span>
+        <span class="n">batch_time_size</span><span class="o">=</span><span class="s2">&quot;PT12H&quot;</span><span class="p">,</span>
+        <span class="n">dcr_logs_ingestion_endpoint</span><span class="o">=</span><span class="s2">&quot;https://your-dcr.monitor.azure.com&quot;</span><span class="p">,</span>
+        <span class="n">dcr_immutable_id</span><span class="o">=</span><span class="s2">&quot;dcr-your-rule-id&quot;</span>
+    <span class="p">)</span>
+    
+    <span class="n">workspaces</span> <span class="o">=</span> <span class="n">load_workspace_config</span><span class="p">(</span><span class="s2">&quot;workspaces.yaml&quot;</span><span class="p">)</span>
+    <span class="n">credential</span> <span class="o">=</span> <span class="n">DefaultAzureCredential</span><span class="p">()</span>
+    
+    <span class="k">async</span> <span class="k">with</span> <span class="n">SentinelAggregatorClient</span><span class="p">(</span>
+        <span class="n">dcr_logs_ingestion_endpoint</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">dcr_logs_ingestion_endpoint</span><span class="p">,</span>
+        <span class="n">credential</span><span class="o">=</span><span class="n">credential</span><span class="p">,</span>
+        <span class="n">options</span><span class="o">=</span><span class="n">options</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="c1"># Check if this is first run by querying health logs</span>
+        <span class="n">first_run</span> <span class="o">=</span> <span class="k">await</span> <span class="n">is_first_run</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">workspaces</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">first_run</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;First run detected - processing historical data (30 days)&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Future runs will be incremental from this point&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Incremental run - processing data since last successful execution&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Execute - behavior automatically adjusts</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">execute_queries</span><span class="p">(</span><span class="n">workspaces</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">summary</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">is_first_run</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">workspaces</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if any workspace has successful execution history.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Query health logging for any successful runs</span>
+        <span class="n">workspace_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">ws</span><span class="o">.</span><span class="n">customer_id</span> <span class="k">for</span> <span class="n">ws</span> <span class="ow">in</span> <span class="n">workspaces</span><span class="p">]</span>
+        
+        <span class="c1"># Check aggregation workspace for health logs</span>
+        <span class="n">agg_workspace</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">ws</span> <span class="k">for</span> <span class="n">ws</span> <span class="ow">in</span> <span class="n">workspaces</span> <span class="k">if</span> <span class="n">ws</span><span class="o">.</span><span class="n">aggregation_workspace</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">agg_workspace</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># No agg workspace, treat as first run</span>
+        
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        SentinelHealthLog_CL</span>
+<span class="s2">        | where workspace_id_s in (</span><span class="si">{</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">wid</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">wid</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">workspace_ids</span><span class="p">])</span><span class="si">}</span><span class="s2">)</span>
+<span class="s2">        | where status_s == &quot;success&quot;</span>
+<span class="s2">        | summarize count()</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">query_workspace</span><span class="p">(</span>
+            <span class="n">workspace_id</span><span class="o">=</span><span class="n">agg_workspace</span><span class="o">.</span><span class="n">customer_id</span><span class="p">,</span>
+            <span class="n">query</span><span class="o">=</span><span class="n">query</span>
+        <span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">succeeded</span> <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">record_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;count_&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">data</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="k">return</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span>
+        
+        <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># Assume first run if health query fails</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># Safe default</span>
+
+<span class="c1"># Run smart aggregation</span>
+<span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">smart_aggregation</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
 <section id="concurrent-execution-tuning">
 <h3>Concurrent Execution Tuning<a class="headerlink" href="#concurrent-execution-tuning" title="Link to this heading"></a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sentinel_log_aggregator</span><span class="w"> </span><span class="kn">import</span> <span class="n">SentinelAggregatorClientOptions</span>
@@ -1619,7 +1852,7 @@
     <span class="n">lookback_period</span><span class="o">=</span><span class="s2">&quot;P1D&quot;</span><span class="p">,</span>
     <span class="n">batch_time_size</span><span class="o">=</span><span class="s2">&quot;PT12H&quot;</span><span class="p">,</span>  <span class="c1"># Smaller batches</span>
     <span class="n">max_concurrent_queries</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>  <span class="c1"># More parallelism</span>
-    <span class="n">dcr_endpoint</span><span class="o">=</span><span class="s2">&quot;https://YOUR-DCE.azure.com&quot;</span><span class="p">,</span>
+    <span class="n">dcr_logs_ingestion_endpoint</span><span class="o">=</span><span class="s2">&quot;https://YOUR-DCE.azure.com&quot;</span><span class="p">,</span>
     <span class="n">dcr_immutable_id</span><span class="o">=</span><span class="s2">&quot;dcr-YOUR-ID&quot;</span>
 <span class="p">)</span>
 
@@ -1628,7 +1861,7 @@
     <span class="n">lookback_period</span><span class="o">=</span><span class="s2">&quot;P1D&quot;</span><span class="p">,</span>
     <span class="n">batch_time_size</span><span class="o">=</span><span class="s2">&quot;PT6H&quot;</span><span class="p">,</span>  <span class="c1"># Very small batches</span>
     <span class="n">max_concurrent_queries</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># Limited parallelism</span>
-    <span class="n">dcr_endpoint</span><span class="o">=</span><span class="s2">&quot;https://YOUR-DCE.azure.com&quot;</span><span class="p">,</span>
+    <span class="n">dcr_logs_ingestion_endpoint</span><span class="o">=</span><span class="s2">&quot;https://YOUR-DCE.azure.com&quot;</span><span class="p">,</span>
     <span class="n">dcr_immutable_id</span><span class="o">=</span><span class="s2">&quot;dcr-YOUR-ID&quot;</span>
 <span class="p">)</span>
 </pre></div>

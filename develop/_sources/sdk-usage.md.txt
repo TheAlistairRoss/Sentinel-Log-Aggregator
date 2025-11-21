@@ -206,6 +206,60 @@ async with SentinelAggregatorClient(endpoint, credential, options=options) as cl
         print(f"Upload failed: {upload_result.error_message}")
 ```
 
+### Incremental processing with last successful timestamps
+
+```python
+from sentinel_log_aggregator import (
+    SentinelAggregatorClient,
+    SentinelAggregatorClientOptions,
+    load_workspace_config
+)
+
+async def incremental_aggregation():
+    """
+    Run incremental aggregation starting from last successful execution.
+    Requires health logging to be enabled to track execution history.
+    """
+    
+    # Configure for incremental processing
+    options = SentinelAggregatorClientOptions(
+        use_last_successful=True,        # Start from last successful run
+        health_to_sentinel=True,         # Required: enables execution tracking
+        batch_time_size="PT12H",         # Process in 12-hour batches
+        max_concurrent_queries=5,
+        dcr_logs_ingestion_endpoint="https://your-dcr.monitor.azure.com",
+        dcr_immutable_id="dcr-your-rule-id"
+    )
+    
+    # Load workspaces
+    workspaces = load_workspace_config("workspaces.yaml")
+    
+    async with SentinelAggregatorClient(endpoint, credential, options=options) as client:
+        # This will automatically query from the last successful timestamp
+        # for each workspace/query combination
+        summary = await client.execute_queries(workspaces)
+        
+        print(f"Incremental aggregation complete:")
+        print(f"  Records processed: {summary.total_records_uploaded}")
+        print(f"  Duration: {summary.total_duration:.1f}s")
+        print(f"  Job ID: {summary.job_correlation_id}")
+
+# Run incremental aggregation
+await incremental_aggregation()
+```
+
+**How it works:**
+
+1. **First run**: Queries use the configured lookback period (or start_time/end_time)
+2. **Subsequent runs**: Queries start from the last successful completion timestamp
+3. **Per workspace/query**: Each workspace and query combination tracks its own last successful time
+4. **Health logging**: Execution metadata is stored in the health logging table for tracking
+
+**Use cases:**
+- **Scheduled aggregation**: Run every hour/day and automatically process only new data
+- **Resume after failure**: If a job fails, the next run continues from the last success
+- **Efficient processing**: Avoid re-processing historical data on every execution
+
 ## Advanced operations
 
 ### Batch operations with LRO

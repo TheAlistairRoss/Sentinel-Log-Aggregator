@@ -1,16 +1,20 @@
 ---
 title: Installation and setup
 description: Learn how to install and set up the Microsoft Sentinel Log Aggregator in your environment.
-author: Microsoft
-ms.author: sentinel-team
+author: Alistair Ross
+ms.author: community
 ms.service: sentinel
 ms.topic: how-to
-ms.date: 2025-11-01
+ms.date: 2025-11-21
 ---
 
 # Installation and setup
 
+> **📝 Documentation Status**: This documentation is being actively developed. Some sections may be incomplete.
+
 This article explains how to install and set up the Microsoft Sentinel Log Aggregator in your environment.
+
+**Note**: This is a community-maintained open-source project provided under the MIT License.
 
 ## Prerequisites
 
