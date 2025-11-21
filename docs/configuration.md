@@ -204,12 +204,19 @@ options = SentinelAggregatorClientOptions(
     # start_time="2025-01-01T00:00:00Z",
     # end_time="2025-01-31T23:59:59Z",
     
-    # Alternative: Last successful continuation
-    # use_last_successful=True,
-    # health_logging_enabled=True,
     max_concurrent_queries=3,
     query_timeout_seconds=300,
     log_level="DEBUG"
+)
+
+# Alternative: Incremental processing configuration
+options_incremental = SentinelAggregatorClientOptions(
+    use_last_successful=True,         # Enable incremental mode
+    health_to_sentinel=True,          # Required for execution tracking
+    batch_time_size="PT12H",
+    lookback_period="P30D",           # Used only on first run
+    max_concurrent_queries=3,
+    log_level="INFO"
 )
 
 # Validate configuration

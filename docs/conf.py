@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.abspath(".."))
 try:
     from sentinel_log_aggregator.version import __version__
 except ImportError:
-    __version__ = "0.1.0"
+    __version__ = "1.0.0"
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information

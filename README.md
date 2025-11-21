@@ -29,16 +29,16 @@ An Azure SDK-compliant Python client library for aggregating and processing logs
 pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git
 
 # Install from specific tag/version
-pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git@v0.1.0
+pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git@v1.0.0
 ```
 
 #### Install from Release Package
 ```bash
 # Install wheel package from releases
-pip install https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/releases/latest/download/sentinel_log_aggregator-0.1.0-py3-none-any.whl
+pip install https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/releases/latest/download/sentinel_log_aggregator-1.0.0-py3-none-any.whl
 
 # Install source distribution from releases
-pip install https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/releases/download/v0.1.0/sentinel-log-aggregator-0.1.0.tar.gz
+pip install https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/releases/download/v1.0.0/sentinel-log-aggregator-1.0.0.tar.gz
 ```
 
 #### Install from Development Branches
@@ -67,24 +67,6 @@ git checkout develop
 # Install in editable mode with development dependencies
 pip install -e ".[dev,security]"
 ```
-
-# Microsoft Sentinel Log Aggregator
-
-An Azure SDK-compliant Python client library for aggregating and processing logs from multiple Microsoft Sentinel workspaces into centralized reporting tables for security analytics and dashboard creation.
-
-## Features
-
-- **Azure SDK Compliance**: Follows Microsoft Azure SDK design guidelines and patterns
-- **Multi-workspace Support**: Query and aggregate data across multiple Sentinel workspaces
-- **Batch Processing**: Configurable time-based batching with concurrent execution
-- **Centralized Reporting**: Transform and normalize data for centralized analytics
-- **Microsecond Precision**: ISO 8601 datetime formatting with 6-decimal precision prevents data gaps
-- **Comprehensive Error Handling**: Service-specific exceptions with detailed error information
-- **Distributed Tracing**: Built-in Azure Monitor Application Insights integration
-- **Long-running Operations**: LRO support for batch operations with progress tracking
-- **Health Monitoring**: Built-in health checks and service diagnostics
-- **Standard Authentication**: Azure Identity integration with multiple credential types
-- **Flexible Query Organization**: Support for custom query directory structures and relative paths
 
 ## Quick Start
 
@@ -465,10 +447,6 @@ async def enterprise_example():
         # Alternative: Explicit time range
         # start_time="2025-01-01T00:00:00Z",
         # end_time="2025-01-31T23:59:59Z",
-        
-        # Alternative: Continue from last successful
-        # use_last_successful=True,
-        # health_logging_enabled=True,
         
         # Performance settings
         max_concurrent_queries=10,

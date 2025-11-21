@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-We actively support the following versions with security updates:
+This open-source project provides security updates for the following versions:
 
 | Version | Supported          | Python Versions |
 | ------- | ------------------ | --------------- |

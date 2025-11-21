@@ -21,7 +21,7 @@ The CLI is included when you install the package:
 pip install git+https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator.git
 
 # Or install from GitHub release
-pip install https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/releases/latest/download/sentinel_log_aggregator-0.1.0-py3-none-any.whl
+pip install https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/releases/latest/download/sentinel_log_aggregator-1.0.0-py3-none-any.whl
 ```
 
 ## Global options

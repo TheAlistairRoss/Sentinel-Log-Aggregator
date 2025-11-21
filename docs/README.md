@@ -1,6 +1,10 @@
 # Sentinel Log Aggregator Documentation
 
-Welcome to the comprehensive documentation for the Microsoft Sentinel Log Aggregator - a production-ready Python package for aggregating logs from multiple Sentinel workspaces.
+> **📝 Documentation Status**: This documentation is actively being developed and improved. Some sections may be incomplete or subject to change. Community contributions and feedback are welcome via [GitHub Issues](https://github.com/TheAlistairRoss/Sentinel-Log-Aggregator/issues).
+
+Welcome to the comprehensive documentation for the Microsoft Sentinel Log Aggregator - an open-source Python package for aggregating logs from multiple Sentinel workspaces.
+
+**This is a community-maintained open-source project provided under the MIT License.**
 
 ## 📚 Documentation Structure
 
