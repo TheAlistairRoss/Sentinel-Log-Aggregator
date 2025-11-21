@@ -61,7 +61,7 @@ workspaces:
 
 # Configuration metadata
 metadata:
-  version: "${PACKAGE_VERSION:-0.1.0}"
+  version: "${PACKAGE_VERSION:-1.0.0}"
   description: "Microsoft Sentinel pseudo workspaces for unit testing"
   last_updated: "${BUILD_TIMESTAMP:-2025-11-03}"
   created_by: "${BUILD_USER:-test-automation}"
