@@ -1,8 +1,8 @@
 ---
 title: Configuration guide
 description: Learn how to configure the Microsoft Sentinel Log Aggregator for your environment and requirements.
-author: Microsoft
-ms.author: sentinel-team
+author: Alistair Ross
+ms.author: community
 ms.service: sentinel
 ms.topic: how-to
 ms.date: 2025-11-01

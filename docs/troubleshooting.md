@@ -1,8 +1,8 @@
 ---
 title: Troubleshooting guide
 description: Common issues, solutions, and debugging techniques for the Microsoft Sentinel Log Aggregator.
-author: Microsoft
-ms.author: sentinel-team
+author: Alistair Ross
+ms.author: community
 ms.service: sentinel
 ms.topic: troubleshooting
 ms.date: 2025-11-01

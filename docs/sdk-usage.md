@@ -1,8 +1,8 @@
 ---
 title: SDK usage
 description: Learn how to use the Microsoft Sentinel Log Aggregator SDK for programmatic access and integration.
-author: Microsoft
-ms.author: sentinel-team
+author: Alistair Ross
+ms.author: community
 ms.service: sentinel
 ms.topic: how-to
 ms.date: 2025-11-01

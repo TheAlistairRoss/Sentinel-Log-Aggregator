@@ -1,8 +1,8 @@
 ---
 title: CLI usage
 description: Learn how to use the Microsoft Sentinel Log Aggregator command-line interface for automation and manual operations.
-author: Microsoft
-ms.author: sentinel-team
+author: Alistair Ross
+ms.author: community
 ms.service: sentinel
 ms.topic: reference
 ms.date: 2025-11-01

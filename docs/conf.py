@@ -20,8 +20,8 @@ except ImportError:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "Microsoft Sentinel Log Aggregator"
-copyright = f"{datetime.now().year}, Microsoft Corporation"
-author = "Microsoft Sentinel Team"
+copyright = f"{datetime.now().year}, Alistair Ross"
+author = "Alistair Ross"
 release = __version__
 version = __version__
 

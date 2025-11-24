@@ -1,8 +1,8 @@
 ---
 title: Best practices and recommendations
 description: Production deployment best practices and security recommendations for the Microsoft Sentinel Log Aggregator.
-author: Microsoft
-ms.author: sentinel-team
+author: Alistair Ross
+ms.author: community
 ms.service: sentinel
 ms.topic: best-practices
 ms.date: 2025-11-01

@@ -1,8 +1,8 @@
 ---
 title: Advanced examples
 description: Explore advanced scenarios and integration patterns with the Microsoft Sentinel Log Aggregator.
-author: Microsoft
-ms.author: sentinel-team
+author: Alistair Ross
+ms.author: community
 ms.service: sentinel
 ms.topic: tutorial
 ms.date: 2025-11-01
