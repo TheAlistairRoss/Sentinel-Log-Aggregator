@@ -460,14 +460,16 @@ async def _query_all_last_successful_runs(
         aggregation_workspace = workspaces[0]
 
     # Build optimized KQL query for all successful runs
+    # Note: ExtendedProperties is a dynamic (JSON) column that needs proper parsing
     kql_query = f"""
 {HEALTH_TABLE_NAME}
 | where OperationName == 'QueryExecution'
 | where OperationStatus == 'Completed'
-| extend EndTime = todatetime(ExtendedProperties.end_time)
-| extend QueryName = tostring(ExtendedProperties.query_name)
-| extend WorkspaceId = tostring(ExtendedProperties.workspace_id)
-| where isnotnull(EndTime) and isnotnull(QueryName)and isnotnull(WorkspaceId) 
+| extend ExtendedPropertiesParsed = parse_json(ExtendedProperties)
+| extend EndTime = todatetime(ExtendedPropertiesParsed.end_time)
+| extend QueryName = tostring(ExtendedPropertiesParsed.query_name)
+| extend WorkspaceId = tostring(ExtendedPropertiesParsed.workspace_id)
+| where isnotnull(EndTime) and isnotnull(QueryName) and isnotnull(WorkspaceId) 
 | summarize arg_max(EndTime, *) by QueryName, WorkspaceId
 | project 
     LastRunTime=TimeGenerated,
