@@ -1661,6 +1661,14 @@
                     <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="p">)</span>
 
+                <span class="c1"># Log first 5 rows of query results for debugging</span>
+                <span class="k">if</span> <span class="n">query_result</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+                    <span class="n">sample_data</span> <span class="o">=</span> <span class="n">query_result</span><span class="o">.</span><span class="n">data</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Query results (first </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">sample_data</span><span class="p">)</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">query_result</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2"> rows):</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">sample_data</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+
                 <span class="c1"># Upload data if results exist</span>
                 <span class="k">if</span> <span class="n">query_result</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
                     <span class="n">upload_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
