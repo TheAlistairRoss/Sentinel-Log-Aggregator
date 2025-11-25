@@ -386,7 +386,28 @@ async def _calculate_from_last_successful(
             "Example: --start-time 2025-10-01T00:00:00 --end-time 2025-11-01T00:00:00"
         )
 
-    earliest_last_end_time = min(successful_last_end_times.values())
+    latest_last_end_time = max(successful_last_end_times.values())
+
+    # Debug logging: Show which query+workspace has the most recent successful run
+    latest_combination = None
+    for key, end_time in successful_last_end_times.items():
+        if end_time == latest_last_end_time:
+            latest_combination = key
+            break
+
+    if latest_combination:
+        query_name, workspace_id = latest_combination
+        logger.info(
+            f"🔍 Latest successful run found: query='{query_name}', workspace={workspace_id}..., "
+            f"end_time={latest_last_end_time.isoformat()}"
+        )
+
+        # Show all other combinations' end times for comparison
+        logger.debug("All successful end times by query+workspace:")
+        for (q_name, ws_id), end_time in sorted(
+            successful_last_end_times.items(), key=lambda x: x[1], reverse=True
+        ):
+            logger.debug(f"  - {q_name} / {ws_id[:8]}... : {end_time.isoformat()}")
 
     # Filter workspaces to only include queries that have baseline data
     # This is done in-place to affect the downstream query execution
@@ -419,10 +440,10 @@ async def _calculate_from_last_successful(
     )
 
     # Add 1 microsecond to the last end time to start from the next moment
-    start_time = earliest_last_end_time + timedelta(microseconds=1)
+    start_time = latest_last_end_time + timedelta(microseconds=1)
     end_time = datetime.now(timezone.utc)
 
-    logger.info(f"Using last successful end time + 1µs as start: {start_time.isoformat()}")
+    logger.info(f"Using latest successful end time + 1µs as start: {start_time.isoformat()}")
 
     return start_time, end_time
 
@@ -479,6 +500,14 @@ async def _query_all_last_successful_runs(
     JobId    
 """
 
+    logger.debug(
+        f"Querying aggregation workspace: {aggregation_workspace.workspace_name} ({aggregation_workspace.customer_id[:8]}...)"
+    )
+    logger.debug(
+        f"Health query lookback: {lookback_days} days (from {start_time.isoformat()} to {end_time.isoformat()})"
+    )
+    logger.debug(f"Health table: {HEALTH_TABLE_NAME}")
+
     try:
         from azure.identity.aio import DefaultAzureCredential
         from azure.monitor.query.aio import LogsQueryClient
@@ -497,7 +526,12 @@ async def _query_all_last_successful_runs(
             # Process all results and map to (query_name, workspace_id) -> latest result
             results_map = {}
 
+            logger.debug(
+                f"Health query returned {len(response.tables) if response.tables else 0} table(s)"
+            )
+
             if response.tables and response.tables[0].rows:
+                logger.debug(f"Health table has {len(response.tables[0].rows)} row(s)")
                 table = response.tables[0]
                 # Handle both object-style columns (with .name attribute) and dict/string columns
                 column_names = []
@@ -510,7 +544,7 @@ async def _query_all_last_successful_runs(
                         column_names.append(str(col))
 
                 # Process each row and keep the latest result per query+workspace combination
-                for row in table.rows:
+                for idx, row in enumerate(table.rows, 1):
                     row_dict = dict(zip(column_names, row))
 
                     # Map EndTime directly to end_time for downstream code
@@ -520,6 +554,12 @@ async def _query_all_last_successful_runs(
                     query_name = row_dict.get("QueryName")
                     workspace_id = row_dict.get("WorkspaceId")
                     last_run_time = row_dict.get("LastRunTime")
+                    end_time_value = row_dict.get("EndTime")
+
+                    logger.debug(
+                        f"  Row {idx}: query='{query_name}', workspace={workspace_id[:8] if workspace_id else 'N/A'}..., "
+                        f"end_time={end_time_value}, last_run={last_run_time}"
+                    )
 
                     if not query_name or not workspace_id:
                         continue
@@ -541,9 +581,17 @@ async def _query_all_last_successful_runs(
                         if last_run_time and (not existing_time or last_run_time > existing_time):
                             results_map[key] = row_dict.copy()
 
-            logger.debug(
-                f"Found {len(results_map)} unique query+workspace combinations in health logs"
+            logger.info(
+                f"Found {len(results_map)} unique query+workspace combination(s) with successful runs in last {lookback_days} days"
             )
+
+            # Log summary of what was found at debug level
+            if logger.isEnabledFor(logging.DEBUG) and results_map:
+                logger.debug("Health query results summary:")
+                for (q_name, ws_id), data in sorted(results_map.items()):
+                    end_time_val = data.get("end_time") or data.get("EndTime")
+                    logger.debug(f"  - {q_name} / {ws_id[:8]}... : end_time={end_time_val}")
+
             return results_map
 
         finally:
