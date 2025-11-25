@@ -7,6 +7,7 @@ retry logic, error handling, and observability.
 """
 
 import asyncio
+import json
 import logging
 import re
 from datetime import datetime, timezone
@@ -398,8 +399,6 @@ class SentinelAggregatorClient:
 
             # Log first 5 rows of results for debugging
             if results:
-                import json
-
                 sample_results = results[:5]
                 self._logger.debug(
                     f"Query results (first {len(sample_results)} of {len(results)} rows):\n"
@@ -533,7 +532,6 @@ class SentinelAggregatorClient:
         :return: JSON-serializable data
         :rtype: List[Dict[str, Any]]
         """
-        import json
         from decimal import Decimal
 
         def convert_value(value):

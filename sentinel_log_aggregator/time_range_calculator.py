@@ -9,6 +9,7 @@ Handles the precedence of different time specification methods:
 Also handles batch calculation from last successful runs with proper constraints.
 """
 
+import json
 import logging
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -590,8 +591,6 @@ async def _query_all_last_successful_runs(
 
             # Log first 5 health records for debugging
             if results_map:
-                import json
-
                 sample_items = list(results_map.items())[:5]
                 logger.debug(
                     f"Health query results (first {len(sample_items)} of {len(results_map)} combinations):"
