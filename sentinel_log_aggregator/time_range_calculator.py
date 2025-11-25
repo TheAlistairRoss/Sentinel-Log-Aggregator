@@ -586,7 +586,7 @@ async def _query_all_last_successful_runs(
             )
 
             # Log summary of what was found at debug level
-            if logger.isEnabledFor(logging.DEBUG) and results_map:
+            if results_map:
                 logger.debug("Health query results summary:")
                 for (q_name, ws_id), data in sorted(results_map.items()):
                     end_time_val = data.get("end_time") or data.get("EndTime")
@@ -639,12 +639,11 @@ def calculate_execution_batches(
         logger.info(f"Calculated {len(batches)} execution batches")
 
         # Log batch details in debug mode
-        if logger.isEnabledFor(logging.DEBUG):
-            for i, (batch_start, batch_end) in enumerate(batches, 1):
-                duration = batch_end - batch_start
-                logger.debug(
-                    f"  Batch {i}: {batch_start.isoformat()} to {batch_end.isoformat()} ({duration})"
-                )
+        for i, (batch_start, batch_end) in enumerate(batches, 1):
+            duration = batch_end - batch_start
+            logger.debug(
+                f"  Batch {i}: {batch_start.isoformat()} to {batch_end.isoformat()} ({duration})"
+            )
 
         return batches
 
