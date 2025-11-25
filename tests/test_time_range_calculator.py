@@ -299,11 +299,11 @@ class TestTimeRangeCalculation:
                     options, workspaces, mock_health_logger
                 )
 
-        # Should use the earliest last successful time
+        # Should use the latest last successful time (changed from earliest)
         assert start_time.year == 2025
         assert start_time.month == 11
         assert start_time.day == 1
-        assert start_time.hour == 10  # Earliest time
+        assert start_time.hour == 12  # Latest time (max of 10 and 12)
         assert end_time == mock_now
         assert batch_size == timedelta(hours=12)
 
@@ -400,11 +400,11 @@ class TestLastSuccessfulRunsProcessing:
                     client_options, workspaces, mock_health_logger, batch_size
                 )
 
-        # Should use the earliest end time
+        # Should use the latest end time (changed from earliest)
         assert start_time.year == 2025
         assert start_time.month == 11
         assert start_time.day == 1
-        assert start_time.hour == 10  # Earlier of the two
+        assert start_time.hour == 12  # Latest of the two (max of 10 and 12)
         assert end_time == mock_now
 
     @pytest.mark.asyncio
