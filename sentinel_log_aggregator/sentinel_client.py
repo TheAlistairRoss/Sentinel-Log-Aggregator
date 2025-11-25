@@ -332,11 +332,10 @@ class SentinelAggregatorClient:
             )
 
             # Log the full query for debugging
-            if self._logger.isEnabledFor(logging.DEBUG):
-                self._logger.debug(
-                    f"KQL Query:\n{query}\n"
-                    f"[workspace={workspace_id[:8]}...] [correlation_id={correlation_id}]"
-                )
+            self._logger.debug(
+                f"KQL Query:\n{query}\n"
+                f"[workspace={workspace_id[:8]}...] [correlation_id={correlation_id}]"
+            )
 
             response = await asyncio.wait_for(
                 self._logs_query_client_instance.query_workspace(
@@ -385,7 +384,7 @@ class SentinelAggregatorClient:
                     )
 
             # Log first 5 rows of results for debugging
-            if self._logger.isEnabledFor(logging.DEBUG) and results:
+            if results:
                 import json
 
                 sample_results = results[:5]
