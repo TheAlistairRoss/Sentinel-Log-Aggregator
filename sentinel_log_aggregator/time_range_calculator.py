@@ -585,9 +585,25 @@ async def _query_all_last_successful_runs(
                 f"Found {len(results_map)} unique query+workspace combination(s) with successful runs in last {lookback_days} days"
             )
 
-            # Log summary of what was found at debug level
+            # Log full health query details for debugging
+            logger.debug(f"Health query KQL:\n{kql_query}")
+
+            # Log first 5 health records for debugging
             if results_map:
-                logger.debug("Health query results summary:")
+                import json
+
+                sample_items = list(results_map.items())[:5]
+                logger.debug(
+                    f"Health query results (first {len(sample_items)} of {len(results_map)} combinations):"
+                )
+                for (q_name, ws_id), data in sample_items:
+                    logger.debug(
+                        f"  {json.dumps({'query': q_name, 'workspace': ws_id, 'data': data}, default=str)}"
+                    )
+
+            # Log summary of all combinations found
+            if results_map:
+                logger.debug("All successful runs found:")
                 for (q_name, ws_id), data in sorted(results_map.items()):
                     end_time_val = data.get("end_time") or data.get("EndTime")
                     logger.debug(f"  - {q_name} / {ws_id[:8]}... : end_time={end_time_val}")
@@ -638,7 +654,7 @@ def calculate_execution_batches(
 
         logger.info(f"Calculated {len(batches)} execution batches")
 
-        # Log batch details in debug mode
+        # Log batch details
         for i, (batch_start, batch_end) in enumerate(batches, 1):
             duration = batch_end - batch_start
             logger.debug(

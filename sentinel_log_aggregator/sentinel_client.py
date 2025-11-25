@@ -331,7 +331,7 @@ class SentinelAggregatorClient:
                 f"[workspace={workspace_id[:8]}...] [correlation_id={correlation_id}]"
             )
 
-            # Log the full query for debugging
+            # Log full KQL query for debugging
             self._logger.debug(
                 f"KQL Query:\n{query}\n"
                 f"[workspace={workspace_id[:8]}...] [correlation_id={correlation_id}]"
@@ -383,17 +383,6 @@ class SentinelAggregatorClient:
                         f"[workspace={workspace_id[:8]}...] [correlation_id={correlation_id}]"
                     )
 
-            # Log first 5 rows of results for debugging
-            if results:
-                import json
-
-                sample_results = results[:5]
-                self._logger.debug(
-                    f"Query results (first {len(sample_results)} of {len(results)} rows):\n"
-                    f"{json.dumps(sample_results, default=str, indent=2)}\n"
-                    f"[workspace={workspace_id[:8]}...] [correlation_id={correlation_id}]"
-                )
-
             return QueryResult(
                 status=QueryStatus.SUCCESS,
                 data=results,
@@ -406,6 +395,17 @@ class SentinelAggregatorClient:
                 correlation_id=correlation_id,
                 request_id=getattr(response, "request_id", None),
             )
+
+            # Log first 5 rows of results for debugging
+            if results:
+                import json
+
+                sample_results = results[:5]
+                self._logger.debug(
+                    f"Query results (first {len(sample_results)} of {len(results)} rows):\n"
+                    f"{json.dumps(sample_results, default=str, indent=2)}\n"
+                    f"[workspace={workspace_id[:8]}...] [correlation_id={correlation_id}]"
+                )
 
         except asyncio.TimeoutError:
             execution_time = (datetime.now(timezone.utc) - start_exec).total_seconds()

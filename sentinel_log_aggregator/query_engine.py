@@ -301,9 +301,11 @@ class SentinelQueryEngine:
 
                 # Log first 5 rows of query results for debugging
                 if query_result.data:
+                    import json
+
                     sample_data = query_result.data[:5]
                     self.logger.debug(
-                        f"Query results (first {len(sample_data)} of {len(query_result.data)} rows):\\n"
+                        f"Query results (first {len(sample_data)} of {len(query_result.data)} rows):\n"
                         f"{json.dumps(sample_data, default=str, indent=2)}"
                     )
 
