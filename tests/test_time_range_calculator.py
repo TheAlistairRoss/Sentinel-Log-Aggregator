@@ -437,13 +437,16 @@ class TestLastSuccessfulRunsProcessing:
         ) as mock_query:
             mock_query.return_value = {}  # No successful runs found
 
-            with pytest.raises(
-                TimeRangeCalculationError,
-                match="No successful runs found for ANY query\\+workspace",
-            ):
-                await _calculate_from_last_successful(
-                    client_options, workspaces, mock_health_logger, batch_size
-                )
+            # NEW BEHAVIOR: Instead of raising error, falls back to lookback_period
+            start_time, end_time = await _calculate_from_last_successful(
+                client_options, workspaces, mock_health_logger, batch_size, lookback_period="P30D"
+            )
+
+            # Should return a 30-day lookback time range
+            assert start_time < end_time
+            time_diff = end_time - start_time
+            # Should be approximately 30 days (within 1 second tolerance)
+            assert abs(time_diff.total_seconds() - (30 * 24 * 3600)) < 1
 
 
 class TestBatchCalculation:

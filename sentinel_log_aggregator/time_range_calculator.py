@@ -156,7 +156,12 @@ async def calculate_execution_time_ranges(
                 )
 
             start_time, end_time = await _calculate_from_last_successful(
-                client_options, workspaces, health_logger, batch_size, job_id
+                client_options,
+                workspaces,
+                health_logger,
+                batch_size,
+                job_id,
+                client_options.lookback_period,
             )
 
         # Precedence 2: Explicit start/end times
@@ -228,6 +233,7 @@ async def _calculate_from_last_successful(
     health_logger: SentinelAggregatorHealthLogger,
     batch_size: timedelta,
     job_id: Optional[str] = None,
+    lookback_period: Optional[str] = None,
 ) -> Tuple[datetime, datetime]:
     """
     Calculate time range from last successful run timestamps.
@@ -236,12 +242,15 @@ async def _calculate_from_last_successful(
     query+workspace combinations that don't have baseline data. Only combinations
     with successful last runs will remain in the queries_list for each workspace.
 
+    If no successful runs are found, falls back to using the lookback_period.
+
     Args:
         client_options: Client configuration options
         workspaces: List of workspace configurations (MODIFIED IN-PLACE)
         health_logger: Health logger for querying last successful runs
         batch_size: Batch size for calculations
         job_id: Optional job correlation ID for health logging
+        lookback_period: ISO 8601 duration string for fallback lookback (e.g., 'P90D')
 
     Returns:
         Tuple of (start_time, end_time) in UTC
@@ -264,9 +273,21 @@ async def _calculate_from_last_successful(
 
     logger.debug(f"Checking last successful runs for queries: {sorted(all_query_names)}")
 
+    # Convert lookback_period to days for health query
+    # Default to 30 days if not specified
+    if lookback_period:
+        from .time_utils import parse_iso8601_duration
+
+        lookback_timedelta = parse_iso8601_duration(lookback_period)
+        lookback_days = int(lookback_timedelta.total_seconds() / 86400)  # Convert to days
+    else:
+        lookback_days = 30
+
+    logger.debug(f"Health query will search back {lookback_days} days for successful runs")
+
     # Get all last successful runs in a single query
     last_successful_results = await _query_all_last_successful_runs(
-        health_logger, list(workspaces), lookback_days=30
+        health_logger, list(workspaces), lookback_days=lookback_days
     )
 
     # Check last successful runs for each workspace + query combination
@@ -379,13 +400,32 @@ async def _calculate_from_last_successful(
     # Use the earliest last successful end time + 1 microsecond as our start time
     # This ensures continuous data coverage with no gaps or overlaps
     if not successful_last_end_times:
-        raise TimeRangeCalculationError(
-            "No successful runs found for ANY query+workspace combinations. "
-            "Cannot proceed with --use-last-successful. "
-            "To establish initial baseline data, run without --use-last-successful flag and specify "
-            "explicit time range using --start-time and --end-time. "
-            "Example: --start-time 2025-10-01T00:00:00 --end-time 2025-11-01T00:00:00"
+        # No successful runs found - this is expected on first run
+        # Fall back to using the lookback_period to establish baseline
+        logger.warning(
+            "⚠️  No successful runs found in health table. "
+            "This is expected on first run. "
+            f"Falling back to lookback_period ({lookback_period or 'P30D'}) to establish baseline data."
         )
+
+        # Calculate time range using lookback period
+        if lookback_period:
+            from .time_utils import parse_iso8601_duration
+
+            lookback_timedelta = parse_iso8601_duration(lookback_period)
+        else:
+            lookback_timedelta = timedelta(days=30)
+
+        end_time = datetime.now(timezone.utc)
+        start_time = end_time - lookback_timedelta
+
+        logger.info(
+            f"First run baseline: Will query {lookback_days} days of data "
+            f"from {start_time.isoformat()} to {end_time.isoformat()}"
+        )
+
+        # Don't filter workspaces on first run - execute all configured queries
+        return start_time, end_time
 
     latest_last_end_time = max(successful_last_end_times.values())
 
