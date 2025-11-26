@@ -503,9 +503,7 @@ class SentinelQueryEngine:
                 f"  Workspace {idx + 1}: {workspace.customer_id} with {len(workspace.queries_list)} queries"
             )
             if not workspace.queries_list:
-                self.logger.warning(
-                    f"Workspace {workspace.customer_id} has no queries configured!"
-                )
+                self.logger.warning(f"Workspace {workspace.customer_id} has no queries configured!")
 
         # Calculate execution time ranges using new time range calculator
         from .time_range_calculator import (
@@ -1007,9 +1005,7 @@ class SentinelQueryEngine:
                     records_processed=workspace_records,
                     duration_seconds=total_duration,  # Approximation since we don't track individual workspace duration
                 )
-                self.logger.debug(
-                    f"Health log completed for workspace {workspace.customer_id}"
-                )
+                self.logger.debug(f"Health log completed for workspace {workspace.customer_id}")
 
         # Log detailed summary programmatically
         self.logger.debug("Generating and logging detailed summary...")

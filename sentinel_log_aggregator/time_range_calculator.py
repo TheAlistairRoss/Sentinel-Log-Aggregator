@@ -340,7 +340,7 @@ async def _calculate_from_last_successful(
             f"📋 Found {len(queries_needing_baseline)} query+workspace combination(s) that need baseline establishment. "
             f"These WILL be executed in this run to create initial baseline."
         )
-    
+
     if successful_last_end_times:
         logger.info(
             f"✅ Found {len(successful_last_end_times)} query+workspace combination(s) with existing baseline data."
@@ -348,7 +348,7 @@ async def _calculate_from_last_successful(
 
     # Calculate time range based on whether we have existing baseline data
     end_time = datetime.now(timezone.utc)
-    
+
     if not successful_last_end_times:
         # No successful runs found - this is expected on first run
         # Use lookback_period to establish baseline for all queries
@@ -377,21 +377,22 @@ async def _calculate_from_last_successful(
 
     # Some queries have baseline data - calculate appropriate time range
     latest_last_end_time = max(successful_last_end_times.values())
-    
+
     # Determine the appropriate start time based on whether queries need baseline
     incremental_start_time = latest_last_end_time + timedelta(microseconds=1)
-    
+
     if queries_needing_baseline:
         # Some queries need baseline establishment
         # Calculate lookback start time for those queries
         if lookback_period:
             from .time_utils import parse_iso8601_duration
+
             lookback_timedelta = parse_iso8601_duration(lookback_period)
         else:
             lookback_timedelta = timedelta(days=30)
-        
+
         lookback_start_time = end_time - lookback_timedelta
-        
+
         # Use the EARLIER of: (latest_last_end_time + 1µs) or (lookback_start_time)
         # This ensures queries needing baseline get full lookback period
         # while incremental queries still get new data since last run
@@ -438,9 +439,7 @@ async def _calculate_from_last_successful(
             f"📅 Time range strategy: Pure incremental mode - all queries have baseline data."
         )
 
-    logger.info(
-        f"⏰ Execution time range: {start_time.isoformat()} to {end_time.isoformat()}"
-    )
+    logger.info(f"⏰ Execution time range: {start_time.isoformat()} to {end_time.isoformat()}")
     logger.info(
         f"📊 Total queries to execute: {sum(len(w.queries_list) for w in workspaces)} "
         f"across {len(workspaces)} workspace(s)"
