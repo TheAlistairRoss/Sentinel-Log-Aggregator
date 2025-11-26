@@ -316,12 +316,12 @@ class SentinelAggregatorClient:
                 timespan = (start_time, end_time)
                 self._logger.debug(
                     f"Query timespan configured: {format_datetime_iso8601(start_time)} to {format_datetime_iso8601(end_time)} "
-                    f"[workspace={workspace_id[:8]}...] [correlation_id={correlation_id}]"
+                    f"[workspace={workspace_id}] [correlation_id={correlation_id}]"
                 )
             else:
                 self._logger.warning(
                     f"Query executed WITHOUT timespan filter - this may scan entire table! "
-                    f"[workspace={workspace_id[:8]}...] [correlation_id={correlation_id}]"
+                    f"[workspace={workspace_id}] [correlation_id={correlation_id}]"
                 )
 
             # Execute query with timeout
@@ -329,13 +329,13 @@ class SentinelAggregatorClient:
 
             self._logger.debug(
                 f"Executing query with timeout={timeout}s, timespan={timespan is not None} "
-                f"[workspace={workspace_id[:8]}...] [correlation_id={correlation_id}]"
+                f"[workspace={workspace_id}] [correlation_id={correlation_id}]"
             )
 
             # Log full KQL query for debugging
             self._logger.debug(
                 f"KQL Query:\n{query}\n"
-                f"[workspace={workspace_id[:8]}...] [correlation_id={correlation_id}]"
+                f"[workspace={workspace_id}] [correlation_id={correlation_id}]"
             )
 
             response = await asyncio.wait_for(
@@ -370,7 +370,7 @@ class SentinelAggregatorClient:
             # Log query execution details
             self._logger.info(
                 f"Query completed: {len(results)} records in {execution_time:.2f}s "
-                f"[workspace={workspace_id[:8]}...] "
+                f"[workspace={workspace_id}] "
                 f"[timespan={'YES' if timespan else 'NO'}] "
                 f"[correlation_id={correlation_id}]"
             )
@@ -381,7 +381,7 @@ class SentinelAggregatorClient:
                 if stats:
                     self._logger.debug(
                         f"Query statistics: {stats} "
-                        f"[workspace={workspace_id[:8]}...] [correlation_id={correlation_id}]"
+                        f"[workspace={workspace_id}] [correlation_id={correlation_id}]"
                     )
 
             return QueryResult(
@@ -403,7 +403,7 @@ class SentinelAggregatorClient:
                 self._logger.debug(
                     f"Query results (first {len(sample_results)} of {len(results)} rows):\n"
                     f"{json.dumps(sample_results, default=str, indent=2)}\n"
-                    f"[workspace={workspace_id[:8]}...] [correlation_id={correlation_id}]"
+                    f"[workspace={workspace_id}] [correlation_id={correlation_id}]"
                 )
 
         except asyncio.TimeoutError:

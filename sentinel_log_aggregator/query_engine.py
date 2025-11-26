@@ -500,11 +500,11 @@ class SentinelQueryEngine:
         self.logger.debug(f"Validating {len(workspace_configs)} workspace configurations...")
         for idx, workspace in enumerate(workspace_configs):
             self.logger.debug(
-                f"  Workspace {idx + 1}: {workspace.customer_id[:8]}*** with {len(workspace.queries_list)} queries"
+                f"  Workspace {idx + 1}: {workspace.customer_id} with {len(workspace.queries_list)} queries"
             )
             if not workspace.queries_list:
                 self.logger.warning(
-                    f"Workspace {workspace.customer_id[:8]}*** has no queries configured!"
+                    f"Workspace {workspace.customer_id} has no queries configured!"
                 )
 
         # Calculate execution time ranges using new time range calculator
@@ -897,7 +897,7 @@ class SentinelQueryEngine:
                             query_name=error_exec.query_name,
                         )
                         self.logger.debug(
-                            f"Syntax error query: {error_exec.query_name} on workspace {error_exec.workspace_id[:8]}***"
+                            f"Syntax error query: {error_exec.query_name} on workspace {error_exec.workspace_id}"
                         )
                     critical_error_detected = True
                     break
@@ -996,7 +996,7 @@ class SentinelQueryEngine:
                 )
 
                 self.logger.debug(
-                    f"Workspace {workspace.customer_id[:8]}***: {len(workspace_executions)} executions, "
+                    f"Workspace {workspace.customer_id}: {len(workspace_executions)} executions, "
                     f"{workspace_records} records, success={workspace_success}"
                 )
 
@@ -1008,7 +1008,7 @@ class SentinelQueryEngine:
                     duration_seconds=total_duration,  # Approximation since we don't track individual workspace duration
                 )
                 self.logger.debug(
-                    f"Health log completed for workspace {workspace.customer_id[:8]}***"
+                    f"Health log completed for workspace {workspace.customer_id}"
                 )
 
         # Log detailed summary programmatically
