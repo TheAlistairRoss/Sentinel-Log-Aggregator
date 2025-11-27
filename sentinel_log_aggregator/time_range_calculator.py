@@ -9,6 +9,7 @@ Handles the precedence of different time specification methods:
 Also handles batch calculation from last successful runs with proper constraints.
 """
 
+import json
 import logging
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -155,7 +156,12 @@ async def calculate_execution_time_ranges(
                 )
 
             start_time, end_time = await _calculate_from_last_successful(
-                client_options, workspaces, health_logger, batch_size, job_id
+                client_options,
+                workspaces,
+                health_logger,
+                batch_size,
+                job_id,
+                client_options.lookback_period,
             )
 
         # Precedence 2: Explicit start/end times
@@ -227,6 +233,7 @@ async def _calculate_from_last_successful(
     health_logger: SentinelAggregatorHealthLogger,
     batch_size: timedelta,
     job_id: Optional[str] = None,
+    lookback_period: Optional[str] = None,
 ) -> Tuple[datetime, datetime]:
     """
     Calculate time range from last successful run timestamps.
@@ -235,12 +242,15 @@ async def _calculate_from_last_successful(
     query+workspace combinations that don't have baseline data. Only combinations
     with successful last runs will remain in the queries_list for each workspace.
 
+    If no successful runs are found, falls back to using the lookback_period.
+
     Args:
         client_options: Client configuration options
         workspaces: List of workspace configurations (MODIFIED IN-PLACE)
         health_logger: Health logger for querying last successful runs
         batch_size: Batch size for calculations
         job_id: Optional job correlation ID for health logging
+        lookback_period: ISO 8601 duration string for fallback lookback (e.g., 'P90D')
 
     Returns:
         Tuple of (start_time, end_time) in UTC
@@ -263,17 +273,27 @@ async def _calculate_from_last_successful(
 
     logger.debug(f"Checking last successful runs for queries: {sorted(all_query_names)}")
 
+    # Convert lookback_period to days for health query
+    # Default to 30 days if not specified
+    if lookback_period:
+        from .time_utils import parse_iso8601_duration
+
+        lookback_timedelta = parse_iso8601_duration(lookback_period)
+        lookback_days = int(lookback_timedelta.total_seconds() / 86400)  # Convert to days
+    else:
+        lookback_days = 30
+
+    logger.debug(f"Health query will search back {lookback_days} days for successful runs")
+
     # Get all last successful runs in a single query
     last_successful_results = await _query_all_last_successful_runs(
-        health_logger, list(workspaces), lookback_days=30
+        health_logger, list(workspaces), lookback_days=lookback_days
     )
 
     # Check last successful runs for each workspace + query combination
-    # Build a map of successful combinations to use for filtering
+    # Build a map of successful combinations and track which need baseline establishment
     successful_last_end_times = {}
-    missing_combinations = []
-
-    from .models import AVAILABLE_QUERIES, QueryExecution, QueryStatus, UploadStatus
+    queries_needing_baseline = []
 
     for workspace in workspaces:
         workspace_id = workspace.customer_id
@@ -289,64 +309,13 @@ async def _calculate_from_last_successful(
             last_successful = last_successful_results.get(key)
 
             if not last_successful:
-                # Log warning for missing baseline
-                missing_combinations.append(f"{query_name} (workspace: {workspace_id[:8]}...)")
-                logger.warning(
-                    f"⚠️  No last successful run found for {query_name} in workspace {workspace_id[:8]}. "
-                    f"This combination will be SKIPPED. To establish baseline, run: "
-                    f"--start-time YYYY-MM-DDTHH:MM:SS --end-time YYYY-MM-DDTHH:MM:SS"
+                # Track queries that need baseline establishment
+                queries_needing_baseline.append(f"{query_name} (workspace: {workspace_id})")
+                logger.info(
+                    f"📋 No baseline found for {query_name} in workspace {workspace_id}. "
+                    f"Will execute this query to establish baseline."
                 )
-
-                # Log health warning event for missing combination
-                try:
-                    workspace_config = next(
-                        (w for w in workspaces if w.customer_id == workspace_id), None
-                    )
-
-                    if workspace_config:
-                        # Get destination stream from query definition if available
-                        destination_stream = "unknown"
-                        if query_name in AVAILABLE_QUERIES:
-                            query_def = AVAILABLE_QUERIES[query_name]
-                            destination_stream = getattr(query_def, "destination_stream", "unknown")
-
-                        # Create QueryExecution with warning details
-                        error_msg = (
-                            "No last successful run found - combination skipped. "
-                            "To establish baseline for this combination, run without --use-last-successful "
-                            "and specify explicit time range: --start-time YYYY-MM-DDTHH:MM:SS --end-time YYYY-MM-DDTHH:MM:SS"
-                        )
-
-                        timestamp = datetime.now(timezone.utc)
-                        query_execution = QueryExecution(
-                            job_correlation_id=job_id or "unknown",
-                            execution_id=f"missing_baseline_{workspace_id[:8]}_{query_name}",
-                            workspace_id=workspace_config.resource_id,
-                            query_name=query_name,
-                            destination_stream=destination_stream,
-                            start_time=timestamp,
-                            end_time=timestamp,
-                            execution_timestamp=timestamp,
-                            query_status=QueryStatus.SKIPPED.value,
-                            query_duration_seconds=0.0,
-                            record_count=0,
-                            query_error_message=error_msg,
-                            upload_status=UploadStatus.SKIPPED.value,
-                        )
-
-                        # Log to health table (or console in dry-run mode)
-                        await health_logger.log_query_execution(
-                            job_id=job_id or "unknown",
-                            query_execution=query_execution,
-                            workspace_config=workspace_config,
-                            batch_id=None,
-                        )
-                except Exception as log_error:
-                    logger.debug(
-                        f"Failed to log health warning for {query_name}/{workspace_id[:8]}: {log_error}"
-                    )
-
-                continue  # Skip this combination but continue with others
+                continue  # Don't add to successful_last_end_times, but don't skip either
 
             # Track the end time for this successful combination
             last_end_time = last_successful.get("end_time")
@@ -358,71 +327,123 @@ async def _calculate_from_last_successful(
                 successful_last_end_times[key] = last_end_time
             else:
                 logger.warning(
-                    f"⚠️  Query {query_name} in workspace {workspace_id[:8]}... has null end_time in health data. "
-                    f"This combination will be SKIPPED."
+                    f"⚠️  Query {query_name} in workspace {workspace_id} has null end_time in health data. "
+                    f"Will treat as needing baseline establishment."
                 )
-                missing_combinations.append(
-                    f"{query_name} (workspace: {workspace_id[:8]}...) - null end_time"
+                queries_needing_baseline.append(
+                    f"{query_name} (workspace: {workspace_id}) - null end_time"
                 )
 
-    # Report summary of missing combinations (if any)
-    if missing_combinations:
-        logger.warning(
-            f"⚠️  Skipping {len(missing_combinations)} query+workspace combination(s) "
-            f"with missing baseline data. These will NOT be executed in this run."
-        )
+    # Report summary of queries needing baseline establishment
+    if queries_needing_baseline:
         logger.info(
-            f"Proceeding with {len(successful_last_end_times)} combination(s) that have baseline data."
+            f"📋 Found {len(queries_needing_baseline)} query+workspace combination(s) that need baseline establishment. "
+            f"These WILL be executed in this run to create initial baseline."
         )
 
-    # Use the earliest last successful end time + 1 microsecond as our start time
-    # This ensures continuous data coverage with no gaps or overlaps
-    if not successful_last_end_times:
-        raise TimeRangeCalculationError(
-            "No successful runs found for ANY query+workspace combinations. "
-            "Cannot proceed with --use-last-successful. "
-            "To establish initial baseline data, run without --use-last-successful flag and specify "
-            "explicit time range using --start-time and --end-time. "
-            "Example: --start-time 2025-10-01T00:00:00 --end-time 2025-11-01T00:00:00"
+    if successful_last_end_times:
+        logger.info(
+            f"✅ Found {len(successful_last_end_times)} query+workspace combination(s) with existing baseline data."
         )
 
-    earliest_last_end_time = min(successful_last_end_times.values())
-
-    # Filter workspaces to only include queries that have baseline data
-    # This is done in-place to affect the downstream query execution
-    from dataclasses import replace
-
-    filtered_workspaces = []
-    for workspace in workspaces:
-        # Get only the queries that have successful last runs for this workspace
-        filtered_queries = []
-        for query_item in workspace.queries_list:
-            query_name = _resolve_query_name(query_item)
-            if query_name:
-                key = (query_name, workspace.customer_id)
-                if key in successful_last_end_times:
-                    filtered_queries.append(query_item)
-
-        # Only include workspace if it has at least one query with baseline data
-        if filtered_queries:
-            # Create a new workspace config with filtered queries
-            filtered_workspace = replace(workspace, queries_list=filtered_queries)
-            filtered_workspaces.append(filtered_workspace)
-
-    # Replace the original workspaces list with filtered version
-    workspaces.clear()
-    workspaces.extend(filtered_workspaces)
-
-    logger.info(
-        f"After filtering: {len(workspaces)} workspace(s) with "
-        f"{sum(len(w.queries_list) for w in workspaces)} query combinations will be executed"
-    )
-
-    # Add 1 microsecond to the last end time to start from the next moment
-    start_time = earliest_last_end_time + timedelta(microseconds=1)
+    # Calculate time range based on whether we have existing baseline data
     end_time = datetime.now(timezone.utc)
 
-    logger.info(f"Using last successful end time + 1µs as start: {start_time.isoformat()}")
+    if not successful_last_end_times:
+        # No successful runs found - this is expected on first run
+        # Use lookback_period to establish baseline for all queries
+        logger.warning(
+            "⚠️  No successful runs found in health table. "
+            "This is expected on first run. "
+            f"Using lookback_period ({lookback_period or 'P30D'}) to establish baseline for all queries."
+        )
+
+        # Calculate time range using lookback period
+        if lookback_period:
+            from .time_utils import parse_iso8601_duration
+
+            lookback_timedelta = parse_iso8601_duration(lookback_period)
+        else:
+            lookback_timedelta = timedelta(days=30)
+
+        start_time = end_time - lookback_timedelta
+
+        logger.info(
+            f"First run baseline: Will query {lookback_days} days of data "
+            f"from {start_time.isoformat()} to {end_time.isoformat()}"
+        )
+
+        return start_time, end_time
+
+    # Some queries have baseline data - calculate appropriate time range
+    latest_last_end_time = max(successful_last_end_times.values())
+
+    # Determine the appropriate start time based on whether queries need baseline
+    incremental_start_time = latest_last_end_time + timedelta(microseconds=1)
+
+    if queries_needing_baseline:
+        # Some queries need baseline establishment
+        # Calculate lookback start time for those queries
+        if lookback_period:
+            from .time_utils import parse_iso8601_duration
+
+            lookback_timedelta = parse_iso8601_duration(lookback_period)
+        else:
+            lookback_timedelta = timedelta(days=30)
+
+        lookback_start_time = end_time - lookback_timedelta
+
+        # Use the EARLIER of: (latest_last_end_time + 1µs) or (lookback_start_time)
+        # This ensures queries needing baseline get full lookback period
+        # while incremental queries still get new data since last run
+        start_time = min(incremental_start_time, lookback_start_time)
+    else:
+        # All queries have baseline - pure incremental mode
+        start_time = incremental_start_time
+
+    # Debug logging: Show which query+workspace has the most recent successful run
+    latest_combination = None
+    for key, last_end in successful_last_end_times.items():
+        if last_end == latest_last_end_time:
+            latest_combination = key
+            break
+
+    if latest_combination:
+        query_name, workspace_id = latest_combination
+        logger.info(
+            f"🔍 Latest successful run found: query='{query_name}', workspace={workspace_id}, "
+            f"end_time={latest_last_end_time.isoformat()}"
+        )
+
+        # Show all other combinations' end times for comparison
+        logger.debug("All successful end times by query+workspace:")
+        for (q_name, ws_id), last_end in sorted(
+            successful_last_end_times.items(), key=lambda x: x[1], reverse=True
+        ):
+            logger.debug(f"  - {q_name} / {ws_id[:8]}... : {last_end.isoformat()}")
+
+    # Log the calculated time range strategy
+    if queries_needing_baseline:
+        if start_time == lookback_start_time:
+            logger.info(
+                f"📅 Time range strategy: Using lookback period ({lookback_period or 'P30D'}) "
+                f"to cover both incremental queries AND baseline establishment."
+            )
+        else:
+            logger.info(
+                f"📅 Time range strategy: Using incremental start ({incremental_start_time.isoformat()}) "
+                f"which also covers lookback period for baseline establishment."
+            )
+    else:
+        logger.info(
+            f"📅 Time range strategy: Pure incremental mode - all queries have baseline data."
+        )
+
+    logger.info(f"⏰ Execution time range: {start_time.isoformat()} to {end_time.isoformat()}")
+    logger.info(
+        f"📊 Total queries to execute: {sum(len(w.queries_list) for w in workspaces)} "
+        f"across {len(workspaces)} workspace(s)"
+    )
 
     return start_time, end_time
 
@@ -479,6 +500,14 @@ async def _query_all_last_successful_runs(
     JobId    
 """
 
+    logger.debug(
+        f"Querying aggregation workspace: {aggregation_workspace.workspace_name} ({aggregation_workspace.customer_id})"
+    )
+    logger.debug(
+        f"Health query lookback: {lookback_days} days (from {start_time.isoformat()} to {end_time.isoformat()})"
+    )
+    logger.debug(f"Health table: {HEALTH_TABLE_NAME}")
+
     try:
         from azure.identity.aio import DefaultAzureCredential
         from azure.monitor.query.aio import LogsQueryClient
@@ -497,7 +526,12 @@ async def _query_all_last_successful_runs(
             # Process all results and map to (query_name, workspace_id) -> latest result
             results_map = {}
 
+            logger.debug(
+                f"Health query returned {len(response.tables) if response.tables else 0} table(s)"
+            )
+
             if response.tables and response.tables[0].rows:
+                logger.debug(f"Health table has {len(response.tables[0].rows)} row(s)")
                 table = response.tables[0]
                 # Handle both object-style columns (with .name attribute) and dict/string columns
                 column_names = []
@@ -510,7 +544,7 @@ async def _query_all_last_successful_runs(
                         column_names.append(str(col))
 
                 # Process each row and keep the latest result per query+workspace combination
-                for row in table.rows:
+                for idx, row in enumerate(table.rows, 1):
                     row_dict = dict(zip(column_names, row))
 
                     # Map EndTime directly to end_time for downstream code
@@ -520,6 +554,12 @@ async def _query_all_last_successful_runs(
                     query_name = row_dict.get("QueryName")
                     workspace_id = row_dict.get("WorkspaceId")
                     last_run_time = row_dict.get("LastRunTime")
+                    end_time_value = row_dict.get("EndTime")
+
+                    logger.debug(
+                        f"  Row {idx}: query='{query_name}', workspace={workspace_id if workspace_id else 'N/A'}, "
+                        f"end_time={end_time_value}, last_run={last_run_time}"
+                    )
 
                     if not query_name or not workspace_id:
                         continue
@@ -541,9 +581,31 @@ async def _query_all_last_successful_runs(
                         if last_run_time and (not existing_time or last_run_time > existing_time):
                             results_map[key] = row_dict.copy()
 
-            logger.debug(
-                f"Found {len(results_map)} unique query+workspace combinations in health logs"
+            logger.info(
+                f"Found {len(results_map)} unique query+workspace combination(s) with successful runs in last {lookback_days} days"
             )
+
+            # Log full health query details for debugging
+            logger.debug(f"Health query KQL:\n{kql_query}")
+
+            # Log first 5 health records for debugging
+            if results_map:
+                sample_items = list(results_map.items())[:5]
+                logger.debug(
+                    f"Health query results (first {len(sample_items)} of {len(results_map)} combinations):"
+                )
+                for (q_name, ws_id), data in sample_items:
+                    logger.debug(
+                        f"  {json.dumps({'query': q_name, 'workspace': ws_id, 'data': data}, default=str)}"
+                    )
+
+            # Log summary of all combinations found
+            if results_map:
+                logger.debug("All successful runs found:")
+                for (q_name, ws_id), data in sorted(results_map.items()):
+                    end_time_val = data.get("end_time") or data.get("EndTime")
+                    logger.debug(f"  - {q_name} / {ws_id[:8]}... : end_time={end_time_val}")
+
             return results_map
 
         finally:
@@ -590,13 +652,12 @@ def calculate_execution_batches(
 
         logger.info(f"Calculated {len(batches)} execution batches")
 
-        # Log batch details in debug mode
-        if logger.isEnabledFor(logging.DEBUG):
-            for i, (batch_start, batch_end) in enumerate(batches, 1):
-                duration = batch_end - batch_start
-                logger.debug(
-                    f"  Batch {i}: {batch_start.isoformat()} to {batch_end.isoformat()} ({duration})"
-                )
+        # Log batch details
+        for i, (batch_start, batch_end) in enumerate(batches, 1):
+            duration = batch_end - batch_start
+            logger.debug(
+                f"  Batch {i}: {batch_start.isoformat()} to {batch_end.isoformat()} ({duration})"
+            )
 
         return batches
 

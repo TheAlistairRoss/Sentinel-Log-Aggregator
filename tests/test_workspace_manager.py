@@ -837,9 +837,13 @@ class TestSentinelAggregatorClient:
 
         # Mock the logs query client response
         mock_response = MagicMock()
+        mock_column1 = MagicMock()
+        mock_column1.name = "TimeGenerated"
+        mock_column2 = MagicMock()
+        mock_column2.name = "IncidentNumber"
         mock_response.tables = [
             MagicMock(
-                columns=[MagicMock(name="TimeGenerated"), MagicMock(name="IncidentNumber")],
+                columns=[mock_column1, mock_column2],
                 rows=[["2023-01-01T00:00:00Z", 1001], ["2023-01-01T00:01:00Z", 1002]],
             )
         ]

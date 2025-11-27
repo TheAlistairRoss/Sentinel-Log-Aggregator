@@ -400,7 +400,7 @@ class SentinelAggregatorHealthLogger:
         """
         operation_name = health_record.get("OperationName", "Unknown")
         operation_status = health_record.get("OperationStatus", "Unknown")
-        job_id = health_record.get("JobId", "")[:8]  # Truncate for readability
+        job_id = health_record.get("JobId", "")  # Full job ID
 
         # Build context information for INFO message
         context_parts = []

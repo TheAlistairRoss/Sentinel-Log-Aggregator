@@ -299,11 +299,11 @@ class TestTimeRangeCalculation:
                     options, workspaces, mock_health_logger
                 )
 
-        # Should use the earliest last successful time
+        # Should use the latest last successful time (changed from earliest)
         assert start_time.year == 2025
         assert start_time.month == 11
         assert start_time.day == 1
-        assert start_time.hour == 10  # Earliest time
+        assert start_time.hour == 12  # Latest time (max of 10 and 12)
         assert end_time == mock_now
         assert batch_size == timedelta(hours=12)
 
@@ -400,11 +400,11 @@ class TestLastSuccessfulRunsProcessing:
                     client_options, workspaces, mock_health_logger, batch_size
                 )
 
-        # Should use the earliest end time
+        # Should use the latest end time (changed from earliest)
         assert start_time.year == 2025
         assert start_time.month == 11
         assert start_time.day == 1
-        assert start_time.hour == 10  # Earlier of the two
+        assert start_time.hour == 12  # Latest of the two (max of 10 and 12)
         assert end_time == mock_now
 
     @pytest.mark.asyncio
@@ -437,13 +437,16 @@ class TestLastSuccessfulRunsProcessing:
         ) as mock_query:
             mock_query.return_value = {}  # No successful runs found
 
-            with pytest.raises(
-                TimeRangeCalculationError,
-                match="No successful runs found for ANY query\\+workspace",
-            ):
-                await _calculate_from_last_successful(
-                    client_options, workspaces, mock_health_logger, batch_size
-                )
+            # NEW BEHAVIOR: Instead of raising error, falls back to lookback_period
+            start_time, end_time = await _calculate_from_last_successful(
+                client_options, workspaces, mock_health_logger, batch_size, lookback_period="P30D"
+            )
+
+            # Should return a 30-day lookback time range
+            assert start_time < end_time
+            time_diff = end_time - start_time
+            # Should be approximately 30 days (within 1 second tolerance)
+            assert abs(time_diff.total_seconds() - (30 * 24 * 3600)) < 1
 
 
 class TestBatchCalculation:
