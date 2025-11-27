@@ -1746,6 +1746,15 @@
                         <span class="sa">f</span><span class="s2">&quot;[workspace=</span><span class="si">{</span><span class="n">workspace_id</span><span class="si">}</span><span class="s2">] [correlation_id=</span><span class="si">{</span><span class="n">correlation_id</span><span class="si">}</span><span class="s2">]&quot;</span>
                     <span class="p">)</span>
 
+            <span class="c1"># Log first 5 rows of results for debugging</span>
+            <span class="k">if</span> <span class="n">results</span><span class="p">:</span>
+                <span class="n">sample_results</span> <span class="o">=</span> <span class="n">results</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Query results (first </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">sample_results</span><span class="p">)</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2"> rows):</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">sample_results</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;[workspace=</span><span class="si">{</span><span class="n">workspace_id</span><span class="si">}</span><span class="s2">] [correlation_id=</span><span class="si">{</span><span class="n">correlation_id</span><span class="si">}</span><span class="s2">]&quot;</span>
+                <span class="p">)</span>
+
             <span class="k">return</span> <span class="n">QueryResult</span><span class="p">(</span>
                 <span class="n">status</span><span class="o">=</span><span class="n">QueryStatus</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">,</span>
                 <span class="n">data</span><span class="o">=</span><span class="n">results</span><span class="p">,</span>
@@ -1758,15 +1767,6 @@
                 <span class="n">correlation_id</span><span class="o">=</span><span class="n">correlation_id</span><span class="p">,</span>
                 <span class="n">request_id</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="s2">&quot;request_id&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
             <span class="p">)</span>
-
-            <span class="c1"># Log first 5 rows of results for debugging</span>
-            <span class="k">if</span> <span class="n">results</span><span class="p">:</span>
-                <span class="n">sample_results</span> <span class="o">=</span> <span class="n">results</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Query results (first </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">sample_results</span><span class="p">)</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2"> rows):</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">sample_results</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;[workspace=</span><span class="si">{</span><span class="n">workspace_id</span><span class="si">}</span><span class="s2">] [correlation_id=</span><span class="si">{</span><span class="n">correlation_id</span><span class="si">}</span><span class="s2">]&quot;</span>
-                <span class="p">)</span>
 
         <span class="k">except</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">TimeoutError</span><span class="p">:</span>
             <span class="n">execution_time</span> <span class="o">=</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">-</span> <span class="n">start_exec</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
