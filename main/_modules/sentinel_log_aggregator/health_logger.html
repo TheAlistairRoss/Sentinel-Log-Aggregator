@@ -1772,7 +1772,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">operation_name</span> <span class="o">=</span> <span class="n">health_record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;OperationName&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">)</span>
         <span class="n">operation_status</span> <span class="o">=</span> <span class="n">health_record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;OperationStatus&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">)</span>
-        <span class="n">job_id</span> <span class="o">=</span> <span class="n">health_record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;JobId&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)[:</span><span class="mi">8</span><span class="p">]</span>  <span class="c1"># Truncate for readability</span>
+        <span class="n">job_id</span> <span class="o">=</span> <span class="n">health_record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;JobId&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>  <span class="c1"># Full job ID</span>
 
         <span class="c1"># Build context information for INFO message</span>
         <span class="n">context_parts</span> <span class="o">=</span> <span class="p">[]</span>
