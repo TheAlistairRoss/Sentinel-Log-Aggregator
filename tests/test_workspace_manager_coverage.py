@@ -371,7 +371,7 @@ class TestWorkspaceManagerCoverage:
         # Note: Python dicts cannot have duplicate keys, so this test verifies
         # the validation logic exists even though it's hard to trigger in practice
         # The validation is defensive programming for config file parsing edge cases
-        
+
         # This test documents the expected behavior - in practice, Python's dict
         # will only keep the last value for duplicate keys during parsing
         workspace = WorkspaceConfig(
