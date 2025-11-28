@@ -361,7 +361,7 @@ class TestWorkspaceManagerCoverage:
 
         assert any("Duplicate customer_id" in error for error in errors)
         assert any("Duplicate resource_id" in error for error in errors)
-        assert any("Duplicate row_level_security_tag" in error for error in errors)
+        assert any("Duplicate parameter 'row_level_security_tag'" in error for error in errors)
 
     def test_validate_configuration_invalid_resource_id_format(self):
         """Test validation with invalid resource ID format."""
@@ -409,41 +409,35 @@ class TestWorkspaceManagerCoverage:
         assert any("Subscriptions" in record.message for record in caplog.records)
 
     def test_from_dict_list_legacy_format_conversion(self):
-        """Test from_dict_list with legacy format (row_level_security_tag as direct field)."""
+        """Test from_dict_list rejects legacy format with row_level_security_tag as direct field."""
         workspace_dicts = [
             {
                 "resource_id": "/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
                 "customer_id": "11111111-1111-1111-1111-111111111111",
-                "row_level_security_tag": "LEGACY",  # Legacy format
+                "row_level_security_tag": "LEGACY",  # Legacy format - no longer supported
                 "queries_list": ["query_test"],
             }
         ]
 
-        manager = WorkspaceManager.from_dict_list(workspace_dicts)
-        workspace = manager.workspaces[0]
-
-        # Should convert to parameters format
-        assert "row_level_security_tag" not in workspace.__dict__
-        assert workspace.parameters["row_level_security_tag"] == "LEGACY"
+        # Should raise TypeError because row_level_security_tag is not a valid WorkspaceConfig parameter
+        with pytest.raises(TypeError, match="unexpected keyword argument 'row_level_security_tag'"):
+            WorkspaceManager.from_dict_list(workspace_dicts)
 
     def test_from_dict_list_both_formats(self):
-        """Test from_dict_list when both legacy and new formats are present."""
+        """Test from_dict_list rejects mixed legacy and new formats."""
         workspace_dicts = [
             {
                 "resource_id": "/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
                 "customer_id": "11111111-1111-1111-1111-111111111111",
-                "row_level_security_tag": "LEGACY",  # Legacy format
+                "row_level_security_tag": "LEGACY",  # Legacy format - no longer supported
                 "parameters": {"environment": "test"},  # New format also present
                 "queries_list": ["query_test"],
             }
         ]
 
-        manager = WorkspaceManager.from_dict_list(workspace_dicts)
-        workspace = manager.workspaces[0]
-
-        # Should move legacy field to parameters
-        assert workspace.parameters["row_level_security_tag"] == "LEGACY"
-        assert workspace.parameters["environment"] == "test"
+        # Should raise TypeError because row_level_security_tag is not a valid WorkspaceConfig parameter
+        with pytest.raises(TypeError, match="unexpected keyword argument 'row_level_security_tag'"):
+            WorkspaceManager.from_dict_list(workspace_dicts)
 
     def test_save_to_file(self, complex_workspaces, tmp_path):
         """Test saving workspace configuration to file."""

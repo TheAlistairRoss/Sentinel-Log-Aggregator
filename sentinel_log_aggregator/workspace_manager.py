@@ -497,12 +497,15 @@ class WorkspaceManager:
                 )
             seen_resource_ids.add(workspace.resource_id)
 
-            # Check for duplicate security tags in parameters
-            alias = workspace.parameters.get("row_level_security_tag", "")
-            if alias and alias in seen_aliases:
-                errors.append(f"{workspace_identifier}: Duplicate row_level_security_tag '{alias}'")
-            if alias:
-                seen_aliases.add(alias)
+            # Check for duplicate parameter values across workspaces
+            for param_name, param_value in workspace.parameters.items():
+                if param_value:  # Only check non-empty values
+                    param_key = f"{param_name}:{param_value}"
+                    if param_key in seen_aliases:
+                        errors.append(
+                            f"{workspace_identifier}: Duplicate parameter '{param_name}' with value '{param_value}'"
+                        )
+                    seen_aliases.add(param_key)
 
             # Validate resource ID format
             try:
@@ -598,19 +601,6 @@ class WorkspaceManager:
         """
         workspaces = []
         for workspace_dict in workspace_dicts:
-            # Handle legacy format with row_level_security_tag as direct field
-            if "row_level_security_tag" in workspace_dict and "parameters" not in workspace_dict:
-                workspace_dict = workspace_dict.copy()
-                row_level_security_tag = workspace_dict.pop("row_level_security_tag")
-                workspace_dict["parameters"] = {"row_level_security_tag": row_level_security_tag}
-            elif "row_level_security_tag" in workspace_dict and "parameters" in workspace_dict:
-                # Move row_level_security_tag to parameters if both exist
-                workspace_dict = workspace_dict.copy()
-                row_level_security_tag = workspace_dict.pop("row_level_security_tag")
-                if "parameters" not in workspace_dict:
-                    workspace_dict["parameters"] = {}
-                workspace_dict["parameters"]["row_level_security_tag"] = row_level_security_tag
-
             workspace = WorkspaceConfig(**workspace_dict)
             workspaces.append(workspace)
 
