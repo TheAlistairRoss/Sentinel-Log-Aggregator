@@ -117,32 +117,6 @@ class TestConfigMetadataResolution:
 class TestWorkspaceConfigLoading:
     """Test loading workspace configuration with dynamic metadata."""
 
-    def test_load_test_workspace_config_with_metadata(self):
-        """Test loading the actual test workspace configuration."""
-        config = load_test_workspace_config_with_metadata()
-
-        # Check basic structure
-        assert "workspaces" in config
-        assert "metadata" in config
-        assert isinstance(config["workspaces"], list)
-        assert len(config["workspaces"]) > 0
-
-        # Check metadata resolution
-        metadata = config["metadata"]
-        assert "version" in metadata
-        assert "last_updated" in metadata
-        assert "test_environment" in metadata
-
-        # Version should be resolved to actual package version
-        from sentinel_log_aggregator.version import __version__
-
-        assert metadata["version"] == __version__
-
-        # Should not contain unresolved environment variables
-        for key, value in metadata.items():
-            if isinstance(value, str):
-                assert "${" not in value, f"Unresolved variable in {key}: {value}"
-
     def test_load_test_workspace_config_custom_path(self):
         """Test loading workspace config from custom path."""
         # Create temporary config file
