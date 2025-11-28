@@ -497,15 +497,14 @@ class WorkspaceManager:
                 )
             seen_resource_ids.add(workspace.resource_id)
 
-            # Check for duplicate parameter values across workspaces
-            for param_name, param_value in workspace.parameters.items():
-                if param_value:  # Only check non-empty values
-                    param_key = f"{param_name}:{param_value}"
-                    if param_key in seen_aliases:
-                        errors.append(
-                            f"{workspace_identifier}: Duplicate parameter '{param_name}' with value '{param_value}'"
-                        )
-                    seen_aliases.add(param_key)
+            # Check for duplicate parameter keys within this workspace
+            seen_param_keys = set()
+            for param_name in workspace.parameters.keys():
+                if param_name in seen_param_keys:
+                    errors.append(
+                        f"{workspace_identifier}: Duplicate parameter key '{param_name}' within workspace"
+                    )
+                seen_param_keys.add(param_name)
 
             # Validate resource ID format
             try:
