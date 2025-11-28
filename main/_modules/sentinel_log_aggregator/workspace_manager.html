@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sentinel_log_aggregator.workspace_manager &mdash; Microsoft Sentinel Log Aggregator v1.0.0</title>
+  <title>sentinel_log_aggregator.workspace_manager &mdash; Microsoft Sentinel Log Aggregator v1.0.1</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/documentation_options.js?v=292eb321"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -1961,12 +1961,14 @@
                 <span class="p">)</span>
             <span class="n">seen_resource_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">workspace</span><span class="o">.</span><span class="n">resource_id</span><span class="p">)</span>
 
-            <span class="c1"># Check for duplicate security tags in parameters</span>
-            <span class="n">alias</span> <span class="o">=</span> <span class="n">workspace</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;row_level_security_tag&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">alias</span> <span class="ow">and</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">seen_aliases</span><span class="p">:</span>
-                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">workspace_identifier</span><span class="si">}</span><span class="s2">: Duplicate row_level_security_tag &#39;</span><span class="si">{</span><span class="n">alias</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">alias</span><span class="p">:</span>
-                <span class="n">seen_aliases</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">alias</span><span class="p">)</span>
+            <span class="c1"># Check for duplicate parameter keys within this workspace</span>
+            <span class="n">seen_param_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="n">workspace</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="n">seen_param_keys</span><span class="p">:</span>
+                    <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">workspace_identifier</span><span class="si">}</span><span class="s2">: Duplicate parameter key &#39;</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2">&#39; within workspace&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">seen_param_keys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span>
 
             <span class="c1"># Validate resource ID format</span>
             <span class="k">try</span><span class="p">:</span>
@@ -2071,19 +2073,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">workspaces</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">workspace_dict</span> <span class="ow">in</span> <span class="n">workspace_dicts</span><span class="p">:</span>
-            <span class="c1"># Handle legacy format with row_level_security_tag as direct field</span>
-            <span class="k">if</span> <span class="s2">&quot;row_level_security_tag&quot;</span> <span class="ow">in</span> <span class="n">workspace_dict</span> <span class="ow">and</span> <span class="s2">&quot;parameters&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">workspace_dict</span><span class="p">:</span>
-                <span class="n">workspace_dict</span> <span class="o">=</span> <span class="n">workspace_dict</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-                <span class="n">row_level_security_tag</span> <span class="o">=</span> <span class="n">workspace_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;row_level_security_tag&quot;</span><span class="p">)</span>
-                <span class="n">workspace_dict</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;row_level_security_tag&quot;</span><span class="p">:</span> <span class="n">row_level_security_tag</span><span class="p">}</span>
-            <span class="k">elif</span> <span class="s2">&quot;row_level_security_tag&quot;</span> <span class="ow">in</span> <span class="n">workspace_dict</span> <span class="ow">and</span> <span class="s2">&quot;parameters&quot;</span> <span class="ow">in</span> <span class="n">workspace_dict</span><span class="p">:</span>
-                <span class="c1"># Move row_level_security_tag to parameters if both exist</span>
-                <span class="n">workspace_dict</span> <span class="o">=</span> <span class="n">workspace_dict</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-                <span class="n">row_level_security_tag</span> <span class="o">=</span> <span class="n">workspace_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;row_level_security_tag&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="s2">&quot;parameters&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">workspace_dict</span><span class="p">:</span>
-                    <span class="n">workspace_dict</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-                <span class="n">workspace_dict</span><span class="p">[</span><span class="s2">&quot;parameters&quot;</span><span class="p">][</span><span class="s2">&quot;row_level_security_tag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row_level_security_tag</span>
-
             <span class="n">workspace</span> <span class="o">=</span> <span class="n">WorkspaceConfig</span><span class="p">(</span><span class="o">**</span><span class="n">workspace_dict</span><span class="p">)</span>
             <span class="n">workspaces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">workspace</span><span class="p">)</span>
 
