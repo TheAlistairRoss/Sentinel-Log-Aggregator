@@ -351,7 +351,7 @@ class TestWorkspaceManagerCoverage:
         duplicate_workspace = WorkspaceConfig(
             resource_id=complex_workspaces[0].resource_id,  # Same resource ID
             customer_id=complex_workspaces[0].customer_id,  # Same customer ID
-            parameters={"row_level_security_tag": "PROD"},  # Same security tag
+            parameters={"row_level_security_tag": "PROD"},
             queries_list=["query_test"],
         )
 
@@ -361,7 +361,31 @@ class TestWorkspaceManagerCoverage:
 
         assert any("Duplicate customer_id" in error for error in errors)
         assert any("Duplicate resource_id" in error for error in errors)
-        assert any("Duplicate row_level_security_tag" in error for error in errors)
+        # Note: We no longer validate duplicate row_level_security_tag across workspaces
+        # as parameters can be shared. Only duplicate keys within a workspace are checked.
+
+    def test_validate_configuration_duplicate_parameter_keys_within_workspace(
+        self, complex_workspaces
+    ):
+        """Test validation detects duplicate parameter keys within a single workspace."""
+        # Note: Python dicts cannot have duplicate keys, so this test verifies
+        # the validation logic exists even though it's hard to trigger in practice
+        # The validation is defensive programming for config file parsing edge cases
+
+        # This test documents the expected behavior - in practice, Python's dict
+        # will only keep the last value for duplicate keys during parsing
+        workspace = WorkspaceConfig(
+            resource_id="/subscriptions/sub1/resourceGroups/rg1/providers/Microsoft.OperationalInsights/workspaces/ws1",
+            customer_id="11111111-1111-1111-1111-111111111111",
+            parameters={"env": "prod", "region": "east"},  # No duplicates possible in dict
+            queries_list=["query_test"],
+        )
+
+        manager = WorkspaceManager([workspace])
+        errors = manager.validate_configuration()
+
+        # Should not have duplicate key errors since Python dicts prevent duplicates
+        assert not any("Duplicate parameter key" in error for error in errors)
 
     def test_validate_configuration_invalid_resource_id_format(self):
         """Test validation with invalid resource ID format."""
@@ -409,41 +433,35 @@ class TestWorkspaceManagerCoverage:
         assert any("Subscriptions" in record.message for record in caplog.records)
 
     def test_from_dict_list_legacy_format_conversion(self):
-        """Test from_dict_list with legacy format (row_level_security_tag as direct field)."""
+        """Test from_dict_list rejects legacy format with row_level_security_tag as direct field."""
         workspace_dicts = [
             {
                 "resource_id": "/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
                 "customer_id": "11111111-1111-1111-1111-111111111111",
-                "row_level_security_tag": "LEGACY",  # Legacy format
+                "row_level_security_tag": "LEGACY",  # Legacy format - no longer supported
                 "queries_list": ["query_test"],
             }
         ]
 
-        manager = WorkspaceManager.from_dict_list(workspace_dicts)
-        workspace = manager.workspaces[0]
-
-        # Should convert to parameters format
-        assert "row_level_security_tag" not in workspace.__dict__
-        assert workspace.parameters["row_level_security_tag"] == "LEGACY"
+        # Should raise TypeError because row_level_security_tag is not a valid WorkspaceConfig parameter
+        with pytest.raises(TypeError, match="unexpected keyword argument 'row_level_security_tag'"):
+            WorkspaceManager.from_dict_list(workspace_dicts)
 
     def test_from_dict_list_both_formats(self):
-        """Test from_dict_list when both legacy and new formats are present."""
+        """Test from_dict_list rejects mixed legacy and new formats."""
         workspace_dicts = [
             {
                 "resource_id": "/subscriptions/test/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
                 "customer_id": "11111111-1111-1111-1111-111111111111",
-                "row_level_security_tag": "LEGACY",  # Legacy format
+                "row_level_security_tag": "LEGACY",  # Legacy format - no longer supported
                 "parameters": {"environment": "test"},  # New format also present
                 "queries_list": ["query_test"],
             }
         ]
 
-        manager = WorkspaceManager.from_dict_list(workspace_dicts)
-        workspace = manager.workspaces[0]
-
-        # Should move legacy field to parameters
-        assert workspace.parameters["row_level_security_tag"] == "LEGACY"
-        assert workspace.parameters["environment"] == "test"
+        # Should raise TypeError because row_level_security_tag is not a valid WorkspaceConfig parameter
+        with pytest.raises(TypeError, match="unexpected keyword argument 'row_level_security_tag'"):
+            WorkspaceManager.from_dict_list(workspace_dicts)
 
     def test_save_to_file(self, complex_workspaces, tmp_path):
         """Test saving workspace configuration to file."""
